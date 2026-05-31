@@ -4,18 +4,18 @@ SHELL := /bin/bash
 UV ?= uv
 PKG := oh_my_kb
 
-.PHONY: help venv install sync test lint format typecheck check clean
+.PHONY: help install venv sync test lint format typecheck check clean
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*## "; printf "Usage: make \033[36m<target>\033[0m\n\nTargets:\n"} \
 		/^[a-zA-Z_-]+:.*## / {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-venv: ## Create the virtualenv and install all dependencies (alias: install)
+install: ## Create the virtualenv and install all dependencies (aliases: venv, sync)
 	$(UV) sync
 
-install: venv ## Alias for `venv`
+venv: install ## Alias for `install`
 
-sync: venv ## Alias for `venv`
+sync: install ## Alias for `install`
 
 test: ## Run the test suite
 	$(UV) run pytest

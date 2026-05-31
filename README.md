@@ -25,7 +25,7 @@ tests/
 All workflows are wrapped by `make`. Run `make` (or `make help`) to list every target.
 
 ```bash
-make venv       # create .venv and install all dependencies (uv sync)
+make install    # create .venv and install all dependencies (uv sync)
 make test       # run the test suite (uv run pytest)
 make lint       # lint with ruff
 make format     # format with ruff
@@ -33,3 +33,5 @@ make typecheck  # type-check with mypy
 make check      # lint + typecheck + test (the CI gate)
 make clean      # remove .venv and tool caches
 ```
+
+`make venv` and `make sync` are aliases for `make install`.
