@@ -130,4 +130,5 @@ class Indexer:
             "path": str(path.resolve()),
             "supersedes": str(note.supersedes) if note.supersedes is not None else None,
             "archived": note.archived,
+            "summary": note.summary,
         }
