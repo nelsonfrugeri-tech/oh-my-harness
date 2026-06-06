@@ -158,6 +158,11 @@ server that exposes four tools the harness calls into:
 - **`kb_search`** — hybrid retrieval (`SearchService`) over the active
   universe with optional `project` and `include_archived` filters. Use
   when the question is about content or theme ("what do we know about X?").
+- **`kb_recent`** — temporal recall (`RecentService`) ordered by
+  `created_at` descending. Use for questions about *time* — "what changed
+  recently", "latest decisions on project X", "what happened in the last 7
+  days". See [Temporal recall — kb_recent](#temporal-recall--kb_recent)
+  below.
 - **`kb_tree`** — map the universe as a project-grouped directory of note
   summaries (id, title, type, summary per note). Use when the question is
   about what *exists* or what *relates* ("what notes are in project X?"),
@@ -169,13 +174,14 @@ server that exposes four tools the harness calls into:
   link id returned here. The id comes from a prior `kb_search` hit,
   `kb_tree` row, or `kb_expand` link.
 
-**Navigate vs. search:** prefer `kb_tree` + `kb_expand` when exploring
-structure or relationships; prefer `kb_search` when looking for notes by
-semantic content.
+**Navigate vs. search vs. recent:** prefer `kb_tree` + `kb_expand` when
+exploring structure or relationships; prefer `kb_search` when looking for
+notes by semantic content; prefer `kb_recent` when the question is about
+time.
 
 The server builds its dependencies (`QdrantStore`, `BGEM3Embedder`,
-`Indexer`, `SearchService`, `NavigationService`) **once** at boot and
-reuses them for every request — bge-m3 doesn't reload per call.
+`Indexer`, `SearchService`, `RecentService`, `NavigationService`) **once**
+at boot and reuses them for every request — bge-m3 doesn't reload per call.
 
 Run it directly via the installed script:
 
@@ -190,6 +196,57 @@ Environment:
 - `KB_NOTES_ROOT` — notes-root override for the active universe (default
   `~/oh-my-kb/<slug(universe)>`).
 
+### Temporal recall — kb_recent
+
+`kb_recent` answers time-based questions. Use it when the user asks about
+*recency* rather than *content similarity*:
+
+| Use case | Right tool |
+|----------|------------|
+| "What do we know about Qdrant?" | `kb_search` |
+| "What changed in the last 7 days?" | `kb_recent` |
+| "Latest decisions on project alpha" | `kb_recent` |
+| "Show the knowledge map" | `kb_tree` |
+| "Open a note + see what it links to" | `kb_expand` |
+
+```python
+# Recent notes — newest first (no topic)
+results = recent_service.recent("engineering", limit=10)
+
+# Within a time window
+from oh_my_kb.services import parse_since
+from datetime import UTC, datetime
+since = parse_since("7d", now=datetime.now(tz=UTC))
+results = recent_service.recent("engineering", since=since, project="oh-my-kb")
+
+# Combine with topic: rank semantically within the window
+results = recent_service.recent("engineering", topic="qdrant architecture", since=since)
+```
+
+**Accepted `since` formats:**
+
+| Format | Example | Meaning |
+|--------|---------|---------|
+| Relative days | `"7d"`, `"30d"` | Last N days |
+| Relative weeks | `"2w"` | Last N weeks |
+| Relative hours | `"24h"` | Last N hours |
+| Relative minutes | `"90m"` | Last N minutes |
+| ISO date | `"2026-06-01"` | From midnight UTC on that date |
+| ISO datetime (tz-aware) | `"2026-06-01T00:00:00+00:00"` | Exact UTC timestamp |
+
+Relative unit letters are **case-insensitive** (`"7D"` and `"7d"` are equivalent).
+Naive ISO datetimes (without timezone) are rejected — they are ambiguous.
+
+When `topic` is provided the service uses RRF fusion (same path as
+`kb_search`) to rank by semantic relevance within the time window.  When
+`topic` is absent, results are ordered purely by `created_at` descending
+and `score` is `0.0` (the MCP formatter labels it "n/a").
+
+> **Migration note for universes created before this version:**
+> Payload indexes on `created_at` (DATETIME) and `project` (KEYWORD) were added to support
+> `kb_recent`. They are applied automatically by `QdrantStore.ensure_collection` on next boot
+> — no manual action required. If you see `order_by` errors, restart the server to trigger
+> re-application of indexes.
 
 ### Scribe skill (resources)
 

@@ -12,7 +12,6 @@ yet in this universe", and the service returns an empty list.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime
 
 from qdrant_client.models import (
@@ -29,6 +28,7 @@ from qdrant_client.models import (
 )
 
 from oh_my_kb.embedding import Embedder
+from oh_my_kb.services._payload import SearchResult, require_payload_fields
 from oh_my_kb.services.indexer import collection_name_for
 from oh_my_kb.storage import DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME, QdrantStore
 
@@ -37,33 +37,11 @@ from oh_my_kb.storage import DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME, QdrantStore
 # middle ground between recall coverage and wasted compute.
 _PREFETCH_MULTIPLIER = 4
 
+# Re-export the old private name for backwards compatibility with any code
+# that imports it directly (e.g. recent.py before refactor).
+_require_payload_fields = require_payload_fields
 
-@dataclass(frozen=True, slots=True)
-class SearchResult:
-    """Payload carried back from a hybrid-search hit.
-
-    ``score`` is an RRF rank-fusion score, not a raw cosine similarity — do
-    not interpret it as a probability or threshold against a fixed value.
-
-    ``path`` is **relative to the universe's** ``notes_root`` (matches the
-    Indexer payload, kept relative for portability across machines). The
-    caller resolves it to an absolute path via the notes_root it already
-    knows for the universe being searched.
-
-    Fields intentionally omitted for now: ``universe``, ``entities``,
-    ``supersedes``. They can be added when a downstream consumer needs them.
-    See issue #9 for the full payload spec discussion.
-    """
-
-    id: str
-    title: str
-    summary: str
-    type: str
-    project: str
-    archived: bool
-    created_at: datetime
-    path: str
-    score: float
+__all__ = ["SearchResult", "SearchService", "_require_payload_fields"]
 
 
 class SearchService:
@@ -119,7 +97,7 @@ class SearchService:
         results: list[SearchResult] = []
         for point in response.points:
             payload = point.payload or {}
-            _require_payload_fields(point.id, payload, ("id", "path"))
+            require_payload_fields(point.id, payload, ("id", "path"))
             results.append(
                 SearchResult(
                     id=str(payload["id"]),
@@ -134,24 +112,6 @@ class SearchService:
                 )
             )
         return results
-
-
-def _require_payload_fields(
-    point_id: object, payload: dict[str, object], fields: tuple[str, ...]
-) -> None:
-    """Raise if any required payload field is absent.
-
-    A missing ``id`` or ``path`` means the index is corrupt (written by an
-    older version of the Indexer or an external tool that skipped required
-    fields). Silently substituting a fallback would hide the corruption and
-    produce hard-to-debug downstream errors.
-    """
-    missing = [f for f in fields if f not in payload]
-    if missing:
-        raise RuntimeError(
-            f"Index point {point_id!r} is missing required payload fields: {missing}. "
-            "Re-index the affected notes to repair the index."
-        )
 
 
 def _build_filter(*, project: str | None, include_archived: bool) -> Filter | None:
