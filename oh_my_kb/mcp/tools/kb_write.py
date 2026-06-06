@@ -12,6 +12,7 @@ accident.
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 from uuid import UUID
 
@@ -24,13 +25,13 @@ from oh_my_kb.services import Indexer
 KB_WRITE_TOOL = Tool(
     name="kb_write",
     description=(
-        "Register a piece of knowledge — decision, event, procedure, "
-        "reference or conversation — as a note in the active universe. "
-        "Use when the user is recording something the team will want to "
-        "look up later. The 'summary' field is the dense prose that gets "
-        "indexed for similarity search; write it as a self-contained "
-        "paragraph, not a label. The note is persisted as a .md file on "
-        "disk and indexed in Qdrant."
+        "Register a piece of knowledge as a note in the active universe. "
+        "Call when recording a decision, event, procedure, reference, or "
+        "conversation the user just made or described. The 'summary' field "
+        "is the dense prose that gets indexed for similarity search; write "
+        "it as a self-contained paragraph, not a label. The note is "
+        "persisted as a .md file on disk and indexed in Qdrant. "
+        "The universe is server-bound — do not include it in the input."
     ),
     inputSchema={
         "type": "object",
@@ -62,8 +63,10 @@ KB_WRITE_TOOL = Tool(
                 "description": "UUIDs of related notes this one links to.",
             },
             "supersedes": {
-                "type": ["string", "null"],
-                "format": "uuid",
+                "oneOf": [
+                    {"type": "string", "format": "uuid"},
+                    {"type": "null"},
+                ],
                 "description": "UUID of a note this one replaces (or null).",
             },
             "archived": {"type": "boolean", "description": "Mark as archived."},
@@ -86,11 +89,14 @@ async def handle_kb_write(
         return [TextContent(type="text", text=f"kb_write: invalid input — {exc}")]
 
     try:
-        path = indexer.write_note(note)
+        # write_note calls BGEM3Embedder.embed_text (CPU/GPU-bound, ~50-500 ms).
+        # Running in a thread pool keeps the event loop free for concurrent MCP
+        # messages and the stdio keep-alive.
+        path = await asyncio.to_thread(indexer.write_note, note)
     except Exception as exc:  # safety net so the server stays up
         return [TextContent(type="text", text=f"kb_write: indexer error — {exc}")]
 
-    relative_path = path.relative_to(indexer._notes_root)
+    relative_path = path.relative_to(indexer.notes_root)
     body = (
         f"kb_write: wrote note\n"
         f"  id:      {note.id}\n"

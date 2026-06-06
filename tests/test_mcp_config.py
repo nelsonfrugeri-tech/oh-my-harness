@@ -2,13 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from oh_my_kb.cli.paths import DATA_ROOT_ENV
 from oh_my_kb.mcp.config import (
     DEFAULT_UNIVERSE,
     UNIVERSE_ENV,
     get_active_notes_root,
     get_active_universe,
 )
+from oh_my_kb.services.paths import DATA_ROOT_ENV
 
 
 def test_default_universe_when_env_unset(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -26,9 +26,10 @@ def test_notes_root_defaults_to_data_root_plus_slug(
 ) -> None:
     monkeypatch.setenv(DATA_ROOT_ENV, str(tmp_path))
     monkeypatch.delenv(UNIVERSE_ENV, raising=False)
-    # KB_NOTES_ROOT acts as the data root in this server's resolution.
-    # When set, it overrides the default per the issue spec.
-    assert get_active_notes_root() == tmp_path
+    # KB_NOTES_ROOT is treated as the data root (parent); the universe slug
+    # is always appended — consistent with the CLI's ``default_notes_root_for``
+    # semantics so that the same env var works identically for both adapters.
+    assert get_active_notes_root() == tmp_path / DEFAULT_UNIVERSE
 
 
 def test_notes_root_uses_default_layout_when_unset(monkeypatch: pytest.MonkeyPatch) -> None:

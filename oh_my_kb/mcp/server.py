@@ -14,6 +14,7 @@ unit-tested without touching the SDK; this module only wires them into the
 from __future__ import annotations
 
 import asyncio
+import signal
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -117,7 +118,8 @@ def _log_startup(context: KBServerContext) -> None:
             f"  universe   : {context.universe}\n"
             f"  qdrant_url : {context.qdrant_url}\n"
             f"  notes_root : {context.notes_root}\n"
-            f"  tools      : kb_write, kb_search"
+            f"  tools      : kb_write, kb_search\n"
+            f"  model      : bge-m3 (lazy — first call triggers load/download ~2 GB)"
         ),
         file=sys.stderr,
         flush=True,
@@ -135,6 +137,16 @@ async def _serve() -> None:
 
 def main() -> None:
     """``[project.scripts] o-kb-mcp`` entry point."""
+
+    def _handle_sigterm(signum: int, frame: object) -> None:
+        # SIGTERM is the standard shutdown signal in containers and systemd.
+        # Without this handler asyncio.run raises SystemExit with no message,
+        # making container logs silent on graceful shutdown.
+        print(f"{SERVER_NAME} stopped (SIGTERM)", file=sys.stderr)
+        raise SystemExit(0)
+
+    signal.signal(signal.SIGTERM, _handle_sigterm)
+
     try:
         asyncio.run(_serve())
     except KeyboardInterrupt:

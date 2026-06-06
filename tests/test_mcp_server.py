@@ -64,7 +64,7 @@ def test_build_context_overrides_all_dependencies(tmp_path: Path) -> None:
     assert ctx.notes_root == tmp_path
     assert ctx.store is store
     assert ctx.embedder is embedder
-    assert ctx.indexer._notes_root == tmp_path
+    assert ctx.indexer.notes_root == tmp_path
     assert ctx.search_service._store is store
 
 

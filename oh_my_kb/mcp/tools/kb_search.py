@@ -8,6 +8,7 @@ universes.
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from mcp.types import TextContent, Tool
@@ -23,7 +24,8 @@ KB_SEARCH_TOOL = Tool(
         "universe is large or the answer depends on semantic similarity; "
         "prefer navigation (kb_tree / kb_expand) when the answer depends on "
         "structure or relationships. Returns up to top_k ranked summaries — "
-        "to read the full body, follow up with kb_expand on the hit's id."
+        "to read the full body, the 'path' field in each hit points to the "
+        ".md file on disk."
     ),
     inputSchema={
         "type": "object",
@@ -35,7 +37,8 @@ KB_SEARCH_TOOL = Tool(
             },
             "project": {
                 "type": ["string", "null"],
-                "description": "Optional project filter.",
+                "minLength": 1,
+                "description": "Optional project filter (non-empty string or null).",
             },
             "top_k": {
                 "type": "integer",
@@ -68,7 +71,11 @@ async def handle_kb_search(
     include_archived = bool(arguments.get("include_archived", False))
 
     try:
-        hits = search_service.search(
+        # search() calls BGEM3Embedder to generate dense + sparse vectors
+        # (CPU/GPU-bound).  Running in a thread pool keeps the asyncio event
+        # loop free for concurrent MCP messages and the stdio keep-alive.
+        hits = await asyncio.to_thread(
+            search_service.search,
             query=query,
             universe=universe,
             project=project,
