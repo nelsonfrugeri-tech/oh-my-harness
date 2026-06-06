@@ -6,8 +6,8 @@ from ``kb_search`` (semantic similarity on content) and ``kb_tree``
 (structural map): ``kb_recent`` orders by ``created_at`` and optionally
 narrows by topic within the window.
 
-Accepted ``since`` formats: ``'7d'`` / ``'24h'`` / ``'90m'`` (relative),
-ISO date ``'2026-06-01'``, or ISO datetime ``'2026-06-01T00:00:00+00:00'``.
+Accepted ``since`` formats: ``'7d'`` / ``'24h'`` / ``'90m'`` / ``'2w'`` (relative,
+case-insensitive), ISO date ``'2026-06-01'``, or ISO datetime ``'2026-06-01T00:00:00+00:00'``.
 """
 
 from __future__ import annotations
@@ -29,8 +29,12 @@ KB_RECENT_TOOL = Tool(
         "Differs from kb_search (semantic similarity on content) and kb_tree "
         "(structural map): kb_recent orders by created_at and optionally "
         "narrows by topic within the window. "
-        "Accepted 'since' formats: '7d' / '24h' / '90m' (relative), "
-        "ISO date '2026-06-01', or ISO datetime '2026-06-01T00:00:00+00:00'."
+        "Omit 'topic' for pure temporal recall (newest first); add 'topic' to "
+        "rank by semantic relevance within the window. "
+        "Chain with kb_expand(id=...) to read the full body of any hit. "
+        "Accepted 'since' formats: '7d' / '24h' / '90m' / '2w' (relative, "
+        "case-insensitive), ISO date '2026-06-01', or ISO datetime "
+        "'2026-06-01T00:00:00+00:00'."
     ),
     inputSchema={
         "type": "object",
@@ -120,7 +124,12 @@ async def handle_kb_recent(
             )
         ]
 
-    return [TextContent(type="text", text=_format_hits(hits, universe, topic=topic))]
+    return [
+        TextContent(
+            type="text",
+            text=_format_hits(hits, universe, topic=topic, since_raw=since_raw, project=project),
+        )
+    ]
 
 
 def _filter_summary(
@@ -144,15 +153,31 @@ def _format_hits(
     universe: str,
     *,
     topic: str | None,
+    since_raw: str | None = None,
+    project: str | None = None,
 ) -> str:
-    topic_line = f" (topic={topic!r})" if topic else ""
+    # Build filter context for the header so the LLM sees what constraints were active.
+    filter_parts: list[str] = []
+    if since_raw:
+        filter_parts.append(f"since={since_raw}")
+    if project:
+        filter_parts.append(f"project={project}")
+    filter_ctx = f" ({', '.join(filter_parts)})" if filter_parts else ""
+
+    # Ordering label depends on whether a topic was used for RRF ranking.
+    order_label = "by relevance" if topic else "newest first"
+    topic_ctx = f", topic={topic!r}" if topic else ""
+
     header = (
-        f"kb_recent: {len(hits)} note(s) in universe '{universe}'{topic_line}, "
-        f"newest first\n"
+        f"kb_recent: {len(hits)} note(s) in universe '{universe}'"
+        f"{filter_ctx}{topic_ctx}, {order_label}\n"
     )
     blocks: list[str] = []
     for rank, hit in enumerate(hits, start=1):
-        score_line = f"    score: {hit.score:.4f}\n" if hit.score != 0.0 else ""
+        if hit.score != 0.0:
+            score_line = f"    score: {hit.score:.4f}\n"
+        else:
+            score_line = "    score: n/a (ordered by time)\n"
         blocks.append(
             f"[{rank}] id={hit.id}\n"
             f"    title: {hit.title}\n"

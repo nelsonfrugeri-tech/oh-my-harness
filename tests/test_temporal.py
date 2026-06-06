@@ -10,7 +10,7 @@ from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
-from oh_my_kb.services.temporal import parse_since
+from oh_my_kb.services.temporal import is_before_since, parse_since
 
 # Fixed reference point used across all tests.
 NOW = datetime(2026, 6, 6, 12, 0, 0, tzinfo=UTC)
@@ -113,12 +113,115 @@ def test_empty_ish_garbage_rejected() -> None:
 
 
 def test_invalid_unit_rejected() -> None:
-    """Unit 'w' (weeks) is not accepted by the current implementation."""
+    """Unknown unit letters (e.g. 's' for seconds) must be rejected."""
     with pytest.raises(ValueError, match="invalid 'since' value"):
-        parse_since("2w", now=NOW)
+        parse_since("2s", now=NOW)
 
 
 def test_float_relative_rejected() -> None:
     """Only integers are accepted for relative durations."""
     with pytest.raises(ValueError, match="invalid 'since' value"):
         parse_since("1.5d", now=NOW)
+
+
+# ---------------------------------------------------------------------------
+# Case-insensitive relative units (MAJOR fix)
+# ---------------------------------------------------------------------------
+
+
+def test_relative_accepts_uppercase_D() -> None:
+    result = parse_since("7D", now=NOW)
+    assert result == NOW - timedelta(days=7)
+    assert result.tzinfo is not None
+
+
+def test_relative_accepts_uppercase_H() -> None:
+    result = parse_since("24H", now=NOW)
+    assert result == NOW - timedelta(hours=24)
+    assert result.tzinfo is not None
+
+
+def test_relative_accepts_uppercase_M() -> None:
+    result = parse_since("90M", now=NOW)
+    assert result == NOW - timedelta(minutes=90)
+    assert result.tzinfo is not None
+
+
+def test_relative_accepts_uppercase_W() -> None:
+    result = parse_since("2W", now=NOW)
+    assert result == NOW - timedelta(weeks=2)
+    assert result.tzinfo is not None
+
+
+# ---------------------------------------------------------------------------
+# Weeks support (MAJOR fix)
+# ---------------------------------------------------------------------------
+
+
+def test_relative_supports_weeks_lowercase() -> None:
+    """'2w' must equal 14 days from now."""
+    result = parse_since("2w", now=NOW)
+    assert result == NOW - timedelta(weeks=2)
+    assert result == NOW - timedelta(days=14)
+    assert result.tzinfo is not None
+
+
+def test_relative_supports_one_week() -> None:
+    result = parse_since("1w", now=NOW)
+    assert result == NOW - timedelta(days=7)
+
+
+def test_relative_result_is_utc_for_weeks() -> None:
+    """Week results are always UTC regardless of input tz."""
+    tz_plus2 = timezone(timedelta(hours=2))
+    now_local = datetime(2026, 6, 6, 14, 0, 0, tzinfo=tz_plus2)
+    result = parse_since("1w", now=now_local)
+    assert result.tzinfo == UTC
+    assert result == NOW - timedelta(weeks=1)
+
+
+# ---------------------------------------------------------------------------
+# is_before_since helper (MAJOR fix)
+# ---------------------------------------------------------------------------
+
+
+def test_is_before_since_tz_aware_before() -> None:
+    since = datetime(2026, 6, 1, 0, 0, 0, tzinfo=UTC)
+    dt = datetime(2026, 5, 31, 23, 59, 59, tzinfo=UTC)
+    assert is_before_since(dt, since) is True
+
+
+def test_is_before_since_tz_aware_equal() -> None:
+    since = datetime(2026, 6, 1, 0, 0, 0, tzinfo=UTC)
+    dt = datetime(2026, 6, 1, 0, 0, 0, tzinfo=UTC)
+    assert is_before_since(dt, since) is False
+
+
+def test_is_before_since_tz_aware_after() -> None:
+    since = datetime(2026, 6, 1, 0, 0, 0, tzinfo=UTC)
+    dt = datetime(2026, 6, 2, 0, 0, 0, tzinfo=UTC)
+    assert is_before_since(dt, since) is False
+
+
+def test_is_before_since_tz_naive_treated_as_utc() -> None:
+    """Tz-naive datetimes from payloads must be treated as UTC."""
+    since = datetime(2026, 6, 1, 0, 0, 0, tzinfo=UTC)
+    dt_naive = datetime(2026, 5, 31, 23, 0, 0)  # no tzinfo
+    assert is_before_since(dt_naive, since) is True
+
+
+def test_is_before_since_non_utc_tz_normalised() -> None:
+    """Datetimes with non-UTC tz are correctly normalised before comparison."""
+    since = datetime(2026, 6, 1, 12, 0, 0, tzinfo=UTC)
+    # +02:00 → UTC is 10:00 UTC, which is before since (12:00 UTC)
+    tz_plus2 = timezone(timedelta(hours=2))
+    dt = datetime(2026, 6, 1, 12, 0, 0, tzinfo=tz_plus2)  # = 10:00 UTC
+    assert is_before_since(dt, since) is True
+
+
+def test_is_before_since_non_utc_tz_after_since() -> None:
+    """Non-UTC tz dt that is after since must return False."""
+    since = datetime(2026, 6, 1, 8, 0, 0, tzinfo=UTC)
+    tz_plus2 = timezone(timedelta(hours=2))
+    dt = datetime(2026, 6, 1, 12, 0, 0, tzinfo=tz_plus2)  # = 10:00 UTC, after 08:00 UTC
+    assert is_before_since(dt, since) is False

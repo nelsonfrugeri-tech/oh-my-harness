@@ -190,7 +190,9 @@ Environment:
 | "What do we know about Qdrant?" | `kb_search` |
 | "What changed in the last 7 days?" | `kb_recent` |
 | "Latest decisions on project alpha" | `kb_recent` |
-| "Show the knowledge map" | `kb_tree` |
+| "Show the knowledge map" | `kb_tree`\* |
+
+\* `kb_tree` and `kb_expand` arrive in #17/#35.
 
 ```python
 # Recent notes — newest first (no topic)
@@ -211,17 +213,25 @@ results = recent_service.recent("engineering", topic="qdrant architecture", sinc
 | Format | Example | Meaning |
 |--------|---------|---------|
 | Relative days | `"7d"`, `"30d"` | Last N days |
+| Relative weeks | `"2w"` | Last N weeks |
 | Relative hours | `"24h"` | Last N hours |
 | Relative minutes | `"90m"` | Last N minutes |
 | ISO date | `"2026-06-01"` | From midnight UTC on that date |
 | ISO datetime (tz-aware) | `"2026-06-01T00:00:00+00:00"` | Exact UTC timestamp |
 
+Relative unit letters are **case-insensitive** (`"7D"` and `"7d"` are equivalent).
 Naive ISO datetimes (without timezone) are rejected — they are ambiguous.
 
 When `topic` is provided the service uses RRF fusion (same path as
 `kb_search`) to rank by semantic relevance within the time window.  When
 `topic` is absent, results are ordered purely by `created_at` descending
 and `score` is `0.0` (the MCP formatter labels it "n/a").
+
+> **Migration note for universes created before this version:**
+> Payload indexes on `created_at` (DATETIME) and `project` (KEYWORD) were added to support
+> `kb_recent`. They are applied automatically by `QdrantStore.ensure_collection` on next boot
+> — no manual action required. If you see `order_by` errors, restart the server to trigger
+> re-application of indexes.
 
 Subsequent issues will add `kb_tree`/`kb_expand` (#17) on top of this
 server.

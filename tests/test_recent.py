@@ -7,7 +7,7 @@ integration lives in ``test_recent_integration.py`` (``@pytest.mark.slow``).
 from __future__ import annotations
 
 import hashlib
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -296,3 +296,126 @@ def test_topic_path_score_nonzero(indexer: Indexer, recent_service: RecentServic
     results = recent_service.recent("engineering", topic="searchable note")
     assert len(results) == 1
     assert results[0].score > 0.0
+
+
+# ---------------------------------------------------------------------------
+# With-topic path: since boundary (MAJOR fix — mirrors no-topic boundary test)
+# ---------------------------------------------------------------------------
+
+
+def test_with_topic_since_includes_notes_exactly_at_boundary(
+    indexer: Indexer, recent_service: RecentService
+) -> None:
+    """Notes created exactly at the since boundary must be included in the with-topic path.
+
+    This mirrors the existing ``test_since_includes_notes_exactly_at_boundary`` test
+    but exercises the with-topic code path (RRF fusion + Python-side guard).
+    """
+    since = datetime(2026, 6, 6, 12, 0, 0, tzinfo=UTC) - timedelta(days=7)
+    indexer.write_note(
+        Note(
+            title="boundary-topic",
+            type=NoteType.DECISION,
+            project="default",
+            universe="engineering",
+            created_at=since,
+            summary="note exactly at the boundary",
+        )
+    )
+    results = recent_service.recent("engineering", topic="boundary note", since=since)
+    assert len(results) == 1
+    assert results[0].title == "boundary-topic"
+
+
+def test_with_topic_since_boundary_handles_tz_correctly(
+    indexer: Indexer, recent_service: RecentService
+) -> None:
+    """With-topic since guard must normalise non-UTC timezones before comparing.
+
+    Indexes a note whose created_at is expressed in +02:00; confirms it appears
+    when since is set to the equivalent UTC time (meaning the note is at the boundary).
+    """
+    tz_plus2 = timezone(timedelta(hours=2))
+    # Note created at 2026-05-30 14:00 +02:00 = 2026-05-30 12:00 UTC.
+    created_local = datetime(2026, 5, 30, 14, 0, 0, tzinfo=tz_plus2)
+
+    indexer.write_note(
+        Note(
+            title="tz-note",
+            type=NoteType.DECISION,
+            project="default",
+            universe="engineering",
+            created_at=created_local,
+            summary="note with non-UTC timezone created_at",
+        )
+    )
+
+    # since = 2026-05-30 12:00 UTC → note is exactly at boundary → must appear.
+    since_utc = datetime(2026, 5, 30, 12, 0, 0, tzinfo=UTC)
+    results = recent_service.recent("engineering", topic="non-UTC timezone note", since=since_utc)
+    titles = [r.title for r in results]
+    assert "tz-note" in titles, (
+        "Note at exactly the since boundary (in non-UTC tz) must appear in results"
+    )
+
+    # since = 2026-05-30 12:00:01 UTC → note is before since → must NOT appear.
+    since_after = datetime(2026, 5, 30, 12, 0, 1, tzinfo=UTC)
+    results_excl = recent_service.recent(
+        "engineering", topic="non-UTC timezone note", since=since_after
+    )
+    assert all(r.title != "tz-note" for r in results_excl), (
+        "Note before since boundary must be excluded"
+    )
+
+
+# ---------------------------------------------------------------------------
+# With-topic path + since: undercount prevention (MAJOR fix)
+# ---------------------------------------------------------------------------
+
+
+def test_with_topic_since_does_not_undercount(
+    indexer: Indexer, recent_service: RecentService
+) -> None:
+    """With-topic + since must return `limit` results when enough notes exist in the window.
+
+    Indexes 20 notes inside the 7-day window and 15 notes outside.
+    With the old 4x multiplier and limit=10, only 40 candidates were fetched total —
+    if many of those 40 happened to be outside the window, we'd get <10 results.
+    With the new 10x multiplier, 100 candidates are fetched, ensuring all 20 in-window
+    notes are seen and exactly limit=10 are returned.
+    """
+    since = datetime(2026, 6, 6, 12, 0, 0, tzinfo=UTC) - timedelta(days=7)
+
+    for i in range(20):
+        indexer.write_note(
+            _note(title=f"in-window-{i}", summary=f"recent note number {i}", days_ago=i % 7)
+        )
+    for i in range(15):
+        indexer.write_note(
+            _note(title=f"outside-{i}", summary=f"old note number {i}", days_ago=10 + i)
+        )
+
+    results = recent_service.recent("engineering", topic="recent note", since=since, limit=10)
+    assert len(results) == 10, (
+        f"Expected 10 results with enough in-window notes, got {len(results)}"
+    )
+    # All returned notes must be within the window.
+    for r in results:
+        assert not (r.created_at < since), (
+            f"Note '{r.title}' created at {r.created_at} is before since {since}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# limit validation
+# ---------------------------------------------------------------------------
+
+
+def test_limit_zero_raises_value_error(recent_service: RecentService) -> None:
+    with pytest.raises(ValueError, match="limit must be in"):
+        recent_service.recent("engineering", limit=0)
+
+
+def test_limit_over_100_raises_value_error(recent_service: RecentService) -> None:
+    with pytest.raises(ValueError, match="limit must be in"):
+        recent_service.recent("engineering", limit=101)

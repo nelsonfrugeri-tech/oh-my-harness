@@ -53,23 +53,34 @@ class QdrantStore:
         return bool(self._client.collection_exists(collection_name=name))
 
     def ensure_collection(self, name: str) -> None:
-        """Create the hybrid collection if it doesn't exist (idempotent).
+        """Create the hybrid collection if it doesn't exist, and always (re)apply
+        payload indexes — making the operation convergent for pre-existing collections.
 
         A ``DATETIME`` payload index is created on ``created_at`` so that
         :meth:`qdrant_client.QdrantClient.scroll` can use ``order_by`` on
         that field without a full-scan error from the server.  The
         ``KEYWORD`` index on ``project`` speeds up project-filter queries.
+
+        **Why indexes are applied unconditionally:**
+        Collections created by earlier versions of the server (before this PR)
+        do not have these payload indexes.  The first ``kb_recent`` call on such
+        a collection would fail with an ``order_by`` error.  Applying the indexes
+        outside the ``if not exists`` branch fixes those universes automatically
+        on next boot or first use — no manual migration required.
+        ``create_payload_index`` is idempotent on the real Qdrant server (it
+        returns success even when the index already exists with the same schema).
         """
-        if self.collection_exists(name):
-            return
-        self._client.create_collection(
-            collection_name=name,
-            vectors_config={
-                DENSE_VECTOR_NAME: VectorParams(size=DENSE_DIM, distance=Distance.COSINE),
-            },
-            sparse_vectors_config={SPARSE_VECTOR_NAME: SparseVectorParams()},
-        )
-        # Payload indexes — required for server-side order_by and efficient filtering.
+        if not self.collection_exists(name):
+            self._client.create_collection(
+                collection_name=name,
+                vectors_config={
+                    DENSE_VECTOR_NAME: VectorParams(size=DENSE_DIM, distance=Distance.COSINE),
+                },
+                sparse_vectors_config={SPARSE_VECTOR_NAME: SparseVectorParams()},
+            )
+        # Always (re)apply payload indexes — idempotent on the real Qdrant server.
+        # This ensures universes created before this version receive the indexes
+        # on next boot/use without any destructive recreate.
         self._client.create_payload_index(
             collection_name=name,
             field_name="created_at",

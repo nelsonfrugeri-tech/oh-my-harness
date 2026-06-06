@@ -32,7 +32,7 @@ a relevance score; it only signals "ordered by time, no fusion ranking applied".
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 
 from qdrant_client.models import (
     Condition,
@@ -49,14 +49,23 @@ from qdrant_client.models import (
     SparseVector as QdrantSparseVector,
 )
 
-from oh_my_kb.embedding import Embedder
+from oh_my_kb.embedding import Embedder, EmbeddingResult
+from oh_my_kb.services._payload import SearchResult, require_payload_fields
 from oh_my_kb.services.indexer import collection_name_for
-from oh_my_kb.services.search import SearchResult, _require_payload_fields
+from oh_my_kb.services.temporal import is_before_since
 from oh_my_kb.storage import DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME, QdrantStore
 
-# Same 4x multiplier as SearchService so the fusion candidate pool is deep
-# enough for good recall.
-_PREFETCH_MULTIPLIER = 4
+# 10x multiplier for the with-topic path: the since filter runs Python-side,
+# so with a restrictive window, many of the 4x candidates could be outside
+# the window and the caller would receive fewer than `limit` results even when
+# more qualifying notes exist.  10x provides a deeper candidate pool while
+# remaining cheap (RRF over in-memory results, not extra round-trips).
+# The no-topic path also uses this multiplier for its over-fetch when `since`
+# is set — it is equally cheap because the scroll results are already sorted.
+_PREFETCH_MULTIPLIER = 10
+
+
+_TOPIC_CACHE_MAX = 64
 
 
 class RecentService:
@@ -70,6 +79,21 @@ class RecentService:
     def __init__(self, store: QdrantStore, embedder: Embedder) -> None:
         self._store = store
         self._embedder = embedder
+        # Simple LRU-style in-memory cache for topic embeddings.
+        # bge-m3 takes 50-500ms per call; repeated calls with the same topic
+        # (common in a conversation session) get served from cache.
+        self._topic_cache: dict[str, EmbeddingResult] = {}
+
+    def _embed_topic(self, topic: str) -> EmbeddingResult:
+        """Embed *topic*, returning a cached result when available."""
+        if topic in self._topic_cache:
+            return self._topic_cache[topic]
+        emb: EmbeddingResult = self._embedder.embed_text(topic)
+        if len(self._topic_cache) >= _TOPIC_CACHE_MAX:
+            # Evict oldest entry (insertion-order guaranteed in Python 3.7+).
+            self._topic_cache.pop(next(iter(self._topic_cache)))
+        self._topic_cache[topic] = emb
+        return emb
 
     def recent(
         self,
@@ -114,6 +138,9 @@ class RecentService:
         ``score`` is ``0.0`` for the no-topic path — the caller (MCP handler)
         should omit or label it "n/a" to avoid misleading the LLM.
         """
+        if limit < 1 or limit > 100:
+            raise ValueError(f"limit must be in [1, 100], got {limit}")
+
         collection = collection_name_for(universe)
         if not self._store.collection_exists(collection):
             return []
@@ -128,8 +155,8 @@ class RecentService:
                 limit=limit,
             )
 
-        # With-topic path: embed and use RRF fusion.
-        embedding = self._embedder.embed_text(topic)
+        # With-topic path: embed and use RRF fusion (cached per topic).
+        embedding = self._embed_topic(topic)
         prefetch_limit = limit * _PREFETCH_MULTIPLIER
 
         prefetch = [
@@ -162,13 +189,14 @@ class RecentService:
         results: list[SearchResult] = []
         for point in response.points:
             payload = point.payload or {}
-            _require_payload_fields(point.id, payload, ("id", "path"))
+            require_payload_fields(point.id, payload, ("id", "path"))
             created_at = datetime.fromisoformat(str(payload.get("created_at", "")))
 
-            # Python-side since guard.
+            # Python-side since guard — normalise both sides to UTC via helper so
+            # the with-topic path is consistent with the no-topic path.
             # TODO(qdrant-datetime-range): replace with server-side filter once
             # Qdrant supports a proper datetime Range for payload conditions.
-            if since is not None and created_at < since:
+            if since is not None and is_before_since(created_at, since):
                 continue
 
             results.append(
@@ -217,22 +245,14 @@ class RecentService:
         results: list[SearchResult] = []
         for point in points:
             payload = point.payload or {}
-            _require_payload_fields(point.id, payload, ("id", "path"))
+            require_payload_fields(point.id, payload, ("id", "path"))
             created_at = datetime.fromisoformat(str(payload.get("created_at", "")))
 
-            # Python-side since guard.
+            # Python-side since guard — normalise both sides to UTC via helper.
             # TODO(qdrant-datetime-range): replace with server-side filter once
             # Qdrant supports a proper datetime Range for payload conditions.
-            if since is not None:
-                # Normalise both sides to UTC before comparing.
-                since_utc = since.astimezone(UTC)
-                created_utc = (
-                    created_at.astimezone(UTC)
-                    if created_at.tzinfo is not None
-                    else created_at.replace(tzinfo=UTC)
-                )
-                if created_utc < since_utc:
-                    continue
+            if since is not None and is_before_since(created_at, since):
+                continue
 
             results.append(
                 SearchResult(

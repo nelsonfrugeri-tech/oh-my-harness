@@ -132,19 +132,22 @@ async def test_created_at_visible_in_output(
 
 
 # ---------------------------------------------------------------------------
-# No-topic path: score line is omitted
+# No-topic path: score is labelled "n/a" (not omitted, not a numeric value)
 # ---------------------------------------------------------------------------
 
 
-async def test_no_topic_omits_score_line(
+async def test_no_topic_labels_score_n_a(
     indexer: Indexer, recent_service: RecentService
 ) -> None:
+    """When no topic is provided, score must be labelled 'n/a (ordered by time)'
+    so the LLM doesn't interpret a numeric 0.0 as a bad relevance score."""
     indexer.write_note(_note(title="note", summary="some note"))
 
     result = await handle_kb_recent(recent_service, "engineering", {})
     text = result[0].text
-    # Score line should not appear when no topic is provided.
-    assert "score:" not in text
+    # "n/a" label must appear; raw numeric score must NOT appear.
+    assert "score: n/a" in text
+    assert "score: 0.0" not in text
 
 
 # ---------------------------------------------------------------------------
