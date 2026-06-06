@@ -19,7 +19,7 @@ We use [MADR](https://adr.github.io/madr/) (Markdown Architecture Decision Recor
 
 | ADR | Title | Status |
 |-----|-------|--------|
-| [ADR-001](ADR-001-reserved.md) | *(reserved)* | — |
+| ADR-001 | *(reserved)* | — |
 | [ADR-002](ADR-002-server-bound-universe.md) | Server-bound universe in `o-kb-mcp` | Accepted |
 
 ## Adding a new ADR
