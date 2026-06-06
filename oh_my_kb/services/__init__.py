@@ -1,7 +1,3 @@
-from oh_my_kb.services.config import (
-    NOTES_ROOT_ENV,
-    get_notes_root,
-)
 from oh_my_kb.services.indexer import (
     COLLECTION_PREFIX,
     Indexer,
@@ -15,7 +11,13 @@ from oh_my_kb.services.navigation import (
     Tree,
     TreeNode,
 )
+from oh_my_kb.services.paths import (
+    NOTES_ROOT_ENV,
+    get_notes_root,
+)
+from oh_my_kb.services.recent import RecentService
 from oh_my_kb.services.search import SearchResult, SearchService
+from oh_my_kb.services.temporal import is_before_since, parse_since
 
 __all__ = [
     "COLLECTION_PREFIX",
@@ -24,6 +26,7 @@ __all__ = [
     "Indexer",
     "NavigationService",
     "NoteNotFoundError",
+    "RecentService",
     "ResolvedLink",
     "SearchResult",
     "SearchService",
@@ -31,4 +34,6 @@ __all__ = [
     "TreeNode",
     "collection_name_for",
     "get_notes_root",
+    "is_before_since",
+    "parse_since",
 ]
