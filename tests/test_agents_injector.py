@@ -112,6 +112,13 @@ class TestInjectBlockReplaced:
         assert "my-universe" not in content
 
 
+class TestInjectBlockCRLF:
+    def test_crlf_content_finds_markers(self) -> None:
+        crlf_content = f"{START_MARKER}\r\n{_BLOCK.rstrip()}\r\n{END_MARKER}\r\n"
+        _, action = inject_block(crlf_content, _BLOCK)
+        assert action == InjectAction.UNCHANGED
+
+
 class TestInjectBlockMalformed:
     def test_end_before_start_raises(self) -> None:
         malformed = f"{END_MARKER}\n{START_MARKER}\n"

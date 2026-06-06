@@ -12,4 +12,4 @@ def load_template() -> str:
 
 def render_rules(universe: str) -> str:
     """Return the rules block with ``{universe}`` substituted."""
-    return load_template().format(universe=universe)
+    return load_template().replace("{universe}", universe)

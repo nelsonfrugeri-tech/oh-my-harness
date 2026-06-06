@@ -156,7 +156,7 @@ def bootstrap_cmd(
         report = bootstrap(
             harness=harness.lower(),
             project_path=resolved_path,
-            config=cfg,
+            active_universe=cfg.active,
         )
     except (
         UnknownHarnessError,

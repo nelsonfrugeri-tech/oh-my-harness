@@ -4,8 +4,9 @@ kb-mcp is this project's long-term memory. Notes persist as Markdown files
 indexed in Qdrant. The active universe is **{universe}**. Every query and write
 is scoped to it automatically — never pass the universe as a tool argument.
 
-Four tools: `kb_search` (semantic retrieval), `kb_tree` (structural directory),
-`kb_expand` (full note + resolved links), `kb_write` (register/supersede a note).
+Tools: `kb_search` (semantic retrieval), `kb_tree` (structural directory),
+`kb_expand` (full note + resolved links), `kb_write` (register/supersede a note),
+`kb_recent` (temporal recall by creation date).
 
 ---
 
@@ -40,6 +41,18 @@ the question is about relationships between notes.
 
 ---
 
+## When to recall — `kb_recent`
+
+Use when the question is **temporal**: "what happened recently in project X?",
+"what changed in the last week?", "what are the latest decisions?".
+`kb_recent` returns notes ordered by creation date (newest first), optionally
+filtered by project, topic, or time window (`since: "7d"`, `"30d"`, ISO date).
+
+Do not use `kb_recent` as a substitute for semantic search — it orders by time,
+not relevance. Use it when recency is the primary criterion.
+
+---
+
 ## When to write — `kb_write`
 
 Write **only** when the user explicitly asks to register, record, annotate, or
@@ -58,8 +71,9 @@ To **update** an existing note: find it with `kb_search`, then call `kb_write`
 with `supersedes` set to the old note's UUID. The old note is preserved as
 history; the new note carries the updated content.
 
-Before writing, run `kb_search` on the note's topic and include relevant
-existing note UUIDs in `links_out` — this builds the navigable knowledge graph.
+Before writing, run `kb_search` on the note's topic with `top_k=10` (not the
+default 5) and include relevant existing note UUIDs in `links_out` — a larger
+candidate pool lets the score filter and qualitative criteria work correctly.
 
 ---
 
@@ -71,6 +85,9 @@ User refers to past context or an established convention?
 
 User asks what exists or what relates?
   └─ kb_tree for the map → kb_expand to open a note → repeat to follow links
+
+User asks about recent events, latest decisions, or what changed?
+  └─ kb_recent (add since="7d" / "30d" to narrow the window)
 
 User explicitly asks to record / register / save something?
   └─ READ skill://scribe/SKILL.md AND skill://scribe/template.md FIRST

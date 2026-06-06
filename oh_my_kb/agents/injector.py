@@ -35,6 +35,9 @@ def inject_block(
     if current_content is None:
         return (wrapped, InjectAction.CREATED)
 
+    # Normalize CRLF to LF so marker search and rebuilt comparison work on Windows
+    current_content = current_content.replace("\r\n", "\n")
+
     i = current_content.find(start_marker)
     j = current_content.find(end_marker)
 

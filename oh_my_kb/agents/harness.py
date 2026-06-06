@@ -32,11 +32,6 @@ def resolve_harness(name: str) -> Harness:
         raise UnknownHarnessError(f"unknown harness '{name}'; known: {known}") from None
 
 
-def detect_harness(project_path: Path) -> Harness | None:
-    """Auto-detection stub — deferred to future issue."""
-    return None
-
-
 def target_path_for(harness: Harness, project_path: Path) -> Path:
     """Return the absolute path to the harness rules file within *project_path*."""
     return project_path / harness.target_filename
