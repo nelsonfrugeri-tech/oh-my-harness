@@ -345,3 +345,38 @@ def test_write_note_leaves_no_file_on_upsert_failure(
         indexer.write_note(note)
 
     assert not indexer.path_for(note).exists()
+
+    collection = collection_name_for(note.universe)
+    records = store.client.retrieve(
+        collection_name=collection,
+        ids=[str(note.id)],
+        with_payload=False,
+        with_vectors=False,
+    )
+    assert len(records) == 0
+
+
+def test_write_note_leaves_qdrant_point_on_write_md_failure(
+    store: QdrantStore, embedder: _StubEmbedder, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """write_md fails after embed+upsert OK: Qdrant point stays (retry is idempotent)."""
+    indexer = Indexer(store=store, embedder=embedder, notes_root=tmp_path)
+    note = _make_note()
+
+    def _fail_write(self: Path, *args: object, **kwargs: object) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(Path, "write_text", _fail_write)
+
+    with pytest.raises(OSError, match="disk full"):
+        indexer.write_note(note)
+
+    collection = collection_name_for(note.universe)
+    records = store.client.retrieve(
+        collection_name=collection,
+        ids=[str(note.id)],
+        with_payload=False,
+        with_vectors=False,
+    )
+    assert len(records) == 1
+    assert not indexer.path_for(note).exists()
