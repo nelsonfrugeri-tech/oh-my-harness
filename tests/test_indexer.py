@@ -24,6 +24,17 @@ from oh_my_kb.storage import (
 )
 
 
+class _BrokenEmbedder(Embedder):
+    """Always raises — simulates OOM / model failure."""
+
+    @property
+    def dense_dim(self) -> int:
+        return DENSE_DIM
+
+    def embed_texts(self, texts: list[str]) -> list[EmbeddingResult]:
+        raise RuntimeError("embedder failed")
+
+
 class _StubEmbedder(Embedder):
     """Deterministic, fast stand-in for the real bge-m3 model.
 
@@ -302,3 +313,70 @@ def test_read_note_by_id_raises_on_universe_mismatch(
 
     with pytest.raises(NoteNotFoundError):
         indexer.read_note_by_id(note.id, "engineering")
+
+
+# --- atomicity: no orphan .md on failure --------------------------------
+
+
+def test_write_note_leaves_no_file_on_embedder_failure(
+    store: QdrantStore, tmp_path: Path
+) -> None:
+    broken = Indexer(store=store, embedder=_BrokenEmbedder(), notes_root=tmp_path)
+    note = _make_note()
+
+    with pytest.raises(RuntimeError, match="embedder failed"):
+        broken.write_note(note)
+
+    assert not broken.path_for(note).exists()
+
+
+def test_write_note_leaves_no_file_on_upsert_failure(
+    store: QdrantStore, embedder: _StubEmbedder, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    indexer = Indexer(store=store, embedder=embedder, notes_root=tmp_path)
+    note = _make_note()
+
+    def _fail(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("qdrant down")
+
+    monkeypatch.setattr(store.client, "upsert", _fail)
+
+    with pytest.raises(RuntimeError, match="qdrant down"):
+        indexer.write_note(note)
+
+    assert not indexer.path_for(note).exists()
+
+    collection = collection_name_for(note.universe)
+    records = store.client.retrieve(
+        collection_name=collection,
+        ids=[str(note.id)],
+        with_payload=False,
+        with_vectors=False,
+    )
+    assert len(records) == 0
+
+
+def test_write_note_leaves_qdrant_point_on_write_md_failure(
+    store: QdrantStore, embedder: _StubEmbedder, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """write_md fails after embed+upsert OK: Qdrant point stays (retry is idempotent)."""
+    indexer = Indexer(store=store, embedder=embedder, notes_root=tmp_path)
+    note = _make_note()
+
+    def _fail_write(self: Path, *args: object, **kwargs: object) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(Path, "write_text", _fail_write)
+
+    with pytest.raises(OSError, match="disk full"):
+        indexer.write_note(note)
+
+    collection = collection_name_for(note.universe)
+    records = store.client.retrieve(
+        collection_name=collection,
+        ids=[str(note.id)],
+        with_payload=False,
+        with_vectors=False,
+    )
+    assert len(records) == 1
+    assert not indexer.path_for(note).exists()

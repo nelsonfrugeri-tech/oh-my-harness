@@ -79,12 +79,21 @@ class Indexer:
         from slug mutations is out of scope for ``write_note``; it is the
         responsibility of the future ``kb_write`` / update workflow.
         """
+        # Operation order is INTENTIONAL and must be preserved:
+        # (1) ensure_collection — prerequisite for upsert
+        # (2) embed_text         — expensive; fails fast before any mutation
+        # (3) upsert             — Qdrant point persisted; idempotent on retry
+        # (4) write_text         — .md materialised last; disk never leads index
+        #
+        # A write_text failure here leaves an orphan Qdrant point (path in
+        # payload points to a file that does not exist yet).  That is acceptable
+        # because write_note is idempotent — re-running with the same note.id
+        # overwrites the point and creates the file.  Reversing steps 3 and 4
+        # re-introduces the orphan-.md bug fixed in issue #25.
         collection = collection_name_for(note.universe)
         self._store.ensure_collection(collection)
 
         path = self.path_for(note)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(to_markdown(note), encoding="utf-8")
 
         embedding = self._embedder.embed_text(note.summary)
         payload = self._payload(note, path)
@@ -100,6 +109,9 @@ class Indexer:
             payload=payload,
         )
         self._store.client.upsert(collection_name=collection, points=[point])
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(to_markdown(note), encoding="utf-8")
         return path
 
     def read_note_by_id(self, note_id: UUID, universe: str) -> Note:
