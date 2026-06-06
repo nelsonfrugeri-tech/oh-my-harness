@@ -83,8 +83,6 @@ class Indexer:
         self._store.ensure_collection(collection)
 
         path = self.path_for(note)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(to_markdown(note), encoding="utf-8")
 
         embedding = self._embedder.embed_text(note.summary)
         payload = self._payload(note, path)
@@ -100,6 +98,9 @@ class Indexer:
             payload=payload,
         )
         self._store.client.upsert(collection_name=collection, points=[point])
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(to_markdown(note), encoding="utf-8")
         return path
 
     def read_note_by_id(self, note_id: UUID, universe: str) -> Note:
