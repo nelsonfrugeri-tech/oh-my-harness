@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import hashlib
 from datetime import UTC, datetime
-from uuid import uuid4
 
 from oh_my_kb.core import Note, NoteType
 from oh_my_kb.embedding import Embedder, EmbeddingResult, SparseVector
@@ -62,8 +61,8 @@ def make_note(**overrides: object) -> Note:
     passes all model-level validators.
 
     Supported override keys mirror the ``Note`` constructor.  Use
-    ``note_id=<UUID>`` to set the ``id`` field, and ``links_out=[]`` to
-    produce a note with no outbound links.
+    ``note_id=<UUID>`` to set the ``id`` field, and
+    ``links_out=[uuid4()]`` to add an outbound link.
     """
     payload: dict[str, object] = {
         "title": "Arquitetura do KB",
@@ -73,8 +72,8 @@ def make_note(**overrides: object) -> Note:
         "created_at": datetime(2026, 5, 31, 14, 30, tzinfo=UTC),
         "summary": "Decisão sobre como as camadas se conversam.",
         "body": "# Detalhes\n\nDescrição longa que não vai pro payload.",
-        "entities": ["nelson", "qdrant"],
-        "links_out": [uuid4()],
+        "entities": [],
+        "links_out": [],
     }
     # Allow ``note_id`` as an alias for ``id`` (matches the pattern used in
     # test_navigation.py and test_mcp_kb_expand.py).

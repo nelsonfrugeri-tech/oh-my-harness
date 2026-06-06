@@ -1,8 +1,8 @@
 """Shared pytest fixtures for the oh-my-kb test suite.
 
 Shared helper classes and functions (``StubEmbedder``, ``make_note``) live in
-``tests/_helpers.py`` so that test modules can import them directly.  This file
-wires them into pytest's fixture machinery.
+``tests/_helpers.py`` so that test modules can import them directly by name.
+This file wires ``StubEmbedder`` into pytest's fixture machinery.
 """
 
 from __future__ import annotations
@@ -10,15 +10,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from _helpers import StubEmbedder, make_note
+from _helpers import StubEmbedder
 
 from oh_my_kb.services import Indexer, NavigationService, SearchService
 from oh_my_kb.storage import IN_MEMORY, QdrantStore
-
-# Re-export so callers that do ``from conftest import StubEmbedder`` also work,
-# though test files should prefer ``from _helpers import ...``.
-__all__ = ["StubEmbedder", "make_note"]
-
 
 # ---------------------------------------------------------------------------
 # Common pytest fixtures
