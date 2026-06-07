@@ -33,12 +33,18 @@ def bootstrap(
     harness: str,
     project_path: Path,
     active_universe: str | None,
+    home_dir: Path | None = None,
 ) -> BootstrapReport:
     """Inject the kb-mcp rules block into *harness*'s target file.
 
     For *global* harnesses (e.g. ``claude-code``) the target is always
     ``~/.claude/CLAUDE.md`` regardless of *project_path*.  For *project*
     harnesses the target lives under *project_path*.
+
+    The optional *home_dir* overrides ``Path.home()`` and is forwarded to
+    :func:`target_path_for`.  Pass a ``tmp_path`` in tests instead of using
+    ``patch.object(Path, "home", ...)`` — the parameter override is scoped and
+    safe under pytest-xdist.
 
     Raises:
         NoActiveUniverseError: if ``active_universe`` is ``None``.
@@ -56,7 +62,7 @@ def bootstrap(
             f"project path does not exist or is not a directory: {project_path}"
         )
 
-    target = target_path_for(h, project_path)
+    target = target_path_for(h, project_path, home_dir=home_dir)
 
     # For global harnesses, ensure the parent directory exists (Bug 4 fix: safe creation).
     if h.scope == "global":

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 from pathlib import Path
 
 from oh_my_kb.i18n import DEFAULT_LOCALE, resolve_locale_path
@@ -33,21 +34,24 @@ def render_dynamic_block(universe: str) -> str:
     4. Renders one bullet per resource.
 
     The result is injected between the sentinel markers by :func:`inject_block`.
+
+    Note: the marker line includes an HTML comment with the generation timestamp
+    and the universe name so that stale blocks are easy to diagnose after
+    ``omk universe use <other>`` changes the active universe without re-running
+    bootstrap.
     """
     from oh_my_kb.agents.harness import TOOL_TRIGGERS
     from oh_my_kb.mcp.resources import list_scribe_resources
-    from oh_my_kb.mcp.tools import (
-        KB_EXPAND_TOOL,
-        KB_RECENT_TOOL,
-        KB_SEARCH_TOOL,
-        KB_TREE_TOOL,
-        KB_WRITE_TOOL,
-    )
+    from oh_my_kb.mcp.tools import ALL_TOOLS
 
-    tools = [KB_WRITE_TOOL, KB_SEARCH_TOOL, KB_TREE_TOOL, KB_EXPAND_TOOL, KB_RECENT_TOOL]
     resources = list_scribe_resources()
+    # ALL_TOOLS preserves canonical insertion order: write-first for priority.
+    tools = ALL_TOOLS
+
+    generated_at = datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%dT%H:%MZ")
 
     lines: list[str] = [
+        f"<!-- omk:meta generated:{generated_at} universe:{universe} -->",
         f"## oh-my-kb — Base de Conhecimento (universe: {universe})",
         "",
         "### Tools disponíveis",
@@ -70,16 +74,25 @@ def render_dynamic_block(universe: str) -> str:
     ]
 
     for resource in resources:
-        lines.append(f"- `{resource.uri}` — {resource.description or resource.name}")
+        # Use only the first sentence of the description to avoid verbosity in the block.
+        desc_full: str = resource.description or resource.name
+        first_sentence = desc_full.split(". ")[0].rstrip(".")
+        lines.append(f"- `{resource.uri}` — {first_sentence}.")
 
     lines += [
         "",
         "### Regras gerais",
         "",
-        "- Sempre use o universe ativo configurado em KB_UNIVERSE.",
-        "- Leia skill://scribe/SKILL.md antes de qualquer kb_write.",
-        "- Prefira kb_search para recuperação;"
-        " use kb_tree quando o usuário precisar de orientação.",
+        # Rule 1: The universe is server-bound (ADR-002); the LLM must NOT pass it
+        # as a parameter — tools have additionalProperties:false with no universe field.
+        "- O universe ativo é definido pelo servidor MCP (KB_UNIVERSE) e nunca deve"
+        " ser passado como parâmetro nas tools — ele é injetado automaticamente.",
+        # Rule 2: Read once per session, not once per call, to avoid redundant reads.
+        "- Leia skill://scribe/SKILL.md antes do PRIMEIRO kb_write da sessão.",
+        # Rule 3: Precise routing — search for content/theme, tree for structure/existence.
+        "- Prefira kb_search quando a pergunta é sobre conteúdo ou tema;"
+        " use kb_tree quando a pergunta é sobre o que existe no universe"
+        " ou em um projeto específico.",
     ]
 
     return "\n".join(lines)

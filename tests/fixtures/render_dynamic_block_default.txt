@@ -1,0 +1,21 @@
+<!-- omk:meta generated:<TIMESTAMP> universe:default -->
+## oh-my-kb — Base de Conhecimento (universe: default)
+
+### Tools disponíveis
+
+- `kb_write` — Use quando o usuário pedir para salvar, registrar, anotar uma decisão, evento, procedimento ou referência
+- `kb_search` — Use quando o usuário pedir para buscar, encontrar, recuperar ou lembrar algo pelo conteúdo ou tema
+- `kb_tree` — Use quando o usuário pedir uma visão geral, mapa ou estrutura do conhecimento, quiser saber o que existe no universe ou em um projeto específico
+- `kb_expand` — Use quando o usuário quiser aprofundar, ler o conteúdo completo, ler na íntegra ou seguir links de uma nota
+- `kb_recent` — Use quando o usuário pedir o histórico recente, as últimas notas, o que mudou em um período de tempo ou novidades de um projeto
+
+### Resources disponíveis
+
+- `skill://scribe/SKILL.md` — Playbook for writing well-formed notes via kb_write — type decision, summary as dense prose, entity extraction, links via kb_search.
+- `skill://scribe/template.md` — Required structure of the note body, with per-type sections.
+
+### Regras gerais
+
+- O universe ativo é definido pelo servidor MCP (KB_UNIVERSE) e nunca deve ser passado como parâmetro nas tools — ele é injetado automaticamente.
+- Leia skill://scribe/SKILL.md antes do PRIMEIRO kb_write da sessão.
+- Prefira kb_search quando a pergunta é sobre conteúdo ou tema; use kb_tree quando a pergunta é sobre o que existe no universe ou em um projeto específico.

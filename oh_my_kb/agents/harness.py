@@ -46,19 +46,24 @@ HARNESS_COMING_SOON: list[str] = ["claude-desktop", "cursor", "copilot"]
 # block renderer falls back to the tool's own description field.
 TOOL_TRIGGERS: dict[str, str] = {
     "kb_write": (
-        "Use quando o usuário pedir para salvar, registrar ou documentar algo"
+        "Use quando o usuário pedir para salvar, registrar, anotar uma decisão,"
+        " evento, procedimento ou referência"
     ),
     "kb_search": (
-        "Use quando o usuário pedir para buscar, encontrar ou lembrar algo"
+        "Use quando o usuário pedir para buscar, encontrar, recuperar ou lembrar"
+        " algo pelo conteúdo ou tema"
     ),
     "kb_tree": (
-        "Use quando o usuário pedir uma visão geral, mapa ou estrutura do conhecimento"
+        "Use quando o usuário pedir uma visão geral, mapa ou estrutura do conhecimento,"
+        " quiser saber o que existe no universe ou em um projeto específico"
     ),
     "kb_expand": (
-        "Use quando o usuário quiser aprofundar, ler na íntegra ou seguir links de uma nota"
+        "Use quando o usuário quiser aprofundar, ler o conteúdo completo, ler na íntegra"
+        " ou seguir links de uma nota"
     ),
     "kb_recent": (
-        "Use quando o usuário pedir as últimas notas, histórico recente ou novidades de um projeto"
+        "Use quando o usuário pedir o histórico recente, as últimas notas,"
+        " o que mudou em um período de tempo ou novidades de um projeto"
     ),
 }
 
@@ -76,17 +81,27 @@ def resolve_harness(name: str) -> Harness:
         raise UnknownHarnessError(f"unknown harness '{name}'; known: {known}") from None
 
 
-def target_path_for(harness: Harness, project_path: Path) -> Path:
+def target_path_for(
+    harness: Harness,
+    project_path: Path,
+    home_dir: Path | None = None,
+) -> Path:
     """Return the absolute path to the harness rules file.
 
     For *global* harnesses (scope='global'), the path is always resolved relative
     to the user's home directory regardless of *project_path*.  For *project*
     harnesses the file lives under *project_path*.
+
+    The optional *home_dir* parameter overrides ``Path.home()`` — pass a
+    ``tmp_path`` in tests so the function never touches the real home directory.
+    This avoids the aggressive ``patch.object(Path, "home", ...)`` classmethod
+    monkey-patch which is unsafe under pytest-xdist and shared fixtures.
     """
+    home = home_dir if home_dir is not None else Path.home()
     if harness.scope == "global":
         # Global harnesses always resolve to ~/.claude/<target_filename>
         # (or the appropriate global config directory based on detection_signal).
         if harness.detection_signal:
-            return Path.home() / harness.detection_signal / harness.target_filename
-        return Path.home() / harness.target_filename
+            return home / harness.detection_signal / harness.target_filename
+        return home / harness.target_filename
     return project_path / harness.target_filename
