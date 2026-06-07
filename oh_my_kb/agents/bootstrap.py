@@ -12,7 +12,7 @@ from oh_my_kb.agents.injector import (
     InjectAction,
     inject_block,
 )
-from oh_my_kb.agents.template import render_rules
+from oh_my_kb.agents.template import render_dynamic_block
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,7 +62,7 @@ def bootstrap(
     if h.scope == "global":
         target.parent.mkdir(parents=True, exist_ok=True)
 
-    new_block = render_rules(active_universe)
+    new_block = render_dynamic_block(active_universe)
     wrapped_block = f"{START_MARKER}\n{new_block.rstrip()}\n{END_MARKER}\n"
 
     current = target.read_text(encoding="utf-8") if target.exists() else None
