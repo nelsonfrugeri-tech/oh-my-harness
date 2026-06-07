@@ -137,8 +137,11 @@ def bootstrap_cmd(
         None,
         "--project-path",
         "-p",
-        help="Project root where the rules file lives. Defaults to current directory.",
-        exists=True,
+        help=(
+            "Project root where the rules file lives. Defaults to current directory. "
+            "Has no effect for global harnesses (e.g. claude-code) — those always "
+            "write to their fixed global config path (e.g. ~/.claude/CLAUDE.md)."
+        ),
         file_okay=False,
         dir_okay=True,
         resolve_path=True,

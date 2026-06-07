@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 
 @dataclass(frozen=True, slots=True)
@@ -11,11 +12,22 @@ class Harness:
     name: str
     target_filename: str
     detection_signal: str | None
+    scope: Literal["global", "project"] = "project"
 
 
 HARNESS_REGISTRY: dict[str, Harness] = {
-    "claude-code": Harness("claude-code", "CLAUDE.md", ".claude"),
-    "claude-desktop": Harness("claude-desktop", "CLAUDE.md", None),
+    "claude-code": Harness(
+        "claude-code",
+        "CLAUDE.md",
+        ".claude",
+        scope="global",
+    ),
+    "claude-desktop": Harness(
+        "claude-desktop",
+        "CLAUDE.md",
+        None,
+        scope="project",
+    ),
 }
 
 
@@ -33,5 +45,16 @@ def resolve_harness(name: str) -> Harness:
 
 
 def target_path_for(harness: Harness, project_path: Path) -> Path:
-    """Return the absolute path to the harness rules file within *project_path*."""
+    """Return the absolute path to the harness rules file.
+
+    For *global* harnesses (scope='global'), the path is always resolved relative
+    to the user's home directory regardless of *project_path*.  For *project*
+    harnesses the file lives under *project_path*.
+    """
+    if harness.scope == "global":
+        # Global harnesses always resolve to ~/.claude/<target_filename>
+        # (or the appropriate global config directory based on detection_signal).
+        if harness.detection_signal:
+            return Path.home() / harness.detection_signal / harness.target_filename
+        return Path.home() / harness.target_filename
     return project_path / harness.target_filename

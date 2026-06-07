@@ -36,22 +36,31 @@ def bootstrap(
 ) -> BootstrapReport:
     """Inject the kb-mcp rules block into *harness*'s target file.
 
+    For *global* harnesses (e.g. ``claude-code``) the target is always
+    ``~/.claude/CLAUDE.md`` regardless of *project_path*.  For *project*
+    harnesses the target lives under *project_path*.
+
     Raises:
         NoActiveUniverseError: if ``active_universe`` is ``None``.
         UnknownHarnessError: if *harness* is not in :data:`HARNESS_REGISTRY`.
-        FileNotFoundError: if *project_path* does not exist or is not a directory.
+        FileNotFoundError: if *project_path* does not exist or is not a directory
+            (only checked for *project*-scoped harnesses).
     """
     if active_universe is None:
         raise NoActiveUniverseError("no active universe; run `omk install` first")
 
     h = resolve_harness(harness)  # raises UnknownHarnessError if unknown
 
-    if not project_path.is_dir():
+    if h.scope == "project" and not project_path.is_dir():
         raise FileNotFoundError(
             f"project path does not exist or is not a directory: {project_path}"
         )
 
     target = target_path_for(h, project_path)
+
+    # For global harnesses, ensure the parent directory exists (Bug 4 fix: safe creation).
+    if h.scope == "global":
+        target.parent.mkdir(parents=True, exist_ok=True)
 
     new_block = render_rules(active_universe)
     wrapped_block = f"{START_MARKER}\n{new_block.rstrip()}\n{END_MARKER}\n"
