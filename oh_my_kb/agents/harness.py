@@ -22,6 +22,12 @@ HARNESS_REGISTRY: dict[str, Harness] = {
         ".claude",
         scope="global",
     ),
+    # TODO(#issue): claude-desktop global config location is OS-dependent
+    # (~/Library/Application Support/Claude/ on macOS, %APPDATA%\Claude\ on Windows,
+    # ~/.config/Claude/ on Linux) and is NOT a per-project CLAUDE.md.
+    # scope="project" is a placeholder that produces the same class of bug fixed for
+    # claude-code in issue #46.  Do NOT expand this harness until the correct global
+    # path is implemented and tested across platforms.
     "claude-desktop": Harness(
         "claude-desktop",
         "CLAUDE.md",

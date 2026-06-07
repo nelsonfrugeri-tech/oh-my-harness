@@ -158,6 +158,33 @@ class TestInjectBlockPrepend:
         assert content.count(END_MARKER) == 1
 
 
+class TestInjectBlockTrailingNewline:
+    """Regression tests: files without a trailing \\n must not cause perpetual REPLACED."""
+
+    def test_no_trailing_newline_returns_unchanged_on_second_call(self) -> None:
+        """Block-only file missing final \\n: second inject must be UNCHANGED."""
+        # Simulate a file that was written without a trailing newline
+        block_content = f"{START_MARKER}\n{_BLOCK.rstrip()}\n{END_MARKER}"  # no final \n
+        _, action = inject_block(block_content, _BLOCK)
+        assert action == InjectAction.UNCHANGED
+
+    def test_user_content_no_trailing_newline_returns_unchanged(self) -> None:
+        """User content after block, missing final \\n: idempotent on re-inject."""
+        # Build file with block at top, user content below, no trailing newline
+        file_content = (
+            f"{START_MARKER}\n{_BLOCK.rstrip()}\n{END_MARKER}\n\n"
+            "# User rules\n\nSome stuff"  # no final \n
+        )
+        _, action = inject_block(file_content, _BLOCK)
+        assert action == InjectAction.UNCHANGED
+
+    def test_different_block_still_replaces_when_no_trailing_newline(self) -> None:
+        """A genuine content change must still return REPLACED even without trailing \\n."""
+        file_content = f"{START_MARKER}\n{_BLOCK.rstrip()}\n{END_MARKER}"  # no final \n
+        _, action = inject_block(file_content, _DIFFERENT_BLOCK)
+        assert action == InjectAction.REPLACED
+
+
 class TestInjectBlockCRLF:
     def test_crlf_content_finds_markers(self) -> None:
         crlf_content = f"{START_MARKER}\r\n{_BLOCK.rstrip()}\r\n{END_MARKER}\r\n"

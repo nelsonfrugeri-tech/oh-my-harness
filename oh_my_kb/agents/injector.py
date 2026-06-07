@@ -93,8 +93,14 @@ def inject_block(
     # Idempotency: if the rebuilt result equals current content AND block unchanged,
     # return UNCHANGED.  Also handles the case where the block is already at the top
     # and content is identical (Bug 5: accept block in any position if content matches).
+    #
+    # Trailing-newline normalisation: files edited outside omk (vim without fixeol,
+    # VS Code with insertFinalNewline=false, echo -n, …) may lack a final \n.
+    # rebuilt always ends with \n (from the parts construction), so a naïve
+    # rebuilt == current_content would be False for such files and we would
+    # perpetually return REPLACED even when the block content is identical.
     if existing_block_content == new_block_stripped:
-        if rebuilt == current_content:
+        if rebuilt.rstrip("\n") == current_content.rstrip("\n"):
             return (current_content, InjectAction.UNCHANGED)
         # Block content is the same but it may be in the wrong position (legacy append).
         # Move it to the top — this counts as REPLACED to signal a write happened.
