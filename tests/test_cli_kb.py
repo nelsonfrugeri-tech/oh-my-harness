@@ -4,6 +4,12 @@ Drives the real ``app`` object end-to-end against a temp config dir and a
 real ``QdrantStore`` pointed at the in-memory backend (so we exercise the
 typer wiring and the collection_name_for contract without ever touching
 Docker).
+
+Note on naming: the CLI surface uses ``kb`` (the user-facing subgroup introduced
+in issue #55), while the underlying domain model retains the name ``universe``.
+Test functions use the ``test_kb_*`` prefix to match the CLI surface; internal
+variables may still refer to ``universe`` objects as that is what the model
+returns.
 """
 
 from __future__ import annotations
@@ -53,7 +59,7 @@ def test_dash_dash_help_also_works(runner: CliRunner) -> None:
 # --- kb create ---------------------------------------------------
 
 
-def test_universe_create_writes_config_and_creates_dir(
+def test_kb_create_writes_config_and_creates_dir(
     runner: CliRunner, isolated_env: Path
 ) -> None:
     result = runner.invoke(app, ["kb", "create", "research"])
@@ -67,7 +73,7 @@ def test_universe_create_writes_config_and_creates_dir(
     assert universe.notes_root.is_dir()
 
 
-def test_universe_create_handles_qdrant_offline(
+def test_kb_create_handles_qdrant_offline(
     runner: CliRunner, isolated_env: Path
 ) -> None:
     """When QdrantStore.ensure_collection raises, exit 1 with a friendly message."""
@@ -84,7 +90,7 @@ def test_universe_create_handles_qdrant_offline(
     assert "omk start" in result.output or "Docker" in result.output
 
 
-def test_universe_create_duplicate_returns_error(
+def test_kb_create_duplicate_returns_error(
     runner: CliRunner, isolated_env: Path
 ) -> None:
     runner.invoke(app, ["kb", "create", "default"])
@@ -94,7 +100,7 @@ def test_universe_create_duplicate_returns_error(
     assert "already exists" in result.output
 
 
-def test_universe_create_with_explicit_notes_root(
+def test_kb_create_with_explicit_notes_root(
     runner: CliRunner, isolated_env: Path, tmp_path: Path
 ) -> None:
     custom = tmp_path / "elsewhere"
@@ -113,13 +119,13 @@ def test_universe_create_with_explicit_notes_root(
 # --- kb list -----------------------------------------------------
 
 
-def test_universe_list_empty_state(runner: CliRunner, isolated_env: Path) -> None:
+def test_kb_list_empty_state(runner: CliRunner, isolated_env: Path) -> None:
     result = runner.invoke(app, ["kb", "list"])
     assert result.exit_code == 0
     assert "no universes" in result.output.lower()
 
 
-def test_universe_list_marks_active_with_star(
+def test_kb_list_marks_active_with_star(
     runner: CliRunner, isolated_env: Path
 ) -> None:
     runner.invoke(app, ["kb", "create", "alpha"])
@@ -138,7 +144,7 @@ def test_universe_list_marks_active_with_star(
 # --- kb use ------------------------------------------------------
 
 
-def test_universe_use_changes_active(runner: CliRunner, isolated_env: Path) -> None:
+def test_kb_use_changes_active(runner: CliRunner, isolated_env: Path) -> None:
     runner.invoke(app, ["kb", "create", "alpha"])
     runner.invoke(app, ["kb", "create", "beta"])
 
@@ -148,7 +154,7 @@ def test_universe_use_changes_active(runner: CliRunner, isolated_env: Path) -> N
     assert load_config().active == "beta"
 
 
-def test_universe_use_unknown_returns_error(
+def test_kb_use_unknown_returns_error(
     runner: CliRunner, isolated_env: Path
 ) -> None:
     result = runner.invoke(app, ["kb", "use", "nope"])
