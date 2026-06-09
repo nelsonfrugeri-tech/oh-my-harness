@@ -1,4 +1,4 @@
-<!-- content_version: 1 | locale: pt-BR | updated: 2026-06-06 -->
+<!-- content_version: 1.0.0 | locale: pt-BR | updated: 2026-06-06 -->
 # Scribe — playbook para escrever notas no oh-my-kb
 
 Esta skill diz ao harness **como preencher os campos** que o `kb_write` espera.

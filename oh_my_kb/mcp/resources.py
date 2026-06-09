@@ -10,9 +10,12 @@ the unit of editing.
 
 from __future__ import annotations
 
+import hashlib
+import re
 from pathlib import Path
+from typing import NamedTuple
 
-from mcp.types import Resource
+from mcp.types import Annotations, Resource
 
 from oh_my_kb.i18n import DEFAULT_LOCALE, resolve_locale_path
 
@@ -27,34 +30,105 @@ _URI_TO_FILENAME: dict[str, str] = {
     SCRIBE_TEMPLATE_URI: "template.md",
 }
 
+# Regex to extract content_version from HTML comment frontmatter.
+# Matches patterns like: <!-- content_version: 1.0.0 | ... -->
+_VERSION_RE = re.compile(r"content_version:\s*([^\s|]+)")
 
-def list_scribe_resources() -> list[Resource]:
-    """Return the static catalog of scribe resources."""
-    return [
-        Resource(
-            uri=SCRIBE_SKILL_URI,  # type: ignore[arg-type]
-            name="scribe",
-            title="Scribe skill",
-            description=(
+# Short resource ID used by the CLI.
+_URI_TO_RESOURCE_ID: dict[str, str] = {
+    SCRIBE_SKILL_URI: "skills/scribe",
+    SCRIBE_TEMPLATE_URI: "skills/scribe-template",
+}
+
+
+class ResourceMeta(NamedTuple):
+    """Metadata computed from a resource file on disk."""
+
+    content_version: str
+    sha256: str
+
+
+def _read_file_for_locale(uri: str, locale: str = DEFAULT_LOCALE) -> str:
+    """Read the raw content of a resource file from disk."""
+    filename = _URI_TO_FILENAME.get(uri)
+    if filename is None:
+        raise ValueError(f"unknown resource uri: {uri!r}")
+    return resolve_locale_path(SCRIBE_DIR, filename, locale).read_text(encoding="utf-8")
+
+
+def parse_content_version(content: str) -> str:
+    """Extract the ``content_version`` from an HTML-comment frontmatter.
+
+    Returns ``"0.0.0"`` when the frontmatter is absent or unparseable so
+    callers always receive a valid SemVer string.
+    """
+    match = _VERSION_RE.search(content)
+    if match:
+        return match.group(1).strip()
+    return "0.0.0"
+
+
+def compute_sha256(content: str) -> str:
+    """Return lowercase hex SHA-256 of *content* encoded as UTF-8."""
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+def resource_meta(uri: str, locale: str = DEFAULT_LOCALE) -> ResourceMeta:
+    """Return version + sha256 for the resource at *uri* / *locale*."""
+    content = _read_file_for_locale(uri, locale)
+    return ResourceMeta(
+        content_version=parse_content_version(content),
+        sha256=compute_sha256(content),
+    )
+
+
+def list_scribe_resources(locale: str = DEFAULT_LOCALE) -> list[Resource]:
+    """Return the static catalog of scribe resources with version metadata.
+
+    The ``annotations`` dict on each resource carries ``content_version``
+    and ``sha256`` so CLI clients can compare against the local manifest
+    without a full download.
+    """
+    results: list[Resource] = []
+    for uri, name, title, description in [
+        (
+            SCRIBE_SKILL_URI,
+            "scribe",
+            "Scribe skill",
+            (
                 "Playbook for writing well-formed notes via kb_write — type "
                 "decision, summary as dense prose, entity extraction, "
                 "links via kb_search. Read once per kb_write call until "
                 "o-kb-agents automates it."
             ),
-            mimeType="text/markdown",
         ),
-        Resource(
-            uri=SCRIBE_TEMPLATE_URI,  # type: ignore[arg-type]
-            name="scribe-template",
-            title="Scribe — note body template",
-            description=(
+        (
+            SCRIBE_TEMPLATE_URI,
+            "scribe-template",
+            "Scribe — note body template",
+            (
                 "Required structure of the note body, with per-type "
                 "sections. The summary is separate prose, not part of "
                 "this template."
             ),
-            mimeType="text/markdown",
         ),
-    ]
+    ]:
+        meta = resource_meta(uri, locale)
+        results.append(
+            Resource(
+                uri=uri,  # type: ignore[arg-type]
+                name=name,
+                title=title,
+                description=description,
+                mimeType="text/markdown",
+                annotations=Annotations(  # type: ignore[call-arg]
+                    content_version=meta.content_version,
+                    sha256=meta.sha256,
+                    resource_id=_URI_TO_RESOURCE_ID[uri],
+                ),
+            )
+        )
+    return results
 
 
 def read_scribe_resource(uri: str, locale: str = DEFAULT_LOCALE) -> str:
@@ -66,7 +140,4 @@ def read_scribe_resource(uri: str, locale: str = DEFAULT_LOCALE) -> str:
     ``locale`` defaults to ``DEFAULT_LOCALE``; the MCP server call site passes
     no locale so existing ``read_scribe_resource(uri)`` callers are unaffected.
     """
-    filename = _URI_TO_FILENAME.get(uri)
-    if filename is None:
-        raise ValueError(f"unknown resource uri: {uri!r}")
-    return resolve_locale_path(SCRIBE_DIR, filename, locale).read_text(encoding="utf-8")
+    return _read_file_for_locale(uri, locale)
