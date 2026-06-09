@@ -15,6 +15,7 @@ from oh_my_kb.cli.config import (
     set_active,
 )
 from oh_my_kb.cli.paths import default_notes_root_for
+from oh_my_kb.cli.resource import resource_app
 from oh_my_kb.services import collection_name_for
 from oh_my_kb.storage import QdrantStore, get_qdrant_url
 
@@ -31,6 +32,7 @@ universe_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(universe_app, name="universe")
+app.add_typer(resource_app, name="resource")
 
 
 @app.command("help")
@@ -239,7 +241,16 @@ def universe_create_cmd(
 
     target.mkdir(parents=True, exist_ok=True)
     store = QdrantStore(get_qdrant_url())
-    store.ensure_collection(collection_name_for(name))
+    try:
+        store.ensure_collection(collection_name_for(name))
+    except Exception as exc:
+        typer.secho(
+            f"error: could not reach Qdrant ({exc.__class__.__name__}). "
+            f"Make sure Docker is running and `omk start` has been executed.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=1) from exc
     save_config(cfg)
 
     typer.secho(f"universe '{name}' created.", fg=typer.colors.GREEN, bold=True)
