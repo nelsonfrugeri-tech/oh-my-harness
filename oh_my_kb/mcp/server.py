@@ -32,11 +32,17 @@ from oh_my_kb.mcp.resources import list_scribe_resources, read_scribe_resource
 from oh_my_kb.mcp.tools import (
     KB_EXPAND_TOOL,
     KB_RECENT_TOOL,
+    KB_RESOURCE_DIFF_TOOL,
+    KB_RESOURCE_LIST_TOOL,
+    KB_RESOURCE_UPDATE_TOOL,
     KB_SEARCH_TOOL,
     KB_TREE_TOOL,
     KB_WRITE_TOOL,
     handle_kb_expand,
     handle_kb_recent,
+    handle_kb_resource_diff,
+    handle_kb_resource_list,
+    handle_kb_resource_update,
     handle_kb_search,
     handle_kb_tree,
     handle_kb_write,
@@ -122,6 +128,9 @@ def build_server(context: KBServerContext) -> Server[Any, Any]:
             KB_RECENT_TOOL,
             KB_TREE_TOOL,
             KB_EXPAND_TOOL,
+            KB_RESOURCE_LIST_TOOL,
+            KB_RESOURCE_DIFF_TOOL,
+            KB_RESOURCE_UPDATE_TOOL,
         ]
 
     @server.call_tool()  # type: ignore[untyped-decorator]
@@ -144,6 +153,12 @@ def build_server(context: KBServerContext) -> Server[Any, Any]:
             return await handle_kb_expand(
                 context.navigation_service, context.universe, arguments
             )
+        if name == "kb_resource_list":
+            return await handle_kb_resource_list(arguments)
+        if name == "kb_resource_diff":
+            return await handle_kb_resource_diff(arguments)
+        if name == "kb_resource_update":
+            return await handle_kb_resource_update(arguments)
         return [TextContent(type="text", text=f"unknown tool: {name}")]
 
     @server.list_resources()  # type: ignore[no-untyped-call, untyped-decorator]
