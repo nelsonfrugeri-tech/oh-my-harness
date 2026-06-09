@@ -31,7 +31,7 @@ universe_app = typer.Typer(
     help="Create, list and switch between universes.",
     no_args_is_help=True,
 )
-app.add_typer(universe_app, name="universe")
+app.add_typer(universe_app, name="kb")
 app.add_typer(resource_app, name="resource")
 
 
@@ -214,7 +214,7 @@ def status_cmd() -> None:
 
 
 # ---------------------------------------------------------------------------
-# omk universe — sub-commands
+# omk kb — sub-commands
 # ---------------------------------------------------------------------------
 
 

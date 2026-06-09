@@ -1,4 +1,4 @@
-"""Tests for ``omk universe`` commands via Typer's CliRunner.
+"""Tests for ``omk kb`` commands via Typer's CliRunner.
 
 Drives the real ``app`` object end-to-end against a temp config dir and a
 real ``QdrantStore`` pointed at the in-memory backend (so we exercise the
@@ -39,7 +39,7 @@ def isolated_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
 def test_help_lists_top_level_commands(runner: CliRunner) -> None:
     result = runner.invoke(app, ["help"])
     assert result.exit_code == 0
-    for cmd in ("install", "universe", "help"):
+    for cmd in ("install", "kb", "help"):
         assert cmd in result.output
 
 
@@ -47,16 +47,16 @@ def test_dash_dash_help_also_works(runner: CliRunner) -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
     assert "install" in result.output
-    assert "universe" in result.output
+    assert "kb" in result.output
 
 
-# --- universe create ---------------------------------------------------
+# --- kb create ---------------------------------------------------
 
 
 def test_universe_create_writes_config_and_creates_dir(
     runner: CliRunner, isolated_env: Path
 ) -> None:
-    result = runner.invoke(app, ["universe", "create", "research"])
+    result = runner.invoke(app, ["kb", "create", "research"])
 
     assert result.exit_code == 0, result.output
     cfg = load_config()
@@ -77,7 +77,7 @@ def test_universe_create_handles_qdrant_offline(
         "oh_my_kb.cli.app.QdrantStore.ensure_collection",
         side_effect=RuntimeError("connection refused"),
     ):
-        result = runner.invoke(app, ["universe", "create", "test-qa"])
+        result = runner.invoke(app, ["kb", "create", "test-qa"])
 
     assert result.exit_code == 1
     # Default CliRunner mixes stderr into output; check for the user-friendly hint.
@@ -87,8 +87,8 @@ def test_universe_create_handles_qdrant_offline(
 def test_universe_create_duplicate_returns_error(
     runner: CliRunner, isolated_env: Path
 ) -> None:
-    runner.invoke(app, ["universe", "create", "default"])
-    result = runner.invoke(app, ["universe", "create", "default"])
+    runner.invoke(app, ["kb", "create", "default"])
+    result = runner.invoke(app, ["kb", "create", "default"])
 
     assert result.exit_code != 0
     assert "already exists" in result.output
@@ -99,7 +99,7 @@ def test_universe_create_with_explicit_notes_root(
 ) -> None:
     custom = tmp_path / "elsewhere"
     result = runner.invoke(
-        app, ["universe", "create", "custom", "--notes-root", str(custom)]
+        app, ["kb", "create", "custom", "--notes-root", str(custom)]
     )
 
     assert result.exit_code == 0, result.output
@@ -110,11 +110,11 @@ def test_universe_create_with_explicit_notes_root(
     assert custom.is_dir()
 
 
-# --- universe list -----------------------------------------------------
+# --- kb list -----------------------------------------------------
 
 
 def test_universe_list_empty_state(runner: CliRunner, isolated_env: Path) -> None:
-    result = runner.invoke(app, ["universe", "list"])
+    result = runner.invoke(app, ["kb", "list"])
     assert result.exit_code == 0
     assert "no universes" in result.output.lower()
 
@@ -122,11 +122,11 @@ def test_universe_list_empty_state(runner: CliRunner, isolated_env: Path) -> Non
 def test_universe_list_marks_active_with_star(
     runner: CliRunner, isolated_env: Path
 ) -> None:
-    runner.invoke(app, ["universe", "create", "alpha"])
-    runner.invoke(app, ["universe", "create", "beta"])
-    runner.invoke(app, ["universe", "use", "beta"])
+    runner.invoke(app, ["kb", "create", "alpha"])
+    runner.invoke(app, ["kb", "create", "beta"])
+    runner.invoke(app, ["kb", "use", "beta"])
 
-    result = runner.invoke(app, ["universe", "list"])
+    result = runner.invoke(app, ["kb", "list"])
     assert result.exit_code == 0
     lines = result.output.splitlines()
     alpha_line = next(line for line in lines if "alpha" in line)
@@ -135,14 +135,14 @@ def test_universe_list_marks_active_with_star(
     assert "*" not in alpha_line
 
 
-# --- universe use ------------------------------------------------------
+# --- kb use ------------------------------------------------------
 
 
 def test_universe_use_changes_active(runner: CliRunner, isolated_env: Path) -> None:
-    runner.invoke(app, ["universe", "create", "alpha"])
-    runner.invoke(app, ["universe", "create", "beta"])
+    runner.invoke(app, ["kb", "create", "alpha"])
+    runner.invoke(app, ["kb", "create", "beta"])
 
-    result = runner.invoke(app, ["universe", "use", "beta"])
+    result = runner.invoke(app, ["kb", "use", "beta"])
 
     assert result.exit_code == 0, result.output
     assert load_config().active == "beta"
@@ -151,6 +151,6 @@ def test_universe_use_changes_active(runner: CliRunner, isolated_env: Path) -> N
 def test_universe_use_unknown_returns_error(
     runner: CliRunner, isolated_env: Path
 ) -> None:
-    result = runner.invoke(app, ["universe", "use", "nope"])
+    result = runner.invoke(app, ["kb", "use", "nope"])
     assert result.exit_code != 0
     assert "not configured" in result.output
