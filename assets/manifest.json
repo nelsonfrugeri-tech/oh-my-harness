@@ -1,0 +1,292 @@
+{
+  "version": 1,
+  "skills": [
+    {
+      "name": "ai-engineer",
+      "path": "assets/skills/ai-engineer",
+      "files": [
+        "SKILL.md",
+        "references/agent-frameworks-custom-agents.md",
+        "references/agent-frameworks-langchain.md",
+        "references/agent-frameworks-langgraph.md",
+        "references/agent-frameworks-multi-agent.md",
+        "references/agent-frameworks-tool-integration.md",
+        "references/llm-integration-anthropic-sdk.md",
+        "references/rag-architecture.md",
+        "references/rag-chunking-strategies.md",
+        "references/rag-embeddings.md",
+        "references/rag-evaluation.md"
+      ]
+    },
+    {
+      "name": "api-design",
+      "path": "assets/skills/api-design",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "ci-cd",
+      "path": "assets/skills/ci-cd",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "design",
+      "path": "assets/skills/design",
+      "files": [
+        "SKILL.md",
+        "references/adr-templates.md",
+        "references/api-design-comparison.md",
+        "references/c4-model-guide.md",
+        "references/decomposition-monolith-vs-microservices.md",
+        "references/decomposition-strategies.md",
+        "references/event-driven-patterns.md",
+        "references/observability-design-patterns.md",
+        "references/security-zero-trust.md",
+        "references/testing-strategy-by-layer.md",
+        "references/trade-off-analysis-atam.md",
+        "references/trade-off-analysis-fitness-functions.md"
+      ]
+    },
+    {
+      "name": "environment",
+      "path": "assets/skills/environment",
+      "files": [
+        "SKILL.md",
+        "references/databases-setup-patterns.md",
+        "references/debugging-error-recovery.md",
+        "references/debugging-log-streaming.md",
+        "references/docker-compose-patterns.md",
+        "references/docker-dependency-installation.md",
+        "references/docker-dockerfile-patterns.md",
+        "references/orchestration-env-management.md",
+        "references/orchestration-startup-order.md"
+      ]
+    },
+    {
+      "name": "frontend-ui",
+      "path": "assets/skills/frontend-ui",
+      "files": [
+        "SKILL.md",
+        "references/accessibility-wcag-2-2.md",
+        "references/color-dark-mode.md",
+        "references/color-oklch.md",
+        "references/color-semantic-tokens.md",
+        "references/components-icons-images.md",
+        "references/components-shadcn-ecosystem.md",
+        "references/layout-modern-css-layout.md",
+        "references/layout-spacing-system.md",
+        "references/motion-animation-guide.md",
+        "references/typography-fluid-typography.md",
+        "references/typography-font-pairing.md",
+        "references/typography-variable-fonts.md",
+        "references/ux-patterns-interaction-patterns.md",
+        "references/ux-patterns-loading-states.md",
+        "references/visual-trends-2026.md"
+      ]
+    },
+    {
+      "name": "implement",
+      "path": "assets/skills/implement",
+      "files": [
+        "SKILL.md",
+        "references/ci-discipline.md",
+        "references/code-review-self-check.md",
+        "references/feature-breakdown-vertical-slicing.md",
+        "references/pipeline-stages.md",
+        "references/pipeline-transitions.md",
+        "references/qa-execution-protocol.md",
+        "references/refactoring-patterns.md",
+        "references/review-handoff-protocol.md",
+        "references/self-judge-checklist.md",
+        "references/technical-debt-quadrant.md",
+        "references/templates-qa-report.md",
+        "references/templates-review-summary.md",
+        "references/testing-atdd.md",
+        "references/testing-bdd.md",
+        "references/testing-tdd.md",
+        "references/testing-test-first.md",
+        "references/workflow-bug-fix.md",
+        "references/workflow-design.md",
+        "references/workflow-implementation.md",
+        "references/workflow-pairing.md",
+        "references/workflow-questioning.md",
+        "references/workflow-research.md",
+        "references/workflow-validation.md"
+      ]
+    },
+    {
+      "name": "manage",
+      "path": "assets/skills/manage",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "observability",
+      "path": "assets/skills/observability",
+      "files": [
+        "SKILL.md",
+        "references/grafana.md",
+        "references/jaeger.md",
+        "references/langfuse.md",
+        "references/opentelemetry-instrumentation.md",
+        "references/opentelemetry-setup.md",
+        "references/prometheus.md"
+      ]
+    },
+    {
+      "name": "operate",
+      "path": "assets/skills/operate",
+      "files": [
+        "SKILL.md",
+        "references/alerting-burn-rate.md",
+        "references/alerting-symptom-based.md",
+        "references/dashboards-patterns.md",
+        "references/incident-response-on-call.md",
+        "references/incident-response-postmortem-template.md",
+        "references/incident-response-root-cause-analysis.md",
+        "references/incident-response-runbook-template.md",
+        "references/incident-response-workflow.md",
+        "references/opentelemetry-instrumentation.md",
+        "references/opentelemetry-setup.md",
+        "references/slo-management-defining-slos.md",
+        "references/slo-management-error-budgets.md",
+        "references/tools-cost-optimization.md",
+        "references/tools-grafana.md",
+        "references/tools-jaeger.md",
+        "references/tools-langfuse.md",
+        "references/tools-prometheus.md"
+      ]
+    },
+    {
+      "name": "python",
+      "path": "assets/skills/python",
+      "files": [
+        "SKILL.md",
+        "references/async-patterns.md",
+        "references/concurrency.md",
+        "references/configuration.md",
+        "references/context-managers.md",
+        "references/dataclasses.md",
+        "references/decorators.md",
+        "references/error-handling.md",
+        "references/generators.md",
+        "references/logging.md",
+        "references/packaging.md",
+        "references/pydantic.md",
+        "references/type-system.md"
+      ]
+    },
+    {
+      "name": "research",
+      "path": "assets/skills/research",
+      "files": [
+        "SKILL.md",
+        "references/methodology/debate-frameworks.md",
+        "references/methodology/synthesis-templates.md",
+        "references/methodology/validation-protocol.md",
+        "references/platforms/arxiv.md",
+        "references/platforms/github-search.md",
+        "references/platforms/google.md",
+        "references/platforms/huggingface.md",
+        "references/platforms/infrastructure.md",
+        "references/platforms/pypi-npm.md",
+        "references/security/vulnerability-sources.md"
+      ]
+    },
+    {
+      "name": "review",
+      "path": "assets/skills/review",
+      "files": [
+        "SKILL.md",
+        "references/checklist-python.md",
+        "references/checklist-typescript.md"
+      ]
+    },
+    {
+      "name": "scribe",
+      "path": "assets/skills/scribe",
+      "files": [
+        "SKILL.md",
+        "template.md"
+      ]
+    },
+    {
+      "name": "security",
+      "path": "assets/skills/security",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "test",
+      "path": "assets/skills/test",
+      "files": [
+        "SKILL.md",
+        "references/accessibility-automated-testing.md",
+        "references/contract-testing-pact.md",
+        "references/e2e-playwright.md",
+        "references/e2e-strategy.md",
+        "references/environment-setup-teardown.md",
+        "references/integration-patterns.md",
+        "references/performance-load-testing.md",
+        "references/reporting-evidence-collection.md",
+        "references/test-data-management.md",
+        "references/visual-regression-screenshot-testing.md"
+      ]
+    },
+    {
+      "name": "typescript",
+      "path": "assets/skills/typescript",
+      "files": [
+        "SKILL.md",
+        "references/architecture.md",
+        "references/biome.md",
+        "references/component-patterns.md",
+        "references/hooks.md",
+        "references/patterns.md",
+        "references/performance.md",
+        "references/playwright.md",
+        "references/pnpm.md",
+        "references/server-components.md",
+        "references/strict-config.md",
+        "references/tailwind.md",
+        "references/tanstack-query.md",
+        "references/testing-library.md",
+        "references/type-system.md",
+        "references/vite.md",
+        "references/vitest.md",
+        "references/zustand.md"
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "name": "ai-engineer",
+      "path": "assets/agents/ai-engineer.md"
+    },
+    {
+      "name": "architect",
+      "path": "assets/agents/architect.md"
+    },
+    {
+      "name": "developer",
+      "path": "assets/agents/developer.md"
+    },
+    {
+      "name": "qa",
+      "path": "assets/agents/qa.md"
+    },
+    {
+      "name": "sre",
+      "path": "assets/agents/sre.md"
+    },
+    {
+      "name": "tech_pm",
+      "path": "assets/agents/tech_pm.md"
+    }
+  ]
+}
