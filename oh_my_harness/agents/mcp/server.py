@@ -1,14 +1,13 @@
 """``o-agents-mcp`` — agents-side stdio MCP server.
 
-Minimal scaffolding with zero tools registered.  The sole purpose of this
-module is to give issue #56 a stable base to land ``develop_leap_update``
-and future agent tools on top of, without needing to set up the transport
-from scratch.
+Hosts agent-facing tools.  Currently registers ``develop_leap_update``
+(issue #56).  Future agent tools land here by extending
+:func:`build_server`.
 
 Structure mirrors ``oh_my_harness.kb.mcp.server``:
-- :class:`AgentsServerContext` — frozen dataclass, fields added by #56
-- :func:`build_context` — returns a default :class:`AgentsServerContext`
-- :func:`build_server` — wires the :class:`Server` with empty tool handlers
+- :class:`AgentsServerContext` — frozen dataclass for runtime deps
+- :func:`build_context` — fabricates the context from env
+- :func:`build_server` — wires the :class:`Server` with tool handlers
 - :func:`_log_startup` — logs boot message to stderr
 - :func:`_serve` — asyncio coroutine that runs the stdio transport
 - :func:`main` — entry point (registered as ``o-agents-mcp`` in pyproject.toml)
@@ -26,6 +25,8 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
+from oh_my_harness.agents.mcp.tools import DEVELOP_LEAP_UPDATE_TOOL, handle_develop_leap_update
+
 SERVER_NAME = "o-agents-mcp"
 
 
@@ -33,27 +34,22 @@ SERVER_NAME = "o-agents-mcp"
 class AgentsServerContext:
     """Runtime snapshot for the agents MCP server.
 
-    Intentionally empty for now — issue #56 will add concrete fields
-    (e.g. workspace config, tool registries) as the agent surface grows.
+    Currently no fields — ``develop_leap_update`` reads ``ANTHROPIC_API_KEY``
+    from env at call time.  Concrete deps will be added here when tools
+    need shared state (e.g. an LLM client pool).
     """
 
 
 def build_context() -> AgentsServerContext:
-    """Construct the server context from the current environment.
-
-    Issue #56 will extend this to read env-vars and build concrete deps.
-    """
+    """Construct the server context from the current environment."""
     return AgentsServerContext()
 
 
 def build_server(context: AgentsServerContext) -> Server[Any, Any]:
-    """Construct a :class:`Server` with empty tool stubs.
-
-    Zero tools are registered here.  Issue #56 will add ``develop_leap_update``
-    and friends by extending *this* function.
+    """Construct a :class:`Server` with the agents tools registered.
 
     Args:
-        context: Runtime snapshot (unused at this stage; reserved for #56).
+        context: Runtime snapshot (unused while no tool needs shared state).
 
     Returns:
         Configured :class:`Server` instance ready to run the stdio transport.
@@ -62,10 +58,12 @@ def build_server(context: AgentsServerContext) -> Server[Any, Any]:
 
     @server.list_tools()  # type: ignore[no-untyped-call, untyped-decorator]
     async def _list_tools() -> list[Tool]:
-        return []
+        return [DEVELOP_LEAP_UPDATE_TOOL]
 
     @server.call_tool()  # type: ignore[untyped-decorator]
     async def _call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
+        if name == "develop_leap_update":
+            return await handle_develop_leap_update(arguments)
         return [TextContent(type="text", text=f"unknown tool: {name}")]
 
     return server
@@ -75,7 +73,7 @@ def _log_startup(context: AgentsServerContext) -> None:
     print(
         (
             f"{SERVER_NAME} ready\n"
-            f"  tools      : (nenhuma — placeholder, ver issue #56)"
+            f"  tools      : develop_leap_update"
         ),
         file=sys.stderr,
         flush=True,

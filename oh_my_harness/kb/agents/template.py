@@ -94,4 +94,19 @@ def render_dynamic_block(universe: str) -> str:
         " use kb_tree quando o usuário precisar de orientação.",
     ]
 
+    # ── Agentes pessoais (o-agents-mcp) ──
+    from oh_my_harness.agents.mcp.tools import DEVELOP_LEAP_UPDATE_TOOL
+    from oh_my_harness.agents.triggers import AGENTS_TOOL_TRIGGERS
+
+    agent_tools = [DEVELOP_LEAP_UPDATE_TOOL]
+
+    lines += [
+        "",
+        "## Agentes pessoais (o-agents-mcp)",
+        "",
+    ]
+    for tool in agent_tools:
+        trigger = AGENTS_TOOL_TRIGGERS.get(tool.name, tool.description or tool.name)
+        lines.append(f"- `{tool.name}` — {trigger}")
+
     return "\n".join(lines)

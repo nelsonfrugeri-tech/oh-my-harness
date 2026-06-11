@@ -6,9 +6,10 @@ function level:
 1. ``build_context`` returns an :class:`AgentsServerContext` instance.
 2. ``build_server`` registers handlers for ``ListToolsRequest`` and
    ``CallToolRequest``.
-3. The ``list_tools`` handler returns an empty list (no tools registered yet).
-4. The ``call_tool`` handler returns a ``TextContent`` fallback for any name.
-5. ``main`` is callable and installs a SIGTERM handler (checked via signal.getsignal).
+3. The ``list_tools`` handler returns ``[DEVELOP_LEAP_UPDATE_TOOL]``.
+4. The ``call_tool`` handler dispatches ``develop_leap_update`` to the handler.
+5. The ``call_tool`` handler returns a ``TextContent`` fallback for unknown names.
+6. ``main`` is callable and installs a SIGTERM handler (checked via signal.getsignal).
 """
 
 from __future__ import annotations
@@ -49,12 +50,14 @@ def test_build_server_registers_handlers() -> None:
 
 
 # ---------------------------------------------------------------------------
-# 3. list_tools returns []
+# 3. list_tools returns [DEVELOP_LEAP_UPDATE_TOOL]
 # ---------------------------------------------------------------------------
 
 
-async def test_list_tools_returns_empty() -> None:
+async def test_list_tools_returns_develop_leap() -> None:
     from mcp.types import ListToolsRequest
+
+    from oh_my_harness.agents.mcp.tools import DEVELOP_LEAP_UPDATE_TOOL
 
     ctx = build_context()
     server = build_server(ctx)
@@ -64,7 +67,8 @@ async def test_list_tools_returns_empty() -> None:
     response = await handler(request)
     # MCP SDK wraps the result in ServerResult with a .root attribute.
     tools = response.root.tools  # type: ignore[union-attr]
-    assert tools == []
+    assert len(tools) == 1
+    assert tools[0].name == DEVELOP_LEAP_UPDATE_TOOL.name
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +94,39 @@ async def test_call_tool_unknown_returns_text() -> None:
     assert isinstance(item, TextContent)
     assert item.text.startswith("unknown tool: ")
     assert "anything" in item.text
+
+
+# ---------------------------------------------------------------------------
+# 4b. call_tool dispatches develop_leap_update to its handler
+# ---------------------------------------------------------------------------
+
+
+async def test_call_tool_develop_leap_dispatches() -> None:
+    from unittest.mock import AsyncMock, patch
+
+    from mcp.types import CallToolRequest, CallToolRequestParams, TextContent
+
+    ctx = build_context()
+    server = build_server(ctx)
+
+    mock_result = [TextContent(type="text", text="develop_leap mocked")]
+
+    handler = server.request_handlers[CallToolRequest]
+    request = CallToolRequest(
+        method="tools/call",
+        params=CallToolRequestParams(name="develop_leap_update", arguments={}),
+    )
+
+    with patch(
+        "oh_my_harness.agents.mcp.server.handle_develop_leap_update",
+        new=AsyncMock(return_value=mock_result),
+    ):
+        response = await handler(request)
+
+    contents = response.root.content  # type: ignore[union-attr]
+    assert len(contents) == 1
+    assert isinstance(contents[0], TextContent)
+    assert "develop_leap mocked" in contents[0].text
 
 
 # ---------------------------------------------------------------------------

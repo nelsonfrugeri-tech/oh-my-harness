@@ -205,7 +205,7 @@ class TestInstallCLIYes:
 
         assert result.exit_code == 0, result.output
 
-    def test_output_contains_all_6_steps(
+    def test_output_contains_all_7_steps(
         self, runner: CliRunner, tmp_path: Path
     ) -> None:
         home = tmp_path / "home"
@@ -224,8 +224,8 @@ class TestInstallCLIYes:
         ):
             result = runner.invoke(app, ["install", "--yes"])
 
-        for step in range(1, 7):
-            assert f"[{step}/6]" in result.output, f"step {step}/6 missing from output"
+        for step in range(1, 8):
+            assert f"[{step}/7]" in result.output, f"step {step}/7 missing from output"
 
     def test_generates_claude_md(self, runner: CliRunner, tmp_path: Path) -> None:
         home = tmp_path / "home"
@@ -252,6 +252,7 @@ class TestInstallCLIYes:
     def test_claude_md_contains_all_tools(
         self, runner: CliRunner, tmp_path: Path
     ) -> None:
+        from oh_my_harness.agents.mcp.tools import DEVELOP_LEAP_UPDATE_TOOL
         from oh_my_harness.kb.mcp.tools import (
             KB_EXPAND_TOOL,
             KB_RECENT_TOOL,
@@ -289,6 +290,7 @@ class TestInstallCLIYes:
             KB_RESOURCE_LIST_TOOL,
             KB_RESOURCE_DIFF_TOOL,
             KB_RESOURCE_UPDATE_TOOL,
+            DEVELOP_LEAP_UPDATE_TOOL,
         ]:
             assert tool.name in content, f"tool {tool.name} missing from CLAUDE.md"
 
