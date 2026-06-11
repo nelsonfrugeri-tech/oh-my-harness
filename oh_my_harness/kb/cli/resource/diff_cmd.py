@@ -14,7 +14,7 @@ from oh_my_harness.kb.cli.resource.registry import RESOURCE_REGISTRY, ResourceMe
 
 _MANIFEST_MISSING_MSG = (
     "Erro: manifest não encontrado em ~/.claude/.omk-manifest.json.\n"
-    "Execute omk resource pull --all para baixar os resources."
+    "Execute omk kb resources pull --all para baixar os resources."
 )
 
 
@@ -142,4 +142,4 @@ def diff_cmd(
             parts.append(f"{unchanged_count} sem alterações")
         typer.echo(f"  {', '.join(parts)}.")
         if changed_count:
-            typer.echo("  Para atualizar: omk resource update")
+            typer.echo("  Para atualizar: omk kb resources update")

@@ -19,7 +19,7 @@ from oh_my_harness.kb.cli.resource.registry import RESOURCE_REGISTRY, ResourceMe
 
 _MANIFEST_MISSING_MSG = (
     "Erro: manifest não encontrado em ~/.claude/.omk-manifest.json.\n"
-    "Execute omk resource pull --all para instalar os resources antes de atualizar."
+    "Execute omk kb resources pull --all para instalar os resources antes de atualizar."
 )
 
 

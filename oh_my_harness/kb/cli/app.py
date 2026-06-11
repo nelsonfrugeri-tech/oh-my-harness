@@ -6,6 +6,7 @@ from pathlib import Path
 
 import typer
 
+from oh_my_harness.kb.cli.agents import agents_app
 from oh_my_harness.kb.cli.config import (
     UniverseAlreadyExistsError,
     UniverseNotFoundError,
@@ -27,12 +28,13 @@ app = typer.Typer(
     ),
     no_args_is_help=True,
 )
-universe_app = typer.Typer(
+kb_app = typer.Typer(
     help="Create, list and switch between knowledge bases.",
     no_args_is_help=True,
 )
-app.add_typer(universe_app, name="kb")
-app.add_typer(resource_app, name="resource")
+app.add_typer(kb_app, name="kb")
+kb_app.add_typer(resource_app, name="resources")
+kb_app.add_typer(agents_app, name="agents")
 
 
 @app.command("help")
@@ -181,9 +183,9 @@ def install_cmd(
     typer.echo("")
     typer.echo("  Proximos passos:")
     typer.echo("    * Abra o Claude Code em qualquer projeto — o kb-mcp ja esta ativo.")
-    typer.echo("    * omh status          — verificar o estado do sistema")
-    typer.echo("    * omh resource diff   — ver atualizacoes disponiveis nos resources")
-    typer.echo("    * omh resource update — aplicar atualizacoes (regenera o CLAUDE.md)")
+    typer.echo("    * omh status               — verificar o estado do sistema")
+    typer.echo("    * omh kb resources diff   — ver atualizacoes disponiveis nos resources")
+    typer.echo("    * omh kb resources update — aplicar atualizacoes (regenera o CLAUDE.md)")
     typer.echo("")
 
 
@@ -218,7 +220,7 @@ def status_cmd() -> None:
 # ---------------------------------------------------------------------------
 
 
-@universe_app.command("create")
+@kb_app.command("create")
 def universe_create_cmd(
     name: str = typer.Argument(..., help="Name of the new knowledge base."),
     notes_root: str | None = typer.Option(
@@ -258,7 +260,7 @@ def universe_create_cmd(
     typer.echo(f"  collection : {collection_name_for(name)}")
 
 
-@universe_app.command("list")
+@kb_app.command("list")
 def universe_list_cmd() -> None:
     """List configured knowledge bases; the active one is marked with ``*``."""
     cfg = load_config()
@@ -270,7 +272,7 @@ def universe_list_cmd() -> None:
         typer.echo(f" {marker} {u.name:20s} {u.collection:24s} {u.notes_root}")
 
 
-@universe_app.command("use")
+@kb_app.command("use")
 def universe_use_cmd(
     name: str = typer.Argument(..., help="Name of the knowledge base to activate."),
 ) -> None:

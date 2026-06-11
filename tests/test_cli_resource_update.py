@@ -110,7 +110,7 @@ def test_update_all_no_changes(
         lambda uri, locale="pt-BR": _CONTENT_V1,
     )
 
-    result = runner.invoke(app, ["resource", "update", "--yes"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "update", "--yes"], catch_exceptions=False)
     assert result.exit_code == 0
     assert "já estão na versão mais recente" in result.output
 
@@ -138,7 +138,7 @@ def test_update_all_with_drift_yes_flag(
     _mod = sys.modules["oh_my_harness.kb.cli.resource.update_cmd"]
     monkeypatch.setattr(_mod, "_regenerate_claude_md", lambda home=None: None)
 
-    result = runner.invoke(app, ["resource", "update", "--yes"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "update", "--yes"], catch_exceptions=False)
     assert result.exit_code == 0
     assert "atualizado para 1.1.0" in result.output
 
@@ -167,7 +167,7 @@ def test_update_single_resource_already_up_to_date(
     )
 
     result = runner.invoke(
-        app, ["resource", "update", "skills/scribe"], catch_exceptions=False
+        app, ["kb", "resources", "update", "skills/scribe"], catch_exceptions=False
     )
     assert result.exit_code == 0
     assert "já está na versão mais recente" in result.output
@@ -203,7 +203,7 @@ def test_update_regenerates_claude_md_on_success(
     _mod = sys.modules["oh_my_harness.kb.cli.resource.update_cmd"]
     monkeypatch.setattr(_mod, "_regenerate_claude_md", _fake_regenerate)
 
-    result = runner.invoke(app, ["resource", "update", "--yes"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "update", "--yes"], catch_exceptions=False)
     assert result.exit_code == 0
     assert len(bootstrap_calls) == 1
     assert "CLAUDE.md" in result.output
@@ -236,7 +236,7 @@ def test_update_bootstrap_failure_warns_but_exits_0(
     _mod = sys.modules["oh_my_harness.kb.cli.resource.update_cmd"]
     monkeypatch.setattr(_mod, "_regenerate_claude_md", _failing_regenerate)
 
-    result = runner.invoke(app, ["resource", "update", "--yes"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "update", "--yes"], catch_exceptions=False)
     assert result.exit_code == 0
     assert "Aviso" in result.output or "CLAUDE.md" in result.output
 
@@ -261,7 +261,7 @@ def test_update_confirmation_n_skips(
     # Provide 'N' for all confirmations via input
     result = runner.invoke(
         app,
-        ["resource", "update"],
+        ["kb", "resources", "update"],
         input="N\n" * 10,
         catch_exceptions=False,
     )
@@ -282,10 +282,10 @@ def test_update_manifest_missing_exits_1(
     fake_claude_home: Path,
 ) -> None:
     """When manifest is absent, exits 1 with instruction."""
-    result = runner.invoke(app, ["resource", "update"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "update"], catch_exceptions=False)
     assert result.exit_code == 1
     assert "manifest não encontrado" in result.output
-    assert "omk resource pull --all" in result.output
+    assert "omk kb resources pull --all" in result.output
 
 
 # ---------------------------------------------------------------------------
@@ -301,7 +301,7 @@ def test_update_invalid_resource_id_exits_3(
     _make_synced_manifest(fake_claude_home, _CONTENT_V1)
 
     result = runner.invoke(
-        app, ["resource", "update", "nao/existe"], catch_exceptions=False
+        app, ["kb", "resources", "update", "nao/existe"], catch_exceptions=False
     )
     assert result.exit_code == 3
     assert "não encontrado no servidor MCP" in result.output

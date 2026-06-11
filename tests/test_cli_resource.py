@@ -102,7 +102,7 @@ def test_load_manifest_returns_none_when_absent(tmp_path: Path) -> None:
 
 def test_resource_list_happy_path() -> None:
     """``omk resource list`` exits 0 and prints all resources."""
-    result = runner.invoke(app, ["resource", "list"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "list"], catch_exceptions=False)
     assert result.exit_code == 0
     output = result.output
     assert "skills/scribe" in output
@@ -115,7 +115,7 @@ def test_resource_list_happy_path() -> None:
 
 def test_resource_list_ordering() -> None:
     """skills/scribe appears before template (registry order)."""
-    result = runner.invoke(app, ["resource", "list"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "list"], catch_exceptions=False)
     assert result.exit_code == 0
     idx_skill = result.output.index("skills/scribe")
     idx_tmpl = result.output.index("template")
@@ -124,7 +124,7 @@ def test_resource_list_ordering() -> None:
 
 def test_resource_list_count_line() -> None:
     """The count line reflects the registry length."""
-    result = runner.invoke(app, ["resource", "list"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "list"], catch_exceptions=False)
     count = len(RESOURCE_REGISTRY)
     assert f"{count} resource" in result.output
 
@@ -136,14 +136,16 @@ def test_resource_list_count_line() -> None:
 
 def test_pull_no_name_no_all_exits_1() -> None:
     """``omk resource pull`` without name or --all exits 1."""
-    result = runner.invoke(app, ["resource", "pull"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "pull"], catch_exceptions=False)
     assert result.exit_code == 1
     assert "provide a resource name or --all" in result.stderr
 
 
 def test_pull_unknown_name_exits_1() -> None:
     """``omk resource pull unknown`` exits 1 with clear message."""
-    result = runner.invoke(app, ["resource", "pull", "does/not/exist"], catch_exceptions=False)
+    result = runner.invoke(
+        app, ["kb", "resources", "pull", "does/not/exist"], catch_exceptions=False
+    )
     assert result.exit_code == 1
     assert "unknown resource" in result.stderr
 
@@ -158,7 +160,9 @@ def test_pull_single_happy_path(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """Pull a single resource: file is written, exit 0."""
-    result = runner.invoke(app, ["resource", "pull", "skills/scribe"], catch_exceptions=False)
+    result = runner.invoke(
+        app, ["kb", "resources", "pull", "skills/scribe"], catch_exceptions=False
+    )
     assert result.exit_code == 0
     dest = fake_claude_home / ".claude" / "skills" / "scribe" / "SKILL.md"
     assert dest.is_file()
@@ -169,7 +173,7 @@ def test_pull_single_content_matches(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """Pulled file content matches what read_scribe_resource returns."""
-    runner.invoke(app, ["resource", "pull", "skills/scribe"], catch_exceptions=False)
+    runner.invoke(app, ["kb", "resources", "pull", "skills/scribe"], catch_exceptions=False)
     dest = fake_claude_home / ".claude" / "skills" / "scribe" / "SKILL.md"
     written = dest.read_text(encoding="utf-8")
     assert "content_version: 1" in written
@@ -181,7 +185,7 @@ def test_pull_single_manifest_entry_written(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """After pull, manifest contains the pulled resource."""
-    runner.invoke(app, ["resource", "pull", "skills/scribe"], catch_exceptions=False)
+    runner.invoke(app, ["kb", "resources", "pull", "skills/scribe"], catch_exceptions=False)
     m = load_manifest(home=fake_claude_home)
     assert m is not None
     assert "skills/scribe" in m.resources
@@ -197,9 +201,11 @@ def test_pull_over_existing_file_shows_updated(
 ) -> None:
     """Pulling over an existing file shows 'action: updated'."""
     # First pull
-    runner.invoke(app, ["resource", "pull", "skills/scribe"], catch_exceptions=False)
+    runner.invoke(app, ["kb", "resources", "pull", "skills/scribe"], catch_exceptions=False)
     # Second pull
-    result = runner.invoke(app, ["resource", "pull", "skills/scribe"], catch_exceptions=False)
+    result = runner.invoke(
+        app, ["kb", "resources", "pull", "skills/scribe"], catch_exceptions=False
+    )
     assert result.exit_code == 0
     assert "updated" in result.output
 
@@ -209,12 +215,12 @@ def test_pull_manifest_pulled_at_updated_on_second_pull(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """On the second pull, manifest pulled_at is refreshed."""
-    runner.invoke(app, ["resource", "pull", "skills/scribe"], catch_exceptions=False)
+    runner.invoke(app, ["kb", "resources", "pull", "skills/scribe"], catch_exceptions=False)
     first = load_manifest(home=fake_claude_home)
     assert first is not None
     first_ts = first.resources["skills/scribe"].pulled_at
 
-    runner.invoke(app, ["resource", "pull", "skills/scribe"], catch_exceptions=False)
+    runner.invoke(app, ["kb", "resources", "pull", "skills/scribe"], catch_exceptions=False)
     second = load_manifest(home=fake_claude_home)
     assert second is not None
     second_ts = second.resources["skills/scribe"].pulled_at
@@ -232,7 +238,7 @@ def test_pull_all_pulls_both_resources(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """``pull --all`` writes both resources to disk."""
-    result = runner.invoke(app, ["resource", "pull", "--all"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "pull", "--all"], catch_exceptions=False)
     assert result.exit_code == 0
     skill = fake_claude_home / ".claude" / "skills" / "scribe" / "SKILL.md"
     tmpl = fake_claude_home / ".claude" / "template.md"
@@ -245,7 +251,7 @@ def test_pull_all_manifest_has_both_entries(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """After ``pull --all``, manifest contains entries for every resource."""
-    runner.invoke(app, ["resource", "pull", "--all"], catch_exceptions=False)
+    runner.invoke(app, ["kb", "resources", "pull", "--all"], catch_exceptions=False)
     m = load_manifest(home=fake_claude_home)
     assert m is not None
     for meta in RESOURCE_REGISTRY:
@@ -257,7 +263,7 @@ def test_pull_all_single_top_level_pulled_at(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """``pull --all`` produces a single top-level pulled_at in the manifest."""
-    runner.invoke(app, ["resource", "pull", "--all"], catch_exceptions=False)
+    runner.invoke(app, ["kb", "resources", "pull", "--all"], catch_exceptions=False)
     m = load_manifest(home=fake_claude_home)
     assert m is not None
     assert m.pulled_at  # non-empty
@@ -277,7 +283,7 @@ def test_pull_stdout_content_on_stdout(
 ) -> None:
     """``pull --stdout`` prints content to stdout."""
     result = runner.invoke(
-        app, ["resource", "pull", "skills/scribe", "--stdout"], catch_exceptions=False
+        app, ["kb", "resources", "pull", "skills/scribe", "--stdout"], catch_exceptions=False
     )
     assert result.exit_code == 0
     assert "# Mock" in result.output
@@ -288,7 +294,9 @@ def test_pull_stdout_no_file_written(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """``pull --stdout`` does NOT write the resource to disk."""
-    runner.invoke(app, ["resource", "pull", "skills/scribe", "--stdout"], catch_exceptions=False)
+    runner.invoke(
+        app, ["kb", "resources", "pull", "skills/scribe", "--stdout"], catch_exceptions=False
+    )
     dest = fake_claude_home / ".claude" / "skills" / "scribe" / "SKILL.md"
     assert not dest.exists()
 
@@ -298,7 +306,9 @@ def test_pull_stdout_no_manifest_update(
     mock_read_resource: Callable[[str, str], str],
 ) -> None:
     """``pull --stdout`` does NOT update the manifest."""
-    runner.invoke(app, ["resource", "pull", "skills/scribe", "--stdout"], catch_exceptions=False)
+    runner.invoke(
+        app, ["kb", "resources", "pull", "skills/scribe", "--stdout"], catch_exceptions=False
+    )
     m = load_manifest(home=fake_claude_home)
     assert m is None
 
@@ -323,7 +333,7 @@ def test_pull_placeholder_locale_no_file_written(
 
     result = runner.invoke(
         app,
-        ["resource", "pull", "skills/scribe", "--locale", "en-US"],
+        ["kb", "resources", "pull", "skills/scribe", "--locale", "en-US"],
         catch_exceptions=False,
     )
     # exit code 1 because placeholder was detected
@@ -345,7 +355,7 @@ def test_pull_placeholder_locale_stderr_warning(
 
     result = runner.invoke(
         app,
-        ["resource", "pull", "skills/scribe", "--locale", "en-US"],
+        ["kb", "resources", "pull", "skills/scribe", "--locale", "en-US"],
         catch_exceptions=False,
     )
     assert "placeholder" in result.stderr.lower() or "warning" in result.stderr.lower()
@@ -364,7 +374,7 @@ def test_pull_placeholder_manifest_not_updated(
 
     runner.invoke(
         app,
-        ["resource", "pull", "skills/scribe", "--locale", "en-US"],
+        ["kb", "resources", "pull", "skills/scribe", "--locale", "en-US"],
         catch_exceptions=False,
     )
     m = load_manifest(home=fake_claude_home)
@@ -393,7 +403,7 @@ def test_pull_all_continues_on_failure_exits_1(
 
     monkeypatch.setattr("oh_my_harness.kb.mcp.resources.read_scribe_resource", _failing_read)
 
-    result = runner.invoke(app, ["resource", "pull", "--all"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "pull", "--all"], catch_exceptions=False)
     # One failed, at least one succeeded — all resources attempted
     assert len(failed_uris) == 1
     assert len(succeeded_uris) >= 1
@@ -416,7 +426,7 @@ def test_pull_all_reports_per_resource_on_partial_failure(
 
     monkeypatch.setattr("oh_my_harness.kb.mcp.resources.read_scribe_resource", _failing_read)
 
-    result = runner.invoke(app, ["resource", "pull", "--all"], catch_exceptions=False)
+    result = runner.invoke(app, ["kb", "resources", "pull", "--all"], catch_exceptions=False)
     assert "FAILED" in result.stderr
 
 
@@ -450,7 +460,7 @@ def test_pull_stdout_binary_resource_exits_1(
 
     result = runner.invoke(
         app,
-        ["resource", "pull", "skills/scribe", "--stdout"],
+        ["kb", "resources", "pull", "skills/scribe", "--stdout"],
         catch_exceptions=False,
     )
     assert result.exit_code == 1
@@ -477,7 +487,7 @@ def test_pull_locale_flag_passes_through(
 
     runner.invoke(
         app,
-        ["resource", "pull", "skills/scribe", "--locale", "en-US"],
+        ["kb", "resources", "pull", "skills/scribe", "--locale", "en-US"],
         catch_exceptions=False,
     )
     assert "en-US" in received_locales
