@@ -1,4 +1,4 @@
-from oh_my_harness.kb.agents.template import load_template, render_rules
+from oh_my_harness.kb.agents.template import load_template, render_dynamic_block, render_rules
 
 
 def test_load_template_returns_pt_br():
@@ -21,3 +21,14 @@ def test_load_template_fallback(tmp_path, monkeypatch):
     (tmp_path / "pt-BR" / "rules_template.md").write_text("rules for {universe}")
     content = load_template(locale="xx-XX")
     assert content == "rules for {universe}"
+
+
+def test_render_dynamic_block_contains_agents_section():
+    result = render_dynamic_block("test-universe")
+    assert "Agentes pessoais (o-agents-mcp)" in result
+    assert "develop_leap_update" in result
+
+
+def test_render_dynamic_block_contains_trigger_phrases():
+    result = render_dynamic_block("test-universe")
+    assert "atualize minhas preferências" in result
