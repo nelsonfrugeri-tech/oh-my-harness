@@ -8,8 +8,8 @@ from typing import Any
 
 import httpx
 
-REPO_URL = "https://github.com/nelsonfrugeri-tech/oh-my-kb"
-RAW_BASE_URL = "https://raw.githubusercontent.com/nelsonfrugeri-tech/oh-my-kb/master"
+REPO_URL = "https://github.com/nelsonfrugeri-tech/oh-my-harness"
+RAW_BASE_URL = "https://raw.githubusercontent.com/nelsonfrugeri-tech/oh-my-harness/master"
 MANIFEST_URL = f"{RAW_BASE_URL}/assets/manifest.json"
 
 
