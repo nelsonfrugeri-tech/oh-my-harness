@@ -27,8 +27,8 @@ into `~/.claude/` where Claude Code picks them up automatically. SemVer + sha256
 in a manifest file make drift detection and incremental updates precise.
 
 ```
-git clone https://github.com/nelsonfrugeri-tech/oh-my-kb.git
-cd oh-my-kb
+git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
+cd oh-my-harness
 make install
 uv run omh install          # interactive wizard, ~2 min
 
@@ -126,8 +126,8 @@ bundling distribution logic into the server.
 ## Quick start
 
 ```bash
-git clone https://github.com/nelsonfrugeri-tech/oh-my-kb.git
-cd oh-my-kb
+git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
+cd oh-my-harness
 make install          # creates .venv and installs all dependencies via uv sync
 uv run omh install    # interactive wizard
 ```
@@ -310,7 +310,7 @@ Agents are single-file. Every file entry carries its own sha256 so drift is dete
 at the file level.
 
 The manifest is fetched fresh on every command invocation over HTTPS from
-`raw.githubusercontent.com/nelsonfrugeri-tech/oh-my-kb/master/assets/manifest.json`.
+`raw.githubusercontent.com/nelsonfrugeri-tech/oh-my-harness/master/assets/manifest.json`.
 No local caching — every `diff` or `update` call reflects the current remote state.
 
 ---
