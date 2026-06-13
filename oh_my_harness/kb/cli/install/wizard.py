@@ -63,12 +63,16 @@ def _validate_port(raw: Any) -> int:
     return port
 
 
-def _validate_universe(raw: Any) -> str:
-    """Return a stripped non-empty universe name."""
+def _validate_kb_name(raw: Any) -> str:
+    """Return a stripped non-empty knowledge base name."""
     name = str(raw).strip()
     if not name:
-        raise ValueError("universe name cannot be empty")
+        raise ValueError("knowledge base name cannot be empty")
     return name
+
+
+# Backward-compatible alias used by existing tests that import _validate_universe.
+_validate_universe = _validate_kb_name
 
 
 def _validate_harness(raw: Any) -> str:
@@ -94,10 +98,10 @@ DEFAULT_STEPS: list[WizardStep] = [
         validator=_validate_path,
     ),
     WizardStep(
-        id="universe",
-        prompt="Nome do universe inicial?",
+        id="kb",
+        prompt="Nome da knowledge base inicial?",
         default="default",
-        validator=_validate_universe,
+        validator=_validate_kb_name,
     ),
     WizardStep(
         id="qdrant_port",
@@ -130,10 +134,16 @@ class InstallChoices:
     """User's configuration decisions collected by :class:`Wizard`."""
 
     notes_root: Path
-    universe: str
+    kb_name: str
     qdrant_port: int
     models_cache: Path
     harness: str
+
+    # Backward-compatible property so code that reads .universe still works
+    # while we migrate call sites.
+    @property
+    def universe(self) -> str:
+        return self.kb_name
 
     def summary(self) -> str:
         """Return a human-readable summary table."""
@@ -146,14 +156,14 @@ class InstallChoices:
             "  Resumo da instalacao:",
             "",
             f"    Diretorio de notas   {self.notes_root}/",
-            f"    Universe             {self.universe}",
+            f"    Knowledge base       {self.kb_name}",
             f"    Qdrant               localhost:{self.qdrant_port}  (Docker)",
             f"    Cache de modelos     {self.models_cache}/",
             f"    Harness              {harness_label}",
             "",
             "  As seguintes alteracoes serao feitas na sua maquina:",
             f"    * Container Docker qdrant/qdrant iniciado na porta {self.qdrant_port}",
-            f"    * Diretorio {self.notes_root}/{self.universe}/ criado",
+            f"    * Diretorio {self.notes_root}/{self.kb_name}/ criado",
             "    * ~/.config/oh-my-harness/config.toml criado/atualizado",
             "    * ~/.claude/CLAUDE.md modificado (bloco omk inserido no inicio)",
             "",
@@ -247,7 +257,7 @@ class Wizard:
 
         return InstallChoices(
             notes_root=results["notes_root"],
-            universe=results["universe"],
+            kb_name=results["kb"],
             qdrant_port=results["qdrant_port"],
             models_cache=results["models_cache"],
             harness=results["harness"],

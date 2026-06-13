@@ -139,10 +139,10 @@ class TestWizardNonInteractive:
         with patch.object(Path, "home", return_value=tmp_path):
             wizard = Wizard(
                 non_interactive=True,
-                prefill={"universe": "my-universe", "qdrant_port": 6334},
+                prefill={"kb": "my-kb", "qdrant_port": 6334},
             )
             choices = wizard.run()
-        assert choices.universe == "my-universe"
+        assert choices.kb_name == "my-kb"
         assert choices.qdrant_port == 6334
 
 
@@ -155,13 +155,13 @@ class TestInstallChoices:
     def _choices(self, tmp_path: Path) -> InstallChoices:
         return InstallChoices(
             notes_root=tmp_path / "notes",
-            universe="default",
+            kb_name="default",
             qdrant_port=6333,
             models_cache=tmp_path / ".cache" / "models",
             harness="claude-code",
         )
 
-    def test_summary_contains_universe(self, tmp_path: Path) -> None:
+    def test_summary_contains_kb_name(self, tmp_path: Path) -> None:
         choices = self._choices(tmp_path)
         assert "default" in choices.summary()
 

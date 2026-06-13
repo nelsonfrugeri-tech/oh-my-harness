@@ -23,7 +23,7 @@ from oh_my_harness.kb.storage import QdrantStore, get_qdrant_url
 app = typer.Typer(
     name="omh",
     help=(
-        "oh-my-harness — install, manage universes, expose help. "
+        "oh-my-harness — install, manage knowledge bases, expose help. "
         "Knowledge interaction stays in MCP."
     ),
     no_args_is_help=True,
@@ -124,8 +124,8 @@ def install_cmd(
         fg=typer.colors.GREEN,
     )
 
-    # ── [3/8] Create universe directory ──
-    typer.echo(f"  [3/8] Criando universe '{choices.universe}' ...")
+    # ── [3/8] Create knowledge base directory ──
+    typer.echo(f"  [3/8] Criando knowledge base '{choices.universe}' ...")
     universe_dir = choices.notes_root / choices.universe
     universe_dir.mkdir(parents=True, exist_ok=True)
     typer.secho(f"  [3/8] {universe_dir}/", fg=typer.colors.GREEN)
@@ -137,7 +137,7 @@ def install_cmd(
     omk_cfg = OmkConfig(
         core=OmkCoreConfig(
             notes_root=choices.notes_root,
-            default_universe=choices.universe,
+            default_kb=choices.universe,
             models_cache=choices.models_cache,
         ),
         qdrant=OmkQdrantConfig(
@@ -305,7 +305,7 @@ def universe_list_cmd() -> None:
     """List configured knowledge bases; the active one is marked with ``*``."""
     cfg = load_config()
     if not cfg.universes:
-        typer.echo("no universes configured yet. Run `omh install` first.")
+        typer.echo("No knowledge bases configured yet. Run `omh install` first.")
         raise typer.Exit(code=0)
     for u in cfg.universes:
         marker = "*" if u.name == cfg.active else " "
@@ -332,7 +332,7 @@ def reindex_cmd(
         None,
         "--universe",
         "-u",
-        help="Universe to reindex. Defaults to the active universe.",
+        help="Knowledge base to reindex. Defaults to the active knowledge base.",
     ),
 ) -> None:
     """Reconcile the Qdrant collection with markdown files on disk."""

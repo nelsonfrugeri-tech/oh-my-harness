@@ -318,7 +318,7 @@ No local caching — every `diff` or `update` call reflects the current remote s
 ## MCP tools
 
 The `o-kb-mcp` server registers exactly five tools. The knowledge base scope is fixed at
-server start via the `KB_UNIVERSE` environment variable; tool calls cannot override it.
+server start via the `KB_NAME` environment variable; tool calls cannot override it.
 
 | Tool | Natural-language trigger |
 |------|--------------------------|
@@ -337,7 +337,7 @@ injecting the connection block into `~/.claude/CLAUDE.md`.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `KB_UNIVERSE` | `default` | Knowledge base name bound to the running MCP server |
+| `KB_NAME` | `default` | Knowledge base name bound to the running MCP server |
 | `KB_QDRANT_URL` | `http://localhost:6333` | Qdrant HTTP endpoint |
 | `OMH_CONFIG_DIR` | `~/.config/oh-my-harness` | Override the config directory (useful for isolated tests) |
 

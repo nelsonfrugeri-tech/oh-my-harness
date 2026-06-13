@@ -17,17 +17,19 @@ def load_template(locale: str = DEFAULT_LOCALE) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def render_rules(universe: str, locale: str = DEFAULT_LOCALE) -> str:
-    """Return bootstrap rules with ``{universe}``, ``{repo_url}``, ``{manifest_url}``."""
+def render_rules(kb_name: str, locale: str = DEFAULT_LOCALE) -> str:
+    """Return bootstrap rules with ``{kb_name}``, ``{repo_url}``, ``{manifest_url}``."""
     return (
         load_template(locale=locale)
-        .replace("{universe}", universe)
+        .replace("{kb_name}", kb_name)
+        # Support old templates that still use {universe}.
+        .replace("{universe}", kb_name)
         .replace("{repo_url}", REPO_URL)
         .replace("{manifest_url}", MANIFEST_URL)
     )
 
 
-def render_dynamic_block(universe: str) -> str:
+def render_dynamic_block(kb_name: str) -> str:
     """Generate the full rules block dynamically from the MCP registry.
 
     1. Imports the 5 core kb tool objects directly.
@@ -52,7 +54,13 @@ def render_dynamic_block(universe: str) -> str:
     ]
 
     lines: list[str] = [
-        f"## oh-my-harness — Base de Conhecimento (universe: {universe})",
+        f"## oh-my-harness — modular AI harness (knowledge base: {kb_name})",
+        "",
+        "oh-my-harness is a modular AI harness. Current modules:",
+        "- **kb** — knowledge base via MCP (tools below)",
+        "- **agents** — personal agents via MCP",
+        "",
+        "The `omh` CLI orchestrates everything: `omh kb`, `omh skills`, `omh agents`.",
         "",
         "### Tools disponíveis",
         "",
@@ -78,7 +86,7 @@ def render_dynamic_block(universe: str) -> str:
         "",
         "### Regras gerais",
         "",
-        "- Sempre use o universe ativo configurado em KB_UNIVERSE.",
+        "- A knowledge base ativa está configurada via KB_NAME.",
         "- Prefira kb_search para recuperação;"
         " use kb_tree quando o usuário precisar de orientação.",
     ]

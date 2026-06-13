@@ -2,8 +2,8 @@
 
 The handler is a plain ``async def`` taking the dependency plus the
 arguments dict, mirroring :mod:`oh_my_harness.kb.mcp.tools.kb_write`. The active
-universe is server-bound, not taken from input — search never crosses
-universes.
+knowledge base is server-bound, not taken from input — search never crosses
+knowledge bases.
 """
 
 from __future__ import annotations
@@ -18,10 +18,10 @@ from oh_my_harness.kb.services import SearchResult, SearchService
 KB_SEARCH_TOOL = Tool(
     name="kb_search",
     description=(
-        "Hybrid-retrieve notes from the active universe by similarity to a "
+        "Hybrid-retrieve notes from the active knowledge base by similarity to a "
         "natural-language query. Use when the question is about content or "
         "theme ('what do we know about X?'). Prefer kb_search when the "
-        "universe is large or the answer depends on semantic similarity; "
+        "knowledge base is large or the answer depends on semantic similarity; "
         "prefer navigation (kb_tree / kb_expand) when the answer depends on "
         "structure or relationships. Returns up to top_k ranked summaries — "
         "to read the full body, the 'path' field in each hit points to the "
@@ -90,7 +90,7 @@ async def handle_kb_search(
             TextContent(
                 type="text",
                 text=(
-                    f"kb_search: no notes match '{query}' in universe '{universe}'"
+                    f"kb_search: no notes match '{query}' in knowledge base '{universe}'"
                     f"{' (project=' + project + ')' if project else ''}."
                 ),
             )
@@ -101,7 +101,7 @@ async def handle_kb_search(
 
 def _format_hits(hits: list[SearchResult], query: str, universe: str) -> str:
     header = (
-        f"kb_search: {len(hits)} hit(s) for '{query}' in universe '{universe}'\n"
+        f"kb_search: {len(hits)} hit(s) for '{query}' in knowledge base '{universe}'\n"
     )
     blocks = []
     for rank, hit in enumerate(hits, start=1):

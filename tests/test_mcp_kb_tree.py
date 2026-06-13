@@ -67,7 +67,7 @@ async def test_kb_tree_groups_by_project(
     # Header
     assert "kb_tree:" in text
     assert "2 note(s)" in text
-    assert "universe 'work'" in text
+    assert "knowledge base 'work'" in text
 
     # Both project sections present
     assert "=== backend ===" in text

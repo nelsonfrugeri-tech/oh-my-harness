@@ -1,7 +1,7 @@
-"""Multiverse configuration for the o-kb-client.
+"""Knowledge base configuration for the o-kb-client.
 
-Persists the list of universes (each with ``name``, ``notes_root``,
-``collection``) plus the active universe in a TOML file under
+Persists the list of knowledge bases (each with ``name``, ``notes_root``,
+``collection``) plus the active knowledge base in a TOML file under
 ``~/.config/oh-my-harness/config.toml``. The directory is XDG-style hidden
 because it's machine config — note **data** lives in plain sight under
 ``~/oh-my-harness/`` (see :mod:`oh_my_harness.kb.cli.paths`).
@@ -11,8 +11,16 @@ The collection name is **never** computed locally — it is delegated to
 never disagree.
 
 Two schemas coexist in the same TOML file using disjoint top-level sections:
-- :class:`CLIConfig` — ``universes`` + ``active`` (original schema).
+- :class:`CLIConfig` — ``universes`` + ``active`` (original schema, kept for
+  backward compatibility; the domain objects are ``Universe`` but the user-facing
+  language is "knowledge base").
 - :class:`OmkConfig` — ``[core]``, ``[qdrant]``, ``[harness]`` sections.
+
+Migration note
+--------------
+The ``[core]`` section previously used ``default_universe``; it now writes
+``default_kb``. On read, if ``default_kb`` is absent the code falls back to
+``default_universe`` (silent — no deprecation warning).
 """
 
 from __future__ import annotations
@@ -166,10 +174,15 @@ class OmkCoreConfig:
     """``[core]`` section of ``config.toml``."""
 
     notes_root: Path = field(default_factory=lambda: Path.home() / "oh-my-harness")
-    default_universe: str = "default"
+    default_kb: str = "default"
     models_cache: Path = field(
         default_factory=lambda: Path.home() / ".cache" / "oh-my-harness" / "models"
     )
+
+    # Backward-compatible property for code that still reads .default_universe.
+    @property
+    def default_universe(self) -> str:
+        return self.default_kb
 
 
 @dataclass(frozen=True, slots=True)
@@ -225,11 +238,17 @@ def load_omk_config() -> OmkConfig:
     harness_raw = raw.get("harness", {})
 
     _defaults = OmkCoreConfig()
+    # Read default_kb; fall back to legacy default_universe key for installed configs.
+    _default_kb_value = (
+        str(core_raw["default_kb"])
+        if "default_kb" in core_raw
+        else str(core_raw.get("default_universe", _defaults.default_kb))
+    )
     core = OmkCoreConfig(
         notes_root=(
             Path(str(core_raw["notes_root"])) if "notes_root" in core_raw else _defaults.notes_root
         ),
-        default_universe=str(core_raw.get("default_universe", _defaults.default_universe)),
+        default_kb=_default_kb_value,
         models_cache=(
             Path(str(core_raw["models_cache"]))
             if "models_cache" in core_raw
@@ -264,7 +283,7 @@ def save_omk_config(cfg: OmkConfig) -> Path:
     # Merge in the new OmkConfig sections (overwrite only our sections)
     existing["core"] = {
         "notes_root": str(cfg.core.notes_root),
-        "default_universe": cfg.core.default_universe,
+        "default_kb": cfg.core.default_kb,
         "models_cache": str(cfg.core.models_cache),
     }
     existing["qdrant"] = {
