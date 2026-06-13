@@ -328,8 +328,9 @@ def universe_use_cmd(
 
 @app.command("reindex")
 def reindex_cmd(
-    universe_name: str | None = typer.Option(
+    kb_name: str | None = typer.Option(
         None,
+        "--kb",
         "--universe",
         "-u",
         help="Knowledge base to reindex. Defaults to the active knowledge base.",
@@ -340,7 +341,7 @@ def reindex_cmd(
 
     try:
         runner = ReindexRunner()
-        report = runner.run(universe_name)
+        report = runner.run(kb_name)
     except NoActiveKbError as exc:
         typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from exc
