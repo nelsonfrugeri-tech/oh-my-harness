@@ -152,13 +152,13 @@ def _validate_summary(*, title: str, summary: str) -> str | None:
 def _build_note(arguments: dict[str, Any], *, universe: str) -> Note:
     """Translate the raw tool input into a :class:`Note` (pydantic validates).
 
-    Universe is injected from the server context — never from the input.
+    Knowledge base name is injected from the server context — never from the input.
     """
     fields: dict[str, Any] = {
         "title": arguments["title"],
         "type": arguments["type"],
         "project": arguments["project"],
-        "universe": universe,
+        "kb_name": universe,
         "summary": arguments["summary"],
     }
     if "body" in arguments:

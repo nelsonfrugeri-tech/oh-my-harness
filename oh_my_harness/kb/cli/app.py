@@ -8,9 +8,9 @@ import typer
 
 from oh_my_harness.kb.cli.agents import agents_app
 from oh_my_harness.kb.cli.config import (
-    UniverseAlreadyExistsError,
-    UniverseNotFoundError,
-    add_universe,
+    KbAlreadyExistsError,
+    KbNotFoundError,
+    add_kb,
     load_config,
     save_config,
     set_active,
@@ -151,7 +151,7 @@ def install_cmd(
     qdrant_url = f"http://localhost:{choices.qdrant_port}"
     cli_cfg = load_config()
     if not cli_cfg.has(choices.universe):
-        cli_cfg = add_universe(cli_cfg, name=choices.universe, notes_root=universe_dir)
+        cli_cfg = add_kb(cli_cfg, name=choices.universe, notes_root=universe_dir)
     cli_cfg = set_active(cli_cfg, choices.universe)
     save_config(cli_cfg)
 
@@ -276,8 +276,8 @@ def universe_create_cmd(
         else Path(notes_root).expanduser()
     )
     try:
-        cfg = add_universe(load_config(), name=name, notes_root=target)
-    except UniverseAlreadyExistsError as exc:
+        cfg = add_kb(load_config(), name=name, notes_root=target)
+    except KbAlreadyExistsError as exc:
         typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from exc
 
@@ -319,7 +319,7 @@ def universe_use_cmd(
     """Set ``name`` as the active knowledge base."""
     try:
         cfg = set_active(load_config(), name)
-    except UniverseNotFoundError as exc:
+    except KbNotFoundError as exc:
         typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from exc
     save_config(cfg)
@@ -336,15 +336,15 @@ def reindex_cmd(
     ),
 ) -> None:
     """Reconcile the Qdrant collection with markdown files on disk."""
-    from oh_my_harness.kb.cli.reindex import NoActiveUniverseError, ReindexRunner
+    from oh_my_harness.kb.cli.reindex import NoActiveKbError, ReindexRunner
 
     try:
         runner = ReindexRunner()
         report = runner.run(universe_name)
-    except NoActiveUniverseError as exc:
+    except NoActiveKbError as exc:
         typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from exc
-    except UniverseNotFoundError as exc:
+    except KbNotFoundError as exc:
         typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from exc
 

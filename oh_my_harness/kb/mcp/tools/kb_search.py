@@ -76,11 +76,11 @@ async def handle_kb_search(
         # loop free for concurrent MCP messages and the stdio keep-alive.
         hits = await asyncio.to_thread(
             search_service.search,
-            query=query,
-            universe=universe,
-            project=project,
-            top_k=top_k,
-            include_archived=include_archived,
+            query,
+            universe,  # positional: kb_name param
+            project,
+            top_k,
+            include_archived,
         )
     except Exception as exc:  # keep the server alive on infrastructure errors
         return [TextContent(type="text", text=f"kb_search: search error — {exc}")]

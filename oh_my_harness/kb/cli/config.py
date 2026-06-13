@@ -39,12 +39,20 @@ DEFAULT_CONFIG_DIR = Path.home() / ".config" / "oh-my-harness"
 CONFIG_FILE_NAME = "config.toml"
 
 
-class UniverseAlreadyExistsError(ValueError):
-    """Raised when adding a universe whose name already exists in the config."""
+class KbAlreadyExistsError(ValueError):
+    """Raised when adding a knowledge base whose name already exists in the config."""
 
 
-class UniverseNotFoundError(LookupError):
-    """Raised when activating or referencing a universe that isn't in the config."""
+# Backward-compatible alias.
+UniverseAlreadyExistsError = KbAlreadyExistsError  # backward-compatible alias
+
+
+class KbNotFoundError(LookupError):
+    """Raised when activating or referencing a knowledge base that isn't in the config."""
+
+
+# Backward-compatible alias.
+UniverseNotFoundError = KbNotFoundError  # backward-compatible alias
 
 
 @dataclass(frozen=True, slots=True)
@@ -137,30 +145,34 @@ def save_config(cfg: CLIConfig) -> Path:
     return path
 
 
-def add_universe(cfg: CLIConfig, *, name: str, notes_root: Path) -> CLIConfig:
-    """Return a new ``CLIConfig`` with ``name`` added.
+def add_kb(cfg: CLIConfig, *, name: str, notes_root: Path) -> CLIConfig:
+    """Return a new ``CLIConfig`` with knowledge base ``name`` added.
 
-    Raises :class:`UniverseAlreadyExistsError` if a universe with that name
+    Raises :class:`KbAlreadyExistsError` if a knowledge base with that name
     already exists. The collection is derived from
     :func:`oh_my_harness.kb.services.collection_name_for`.
     """
     if cfg.has(name):
-        raise UniverseAlreadyExistsError(f"knowledge base '{name}' already exists")
-    new_universe = Universe(
+        raise KbAlreadyExistsError(f"knowledge base '{name}' already exists")
+    new_kb = Universe(
         name=name,
         notes_root=notes_root,
         collection=collection_name_for(name),
     )
-    return replace(cfg, universes=[*cfg.universes, new_universe])
+    return replace(cfg, universes=[*cfg.universes, new_kb])
+
+
+# Backward-compatible alias — existing imports keep working.
+add_universe = add_kb  # backward-compatible alias
 
 
 def set_active(cfg: CLIConfig, name: str) -> CLIConfig:
     """Return a new ``CLIConfig`` whose ``active`` is ``name``.
 
-    Raises :class:`UniverseNotFoundError` if ``name`` is not in the config.
+    Raises :class:`KbNotFoundError` if ``name`` is not in the config.
     """
     if not cfg.has(name):
-        raise UniverseNotFoundError(f"knowledge base '{name}' is not configured")
+        raise KbNotFoundError(f"knowledge base '{name}' is not configured")
     return replace(cfg, active=name)
 
 
@@ -207,6 +219,8 @@ class OmkConfig:
     Stored under the ``[core]``, ``[qdrant]``, and ``[harness]`` sections of
     ``~/.config/oh-my-harness/config.toml``, which are disjoint from the
     ``universes`` / ``active`` keys used by :class:`CLIConfig`.
+    (The ``universes`` key is a legacy TOML key name kept for file-format
+    backward compatibility — the domain concept is "knowledge base".)
     """
 
     core: OmkCoreConfig = field(default_factory=OmkCoreConfig)

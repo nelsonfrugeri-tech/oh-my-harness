@@ -52,7 +52,7 @@ def get_active_universe() -> str:
     return get_active_kb()
 
 
-def get_active_notes_root(universe: str | None = None) -> Path:
+def get_active_notes_root(kb_name: str | None = None) -> Path:
     """Return the notes-root directory for the active knowledge base.
 
     Semantics align with the CLI: ``KB_NOTES_ROOT`` is treated as the
@@ -65,7 +65,7 @@ def get_active_notes_root(universe: str | None = None) -> Path:
     ``KB_NOTES_ROOT=/data``, kb ``eng``  →  ``/data/eng``
     ``KB_NOTES_ROOT`` unset, kb ``eng``  →  ``~/oh-my-harness/eng``
     """
-    target_kb = universe if universe is not None else get_active_kb()
+    target_kb = kb_name if kb_name is not None else get_active_kb()
     raw_override = os.environ.get(DATA_ROOT_ENV)
     if raw_override:
         return Path(raw_override).expanduser() / _slugify(target_kb)
