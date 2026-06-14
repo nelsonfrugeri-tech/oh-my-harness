@@ -62,6 +62,50 @@ def render_dynamic_block(kb_name: str) -> str:
         "",
         "The `omh` CLI orchestrates everything: `omh kb`, `omh skills`, `omh agents`.",
         "",
+        "### Comportamento agentic — obrigatório",
+        "",
+        "Você é um agente. Use as tools de kb-mcp **por iniciativa semântica**,"
+        " não apenas quando o usuário pedir explicitamente. As regras abaixo são vinculantes.",
+        "",
+        "**Buscar (kb_search) — quando agir sem pedido:**",
+        "- O usuário menciona algo do passado, uma decisão prévia, um procedimento estabelecido,"
+        " uma funcionalidade conhecida, ou uma ferramenta usada antes.",
+        "- Surge um tema/conceito/sigla que você não conhece a partir do contexto atual.",
+        "- Você está prestes a responder algo sobre o projeto/usuário sem confirmar se já"
+        " existe nota sobre o assunto.",
+        "- Em qualquer dúvida: busque primeiro. Buscar é barato; ignorar memória existente"
+        " quebra a continuidade.",
+        "",
+        "**Escrever (kb_write) — quando agir sem pedido:**",
+        "- Foi tomada uma decisão (arquitetural, técnica, de processo).",
+        "- Foi estabelecido um procedimento, convenção ou padrão novo.",
+        "- Aconteceu um evento relevante (incidente, marco, mudança de estado).",
+        "- Foi descoberta uma referência útil (link, doc, padrão externo).",
+        "- Foi aprendido um fato novo sobre o usuário ou suas preferências.",
+        "- Qualquer NOVO conhecimento sobre o projeto que terá valor em sessões futuras.",
+        "",
+        "**Regra rígida de execução de kb_write — SEM EXCEÇÃO:**",
+        "NUNCA chame kb_write de forma síncrona no loop principal."
+        " SEMPRE delegue a escrita para um sub-agent do harness ativo"
+        " (no claude-code: ferramenta Task/Agent).",
+        "Razões: (a) escrita exige seguir o skill `scribe` integralmente —"
+        " passos demais para o loop principal;"
+        " (b) não pode bloquear a conversa em andamento;"
+        " (c) escrita assíncrona em sub-agent mantém o agente principal focado"
+        " em responder o usuário.",
+        "",
+        "**Navegar (kb_tree + kb_expand) — quando agir sem pedido:**",
+        "- Antes de buscar em uma knowledge base grande, peça `kb_tree` para se orientar.",
+        "- Após uma busca promissora, abra com `kb_expand` e siga `links_out`.",
+        "",
+        "**Recall temporal (kb_recent) — quando agir sem pedido:**",
+        "- A pergunta tem dimensão temporal (\"o que mudou\", \"última vez que\","
+        " \"recente\", \"novidades\", \"o que aconteceu\").",
+        "",
+        "Pedidos explícitos do usuário (\"busque X\", \"registre Y\","
+        " \"atualize a nota Z\") também disparam a tool correspondente."
+        " A iniciativa, porém, não fica só com o usuário — você é quem detecta os sinais.",
+        "",
         "### Tools disponíveis",
         "",
     ]
@@ -87,8 +131,12 @@ def render_dynamic_block(kb_name: str) -> str:
         "### Regras gerais",
         "",
         "- A knowledge base ativa está configurada via KB_NAME.",
-        "- Prefira kb_search para recuperação;"
-        " use kb_tree quando o usuário precisar de orientação.",
+        "- Antes de cada `kb_write`, leia `~/.claude/skills/scribe/SKILL.md` e"
+        " `~/.claude/skills/scribe/template.md` — o sub-agent que executa a escrita"
+        " precisa seguir o processo do scribe (escolha de tipo, summary denso,"
+        " entidades, links).",
+        "- Para atualizar uma nota existente: encontre-a com `kb_search`, depois passe"
+        " seu UUID em `supersedes` na chamada de `kb_write`.",
     ]
 
     # ── Agentes pessoais (o-agents-mcp) ──

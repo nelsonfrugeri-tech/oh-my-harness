@@ -119,9 +119,10 @@ class TestWizardNonInteractive:
         with patch.object(Path, "home", return_value=tmp_path):
             wizard = Wizard(non_interactive=True)
             choices = wizard.run()
-        assert choices.universe == "default"
+        assert choices.kb_name == "knowledge_base"
         assert choices.qdrant_port == 6333
         assert choices.harness == "claude-code"
+        assert choices.download_extras is True
 
     def test_notes_root_is_path(self, tmp_path: Path) -> None:
         with patch.object(Path, "home", return_value=tmp_path):

@@ -188,32 +188,39 @@ def install_cmd(
         bold=True,
     )
 
-    # ── [8/8] Download skills and agents ──
-    typer.echo("  [8/8] Baixando skills e agents...")
-    from oh_my_harness.kb.cli.agents._ops import pull_all_agents
-    from oh_my_harness.kb.cli.skills._ops import pull_all_skills
+    # ── [8/8] Download skills and agents (optional) ──
+    if choices.download_extras:
+        typer.echo("  [8/8] Baixando skills e agents...")
+        from oh_my_harness.kb.cli.agents._ops import pull_all_agents
+        from oh_my_harness.kb.cli.skills._ops import pull_all_skills
 
-    skills_count, skills_errors = pull_all_skills()
-    if skills_errors:
-        for err in skills_errors:
-            typer.secho(f"  warning: {err}", fg=typer.colors.YELLOW, err=True)
+        skills_count, skills_errors = pull_all_skills()
+        if skills_errors:
+            for err in skills_errors:
+                typer.secho(f"  warning: {err}", fg=typer.colors.YELLOW, err=True)
 
-    agents_count, agents_errors = pull_all_agents()
-    if agents_errors:
-        for err in agents_errors:
-            typer.secho(f"  warning: {err}", fg=typer.colors.YELLOW, err=True)
+        agents_count, agents_errors = pull_all_agents()
+        if agents_errors:
+            for err in agents_errors:
+                typer.secho(f"  warning: {err}", fg=typer.colors.YELLOW, err=True)
 
-    if skills_errors or agents_errors:
-        typer.secho(
-            f"  [8/8] skills: {skills_count} baixados, agents: {agents_count} baixados"
-            " (alguns falharam — rode `omh skills pull --all` depois)",
-            fg=typer.colors.YELLOW,
-        )
+        if skills_errors or agents_errors:
+            typer.secho(
+                f"  [8/8] skills: {skills_count} baixados, agents: {agents_count} baixados"
+                " (alguns falharam — rode `omh skills pull --all` depois)",
+                fg=typer.colors.YELLOW,
+            )
+        else:
+            typer.secho(
+                f"  [8/8] skills: {skills_count} baixados, agents: {agents_count} baixados",
+                fg=typer.colors.GREEN,
+                bold=True,
+            )
     else:
         typer.secho(
-            f"  [8/8] skills: {skills_count} baixados, agents: {agents_count} baixados",
-            fg=typer.colors.GREEN,
-            bold=True,
+            "  [8/8] skills e agents pulados (rode `omh skills pull --all` "
+            "e `omh agents pull --all` depois se mudar de ideia)",
+            fg=typer.colors.YELLOW,
         )
 
     typer.echo("")
