@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 
 from oh_my_harness.kb.cli.config import CLIConfig, KbNotFoundError, load_config
 from oh_my_harness.kb.embedding import Embedder
-from oh_my_harness.kb.services import Indexer, ReindexReport, reindex_universe
+from oh_my_harness.kb.services import Indexer, ReindexReport, reindex_kb
 from oh_my_harness.kb.storage import QdrantStore, get_qdrant_url
 
 # Backward-compatible alias — KbNotFoundError is the canonical name.
@@ -73,7 +73,7 @@ class ReindexRunner:
     qdrant_url_resolver: QdrantUrlResolver = field(default=get_qdrant_url)
     config_loader: ConfigLoader = field(default=load_config)
 
-    def run(self, kb_name: str | None = None) -> ReindexReport:
+    def run(self, kb_name: str | None = None, *, rewrite: bool = False) -> ReindexReport:
         """Reindex the specified (or active) knowledge base.
 
         Parameters
@@ -81,6 +81,12 @@ class ReindexRunner:
         kb_name:
             Name of the knowledge base to reindex.  When ``None`` the active
             knowledge base from the CLI config is used.
+        rewrite:
+            When ``True``, also rewrite each note's ``.md`` into the canonical
+            bundle shape (regenerated body ``## Related`` block + canonical
+            front-matter) — the in-place migration. When ``False`` (default),
+            only the Qdrant
+            index and the derived bundle files (``index.md``/``log.md``) change.
 
         Raises
         ------
@@ -106,8 +112,9 @@ class ReindexRunner:
         embedder = self.embedder_factory()
         indexer = Indexer(store=store, embedder=embedder, notes_root=kb_cfg.notes_root)
 
-        return reindex_universe(
+        return reindex_kb(
             indexer=indexer,
-            universe=resolved_name,
+            kb_name=resolved_name,
             notes_root=kb_cfg.notes_root,
+            rewrite=rewrite,
         )

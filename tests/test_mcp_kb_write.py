@@ -41,8 +41,11 @@ async def test_kb_write_persists_minimal_note(indexer: Indexer, tmp_path: Path) 
     assert "path:" in text
     assert "kb:      engineering" in text
 
-    md_files = list(tmp_path.rglob("*.md"))
-    assert len(md_files) == 1
+    # Exclude the derived bundle files (index.md/log.md) generated on write.
+    note_files = [
+        p for p in tmp_path.rglob("*.md") if p.name not in {"index.md", "log.md"}
+    ]
+    assert len(note_files) == 1
 
 
 async def test_kb_write_persists_full_note(indexer: Indexer) -> None:

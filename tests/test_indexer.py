@@ -206,8 +206,12 @@ def test_write_note_is_idempotent(indexer: Indexer, store: QdrantStore) -> None:
     assert count_result.count == 1
 
     universe_dir = result_first.absolute_path.parent
-    md_files = list(universe_dir.glob("*.md"))
-    assert len(md_files) == 1
+    # Exclude the derived bundle files (index.md/log.md) — idempotency is about
+    # not duplicating the *note* file.
+    note_files = [
+        p for p in universe_dir.glob("*.md") if p.name not in {"index.md", "log.md"}
+    ]
+    assert len(note_files) == 1
 
 
 # --- read_note_by_id ----------------------------------------------------

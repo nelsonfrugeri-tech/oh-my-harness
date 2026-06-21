@@ -10,9 +10,17 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
+from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from oh_my_harness.kb.core.slug import generate_slug
 
@@ -29,8 +37,45 @@ def _utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+# Input keys we understand — field names, their long-form aliases, and the
+# legacy ``universe`` key. Anything else found in the front-matter is preserved
+# verbatim in ``extra_meta`` (a tolerant reader keeps unknown keys, never drops
+# them).
+_RECOGNIZED_KEYS: frozenset[str] = frozenset(
+    {
+        "id",
+        "slug",
+        "title",
+        "type",
+        "project",
+        "kb_name",
+        "universe",  # legacy alias for kb_name
+        "created_at",
+        "timestamp",  # long-form alias forcreated_at
+        "entities",
+        "tags",  # long-form alias forentities
+        "links_out",
+        "supersedes",
+        "archived",
+        "resource",
+        "summary",
+        "description",  # long-form alias forsummary
+        "extra_meta",
+        "body",
+    }
+)
+
+
 class Note(BaseModel):
-    model_config = ConfigDict(validate_assignment=True, extra="forbid")
+    # ``extra="ignore"`` (was ``forbid``): as a tolerant reader we must not
+    # reject unknown front-matter keys. They are captured into ``extra_meta`` by
+    # the ``before`` validator so nothing is lost on round-trip. The *producer*
+    # stays strict via the field validators below.
+    model_config = ConfigDict(
+        validate_assignment=True,
+        extra="ignore",
+        populate_by_name=True,
+    )
 
     id: UUID = Field(default_factory=uuid4, frozen=True)
     slug: str = ""
@@ -38,12 +83,25 @@ class Note(BaseModel):
     type: NoteType
     project: str
     kb_name: str
-    created_at: datetime = Field(default_factory=_utc_now)
-    entities: list[str] = Field(default_factory=list)
+    created_at: datetime = Field(
+        default_factory=_utc_now,
+        validation_alias=AliasChoices("created_at", "timestamp"),
+        serialization_alias="timestamp",
+    )
+    entities: list[str] = Field(
+        default_factory=list,
+        validation_alias=AliasChoices("entities", "tags"),
+        serialization_alias="tags",
+    )
     links_out: list[UUID] = Field(default_factory=list)
     supersedes: UUID | None = None
     archived: bool = False
-    summary: str
+    resource: str | None = None
+    summary: str = Field(
+        validation_alias=AliasChoices("summary", "description"),
+        serialization_alias="description",
+    )
+    extra_meta: dict[str, Any] = Field(default_factory=dict)
     body: str = ""
 
     # Backward-compatible property for call sites that still read .universe.
@@ -65,18 +123,39 @@ class Note(BaseModel):
             raise ValueError("must be timezone-aware")
         return value
 
+    @field_validator("resource")
+    @classmethod
+    def _resource_non_empty(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("resource must not be empty or whitespace when present")
+        return value
+
     @model_validator(mode="before")
     @classmethod
-    def _migrate_universe_field(cls, data: object) -> object:
-        """Accept legacy ``universe`` key as a fallback for ``kb_name``.
+    def _migrate_and_capture(cls, data: object) -> object:
+        """Migrate the legacy ``universe`` key and capture unknown keys.
 
-        Existing .md files on disk and Qdrant payloads store the field as
-        ``universe``; this validator maps it to ``kb_name`` transparently so
-        deserialization of existing notes works without data migration.
+        Two responsibilities, both only meaningful for dict input (parsed
+        front-matter):
+
+        1. Map the legacy ``universe`` key to ``kb_name`` so existing .md files
+           and Qdrant payloads deserialize without data migration.
+        2. Preserve any front-matter key we don't recognize by moving it into
+           ``extra_meta``. With ``extra="ignore"`` Pydantic would silently drop
+           such keys; a tolerant reader preserves unknown keys, so we re-emit
+           them verbatim on serialize.
         """
-        if isinstance(data, dict) and "universe" in data and "kb_name" not in data:
-            data = dict(data)
+        if not isinstance(data, dict):
+            return data
+        data = dict(data)
+        if "universe" in data and "kb_name" not in data:
             data["kb_name"] = data.pop("universe")
+        extra: dict[str, Any] = dict(data.get("extra_meta") or {})
+        for key in list(data.keys()):
+            if key not in _RECOGNIZED_KEYS:
+                extra[key] = data.pop(key)
+        if extra:
+            data["extra_meta"] = extra
         return data
 
     @model_validator(mode="after")

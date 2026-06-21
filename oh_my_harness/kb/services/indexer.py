@@ -28,7 +28,15 @@ from qdrant_client.models import PointStruct
 from qdrant_client.models import SparseVector as QdrantSparseVector
 
 from oh_my_harness.kb.core import Note, from_markdown, slugify, to_markdown
+from oh_my_harness.kb.core.link_index import LinkIndex
 from oh_my_harness.kb.embedding import Embedder
+from oh_my_harness.kb.services.bundle import (
+    apply_related_to_body,
+    render_related_block,
+)
+from oh_my_harness.kb.services.bundle import (
+    materialize as materialize_bundle,
+)
 from oh_my_harness.kb.storage import DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME, QdrantStore
 
 COLLECTION_PREFIX: Final[str] = "kb_"
@@ -121,13 +129,28 @@ class Indexer:
         self._store.client.upsert(collection_name=collection, points=[point])
 
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(to_markdown(note), encoding="utf-8")
+        path.write_text(to_markdown(self._with_related_block(note)), encoding="utf-8")
+        # Refresh the derived bundle files immediately so index.md / log.md (and
+        # this note's ## Related links) reflect the write without a reindex.
+        materialize_bundle(self._notes_root)
         return WriteResult(
             id=note.id,
             slug=note.slug,
             relative_path=relative_path,
             absolute_path=path,
         )
+
+    def _with_related_block(self, note: Note) -> Note:
+        """Return ``note`` with its body ``## Related`` block (re)generated.
+
+        Resolves ``links_out`` against the current on-disk link index so the
+        just-written note carries followable path links immediately, without
+        waiting for a reindex. Targets not yet on disk render as placeholders and
+        heal on the next write/reindex.
+        """
+        index = LinkIndex.build_from_disk(self._notes_root)
+        related = render_related_block(note, index)
+        return note.model_copy(update={"body": apply_related_to_body(note.body, related)})
 
     def upsert_from_disk(self, note: Note, current_path: Path) -> None:
         """Embed and upsert a note whose ``.md`` already exists at ``current_path``.

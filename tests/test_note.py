@@ -101,6 +101,30 @@ def test_type_accepts_string_alias() -> None:
     assert note.type is NoteType.EVENT
 
 
-def test_extra_fields_rejected() -> None:
+def test_unknown_fields_captured_in_extra_meta() -> None:
+    # As a tolerant reader we must not reject unknown front-matter keys; they are
+    # preserved verbatim in extra_meta instead of raising.
+    note = Note.model_validate(_minimal_payload(unknown_field="oops", another=[1, 2]))
+    assert note.extra_meta == {"unknown_field": "oops", "another": [1, 2]}
+
+
+def test_long_form_aliases_accepted_on_input() -> None:
+    note = Note.model_validate(
+        {
+            "title": "Aliased",
+            "type": "reference",
+            "project": "oh-my-harness",
+            "kb_name": "engineering",
+            "description": "summary via long-form alias",
+            "tags": ["a", "b"],
+            "timestamp": "2026-05-31T14:30:00+00:00",
+        }
+    )
+    assert note.summary == "summary via long-form alias"
+    assert note.entities == ["a", "b"]
+    assert note.created_at == datetime(2026, 5, 31, 14, 30, tzinfo=UTC)
+
+
+def test_resource_rejects_empty_string() -> None:
     with pytest.raises(ValidationError):
-        Note.model_validate(_minimal_payload(unknown_field="oops"))
+        Note.model_validate(_minimal_payload(resource="   "))

@@ -167,7 +167,12 @@ def test_expand_returns_note_and_resolved_links(
 
     result = navigation.expand(source.id, source.universe)
 
-    assert result.note == source
+    # write_note augments the body with a generated ## Related block, so compare
+    # identity + canonical fields rather than the (now-augmented) body.
+    assert result.note.id == source.id
+    assert result.note.links_out == source.links_out
+    assert result.note.title == source.title
+    assert "## Related" in result.note.body
     assert [link.id for link in result.links] == [str(target_a.id), str(target_b.id)]
     assert result.links[0].title == "target a"
     assert result.links[0].summary == target_a.summary

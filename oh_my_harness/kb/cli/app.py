@@ -391,13 +391,18 @@ def reindex_cmd(
         "-u",
         help="Knowledge base to reindex. Defaults to the active knowledge base.",
     ),
+    rewrite: bool = typer.Option(
+        False,
+        "--rewrite",
+        help="Also rewrite notes into bundle shape (body ## Related + canonical front-matter).",
+    ),
 ) -> None:
     """Reconcile the Qdrant collection with markdown files on disk."""
     from oh_my_harness.kb.cli.reindex import NoActiveKbError, ReindexRunner
 
     try:
         runner = ReindexRunner()
-        report = runner.run(kb_name)
+        report = runner.run(kb_name, rewrite=rewrite)
     except NoActiveKbError as exc:
         typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from exc

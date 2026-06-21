@@ -15,8 +15,21 @@ from oh_my_harness.kb.core.note import Note
 
 
 def to_markdown(note: Note) -> str:
-    """Serialize ``note`` to a markdown string with YAML front-matter."""
-    metadata: dict[str, Any] = note.model_dump(mode="json", exclude={"body"})
+    """Serialize ``note`` to a markdown string with YAML front-matter.
+
+    Interoperable keys are emitted via the field serialization aliases
+    (``summary``→``description``, ``created_at``→``timestamp``,
+    ``entities``→``tags``); our domain fields (``id``, ``links_out``,
+    ``supersedes``, ``kb_name``, ``project``, ``archived``, ``slug``) are emitted
+    as additional front-matter keys. ``resource`` is omitted when absent, and any
+    captured unknown keys in ``extra_meta`` are re-emitted verbatim.
+    """
+    metadata: dict[str, Any] = note.model_dump(
+        mode="json", by_alias=True, exclude={"body", "extra_meta"}
+    )
+    if note.resource is None:
+        metadata.pop("resource", None)
+    metadata.update(note.extra_meta)
     post = frontmatter.Post(note.body, **metadata)
     return frontmatter.dumps(post)
 

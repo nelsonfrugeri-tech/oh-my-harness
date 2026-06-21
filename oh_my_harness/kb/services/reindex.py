@@ -25,6 +25,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from oh_my_harness.kb.core import from_markdown
+from oh_my_harness.kb.core.link_index import RESERVED_FILENAMES
+from oh_my_harness.kb.services.bundle import materialize as materialize_bundle
 from oh_my_harness.kb.services.indexer import Indexer, collection_name_for
 
 logger = logging.getLogger(__name__)
@@ -50,6 +52,8 @@ def reindex_kb(
     indexer: Indexer,
     kb_name: str,
     notes_root: Path,
+    *,
+    rewrite: bool = False,
 ) -> ReindexReport:
     """Reconcile the Qdrant collection for ``kb_name`` with files in ``notes_root``.
 
@@ -88,6 +92,10 @@ def reindex_kb(
     scanned = 0
 
     for md_path in sorted(notes_root.rglob("*.md")):
+        # index.md / log.md are reserved navigation/history files, never note
+        # documents — skip them so they are not parsed as notes.
+        if md_path.name in RESERVED_FILENAMES:
+            continue
         scanned += 1
         try:
             note = from_markdown(md_path.read_text(encoding="utf-8"))
@@ -149,6 +157,14 @@ def reindex_kb(
             points_selector=orphan_ids,  # type: ignore[arg-type]
         )
         removed = len(orphan_ids)
+
+    # -----------------------------------------------------------------------
+    # Step 4: (re)generate the derived bundle files from disk — the per-project
+    # ``index.md``/``log.md`` and the root ``index.md`` (with ``format_version``).
+    # When ``rewrite`` is set, also refresh each note's body ``## Related`` block
+    # and re-serialize it into the canonical front-matter shape (the migration).
+    # -----------------------------------------------------------------------
+    materialize_bundle(notes_root, rewrite_related=rewrite)
 
     report = ReindexReport(scanned=scanned, upserted=upserted, removed=removed)
     logger.info("%s", report)
