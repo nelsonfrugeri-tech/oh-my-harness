@@ -92,7 +92,7 @@ oh-my-harness has two independent layers that work together:
 ```
 
 **Layer 1 — Knowledge base (`o-kb-mcp`)**
-Notes are written as Markdown, embedded with BGE-M3, and stored in Qdrant. An MCP server exposes five tools the assistant calls automatically. Knowledge persists across sessions, projects, and machines — the assistant remembers what you've built and decided.
+Notes are written as plain Markdown bundles on disk, embedded with BGE-M3, and indexed in Qdrant. An MCP server exposes five tools the assistant calls automatically. Knowledge persists across sessions, projects, and machines — the assistant remembers what you've built and decided. The on-disk format is portable and readable by any Markdown tool; Qdrant is only a derived index, rebuilt from disk by `omh reindex` (see [On-disk format](#knowledge-base--on-disk-format)).
 
 **Layer 2 — Asset manager (`omh`)**
 A CLI that pulls versioned skills, agents, and workflows from this repository into `~/.claude/`. SemVer + sha256 checksums in a manifest file make drift detection and incremental updates precise. Pulling a workflow automatically resolves and downloads every agent and skill it depends on — one command, zero manual dependency hunting.
@@ -306,6 +306,34 @@ The `o-kb-mcp` server exposes five tools the assistant calls automatically based
 | `kb_recent` | You ask for recent notes, latest decisions, or what changed recently |
 
 `omh install` configures the MCP server for `claude-code` by injecting the connection block into `~/.claude/CLAUDE.md`. No manual configuration required.
+
+---
+
+## Knowledge base — on-disk format
+
+Notes are not locked inside a database. Each knowledge base is a directory of plain Markdown files that any editor or tool can read — Qdrant is only a **derived** index, rebuilt from disk by `omh reindex`.
+
+**Layout** — one self-contained bundle per project:
+
+```
+<notes_root>/
+  index.md                 # root index, declares format_version
+  <project>/
+    index.md               # notes grouped by type
+    log.md                 # chronological history, newest first
+    <slug>.md              # one note per file
+```
+
+**A note** is Markdown with YAML front-matter. Stable, interoperable keys (`title`, `type`, `description`, `tags`, `timestamp`) sit next to the fields the harness needs (`id`, `slug`, `kb_name`, `project`, `links_out`, `supersedes`, `archived`, and an optional `resource`). Unknown keys are preserved verbatim rather than dropped, so a note authored by another tool round-trips intact.
+
+**Links** between notes are stored as stable UUIDs in `links_out` and also rendered as a `## Related` block of relative Markdown links in the body, so the graph is followable in any Markdown viewer even without the harness.
+
+The reserved files (`index.md`, `log.md`) and the `## Related` block are **regenerated on every write** — they stay fresh without a reindex. `omh reindex` reconciles the vector index with disk; `omh reindex --rewrite` also rewrites existing notes into the current format (an in-place migration).
+
+| Command | Effect |
+|---------|--------|
+| `omh reindex` | Reconcile Qdrant with disk; regenerate `index.md`/`log.md` |
+| `omh reindex --rewrite` | The above, plus migrate notes into the current front-matter + `## Related` shape |
 
 ---
 
