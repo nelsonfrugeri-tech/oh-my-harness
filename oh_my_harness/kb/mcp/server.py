@@ -19,11 +19,14 @@ import signal
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
+
+if TYPE_CHECKING:
+    from starlette.applications import Starlette
 
 from oh_my_harness.kb.embedding import BGEM3Embedder, Embedder
 from oh_my_harness.kb.mcp.config import get_active_kb, get_active_notes_root
@@ -171,6 +174,74 @@ def _log_startup(context: KBServerContext) -> None:
         file=sys.stderr,
         flush=True,
     )
+
+
+def build_http_app(
+    context: KBServerContext,
+    *,
+    json_response: bool = False,
+    stateless: bool = False,
+) -> Starlette:
+    """Build a Starlette ASGI app exposing this server over Streamable HTTP.
+
+    Reuses the exact same :func:`build_server` wiring as the stdio transport —
+    only the transport differs, so both speak to the same knowledge base and
+    the same dependency graph. The MCP endpoint is mounted at ``/mcp``; the
+    session manager's task group is bound to the app lifespan so it lives for
+    the whole server lifetime.
+
+    Imports of the web stack are local so the stdio entry point never pulls in
+    starlette/uvicorn.
+    """
+    from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+
+    from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
+    from starlette.applications import Starlette as _Starlette
+    from starlette.routing import Mount
+    from starlette.types import Receive, Scope, Send
+
+    server = build_server(context)
+    session_manager = StreamableHTTPSessionManager(
+        app=server,
+        json_response=json_response,
+        stateless=stateless,
+    )
+
+    async def _handle_mcp(scope: Scope, receive: Receive, send: Send) -> None:
+        await session_manager.handle_request(scope, receive, send)
+
+    @asynccontextmanager
+    async def _lifespan(_app: _Starlette) -> AsyncIterator[None]:
+        async with session_manager.run():
+            yield
+
+    return _Starlette(routes=[Mount("/mcp", app=_handle_mcp)], lifespan=_lifespan)
+
+
+def serve_http(host: str, port: int, kb_name: str | None = None) -> None:
+    """Run the knowledge-base MCP server over Streamable HTTP (blocking).
+
+    The knowledge base is server-bound (``kb_name`` or ``$KB_NAME``); the bge-m3
+    model still loads lazily on the first tool call. stdio is unaffected.
+    """
+    import uvicorn
+
+    context = build_context(universe=kb_name)
+    context.notes_root.mkdir(parents=True, exist_ok=True)
+    app = build_http_app(context)
+    print(
+        (
+            f"{SERVER_NAME} (streamable-http) ready\n"
+            f"  knowledge base : {context.kb_name}\n"
+            f"  endpoint       : http://{host}:{port}/mcp\n"
+            f"  qdrant_url     : {context.qdrant_url}\n"
+            f"  notes_root     : {context.notes_root}"
+        ),
+        file=sys.stderr,
+        flush=True,
+    )
+    uvicorn.run(app, host=host, port=port, log_level="info")
 
 
 async def _serve() -> None:

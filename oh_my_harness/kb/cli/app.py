@@ -304,6 +304,39 @@ def stop_cmd() -> None:
     _stop()
 
 
+@app.command("serve")
+def serve_cmd(
+    host: str = typer.Option("127.0.0.1", "--host", help="Interface to bind."),
+    port: int = typer.Option(8765, "--port", "-p", help="Port to listen on."),
+    kb_name: str | None = typer.Option(
+        None,
+        "--kb",
+        "--universe",
+        "-u",
+        help="Knowledge base to serve. Defaults to the active knowledge base.",
+    ),
+) -> None:
+    """Serve the knowledge base over Streamable HTTP (MCP) — a long-running daemon."""
+    from oh_my_harness.kb.cli.config import load_config
+    from oh_my_harness.kb.mcp.server import serve_http
+
+    resolved = kb_name if kb_name is not None else load_config().active
+    if resolved is None:
+        typer.secho(
+            "error: no active knowledge base — run `omh install` first or pass --kb",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
+    typer.secho(
+        f"  serving KB '{resolved}' on http://{host}:{port}/mcp  (Ctrl+C to stop)",
+        fg=typer.colors.GREEN,
+        bold=True,
+    )
+    serve_http(host=host, port=port, kb_name=resolved)
+
+
 @app.command("status")
 def status_cmd() -> None:
     """Show the current state of the oh-my-harness system."""
