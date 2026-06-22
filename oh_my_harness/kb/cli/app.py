@@ -315,8 +315,37 @@ def serve_cmd(
         "-u",
         help="Knowledge base to serve. Defaults to the active knowledge base.",
     ),
+    auth_issuer: str | None = typer.Option(
+        None,
+        "--auth-issuer",
+        help=(
+            "OAuth 2.1 Authorization Server issuer URL (e.g. a WorkOS AuthKit "
+            "issuer). Enables auth — required for public/remote exposure."
+        ),
+    ),
+    public_url: str | None = typer.Option(
+        None,
+        "--public-url",
+        help=(
+            "Public URL of this MCP resource (the tunnel URL, e.g. "
+            "https://xxxx.ngrok.app/mcp). Required when --auth-issuer is set."
+        ),
+    ),
+    auth_scope: list[str] | None = typer.Option(
+        None, "--auth-scope", help="Scope the bearer token must include (repeatable)."
+    ),
+    jwks_url: str | None = typer.Option(
+        None,
+        "--jwks-url",
+        help="JWKS endpoint. Discovered from the issuer's OpenID config when omitted.",
+    ),
 ) -> None:
-    """Serve the knowledge base over Streamable HTTP (MCP) — a long-running daemon."""
+    """Serve the knowledge base over Streamable HTTP (MCP) — a long-running daemon.
+
+    Without ``--auth-issuer`` the endpoint is open (local use only). For public
+    exposure (e.g. Claude's remote connector) pass ``--auth-issuer`` +
+    ``--public-url`` to require OAuth 2.1 bearer tokens.
+    """
     from oh_my_harness.kb.cli.config import load_config
     from oh_my_harness.kb.mcp.server import serve_http
 
@@ -329,12 +358,31 @@ def serve_cmd(
         )
         raise typer.Exit(code=1)
 
+    auth = None
+    if auth_issuer or public_url:
+        if not (auth_issuer and public_url):
+            typer.secho(
+                "error: --auth-issuer and --public-url must be provided together.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(code=1)
+        from oh_my_harness.kb.mcp.auth import AuthConfig
+
+        auth = AuthConfig(
+            issuer_url=auth_issuer,
+            resource_url=public_url,
+            required_scopes=list(auth_scope or []),
+            jwks_url=jwks_url,
+        )
+
     typer.secho(
-        f"  serving KB '{resolved}' on http://{host}:{port}/mcp  (Ctrl+C to stop)",
+        f"  serving KB '{resolved}' on http://{host}:{port}/mcp"
+        f"  ({'OAuth 2.1' if auth else 'no auth — local only'})  (Ctrl+C to stop)",
         fg=typer.colors.GREEN,
         bold=True,
     )
-    serve_http(host=host, port=port, kb_name=resolved)
+    serve_http(host=host, port=port, kb_name=resolved, auth=auth)
 
 
 @app.command("status")

@@ -28,6 +28,8 @@ from mcp.types import TextContent, Tool
 if TYPE_CHECKING:
     from starlette.applications import Starlette
 
+    from oh_my_harness.kb.mcp.auth import AuthConfig
+
 from oh_my_harness.kb.embedding import BGEM3Embedder, Embedder
 from oh_my_harness.kb.mcp.config import get_active_kb, get_active_notes_root
 from oh_my_harness.kb.mcp.tools import (
@@ -181,6 +183,7 @@ def build_http_app(
     *,
     json_response: bool = False,
     stateless: bool = False,
+    auth: AuthConfig | None = None,
 ) -> Starlette:
     """Build a Starlette ASGI app exposing this server over Streamable HTTP.
 
@@ -190,15 +193,22 @@ def build_http_app(
     session manager's task group is bound to the app lifespan so it lives for
     the whole server lifetime.
 
-    Imports of the web stack are local so the stdio entry point never pulls in
-    starlette/uvicorn.
+    When ``auth`` is given the server becomes an OAuth 2.1 Resource Server:
+    the ``/mcp`` endpoint requires a valid bearer token and Protected Resource
+    Metadata routes are added so remote clients (e.g. Claude's connector) can
+    discover the Authorization Server. When ``auth`` is ``None`` the endpoint is
+    open — fine for local/stdio-equivalent use, never for public exposure.
+
+    Imports of the web/auth stack are local so the stdio entry point never pulls
+    in starlette/uvicorn/jwt.
     """
     from collections.abc import AsyncIterator
     from contextlib import asynccontextmanager
 
     from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
     from starlette.applications import Starlette as _Starlette
-    from starlette.routing import Mount
+    from starlette.middleware import Middleware
+    from starlette.routing import BaseRoute, Mount
     from starlette.types import Receive, Scope, Send
 
     server = build_server(context)
@@ -216,25 +226,43 @@ def build_http_app(
         async with session_manager.run():
             yield
 
-    return _Starlette(routes=[Mount("/mcp", app=_handle_mcp)], lifespan=_lifespan)
+    routes: list[BaseRoute]
+    middleware: list[Middleware] = []
+    if auth is None:
+        routes = [Mount("/mcp", app=_handle_mcp)]
+    else:
+        from oh_my_harness.kb.mcp.auth import build_auth_layer
+
+        protected, prm_routes, middleware = build_auth_layer(auth, _handle_mcp)
+        routes = [Mount("/mcp", app=protected), *prm_routes]
+
+    return _Starlette(routes=routes, middleware=middleware, lifespan=_lifespan)
 
 
-def serve_http(host: str, port: int, kb_name: str | None = None) -> None:
+def serve_http(
+    host: str,
+    port: int,
+    kb_name: str | None = None,
+    auth: AuthConfig | None = None,
+) -> None:
     """Run the knowledge-base MCP server over Streamable HTTP (blocking).
 
     The knowledge base is server-bound (``kb_name`` or ``$KB_NAME``); the bge-m3
-    model still loads lazily on the first tool call. stdio is unaffected.
+    model still loads lazily on the first tool call. stdio is unaffected. When
+    ``auth`` is given the endpoint requires OAuth 2.1 bearer tokens.
     """
     import uvicorn
 
     context = build_context(universe=kb_name)
     context.notes_root.mkdir(parents=True, exist_ok=True)
-    app = build_http_app(context)
+    app = build_http_app(context, auth=auth)
+    auth_status = f"OAuth 2.1 ({auth.issuer_url})" if auth else "none (open — local only)"
     print(
         (
             f"{SERVER_NAME} (streamable-http) ready\n"
             f"  knowledge base : {context.kb_name}\n"
             f"  endpoint       : http://{host}:{port}/mcp\n"
+            f"  auth           : {auth_status}\n"
             f"  qdrant_url     : {context.qdrant_url}\n"
             f"  notes_root     : {context.notes_root}"
         ),
