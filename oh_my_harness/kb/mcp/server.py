@@ -244,16 +244,19 @@ def serve_http(
     port: int,
     kb_name: str | None = None,
     auth: AuthConfig | None = None,
+    notes_root: Path | None = None,
 ) -> None:
     """Run the knowledge-base MCP server over Streamable HTTP (blocking).
 
     The knowledge base is server-bound (``kb_name`` or ``$KB_NAME``); the bge-m3
     model still loads lazily on the first tool call. stdio is unaffected. When
-    ``auth`` is given the endpoint requires OAuth 2.1 bearer tokens.
+    ``auth`` is given the endpoint requires OAuth 2.1 bearer tokens. ``notes_root``
+    overrides where the bundles are read from (the CLI passes the configured KB
+    path so relocations are respected).
     """
     import uvicorn
 
-    context = build_context(universe=kb_name)
+    context = build_context(universe=kb_name, notes_root=notes_root)
     context.notes_root.mkdir(parents=True, exist_ok=True)
     app = build_http_app(context, auth=auth)
     auth_status = f"OAuth 2.1 ({auth.issuer_url})" if auth else "none (open — local only)"

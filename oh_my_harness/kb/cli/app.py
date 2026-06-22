@@ -349,7 +349,8 @@ def serve_cmd(
     from oh_my_harness.kb.cli.config import load_config
     from oh_my_harness.kb.mcp.server import serve_http
 
-    resolved = kb_name if kb_name is not None else load_config().active
+    cfg = load_config()
+    resolved = kb_name if kb_name is not None else cfg.active
     if resolved is None:
         typer.secho(
             "error: no active knowledge base — run `omh install` first or pass --kb",
@@ -357,6 +358,10 @@ def serve_cmd(
             err=True,
         )
         raise typer.Exit(code=1)
+    # Read the configured KB path so a relocation is respected (the MCP server
+    # otherwise derives notes_root from $KB_NOTES_ROOT / the default root).
+    universe = cfg.get(resolved)
+    notes_root = universe.notes_root if universe is not None else None
 
     auth = None
     if auth_issuer or public_url:
@@ -382,7 +387,7 @@ def serve_cmd(
         fg=typer.colors.GREEN,
         bold=True,
     )
-    serve_http(host=host, port=port, kb_name=resolved, auth=auth)
+    serve_http(host=host, port=port, kb_name=resolved, auth=auth, notes_root=notes_root)
 
 
 @app.command("status")
@@ -461,6 +466,74 @@ def universe_use_cmd(
         raise typer.Exit(code=1) from exc
     save_config(cfg)
     typer.secho(f"active knowledge base is now '{name}'.", fg=typer.colors.GREEN, bold=True)
+
+
+@universe_app.command("relocate")
+def universe_relocate_cmd(
+    to: str = typer.Option(
+        ...,
+        "--to",
+        help="New data root (parent of the KB dir), e.g. an iCloud/Obsidian vault path.",
+    ),
+    kb_name: str | None = typer.Option(
+        None, "--kb", "-u", help="KB to relocate. Defaults to the active one."
+    ),
+    reindex: bool = typer.Option(
+        False,
+        "--reindex",
+        help="Reindex Qdrant after moving (optional — relative paths are preserved).",
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Show the plan without moving anything."
+    ),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip the confirmation prompt."),
+) -> None:
+    """Move a knowledge base to a new data root (files + config.toml + CLAUDE.md)."""
+    from oh_my_harness.kb.cli.relocate import RelocateError, RelocateRunner
+
+    runner = RelocateRunner()
+    try:
+        plan = runner.plan(Path(to), kb_name)
+    except RelocateError as exc:
+        typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from exc
+
+    typer.echo(f"  KB     : {plan.kb_name}")
+    typer.echo(f"  from   : {plan.old_kb_dir}")
+    typer.echo(f"  to     : {plan.new_kb_dir}")
+    typer.echo(f"  items  : {len(plan.items_to_move)}")
+    typer.echo("  updates: config.toml ([core] + KB notes_root) + CLAUDE.md block"
+               + (" + reindex" if reindex else ""))
+    if plan.collisions:
+        typer.secho(
+            f"  CONFLITO: já existem no destino: {', '.join(plan.collisions)}",
+            fg=typer.colors.RED,
+        )
+
+    if dry_run:
+        typer.secho("  (dry-run — nada foi movido)", fg=typer.colors.YELLOW)
+        raise typer.Exit(code=0)
+    if plan.collisions:
+        typer.secho(
+            "error: resolva os conflitos antes de relocar.", fg=typer.colors.RED, err=True
+        )
+        raise typer.Exit(code=1)
+    if not yes and not typer.confirm("  Prosseguir?"):
+        raise typer.Exit(code=0)
+
+    try:
+        report = runner.execute(plan, reindex=reindex)
+    except RelocateError as exc:
+        typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from exc
+
+    typer.secho(
+        f"relocated '{report.kb_name}' → {report.new_kb_dir}  "
+        f"({report.moved} item(s) moved; CLAUDE.md {report.claude_md_action}"
+        f"{'; reindexed' if report.reindexed else ''})",
+        fg=typer.colors.GREEN,
+        bold=True,
+    )
 
 
 @app.command("reindex")
