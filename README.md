@@ -55,7 +55,6 @@ This repository is the **source**. You sync it into your harness's **global stat
 │                       references/)      workflows/         │
 └───────────────────────────┬────────────────────────────────┘
                             │   "read INSTRUCTIONS.md and sync"
-                            │        (or ./install.sh)
                             ▼
 ┌────────────────────────────────────────────────────────────┐
 │  ~/.claude/  ·  GLOBAL harness state                       │
@@ -111,13 +110,6 @@ cd oh-my-harness
 Then **ask the harness to sync** — it reads [`INSTRUCTIONS.md`](INSTRUCTIONS.md), runs the [`claude-code/SETUP.md`](claude-code/SETUP.md) runbook, and resolves everything interactively (symlink the library, diff the configs, detect local MCPs and wire the capability table, handle orphans):
 
 > _"Read INSTRUCTIONS.md and sync this library with my ~/.claude."_
-
-Prefer a deterministic one-shot? Use the installer:
-
-```bash
-./install.sh                        # symlink agents/ and skills/ into ~/.claude/
-CLAUDE_HOME=/path ./install.sh      # custom home
-```
 
 Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug this machine's tools.
 
