@@ -4,6 +4,23 @@ Regras vinculantes deste ambiente. Aplicam-se a toda sessão do harness e a todo
 
 ---
 
+## Nunca poluir o projeto com arquivos que não são do produto
+
+**Regra dura.** Dentro de um repositório/projeto, você só cria ou edita arquivos que fazem
+parte do **produto** — o código-fonte, testes, config e documentação que vão para o repositório
+de verdade / para produção.
+
+Qualquer arquivo **auxiliar, temporário ou de execução** — scripts one-off (Python, bash, etc.),
+notas ou relatórios `.md` de análise, arquivos de scratch, saídas intermediárias, rascunhos —
+**NUNCA** é criado dentro do projeto. Esses vão para um diretório **fora** do working tree
+(o scratchpad da sessão ou `/tmp`), nunca no repo.
+
+Prefira não criar arquivo nenhum quando um comando efêmero resolve (ex.: heredoc, pipe). E se
+houver **qualquer dúvida** se um arquivo é "do produto" ou "auxiliar", **pergunte antes de criar**.
+Nunca assuma e nunca deixe lixo no projeto do usuário.
+
+---
+
 ## Idioma
 
 - **Conversa, prosa instrucional, títulos e explicações** → pt-BR.
