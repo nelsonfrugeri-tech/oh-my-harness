@@ -2,126 +2,194 @@
 
 # oh-my-harness
 
-**Biblioteca portátil de agents, skills e workflows para harness de IA.**
+**A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.**
 
-Agnóstica de máquina e de harness — o mesmo conjunto roda no Claude Code hoje e é
-adaptável a Codex/Cursor, plugando as tools de cada ambiente por um único ponto.
+Write the config once. Plug the tools per machine. Run it on Claude Code today — and on Codex or Cursor tomorrow — without changing a line.
 
-`pt-BR na instrução` · `inglês no código` · `zero acoplamento`
+[![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
+[![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
+[![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-18-DC5F00?style=flat-square)](#whats-inside)
+[![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
 
 ---
 
-## Por que existe
+## The problem
 
-Config de harness normalmente nasce acoplada: uma tool MCP hardcoded aqui, um caminho
-`~/.config/...` ali, uma referência a um serviço específico acolá. Trocou de máquina ou de
-harness — quebrou.
+Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` path there, a reference to a specific service somewhere else. Switch machines — GitHub at home, GitLab at work — or switch assistants, and it breaks. You re-wire the same plumbing on every setup.
 
-Esta biblioteca separa **o que o agente faz** (portátil) de **com qual tool ele faz** (por
-máquina), através de uma camada de *capabilities*. O mesmo `developer` abre um Pull Request
-via GitHub na sua máquina pessoal e via GitLab na máquina da empresa — sem uma linha de
-diferença nos arquivos.
+**oh-my-harness decouples _what the agent does_ from _which tool it does it with._** The same `developer` opens a Pull Request through GitHub on your personal machine and through GitLab on the company laptop — the files are byte-for-byte identical. Only one small table changes.
 
-## Conceitos
+---
 
-### 🔌 Capabilities — o plugue de tools
+## Table of contents
 
-Agents e skills referenciam **capabilities** abstratas, nunca uma tool concreta. Uma única
-tabela (em `claude-code/CLAUDE.md`) mapeia cada capability para a tool desta máquina. Trocou
-de ambiente? Só a tabela muda.
+- [How it works](#how-it-works)
+- [Core ideas](#core-ideas)
+  - [Capabilities — the tool plug](#capabilities--the-tool-plug)
+  - [Progressive disclosure](#progressive-disclosure)
+  - [code-craft — inviolable rules](#code-craft--inviolable-rules)
+  - [Language contract](#language-contract)
+- [Quick start](#quick-start)
+- [What's inside](#whats-inside)
+- [Portability across harnesses](#portability-across-harnesses)
+- [Extending the library](#extending-the-library)
+- [Why](#why)
+- [License](#license)
 
-| Capability  | Papel                                 | Exemplo por máquina        |
-| ----------- | ------------------------------------- | -------------------------- |
-| `code-host` | Pull/Merge Requests, issues           | `mcp__github__*` / GitLab  |
-| `ci`        | Pipelines de CI/CD                    | GitHub Actions / GitLab CI |
-| `memory`    | Notas/contexto persistente (opcional) | qualquer memory MCP        |
-| `web`       | Busca e fetch                         | `WebSearch`, `WebFetch`    |
+---
 
-### 📚 Progressive disclosure
+## How it works
 
-Cada skill é um `SKILL.md` enxuto (visão geral + quando usar) apontando para `references/`
-carregados **sob demanda**. O contexto só paga pelo detalhe que a tarefa realmente precisa.
-
-### 🧱 code-craft
-
-As regras invioláveis de qualidade de código — tipagem total, imutabilidade, funções e
-arquivos pequenos, guard clauses no lugar de aninhamento, design pattern no lugar de cadeias
-de `if/elif`, quality gate ao final — vivem em `skills/implement/references/code-craft.md`
-como **fonte única**, referenciada por `implement` e reusada por `review`.
-
-### 🗣️ Contrato de idioma
-
-Prosa de instrução em **pt-BR**; código, comentários, docstrings e termos técnicos em
-**inglês**.
-
-## Estrutura
+This repository is the **source**. You sync it into your harness's **global state** (`~/.claude`), and agents resolve their tools per machine through a single capability table.
 
 ```
-.
-├── agents/           roster de subagents (name, description, tools, model)
-├── skills/           knowledge base (SKILL.md + references/) com progressive disclosure
-├── claude-code/      específico do Claude Code
-│   ├── CLAUDE.md     regras duras + a tabela de capabilities
-│   ├── SETUP.md      procedimento de sync fonte → ~/.claude
-│   ├── settings.json permissions default
-│   └── workflows/    orquestração determinística (Workflow API)
-├── INSTRUCTIONS.md   como o harness deve atuar neste repositório
-└── install.sh        atalho determinístico opcional
+┌────────────────────────────────────────────────────────────┐
+│  oh-my-harness  ·  SOURCE (this git repo)                  │
+│                                                            │
+│   agents/            skills/            claude-code/       │
+│   expert subagents   knowledge base     CLAUDE.md          │
+│                      (SKILL.md +        SETUP.md           │
+│                       references/)      workflows/         │
+└───────────────────────────┬────────────────────────────────┘
+                            │   "read INSTRUCTIONS.md and sync"
+                            │        (or ./install.sh)
+                            ▼
+┌────────────────────────────────────────────────────────────┐
+│  ~/.claude/  ·  GLOBAL harness state                       │
+│   agents/    skills/    workflows/    CLAUDE.md            │
+└───────────────────────────┬────────────────────────────────┘
+                            │   capability plug (per machine)
+               ┌────────────┴─────────────┐
+               ▼                          ▼
+      code-host → mcp__github__*   code-host → mcp__gitlab__*
+      (personal machine)           (work machine)
 ```
 
-## Instalação
+- **agents / skills / workflows** are symlinked into `~/.claude/` — a `git pull` on the source updates them everywhere.
+- **CLAUDE.md** carries the timeless rules and the per-machine capability table.
+- **SETUP.md** is the runbook the harness executes to sync (see [Quick start](#quick-start)).
 
-Este repositório é a **fonte**. Para levá-lo ao seu harness global (`~/.claude`), você **pede
-ao harness** — ele lê o [`INSTRUCTIONS.md`](INSTRUCTIONS.md), executa
-[`claude-code/SETUP.md`](claude-code/SETUP.md) e resolve o sync (symlink do conteúdo, diff dos
-configs, mapeamento de MCP). Sem rodar scripts na mão.
+---
 
-Para um atalho determinístico, há também o `install.sh`:
+## Core ideas
+
+### Capabilities — the tool plug
+
+Agents and skills reference **abstract capabilities**, never a concrete tool. A single table (in `claude-code/CLAUDE.md`) maps each capability to the tool available on _this_ machine. Change environment, change only the table.
+
+| Capability  | Role                                   | Example per machine        |
+| ----------- | -------------------------------------- | -------------------------- |
+| `code-host` | Pull/Merge Requests, issues            | `mcp__github__*` / GitLab  |
+| `ci`        | CI/CD pipelines                        | GitHub Actions / GitLab CI |
+| `memory`    | Persistent project notes (optional)    | any memory MCP             |
+| `web`       | Search and fetch                       | `WebSearch`, `WebFetch`    |
+
+### Progressive disclosure
+
+Each skill is a lean `SKILL.md` (overview + when to use) that points to `references/` loaded **on demand**. Context only pays for the depth a task actually needs — the ~140 reference files stay out of the window until required.
+
+### code-craft — inviolable rules
+
+The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
+
+### Language contract
+
+Instructional prose is **pt-BR**; code, comments, docstrings, and technical terms stay **English**. You talk to the harness in your language; what ships to a codebase is written in the code's language.
+
+---
+
+## Quick start
 
 ```bash
-./install.sh                        # symlinks agents/ e skills/ em ~/.claude/
-CLAUDE_HOME=/caminho ./install.sh   # home customizado
+git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
+cd oh-my-harness
 ```
 
-## Agents
+Then **ask the harness to sync** — it reads [`INSTRUCTIONS.md`](INSTRUCTIONS.md), runs the [`claude-code/SETUP.md`](claude-code/SETUP.md) runbook, and resolves everything interactively (symlink the library, diff the configs, detect local MCPs and wire the capability table, handle orphans):
 
-| Agent         | Papel                                          | Model  |
-| ------------- | ---------------------------------------------- | ------ |
-| `architect`   | System design, ADRs, C4, trade-offs, API       | opus   |
-| `developer`   | Implementação, bug fix, refactor, testes       | sonnet |
-| `ai-engineer` | LLM/RAG/embeddings, data pipelines, eval        | sonnet |
-| `qa`          | Estratégia de testes, E2E, performance, a11y   | sonnet |
-| `sre`         | Observabilidade, SLO/SLI, incidentes, runbooks | sonnet |
-| `tech-pm`     | User stories, backlog, roadmap, PRD            | sonnet |
-| `explorer`    | Análise profunda de repo → `context.md`        | opus   |
-| `context`     | Carrega o contexto vivo do projeto na sessão   | sonnet |
+> _"Read INSTRUCTIONS.md and sync this library with my ~/.claude."_
 
-## Skills
+Prefer a deterministic one-shot? Use the installer:
 
-**Conhecimento (linguagens & domínios):** `python` · `typescript` · `ai-engineer` ·
-`api-design` · `frontend-ui` · `security` · `observability`
+```bash
+./install.sh                        # symlink agents/ and skills/ into ~/.claude/
+CLAUDE_HOME=/path ./install.sh      # custom home
+```
 
-**Capacidade (metodologia & processo):** `implement` · `design` · `test` · `review` ·
-`research` · `operate` · `manage` · `environment` · `ci-cd`
+Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug this machine's tools.
 
-**Comando & workflow:** `feature` · `drink-context`
+---
 
-Cada skill traz um `SKILL.md` e, quando aplicável, uma pasta `references/` com o aprofundamento.
+## What's inside
 
-## Workflows
+### Agents
 
-| Workflow         | O que faz                                                                  |
-| ---------------- | -------------------------------------------------------------------------- |
-| `create-feature` | Pipeline ponta-a-ponta: user_history → dev → loop[qa+sre] → PR (via `code-host`) |
+| Agent         | Role                                             | Model  |
+| ------------- | ------------------------------------------------ | ------ |
+| `architect`   | System design, ADRs, C4, trade-offs, API design  | opus   |
+| `developer`   | Implementation, bug fixes, refactoring, testing  | sonnet |
+| `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation    | sonnet |
+| `qa`          | Test strategy, E2E, performance, accessibility   | sonnet |
+| `sre`         | Observability, SLO/SLI, incident response        | sonnet |
+| `tech-pm`     | User stories, backlog, roadmap, PRDs             | sonnet |
+| `explorer`    | Deep repo analysis → `context.md`                | opus   |
+| `context`     | Loads the project's living context into a session| sonnet |
 
-## Portabilidade entre harness
+### Skills
 
-`agents/` e `skills/` são a base reutilizável. O que é específico do Claude Code (`CLAUDE.md`,
-`settings.json`, `workflows/`, `SETUP.md`) fica isolado em `claude-code/`, para que adaptar a
-outro harness signifique acrescentar uma pasta irmã — não reescrever a biblioteca.
+**Knowledge (languages & domains):** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
-## Licença
+**Capability (method & process):** `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
 
-Ver [`LICENSE`](LICENSE).
+**Command & workflow:** `feature` · `drink-context`
+
+Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
+
+### Workflows
+
+| Workflow         | What it does                                                                       |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| `create-feature` | End-to-end pipeline: user story → dev → parallel `qa`+`sre` loop → PR via `code-host` |
+
+---
+
+## Portability across harnesses
+
+`agents/` and `skills/` are the reusable base. Everything Claude-Code-specific (`CLAUDE.md`, `settings.json`, `workflows/`, `SETUP.md`) is isolated under `claude-code/` — so adapting to another harness means adding a sibling folder, not rewriting the library.
+
+| Primitive   | Claude Code | Codex        | Cursor           |
+| ----------- | :---------: | :----------: | :--------------: |
+| agents      | ✅ native   | ⚙️ `AGENTS.md` | ⚙️ rules + AGENTS.md |
+| skills      | ✅ native   | 📄 as docs    | 📄 as docs        |
+| workflows   | ✅ native   | —            | —                |
+
+---
+
+## Extending the library
+
+**Add a skill** → create `skills/<name>/SKILL.md` with `name` + `description` in the frontmatter; put deep content in `references/` and link it from the `## Reference Files` section.
+
+**Add an agent** → create `agents/<name>.md` with `name`, `description`, `tools` (least-privilege) and a `skills:` list.
+
+**Add a workflow** → create `claude-code/workflows/<name>.ts` following the Workflow API (`meta`, phases, `agent()` / `parallel()` / `pipeline()`).
+
+Then sync (see [Quick start](#quick-start)).
+
+---
+
+## Why
+
+Most tooling promises a smarter assistant. oh-my-harness promises a **portable** one.
+
+Your setup today is welded to one machine and one provider: an MCP tool hardcoded, a path assumed, a service named. Move, and you rebuild. oh-my-harness makes the config outlive the environment — the agents describe intent, the capability table describes the machine, and the two meet at runtime. Clone it on a new laptop, plug four tools into one table, and your whole engineering toolkit is back — same behavior, same standards, same voice.
+
+The library is only as good as the discipline encoded in it. This one encodes portability, progressive disclosure, and a hard code-craft bar — so the investment compounds instead of resetting every time you switch context.
+
+---
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE).
