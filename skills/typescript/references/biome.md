@@ -1,6 +1,6 @@
 # Biome 2+ - Linter & Formatter
 
-Biome substitui ESLint + Prettier com uma unica ferramenta ultrarapida.
+Biome substitui ESLint + Prettier com uma única ferramenta ultrarrápida.
 
 ---
 

@@ -1,6 +1,6 @@
 # TypeScript Strict Config - tsconfig.json Best Practices
 
-Configuracao recomendada para projetos TypeScript modernos (5.7+).
+Configuração recomendada para projetos TypeScript modernos (5.7+).
 
 ---
 

@@ -1,6 +1,6 @@
 # Tailwind CSS 4+ - Utility-First Styling
 
-Tailwind CSS e a biblioteca recomendada para styling na maioria dos projetos.
+Tailwind CSS é a biblioteca recomendada para styling na maioria dos projetos.
 
 ---
 

@@ -1,6 +1,6 @@
 # Vite 6+ - Build Tool & Dev Server
 
-Vite e a build tool recomendada para projetos frontend.
+Vite é a build tool recomendada para projetos frontend.
 
 ---
 

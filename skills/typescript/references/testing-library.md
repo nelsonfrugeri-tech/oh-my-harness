@@ -1,6 +1,6 @@
 # Testing Library - React Testing
 
-Testing Library para testes de componentes React focados no usuario.
+Testing Library para testes de componentes React focados no usuário.
 
 ---
 

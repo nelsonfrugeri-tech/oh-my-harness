@@ -1,6 +1,6 @@
 # TanStack Query v5 - Server State Management
 
-TanStack Query (React Query) e a biblioteca recomendada para gerenciar server state.
+TanStack Query (React Query) é a biblioteca recomendada para gerenciar server state.
 
 ---
 

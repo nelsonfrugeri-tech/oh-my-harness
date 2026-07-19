@@ -1,6 +1,6 @@
 # pnpm 10+ - Package Manager
 
-pnpm e o gerenciador de pacotes recomendado para projetos TypeScript.
+pnpm é o gerenciador de pacotes recomendado para projetos TypeScript.
 
 ---
 

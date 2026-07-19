@@ -1,14 +1,14 @@
-# Type System Avancado - TypeScript 5.7+
+# Type System Avançado - TypeScript 5.7+
 
-Referencia tecnica completa do sistema de tipos moderno em TypeScript. Para decisoes de quando aplicar cada padrao, consulte a skill principal.
+Referência técnica completa do sistema de tipos moderno em TypeScript. Para decisões de quando aplicar cada padrão, consulte a skill principal.
 
 ---
 
 ## Generics
 
-### Funcoes Genericas
+### Funções Genéricas
 
-Generics permitem funcoes e classes que operam sobre multiplos tipos mantendo type safety:
+Generics permitem funções e classes que operam sobre múltiplos tipos mantendo type safety:
 ```typescript
 function first<T>(items: T[]): T | undefined {
 	return items[0];
@@ -450,17 +450,17 @@ type StateEvents = {
 
 ---
 
-## Referencia Rapida
+## Referência Rápida
 
 | Conceito | Quando usar | Exemplo |
 |----------|-------------|---------|
-| Generics | Codigo reutilizavel com type safety | `function map<T, U>(items: T[], fn: (t: T) => U): U[]` |
+| Generics | Código reutilizável com type safety | `function map<T, U>(items: T[], fn: (t: T) => U): U[]` |
 | Utility types | Transformar tipos existentes | `Partial<User>`, `Pick<User, "id">` |
 | Discriminated unions | Modelar estados/variantes | `{ type: "success"; data: T } \| { type: "error"; msg: string }` |
 | Template literals | String patterns tipados | `type Route = \`/api/${string}\`` |
 | satisfies | Validar sem alargar tipo | `const x = { ... } satisfies Schema` |
-| as const | Literal types imutaveis | `const x = ["a", "b"] as const` |
-| Branded types | Prevenir mix de tipos identicos | `type UserId = string & { __brand: ... }` |
+| as const | Literal types imutáveis | `const x = ["a", "b"] as const` |
+| Branded types | Prevenir mix de tipos idênticos | `type UserId = string & { __brand: ... }` |
 | Conditional types | Tipos computados | `T extends string ? A : B` |
 | Mapped types | Transformar propriedades | `{ [K in keyof T]: ... }` |
 

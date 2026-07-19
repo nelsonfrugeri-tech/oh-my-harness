@@ -1,6 +1,6 @@
 # Vitest 3+ - Testing Framework
 
-Vitest e o framework de testes recomendado para projetos TypeScript/Vite.
+Vitest é o framework de testes recomendado para projetos TypeScript/Vite.
 
 ---
 

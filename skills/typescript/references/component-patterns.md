@@ -1,12 +1,12 @@
 # React Component Patterns - React 19+
 
-Patterns modernos para construir componentes reutilizaveis, composiveis e type-safe.
+Patterns modernos para construir componentes reutilizáveis, componíveis e type-safe.
 
 ---
 
 ## Composição Sobre Herança
 
-React favorece composicao sobre heranca. Nunca use heranca de componentes.
+React favorece composição sobre herança. Nunca use herança de componentes.
 
 ```typescript
 // BAD — inheritance

@@ -1,6 +1,6 @@
 # Playwright 1.50+ - E2E Testing
 
-Playwright e o framework recomendado para testes end-to-end.
+Playwright é o framework recomendado para testes end-to-end.
 
 ---
 

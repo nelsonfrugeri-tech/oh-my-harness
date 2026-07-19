@@ -1,6 +1,6 @@
 # Zustand 5+ - State Management
 
-Zustand e a biblioteca recomendada para client state global em aplicacoes React.
+Zustand é a biblioteca recomendada para client state global em aplicações React.
 
 ---
 
