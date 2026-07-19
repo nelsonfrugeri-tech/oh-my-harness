@@ -1,7 +1,7 @@
 export const meta = {
   name: 'create-feature',
   description: 'Pipeline de criação de feature após refinamento técnico: user_history (tech-pm) → development (developer ou ai-engineer) → validation_loop[qa+sre] (max 3 iterações) → open_pr (ou escalação ao usuário). Refinamento técnico interativo é feito antes pelo skill /feature.',
-  whenToUse: 'Após o refinamento técnico interativo estar salvo no KB. Recebe args: { featureName, featureSlug, refinementContent, track }. Track = "developer" ou "ai-engineer" decide quem implementa.',
+  whenToUse: 'Após o refinamento técnico interativo estar consolidado. Recebe args: { featureName, featureSlug, refinementContent, track }. Track = "developer" ou "ai-engineer" decide quem implementa.',
   phases: [
     { title: 'user_history', detail: 'tech-pm escreve user story e abre item no sistema de gerenciamento (GitHub Issues por padrão); salva cópia em <feature>/user_history/user_history.md' },
     { title: 'development', detail: 'developer ou ai-engineer (conforme track) implementa a feature seguindo refinamento + user_history' },
@@ -16,7 +16,7 @@ const featureSlug = args?.featureSlug
 const refinementContent = args?.refinementContent
 const track = args?.track === 'ai-engineer' ? 'ai-engineer' : 'developer'
 const repo = args?.repo
-const kbBasePath = featureSlug
+const docsBase = featureSlug
 
 if (!featureName || !featureSlug || !refinementContent) {
   throw new Error('create-feature precisa de args: { featureName: string, featureSlug: string, refinementContent: string, track?: "developer"|"ai-engineer", repo?: "owner/name" }')
@@ -156,10 +156,10 @@ ${refinementContent}
 
 # Tarefas
 1. Escreva uma user history no formato INVEST: título, "As a / I want / So that", critérios de aceitação Given/When/Then (3-6 cenários), Definition of Done.
-2. Crie um issue no GitHub no repositório ${repo || '<descobrir via gh/MCP>'} com a user history. Use os tools do MCP github (mcp__github__issue_write) — carregue o schema via ToolSearch se preciso. Se não houver repo configurado ou falhar, deixe issueUrl como string vazia e prossiga.
-3. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${kbBasePath}/user_history/user_history.md.
+2. Crie um issue/ticket no repositório ${repo || '<descobrir via git remote>'} via a capability `code-host` (carregue a tool concreta via ToolSearch — ver claude-code/CLAUDE.md). Se `code-host` não estiver plugada ou falhar, deixe issueUrl como string vazia e prossiga.
+3. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${docsBase}/user_history/user_history.md.
 
-Use ferramentas de KB (kb_write) via ToolSearch para salvar o markdown final no path do KB: ${kbBasePath}/user_history/user_history.md`,
+Grave o markdown final em disco em `${docsBase}/user_history/user_history.md`. Se a capability `memory` estiver plugada, indexe também um resumo.`,
   { agentType: 'tech-pm', label: 'tech-pm:user_history', phase: 'user_history', schema: USER_HISTORY_SCHEMA },
 )
 
@@ -229,7 +229,7 @@ ${userHistory.markdown}
 ${JSON.stringify(implementation, null, 2)}
 
 # Salvar evidências
-Cada evidência deve ter path do tipo ${kbBasePath}/validation/qa_<nome_teste>.md. Use kb_write (via ToolSearch) para gravar cada arquivo no KB.
+Cada evidência deve ter path do tipo `${docsBase}/validation/qa_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
 
 # Veredito
 pass apenas se TODOS os critérios de aceitação foram validados sem blockers. Caso contrário fail + lista de issues com severidade e repro.`,
@@ -249,7 +249,7 @@ ${refinementContent}
 ${JSON.stringify(implementation, null, 2)}
 
 # Salvar evidências
-Cada evidência deve ter path do tipo ${kbBasePath}/validation/sre_<nome_teste>.md. Use kb_write (via ToolSearch) para gravar cada arquivo no KB.
+Cada evidência deve ter path do tipo `${docsBase}/validation/sre_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
 
 # Veredito
 pass se infra/performance/observabilidade estão dentro de SLO e sem blockers. Caso contrário fail + lista de issues com severidade.`,
@@ -358,8 +358,8 @@ qa: ${qaResult?.verdict}, sre: ${sreResult?.verdict}, iterações usadas: ${iter
 ${(userHistory.acceptanceCriteria || []).map(ac => `  - ${ac.scenario}`).join('\n')}
 
 ## Evidências
-- QA: ${kbBasePath}/validation/qa_*.md
-- SRE: ${kbBasePath}/validation/sre_*.md
+- QA: ${docsBase}/validation/qa_*.md
+- SRE: ${docsBase}/validation/sre_*.md
 
 ## Como testar
 ${(implementation.commands || []).map(c => `\`\`\`\n${c}\n\`\`\``).join('\n')}
@@ -372,7 +372,7 @@ ${(implementation.commands || []).map(c => `\`\`\`\n${c}\n\`\`\``).join('\n')}
 - [x] Observabilidade validada (sre)
 
 # Tarefa
-Use mcp__github__create_pull_request (carregue via ToolSearch). Push do branch antes se necessário. Retorne prUrl, title e body usados.`,
+Abra o Pull/Merge Request via a capability `code-host` (carregue a tool concreta via ToolSearch — ver claude-code/CLAUDE.md). Faça push do branch antes se necessário. Retorne prUrl, title e body usados.`,
   { agentType: implementerAgentType, label: `${implementerLabel}:open_pr`, phase: 'open_pr', schema: PR_SCHEMA },
 )
 

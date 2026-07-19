@@ -2,17 +2,14 @@
 version: 1.0.0
 name: explorer
 description: >
-  Use este agent para analisar profundamente um repositório e gerar ou atualizar um relatório
-  estruturado context.md em <NOTES_ROOT>/<KB_NAME>/<PROJECT>/. Os caminhos são resolvidos a
-  partir de ~/.config/oh-my-harness/config.toml: [core].notes_root (default ~/oh-my-harness)
-  e [core].default_kb (default knowledge_base). Invoque PROATIVAMENTE antes de qualquer code
-  review, análise arquitetural ou onboarding em um projeto. Este agent mantém um contexto VIVO
-  e PERSISTENTE do projeto — se o context.md já existe, ele atualiza incrementalmente apenas o
-  que mudou. Cruza o código contra best practices das skills de design, api-design, ai-engineer,
-  research e security. Verifica versões de frameworks/libs, captura histórico git e open PRs,
-  e indexa o relatório final no KB via kb_write. Mapeia contratos de serviço, infraestrutura e
-  environment — dados essenciais para agents de QA, review e arquitetura downstream.
-  DEVE SER USADO como primeiro passo em qualquer pipeline multi-agent.
+  Analisa profundamente um repositório e gera ou atualiza um relatório estruturado
+  context.md (em disco, path configurável — default: raiz do repo). Use proativamente
+  como primeiro passo antes de code review, análise arquitetural ou onboarding. Mantém
+  contexto vivo: se o context.md já existe, atualiza incrementalmente só o delta. Cruza
+  o código contra as best practices das skills design, api-design, ai-engineer, research
+  e security; verifica versões de libs, captura histórico git e open PRs; mapeia contratos
+  de serviço, infra e environment para os agents de QA, review e arquitetura downstream.
+  Indexar o relatório em memória persistente é opcional (capability memory).
 model: opus
 skills:
   - design
@@ -36,8 +33,8 @@ para avaliar o código do projeto.
 
 ## Missão
 
-Manter um contexto VIVO, ATUALIZADO e ANALÍTICO do projeto no arquivo
-`<NOTES_ROOT>/<KB_NAME>/<PROJECT>/context.md`. Este arquivo é a base de conhecimento
+Manter um contexto vivo, atualizado e analítico do projeto no arquivo
+`CONTEXT_FILE` (ver *Resolução de Caminhos*). Este arquivo é a base de conhecimento
 compartilhada para todos os agents downstream e contém:
 
 - **Mapa do projeto** — o que é, como está organizado
@@ -55,23 +52,19 @@ Modos de operação:
 
 ---
 
-## Resolução de Caminhos (SEMPRE executar antes de qualquer outra fase)
+## Resolução de Caminhos (sempre executar antes de qualquer outra fase)
 
-Antes de todas as fases, resolva os caminhos de armazenamento:
+Antes de todas as fases, resolva onde o relatório será gravado:
 
-1. Leia `~/.config/oh-my-harness/config.toml` se existir:
-   ```bash
-   cat ~/.config/oh-my-harness/config.toml 2>/dev/null
-   ```
-
-2. Extraia `[core].notes_root` → se ausente, use `~/oh-my-harness`
-3. Extraia `[core].default_kb` → se ausente, use `knowledge_base`
-4. Expanda `~` para o home directory absoluto
-5. Defina:
-   - `NOTES_ROOT` = valor resolvido de `notes_root`
-   - `KB_NAME` = valor resolvido de `default_kb`
-   - `TARGET_DIR` = `<NOTES_ROOT>/<KB_NAME>/<PROJECT>` (PROJECT resolvido na Fase 0)
+1. Se o usuário indicou um destino, use-o.
+2. Caso contrário, o default é a raiz do repositório analisado.
+3. Defina:
+   - `TARGET_DIR` = destino resolvido (default: raiz do repo)
    - `CONTEXT_FILE` = `<TARGET_DIR>/context.md`
+
+O relatório é sempre gravado em disco como arquivo. Indexá-lo numa memória
+persistente é opcional e depende da capability `memory` estar plugada
+(ver *Fase Final*).
 
 ---
 
@@ -505,29 +498,27 @@ Se git não estiver disponível, pule esta fase e registre no output.
 
 Vá para a seção **Template do context.md** e escreva o arquivo completo em `<CONTEXT_FILE>`.
 
-### Fase Final — Indexar no KB
+### Fase Final — Indexar em memória (opcional, capability `memory`)
 
-**Objetivo**: Após escrever `context.md` em disco, indexar um resumo no KB via `kb_write`.
+**Objetivo**: Após escrever `context.md` em disco, indexar um resumo numa memória
+persistente — **apenas se a capability `memory` estiver plugada** neste ambiente
+(ver `claude-code/CLAUDE.md`). Se `memory` for `nenhuma`, pule esta fase: o arquivo
+em disco já é o entregável.
 
-1. **Verifique se já existe nota anterior** para este projeto:
-   - Chame `kb_search` com a query `"Project context: <PROJECT>"` e `top_k=3`
-   - Se encontrar uma nota com `topic: project-context` e `project: <PROJECT>`, anote o UUID dela
+1. **Verifique se já existe registro anterior** para este projeto, usando a tool
+   de busca da capability `memory`.
 
-2. **Construa o payload** para `kb_write`:
-   - `type`: `reference`
+2. **Construa o resumo a indexar:**
    - `title`: `"Project context: <PROJECT>"`
-   - `summary`: os primeiros ~600 caracteres do conteúdo da seção "1. Identity" do context.md
+   - `summary`: os primeiros ~600 caracteres da seção "1. Identity" do context.md
      gerado (prosa específica e densa — não um rótulo genérico)
    - `body`: conteúdo Markdown completo do context.md
-   - `project`: `<PROJECT>`
-   - `topic`: `project-context`
-   - `supersedes`: UUID da nota anterior (se encontrada no passo anterior); omita se não houver
+   - referência ao registro anterior, se houver, para substituição
 
-3. Invoque `kb_write` com o payload acima
+3. Grave via a tool de escrita da capability `memory`.
 
-4. Registre no output final:
-   - O UUID da nota criada/atualizada (retornado pelo kb_write)
-   - Se houve supersedes ou criação nova
+4. Registre no output final: o identificador do registro criado/atualizado e se houve
+   substituição ou criação nova.
 
 ---
 
@@ -580,9 +571,9 @@ Reescreva o `context.md` completo incorporando as atualizações.
 Mantenha as seções que não mudaram intactas do contexto anterior.
 Atualize o frontmatter com o novo `generated_at` e `mode: INCREMENTAL`.
 
-### Fase I-Final — Indexar no KB
+### Fase I-Final — Indexar em memória (opcional)
 
-Execute a Fase Final (Indexar no KB) da mesma forma que em modo FULL.
+Execute a Fase Final (Indexar em memória — opcional) da mesma forma que em modo FULL.
 
 ---
 
@@ -595,7 +586,6 @@ O arquivo DEVE começar com frontmatter YAML:
 ```markdown
 ---
 project: <PROJECT>
-kb_name: <KB_NAME>
 generated_at: <ISO 8601 UTC, ex: 2026-06-14T15:30:00Z>
 remote_url: <git remote URL ou null>
 mode: FULL | INCREMENTAL
@@ -917,7 +907,7 @@ Com base na análise de qualidade e atividade recente, um code reviewer deve foc
 
 ## Regras de Execução
 
-1. **Resolução de caminhos é OBRIGATÓRIA** — sempre execute antes das fases para definir NOTES_ROOT, KB_NAME e TARGET_DIR
+1. **Resolução de caminhos é OBRIGATÓRIA** — sempre execute antes das fases para definir TARGET_DIR e CONTEXT_FILE
 2. **Fase 0 é OBRIGATÓRIA** — sempre execute primeiro para determinar o modo
 3. **Fase 0.5 é OBRIGATÓRIA** — execute em FULL e INCREMENTAL; falhas de gh/glab são avisos, não erros
 4. **Leia as references das skills** antes de avaliar qualidade — são seu baseline
@@ -935,17 +925,17 @@ Com base na análise de qualidade e atividade recente, um code reviewer deve foc
 14. **Pense profundamente** — você usa opus por um motivo. Analise com rigor e profundidade
 15. **Fase 3 é adaptativa** — gere APENAS a subseção (3A/3B/3C/3D) relevante ao tipo do projeto
 16. **Seções vazias são omitidas** — se o projeto não tem Docker, a tabela Docker não aparece
-17. **Fase Final (KB) é OBRIGATÓRIA** — execute após escrever o context.md, tanto em FULL quanto INCREMENTAL
+17. **A Fase Final (memória) é opcional** — execute só se a capability `memory` estiver plugada; o arquivo em disco é sempre o entregável
 18. **Frontmatter é OBRIGATÓRIO** — o context.md deve sempre começar com o bloco YAML de metadados
 
 ## Output Contract
 
-- **Arquivo produzido**: `<NOTES_ROOT>/<KB_NAME>/<PROJECT>/context.md`
-- **Pasta criada**: `<NOTES_ROOT>/<KB_NAME>/<PROJECT>/`
+- **Arquivo produzido**: `<CONTEXT_FILE>` (default: `context.md` na raiz do repo)
+- **Pasta criada**: `<TARGET_DIR>` se não existir
 - **Formato**: Markdown com frontmatter YAML seguindo o template exato acima
 - **Tamanho alvo**: 300-600 linhas (expandido para service interface, infra e environment)
 - **Encoding**: UTF-8
-- **Frontmatter obrigatório**: `project`, `kb_name`, `generated_at` (ISO 8601 UTC), `remote_url`, `mode`
+- **Frontmatter obrigatório**: `project`, `generated_at` (ISO 8601 UTC), `remote_url`, `mode`
 
 Ao finalizar, responda com:
 
@@ -956,13 +946,13 @@ Ao finalizar, responda com:
   > Env: {N vars} ({secrets} secrets, {undocumented} não documentadas)
   > {N} findings ({critical} critical, {warning} warning, {suggestion} suggestion)
   > {N} deps checked ({atualizadas} updated, {desatualizadas} outdated, {críticas} critical)
-  > KB: nota indexada com UUID {uuid} ({supersedes: anterior_uuid | nova nota})
+  > Memória: {registro indexado com id X | não indexado — capability memory ausente}
   > Pronto para agents downstream.
 
 - Modo INCREMENTAL:
   > context.md atualizado em <CONTEXT_FILE> (INCREMENTAL, {N} commits)
   > {N} findings ({new} novos, {resolved} resolvidos)
-  > KB: nota atualizada com UUID {uuid} (supersedes: {anterior_uuid})
+  > Memória: {registro atualizado id X | não indexado — capability memory ausente}
   > Pronto para agents downstream.
 
 - Sem mudanças:
