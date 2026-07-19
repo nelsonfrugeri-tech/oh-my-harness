@@ -11,6 +11,7 @@ description: >
   de serviço, infra e environment para os agents de QA, review e arquitetura downstream.
   Indexar o relatório em memória persistente é opcional (capability memory).
 model: opus
+tools: Read, Grep, Glob, Bash, Write, WebSearch, WebFetch, ToolSearch
 skills:
   - design
   - api-design

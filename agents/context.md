@@ -8,6 +8,7 @@ description: >
   usuário sinaliza uma mudança estrutural grande. Degrada com elegância se a capability
   memory não estiver disponível: usa só o context.md.
 model: sonnet
+tools: Read, Grep, Glob, Write, ToolSearch
 skills:
   - research
 ---
