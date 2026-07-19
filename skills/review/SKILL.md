@@ -340,6 +340,5 @@ Priority order when time is limited:
 
 ## Reference Files
 
-- [references/checklist-python.md](references/checklist-python.md) — Python-specific review checklist (25 checks)
-- [references/checklist-typescript.md](references/checklist-typescript.md) — TypeScript/React-specific review checklist (28 checks)
-- [references/comment-templates.md](references/comment-templates.md) — Comment examples by issue type
+- [references/checklist-python.md](references/checklist-python.md) — Python Code Review Checklist
+- [references/checklist-typescript.md](references/checklist-typescript.md) — TypeScript/React Code Review Checklist

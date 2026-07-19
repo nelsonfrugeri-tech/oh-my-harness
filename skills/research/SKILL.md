@@ -488,8 +488,13 @@ cargo audit        # Rust
 
 ## Reference Files
 
-- [references/platforms/](references/platforms/) — Platform-specific guides (Google, GitHub, PyPI/npm, HuggingFace, arXiv)
-- [references/methodology/validation-protocol.md](references/methodology/validation-protocol.md)
-- [references/methodology/synthesis-templates.md](references/methodology/synthesis-templates.md)
-- [references/methodology/debate-frameworks.md](references/methodology/debate-frameworks.md)
-- [references/security/vulnerability-sources.md](references/security/vulnerability-sources.md)
+- [references/methodology/debate-frameworks.md](references/methodology/debate-frameworks.md) — Frameworks de Debate e Trade-off
+- [references/methodology/synthesis-templates.md](references/methodology/synthesis-templates.md) — Templates de Síntese
+- [references/methodology/validation-protocol.md](references/methodology/validation-protocol.md) — Protocolo de Validação
+- [references/platforms/arxiv.md](references/platforms/arxiv.md) — arXiv e Busca Acadêmica
+- [references/platforms/github-search.md](references/platforms/github-search.md) — Busca no GitHub
+- [references/platforms/google.md](references/platforms/google.md) — Operadores Avançados de Busca do Google
+- [references/platforms/huggingface.md](references/platforms/huggingface.md) — Busca no HuggingFace
+- [references/platforms/infrastructure.md](references/platforms/infrastructure.md) — Busca de Infraestrutura
+- [references/platforms/pypi-npm.md](references/platforms/pypi-npm.md) — Busca no PyPI e npm
+- [references/security/vulnerability-sources.md](references/security/vulnerability-sources.md) — Fontes de Vulnerabilidades e Segurança

@@ -636,7 +636,6 @@ def test_not_found_raises() -> None:
     assert "User" in str(exc_info.value)
 ```
 
-**Reference:** [references/pytest.md](references/pytest.md)
 
 ---
 
@@ -697,21 +696,20 @@ source = ["src"]
 omit = ["*/tests/*"]
 ```
 
-**Reference:** [references/tooling.md](references/tooling.md)
 
 ---
 
 ## Reference Files
 
-- [references/type-system.md](references/type-system.md) — Protocol, TypeVar, Generic, Literal, TypedDict
-- [references/async-patterns.md](references/async-patterns.md) — Advanced async/await, concurrency models
-- [references/dataclasses.md](references/dataclasses.md) — Dataclasses in depth, slots, frozen
-- [references/context-managers.md](references/context-managers.md) — Context managers, asynccontextmanager
-- [references/decorators.md](references/decorators.md) — Advanced decorators, ParamSpec
-- [references/pydantic.md](references/pydantic.md) — Pydantic v2 complete reference
-- [references/error-handling.md](references/error-handling.md) — Exception hierarchies, patterns
-- [references/logging.md](references/logging.md) — structlog configuration, OTel integration
-- [references/configuration.md](references/configuration.md) — pydantic-settings, env management
-- [references/generators.md](references/generators.md) — Generators, itertools, lazy pipelines
-- [references/pytest.md](references/pytest.md) — pytest fixtures, mocking, async testing
-- [references/tooling.md](references/tooling.md) — ruff, black, mypy, pre-commit setup
+- [references/async-patterns.md](references/async-patterns.md) — Async/Await Patterns - Python 3.10+
+- [references/concurrency.md](references/concurrency.md) — Concurrency - Python 3.10+
+- [references/configuration.md](references/configuration.md) — configuration.md
+- [references/context-managers.md](references/context-managers.md) — Context Managers - Python 3.10+
+- [references/dataclasses.md](references/dataclasses.md) — Data Classes - Python 3.10+
+- [references/decorators.md](references/decorators.md) — Decorators - Python 3.10+
+- [references/error-handling.md](references/error-handling.md) — Error Handling - Python 3.10+
+- [references/generators.md](references/generators.md) — Generators e Lazy Evaluation - Python 3.10+
+- [references/logging.md](references/logging.md) — Logging Estruturado - Python 3.10+
+- [references/packaging.md](references/packaging.md) — Python Packaging - Python 3.10+
+- [references/pydantic.md](references/pydantic.md) — Pydantic v2 - Python 3.10+
+- [references/type-system.md](references/type-system.md) — Type System Avançado - Python 3.10+

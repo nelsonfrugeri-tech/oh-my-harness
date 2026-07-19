@@ -521,8 +521,20 @@ Row 4: Dependencies
 
 ## Reference Files
 
-- [references/opentelemetry-setup.md](references/opentelemetry-setup.md) — OTel SDK configuration, auto-instrumentation
-- [references/prometheus-rules.md](references/prometheus-rules.md) — Recording rules, alerting rules, SLO rules
-- [references/grafana-dashboards.md](references/grafana-dashboards.md) — Dashboard templates, panel configurations
-- [references/incident-playbooks.md](references/incident-playbooks.md) — Incident playbooks by symptom type
-- [references/oncall-guide.md](references/oncall-guide.md) — On-call setup, escalation paths
+- [references/alerting-burn-rate.md](references/alerting-burn-rate.md) — Multi-Window Burn Rate Alerting
+- [references/alerting-symptom-based.md](references/alerting-symptom-based.md) — Symptom-Based Alerting
+- [references/dashboards-patterns.md](references/dashboards-patterns.md) — Dashboard Patterns
+- [references/incident-response-on-call.md](references/incident-response-on-call.md) — On-Call Best Practices
+- [references/incident-response-postmortem-template.md](references/incident-response-postmortem-template.md) — Blameless Postmortem Template
+- [references/incident-response-root-cause-analysis.md](references/incident-response-root-cause-analysis.md) — Root Cause Analysis Techniques
+- [references/incident-response-runbook-template.md](references/incident-response-runbook-template.md) — Runbook Template
+- [references/incident-response-workflow.md](references/incident-response-workflow.md) — Incident Response Workflow
+- [references/opentelemetry-instrumentation.md](references/opentelemetry-instrumentation.md) — OpenTelemetry SDK Instrumentation
+- [references/opentelemetry-setup.md](references/opentelemetry-setup.md) — OpenTelemetry Python Setup
+- [references/slo-management-defining-slos.md](references/slo-management-defining-slos.md) — Defining SLOs
+- [references/slo-management-error-budgets.md](references/slo-management-error-budgets.md) — Error Budgets
+- [references/tools-cost-optimization.md](references/tools-cost-optimization.md) — Cost Optimization
+- [references/tools-grafana.md](references/tools-grafana.md) — Grafana
+- [references/tools-jaeger.md](references/tools-jaeger.md) — Jaeger
+- [references/tools-langfuse.md](references/tools-langfuse.md) — Langfuse
+- [references/tools-prometheus.md](references/tools-prometheus.md) — Prometheus

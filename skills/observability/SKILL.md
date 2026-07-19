@@ -157,7 +157,7 @@ def extract_context_from_request(request: Request) -> context.Context:
     return extract(dict(request.headers))
 ```
 
-**Reference:** [references/opentelemetry-python.md](references/opentelemetry-python.md)
+**Reference:** [references/opentelemetry-setup.md](references/opentelemetry-setup.md)
 
 ---
 
@@ -231,7 +231,7 @@ async function processCheckout(cartId: string, userId: string): Promise<Checkout
 }
 ```
 
-**Reference:** [references/opentelemetry-typescript.md](references/opentelemetry-typescript.md)
+**Reference:** [references/opentelemetry-instrumentation.md](references/opentelemetry-instrumentation.md)
 
 ---
 
@@ -349,7 +349,7 @@ async def prometheus_middleware(request: Request, call_next: Callable) -> Respon
         )
 ```
 
-**Reference:** [references/prometheus-rules.md](references/prometheus-rules.md)
+**Reference:** [references/prometheus.md](references/prometheus.md)
 
 ---
 
@@ -399,7 +399,7 @@ histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by 
 ) / 0.005)
 ```
 
-**Reference:** [references/grafana-dashboards.md](references/grafana-dashboards.md)
+**Reference:** [references/grafana.md](references/grafana.md)
 
 ---
 
@@ -450,7 +450,7 @@ processors:
         probabilistic: {sampling_percentage: 10}
 ```
 
-**Reference:** [references/jaeger-analysis.md](references/jaeger-analysis.md)
+**Reference:** [references/jaeger.md](references/jaeger.md)
 
 ---
 
@@ -575,10 +575,9 @@ STORAGE
 
 ## Reference Files
 
-- [references/opentelemetry-python.md](references/opentelemetry-python.md) — OTel SDK setup, auto-instrumentation, sampling
-- [references/opentelemetry-typescript.md](references/opentelemetry-typescript.md) — OTel Node.js setup, manual spans
-- [references/prometheus-rules.md](references/prometheus-rules.md) — Recording rules, alert rules, SLO rules
-- [references/grafana-dashboards.md](references/grafana-dashboards.md) — Dashboard templates, PromQL reference
-- [references/jaeger-analysis.md](references/jaeger-analysis.md) — Trace analysis patterns, tail-based sampling
-- [references/langfuse.md](references/langfuse.md) — LLM tracing, evaluation, cost tracking
-- [references/structlog.md](references/structlog.md) — structlog configuration, OTel correlation
+- [references/grafana.md](references/grafana.md) — Grafana
+- [references/jaeger.md](references/jaeger.md) — Jaeger
+- [references/langfuse.md](references/langfuse.md) — Langfuse
+- [references/opentelemetry-instrumentation.md](references/opentelemetry-instrumentation.md) — OpenTelemetry SDK Instrumentation
+- [references/opentelemetry-setup.md](references/opentelemetry-setup.md) — OpenTelemetry Python Setup
+- [references/prometheus.md](references/prometheus.md) — Prometheus

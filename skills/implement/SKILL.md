@@ -723,9 +723,27 @@ test(payments): add integration tests for webhook handling
 
 ## Reference Files
 
-- [references/tdd.md](references/tdd.md) — TDD cycles, examples, AI-assisted TDD
-- [references/bdd.md](references/bdd.md) — BDD format, Gherkin examples, tools
-- [references/bug-fix.md](references/bug-fix.md) — Bug fix workflow detail, git bisect guide
-- [references/refactoring.md](references/refactoring.md) — Refactoring patterns with examples
-- [references/vertical-slicing.md](references/vertical-slicing.md) — Slicing techniques, examples
-- [references/self-check.md](references/self-check.md) — Extended self-check checklist
+- [references/ci-discipline.md](references/ci-discipline.md) — CI Discipline
+- [references/code-craft.md](references/code-craft.md) — Code craft — padrões invioláveis
+- [references/code-review-self-check.md](references/code-review-self-check.md) — Pre-Submission Self-Check
+- [references/feature-breakdown-vertical-slicing.md](references/feature-breakdown-vertical-slicing.md) — Vertical Slicing & Walking Skeleton
+- [references/pipeline-stages.md](references/pipeline-stages.md) — Pipeline — Definição dos 9 Estágios
+- [references/pipeline-transitions.md](references/pipeline-transitions.md) — Pipeline — Critérios de Transição entre Estágios
+- [references/qa-execution-protocol.md](references/qa-execution-protocol.md) — QA — Protocolo de Execução
+- [references/refactoring-patterns.md](references/refactoring-patterns.md) — Refactoring Patterns
+- [references/review-handoff-protocol.md](references/review-handoff-protocol.md) — Review Handoff — Protocolo de Comunicação
+- [references/self-judge-checklist.md](references/self-judge-checklist.md) — Self-Judge — Checklist
+- [references/technical-debt-quadrant.md](references/technical-debt-quadrant.md) — Technical Debt Quadrant (Martin Fowler)
+- [references/templates-qa-report.md](references/templates-qa-report.md) — Template — QA Report
+- [references/templates-review-summary.md](references/templates-review-summary.md) — Template — Review Summary
+- [references/testing-atdd.md](references/testing-atdd.md) — ATDD — Acceptance Test-Driven Development
+- [references/testing-bdd.md](references/testing-bdd.md) — BDD — Behavior-Driven Development
+- [references/testing-tdd.md](references/testing-tdd.md) — TDD Deep Dive
+- [references/testing-test-first.md](references/testing-test-first.md) — Test-First Principles
+- [references/workflow-bug-fix.md](references/workflow-bug-fix.md) — Bug Fix Systematic Process
+- [references/workflow-design.md](references/workflow-design.md) — Design Documentation
+- [references/workflow-implementation.md](references/workflow-implementation.md) — Implementation Discipline
+- [references/workflow-pairing.md](references/workflow-pairing.md) — Pair and Mob Programming
+- [references/workflow-questioning.md](references/workflow-questioning.md) — Questioning Techniques
+- [references/workflow-research.md](references/workflow-research.md) — Research Methodology
+- [references/workflow-validation.md](references/workflow-validation.md) — Validation Checklist

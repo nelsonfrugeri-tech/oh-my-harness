@@ -587,8 +587,11 @@ docker system prune -a    # clean up
 
 ## Reference Files
 
-- [references/dockerfile-patterns.md](references/dockerfile-patterns.md) — Multi-stage builds, security patterns
-- [references/compose-patterns.md](references/compose-patterns.md) — Compose v2 patterns, profiles, watch mode
-- [references/database-setup.md](references/database-setup.md) — PostgreSQL, MongoDB, Redis initialization
-- [references/env-management.md](references/env-management.md) — .env templates, validation patterns
-- [references/debugging.md](references/debugging.md) — Debugging commands, troubleshooting guide
+- [references/databases-setup-patterns.md](references/databases-setup-patterns.md) — Database Setup Patterns
+- [references/debugging-error-recovery.md](references/debugging-error-recovery.md) — Error Recovery Procedures
+- [references/debugging-log-streaming.md](references/debugging-log-streaming.md) — Log Streaming & Debugging
+- [references/docker-compose-patterns.md](references/docker-compose-patterns.md) — Docker Compose Advanced Patterns
+- [references/docker-dependency-installation.md](references/docker-dependency-installation.md) — Dependency Installation by Ecosystem
+- [references/docker-dockerfile-patterns.md](references/docker-dockerfile-patterns.md) — Dockerfile Patterns
+- [references/orchestration-env-management.md](references/orchestration-env-management.md) — .env Management
+- [references/orchestration-startup-order.md](references/orchestration-startup-order.md) — Service Startup Order

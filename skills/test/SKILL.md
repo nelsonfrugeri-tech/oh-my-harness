@@ -685,15 +685,16 @@ Before any release:
 
 ## Reference Files
 
-- [references/e2e-strategy.md](references/e2e-strategy.md) — E2E strategy, test isolation, flakiness patterns
-- [references/playwright.md](references/playwright.md) — Playwright configuration, POM pattern, assertions
-- [references/test-data.md](references/test-data.md) — Factory patterns, fixtures, data cleanup
-- [references/contract-testing.md](references/contract-testing.md) — Pact setup, consumer/provider tests
-- [references/performance.md](references/performance.md) — k6 scripts, Locust patterns, benchmarks
-- [references/accessibility.md](references/accessibility.md) — axe-core, WCAG 2.2, manual testing guide
-
----
-
+- [references/accessibility-automated-testing.md](references/accessibility-automated-testing.md) — Automated Accessibility Testing
+- [references/contract-testing-pact.md](references/contract-testing-pact.md) — Consumer-Driven Contract Testing with Pact
+- [references/e2e-playwright.md](references/e2e-playwright.md) — Playwright E2E Testing Patterns
+- [references/e2e-strategy.md](references/e2e-strategy.md) — Test Strategy -- Pyramid vs Trophy
+- [references/environment-setup-teardown.md](references/environment-setup-teardown.md) — Environment Setup and Teardown
+- [references/integration-patterns.md](references/integration-patterns.md) — Integration Testing Patterns
+- [references/performance-load-testing.md](references/performance-load-testing.md) — Load Testing
+- [references/reporting-evidence-collection.md](references/reporting-evidence-collection.md) — Test Reporting & Evidence Collection
+- [references/test-data-management.md](references/test-data-management.md) — Test Data Management
+- [references/visual-regression-screenshot-testing.md](references/visual-regression-screenshot-testing.md) — Visual Regression Testing
 ## 13. Pre-Merge QA — What to Verify Before Saying PASS
 
 Six structural checks that catch what automated suites routinely miss.

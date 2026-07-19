@@ -487,7 +487,7 @@ const useCartStore = create<CartStore>()(
 );
 ```
 
-**Reference:** [references/state-management.md](references/state-management.md)
+**Reference:** [references/tanstack-query.md](references/tanstack-query.md)
 
 ---
 
@@ -677,19 +677,26 @@ const handleDelete = useCallback(
 }
 ```
 
-**Reference:** [references/tooling.md](references/tooling.md)
+**Reference:** [references/biome.md](references/biome.md)
 
 ---
 
 ## Reference Files
 
-- [references/type-system.md](references/type-system.md) — Generics, utility types, branded types, conditional types
-- [references/strict-config.md](references/strict-config.md) — tsconfig.json best practices
-- [references/component-patterns.md](references/component-patterns.md) — Compound, polymorphic, render props
-- [references/server-components.md](references/server-components.md) — RSC, Server Actions, streaming
-- [references/hooks.md](references/hooks.md) — Custom hooks, composition, testing
-- [references/state-management.md](references/state-management.md) — Decision tree, Zustand, TanStack Query
-- [references/tailwind.md](references/tailwind.md) — Tailwind CSS v4, OKLCH, CSS-first config
-- [references/vitest.md](references/vitest.md) — Vitest setup, mocking, coverage
-- [references/performance.md](references/performance.md) — Core Web Vitals, memoization, code splitting
-- [references/tooling.md](references/tooling.md) — Biome, pnpm, Vite configuration
+- [references/architecture.md](references/architecture.md) — State Management Architecture
+- [references/biome.md](references/biome.md) — Biome 2+ - Linter & Formatter
+- [references/component-patterns.md](references/component-patterns.md) — React Component Patterns - React 19+
+- [references/hooks.md](references/hooks.md) — React Hooks - Custom Hooks & Patterns
+- [references/patterns.md](references/patterns.md) — TypeScript Patterns
+- [references/performance.md](references/performance.md) — React Performance - Core Web Vitals & Optimization
+- [references/playwright.md](references/playwright.md) — Playwright 1.50+ - E2E Testing
+- [references/pnpm.md](references/pnpm.md) — pnpm 10+ - Package Manager
+- [references/server-components.md](references/server-components.md) — React Server Components - Next.js 15+
+- [references/strict-config.md](references/strict-config.md) — TypeScript Strict Config - tsconfig.json Best Practices
+- [references/tailwind.md](references/tailwind.md) — Tailwind CSS 4+ - Utility-First Styling
+- [references/tanstack-query.md](references/tanstack-query.md) — TanStack Query v5 - Server State Management
+- [references/testing-library.md](references/testing-library.md) — Testing Library - React Testing
+- [references/type-system.md](references/type-system.md) — Type System Avancado - TypeScript 5.7+
+- [references/vite.md](references/vite.md) — Vite 6+ - Build Tool & Dev Server
+- [references/vitest.md](references/vitest.md) — Vitest 3+ - Testing Framework
+- [references/zustand.md](references/zustand.md) — Zustand 5+ - State Management

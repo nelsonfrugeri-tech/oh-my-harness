@@ -131,7 +131,7 @@ async def openai_generate(prompt: str, model: str = "gpt-4o-mini") -> str:
     return response.choices[0].message.content or ""
 ```
 
-**Reference:** [references/llm-providers.md](references/llm-providers.md)
+**Reference:** [references/llm-integration-anthropic-sdk.md](references/llm-integration-anthropic-sdk.md)
 
 ---
 
@@ -197,7 +197,6 @@ def extract_answer_from_cot(response: str) -> str:
     return match.group(1).strip() if match else response
 ```
 
-**Reference:** [references/prompt-engineering.md](references/prompt-engineering.md)
 
 ---
 
@@ -361,7 +360,6 @@ def search(
     ]
 ```
 
-**Reference:** [references/qdrant.md](references/qdrant.md)
 
 ---
 
@@ -421,7 +419,6 @@ async def cached_generate(query: str) -> str:
     return response
 ```
 
-**Reference:** [references/semantic-caching.md](references/semantic-caching.md)
 
 ---
 
@@ -471,7 +468,7 @@ graph.add_conditional_edges("generate", should_retry, {"retrieve": "retrieve", "
 agent = graph.compile()
 ```
 
-**Reference:** [references/agent-frameworks.md](references/agent-frameworks.md)
+**Reference:** [references/agent-frameworks-custom-agents.md](references/agent-frameworks-custom-agents.md)
 
 ---
 
@@ -600,7 +597,7 @@ def evaluate_rag_pipeline(test_cases: list[dict]) -> dict[str, float]:
     }
 ```
 
-**Reference:** [references/testing-ai.md](references/testing-ai.md)
+**Reference:** [references/rag-evaluation.md](references/rag-evaluation.md)
 
 ---
 
@@ -666,7 +663,6 @@ def redact_pii(text: str) -> str:
     return text
 ```
 
-**Reference:** [references/ai-security.md](references/ai-security.md)
 
 ---
 
@@ -716,12 +712,13 @@ logger.info(
 
 ## Reference Files
 
-- [references/llm-providers.md](references/llm-providers.md) — Anthropic, OpenAI, Bedrock, Gemini SDKs
-- [references/prompt-engineering.md](references/prompt-engineering.md) — Templates, few-shot, CoT, structured outputs
-- [references/rag-architecture.md](references/rag-architecture.md) — RAG patterns, chunking, retrieval
-- [references/qdrant.md](references/qdrant.md) — Qdrant setup, indexing, search, filters
-- [references/semantic-caching.md](references/semantic-caching.md) — Redis/MongoDB semantic cache
-- [references/agent-frameworks.md](references/agent-frameworks.md) — LangGraph, custom agents, tool calling
-- [references/testing-ai.md](references/testing-ai.md) — Mocking, golden datasets, ragas evaluation
-- [references/ai-security.md](references/ai-security.md) — Prompt injection, PII, content filtering
-- [references/cost-optimization.md](references/cost-optimization.md) — Model selection, cost tracking, caching ROI
+- [references/agent-frameworks-custom-agents.md](references/agent-frameworks-custom-agents.md) — Custom Agents - Build Your Own Agent Loop
+- [references/agent-frameworks-langchain.md](references/agent-frameworks-langchain.md) — LangChain - Framework para LLM Applications
+- [references/agent-frameworks-langgraph.md](references/agent-frameworks-langgraph.md) — LangGraph - State Machines para Agents
+- [references/agent-frameworks-multi-agent.md](references/agent-frameworks-multi-agent.md) — Multi-Agent Systems - Agent Collaboration Patterns
+- [references/agent-frameworks-tool-integration.md](references/agent-frameworks-tool-integration.md) — Tool Integration - Tool Calling & API Integration
+- [references/llm-integration-anthropic-sdk.md](references/llm-integration-anthropic-sdk.md) — Anthropic SDK - Claude API Patterns
+- [references/rag-architecture.md](references/rag-architecture.md) — RAG Architecture - Retrieval-Augmented Generation Patterns
+- [references/rag-chunking-strategies.md](references/rag-chunking-strategies.md) — Chunking Strategies - Como Quebrar Documentos para RAG
+- [references/rag-embeddings.md](references/rag-embeddings.md) — Embeddings - Vector Representations para RAG
+- [references/rag-evaluation.md](references/rag-evaluation.md) — RAG Evaluation - Como Medir Qualidade de RAG Systems

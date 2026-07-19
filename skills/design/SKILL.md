@@ -521,9 +521,14 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 
 ## Reference Files
 
-- [references/adr-templates.md](references/adr-templates.md) — ADR templates, lifecycle, examples
-- [references/c4-model.md](references/c4-model.md) — C4 guide, Structurizr DSL examples
-- [references/fitness-functions.md](references/fitness-functions.md) — Fitness function catalog
-- [references/decomposition.md](references/decomposition.md) — DDD patterns, bounded contexts
-- [references/api-design.md](references/api-design.md) — REST, GraphQL, gRPC patterns
-- [references/security.md](references/security.md) — Zero trust, STRIDE, security checklist
+- [references/adr-templates.md](references/adr-templates.md) — ADR Templates
+- [references/api-design-comparison.md](references/api-design-comparison.md) — API Design — REST vs GraphQL vs gRPC
+- [references/c4-model-guide.md](references/c4-model-guide.md) — C4 Model Guide
+- [references/decomposition-monolith-vs-microservices.md](references/decomposition-monolith-vs-microservices.md) — Monolith vs Modular Monolith vs Microservices
+- [references/decomposition-strategies.md](references/decomposition-strategies.md) — System Decomposition Strategies
+- [references/event-driven-patterns.md](references/event-driven-patterns.md) — Event-Driven Architecture Patterns
+- [references/observability-design-patterns.md](references/observability-design-patterns.md) — Observability by Design
+- [references/security-zero-trust.md](references/security-zero-trust.md) — Security Architecture
+- [references/testing-strategy-by-layer.md](references/testing-strategy-by-layer.md) — Testing Strategy by Architectural Layer
+- [references/trade-off-analysis-atam.md](references/trade-off-analysis-atam.md) — ATAM — Architecture Tradeoff Analysis Method
+- [references/trade-off-analysis-fitness-functions.md](references/trade-off-analysis-fitness-functions.md) — Architecture Fitness Functions

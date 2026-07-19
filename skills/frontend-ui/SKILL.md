@@ -171,7 +171,7 @@ p  { font-size: var(--text-base); line-height: 1.6; }
 | Geist Sans | Geist Mono | Developer tools |
 | Fraunces Variable | Source Sans 3 | Warm, friendly |
 
-**Reference:** [references/typography.md](references/typography.md)
+**Reference:** [references/typography-fluid-typography.md](references/typography-fluid-typography.md)
 
 ---
 
@@ -244,7 +244,7 @@ p  { font-size: var(--text-base); line-height: 1.6; }
 64px  3xl (hero sections)
 ```
 
-**Reference:** [references/css-layout.md](references/css-layout.md)
+**Reference:** [references/layout-modern-css-layout.md](references/layout-modern-css-layout.md)
 
 ---
 
@@ -336,7 +336,7 @@ function useReducedMotion(): boolean {
 }
 ```
 
-**Reference:** [references/motion.md](references/motion.md)
+**Reference:** [references/motion-animation-guide.md](references/motion-animation-guide.md)
 
 ---
 
@@ -399,7 +399,7 @@ function useLikePost(postId: string) {
 }
 ```
 
-**Reference:** [references/ux-patterns.md](references/ux-patterns.md)
+**Reference:** [references/ux-patterns-interaction-patterns.md](references/ux-patterns-interaction-patterns.md)
 
 ---
 
@@ -477,7 +477,7 @@ test("homepage has no accessibility violations", async ({ page }) => {
 });
 ```
 
-**Reference:** [references/accessibility.md](references/accessibility.md)
+**Reference:** [references/accessibility-wcag-2-2.md](references/accessibility-wcag-2-2.md)
 
 ---
 
@@ -551,7 +551,7 @@ function Modal({ trigger, title, children }: ModalProps): React.JSX.Element {
 }
 ```
 
-**Reference:** [references/design-system.md](references/design-system.md)
+**Reference:** [references/components-shadcn-ecosystem.md](references/components-shadcn-ecosystem.md)
 
 ---
 
@@ -615,17 +615,24 @@ import { Search, ChevronRight, X } from "lucide-react";
 </picture>
 ```
 
-**Reference:** [references/visual-trends.md](references/visual-trends.md)
+**Reference:** [references/visual-trends-2026.md](references/visual-trends-2026.md)
 
 ---
 
 ## Reference Files
 
-- [references/color-oklch.md](references/color-oklch.md) — OKLCH color space, semantic tokens, dark mode
-- [references/typography.md](references/typography.md) — Fluid type scale, variable fonts, font pairing
-- [references/css-layout.md](references/css-layout.md) — Container queries, subgrid, :has(), spacing grid
-- [references/motion.md](references/motion.md) — Animation decision tree, Motion library, reduced motion
-- [references/ux-patterns.md](references/ux-patterns.md) — Skeleton screens, optimistic UI, command palette
-- [references/accessibility.md](references/accessibility.md) — WCAG 2.2 implementation, APCA, axe-core
-- [references/design-system.md](references/design-system.md) — Radix UI, shadcn/ui, cn() utility
-- [references/visual-trends.md](references/visual-trends.md) — Bento grid, glassmorphism, grain, gradients
+- [references/accessibility-wcag-2-2.md](references/accessibility-wcag-2-2.md) — WCAG 2.2 — Frontend Implementation Guide
+- [references/color-dark-mode.md](references/color-dark-mode.md) — Dark Mode — Design-First Approach
+- [references/color-oklch.md](references/color-oklch.md) — OKLCH Color Space — In Depth
+- [references/color-semantic-tokens.md](references/color-semantic-tokens.md) — Semantic Token System — Two-Tier Architecture
+- [references/components-icons-images.md](references/components-icons-images.md) — Icons & Images — Lucide, Optimization & Best Practices
+- [references/components-shadcn-ecosystem.md](references/components-shadcn-ecosystem.md) — shadcn/ui Ecosystem — The Headless + Copy-Paste Architecture
+- [references/layout-modern-css-layout.md](references/layout-modern-css-layout.md) — Modern CSS Layout — Container Queries, Subgrid, :has() & More
+- [references/layout-spacing-system.md](references/layout-spacing-system.md) — Spacing System — 8px Grid & Token Architecture
+- [references/motion-animation-guide.md](references/motion-animation-guide.md) — Animation Guide — Decision Tree, Performance & Implementation
+- [references/typography-fluid-typography.md](references/typography-fluid-typography.md) — Fluid Typography — clamp() In Depth
+- [references/typography-font-pairing.md](references/typography-font-pairing.md) — Font Pairing — Principles & Proven Combinations
+- [references/typography-variable-fonts.md](references/typography-variable-fonts.md) — Variable Fonts — Axes, Performance & Animation
+- [references/ux-patterns-interaction-patterns.md](references/ux-patterns-interaction-patterns.md) — Interaction Patterns — Command Palettes, Toasts, Modals & More
+- [references/ux-patterns-loading-states.md](references/ux-patterns-loading-states.md) — Loading States — Skeletons, Optimistic UI & Streaming
+- [references/visual-trends-2026.md](references/visual-trends-2026.md) — Visual Trends 2026 — Bento, Glass, Grain & Beyond
