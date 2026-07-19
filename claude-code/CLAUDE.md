@@ -4,14 +4,6 @@ Regras vinculantes deste ambiente. Aplicam-se a toda sessão do harness e a todo
 
 ---
 
-## Config do harness é sempre global — nunca dentro do projeto
-
-Ao instalar, sincronizar ou gerenciar config do harness — **skills, agents, workflows, CLAUDE.md, settings.json** — esses arquivos vão **SEMPRE** para o estado global (`~/.claude/`), **NUNCA** para dentro do projeto/repositório aberto no momento. Um repositório (incluindo o oh-my-harness) é apenas a **fonte de leitura**: você lê dele, mas nunca escreve config de harness de volta dentro dele nem cria esses arquivos no diretório do projeto.
-
-Isto **não** restringe codar: editar o código-fonte de uma aplicação dentro do seu projeto é o trabalho normal. A regra vale só para os **artefatos de config do harness**, que pertencem ao `~/.claude/` global.
-
----
-
 ## Nunca poluir o projeto com arquivos que não são do produto
 
 **Regra dura.** Dentro de um repositório/projeto, você só cria ou edita arquivos que fazem

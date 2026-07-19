@@ -1,111 +1,76 @@
----
-name: setup
-description: |
-  Sincroniza esta biblioteca (agents, skills, workflows, CLAUDE.md, settings.json) com o
-  estado global do harness em ~/.claude. É um procedimento de instalação/sync: você lê da
-  FONTE (este repositório) e escreve no GLOBAL (~/.claude), nunca dentro de projeto nenhum.
-  Use quando o usuário pedir para instalar, sincronizar ou atualizar a config do harness.
-  Triggers: /setup, sincronizar config, sync harness, instalar skills e agents, atualizar ~/.claude.
-type: command
----
+# SETUP — sync da biblioteca para o `~/.claude` global
 
-# SETUP — sync da biblioteca para o ~/.claude global
+Runbook lido da fonte (este repo) e executado quando o usuário pede para instalar ou
+sincronizar. Siga as regras de conduta em [`../INSTRUCTIONS.md`](../INSTRUCTIONS.md).
 
-Você (harness) está executando um **procedimento de sincronização**, não desenvolvendo este
-repositório. Este repo é a **FONTE**. O destino é sempre o **estado global** `~/.claude/`.
+## Passo 0 — Origem e destino
 
-## Regras invioláveis deste procedimento
-
-1. **Nunca trate este repositório como um projeto de desenvolvimento.** Não crie, edite nem
-   scaffolde arquivos dentro dele. Você só **lê** daqui.
-2. **Nunca escreva config de harness dentro de um projeto.** Todo destino é `~/.claude/`
-   (ou `$CLAUDE_HOME`, se definido).
-3. **Nada destrutivo sem confirmação explícita** do usuário (apagar, sobrescrever).
-
-## Passo 0 — Resolver origem e destino
-
-- **FONTE** = raiz deste repositório (onde estão `agents/`, `skills/`, `claude-code/`). Se não
-  conseguir determinar, pergunte o path ao usuário.
+- **FONTE** = raiz deste repositório (`agents/`, `skills/`, `claude-code/`).
 - **DESTINO** = `${CLAUDE_HOME:-~/.claude}`.
 
-## Passo 1 — Conteúdo da lib (agents, skills, workflows) → symlink
+## Passo 1 — Conteúdo da lib → symlink
 
-Estes você **não** edita localmente: são símbolo, não conteúdo. Aplique symlinks
-(idempotente — relinkar não quebra nada):
+Crie um symlink de cada item para o destino (assim `git pull` na fonte passa a atualizar
+tudo automaticamente):
 
 - `FONTE/agents/*.md` → `~/.claude/agents/<nome>.md`
 - `FONTE/skills/<nome>/` → `~/.claude/skills/<nome>`
 - `FONTE/claude-code/workflows/*.ts` → `~/.claude/workflows/<nome>.ts`
 
-Não há diff aqui: symlink faz o destino **ser** a fonte, então `git pull` na fonte atualiza tudo.
-Só reporte o que foi linkado e o que já estava correto.
+Reporte o que foi linkado e o que já estava correto.
 
-## Passo 2 — Configs editáveis (CLAUDE.md, settings.json) → diff interativo
+## Passo 2 — Configs editáveis → diff interativo
 
-Estes o usuário **edita por máquina** (tabela de capabilities, permissions). Não sobrescreva
-cego. Para cada um (`claude-code/CLAUDE.md` → `~/.claude/CLAUDE.md`; `claude-code/settings.json`
-→ `~/.claude/settings.json`):
+Para `CLAUDE.md` e `settings.json` (que o usuário edita por máquina), compare fonte × destino
+e resolva conforme o estado:
 
-- **Não existe no destino** → crie (copie) e reporte.
-- **Existe e é idêntico** → nada a fazer.
-- **Existe e difere** → é conflito: mostre o diff (formato abaixo) e deixe o usuário resolver.
-  Prefira **merge** (manter as edições dele + trazer o que é novo da fonte) a sobrescrever.
+- **ausente no destino** → copie.
+- **idêntico** → siga em frente.
+- **diferente** → mostre o diff (formato abaixo) e deixe o usuário escolher **merge**,
+  **sobrescrever** ou **manter**. Ofereça o merge como padrão (mantém as edições dele +
+  traz o novo da fonte).
 
-## Passo 3 — Capabilities / MCP → detectar e propor mapeamento
+## Passo 3 — Capabilities / MCP → detectar e propor
 
-A tabela `## Ambiente & Tools` do CLAUDE.md mapeia capability → tool concreta desta máquina.
-Complete-a a partir dos MCPs **realmente configurados** (não invente):
+Preencha a tabela `## Ambiente & Tools` do CLAUDE.md com os MCPs configurados na máquina:
 
-1. Enumere os MCP servers configurados: leia `~/.claude.json`, `~/.claude/settings.json`
-   (chave `mcpServers`) e `.mcp.json` do escopo, ou rode `claude mcp list`.
-2. Proponha o mapeamento por julgamento semântico:
-   - server de git hosting (`github`, `gitlab`…) → `code-host` (ex.: `mcp__github__*`)
-   - server de CI → `ci`; server de notas/memória → `memory`
-   - se um capability não tem MCP correspondente → proponha `nenhuma`
-   - se um MCP não mapeia pra nenhum capability → mencione, não force
-3. Apresente como diff (linha atual da tabela em cima, proposta embaixo) e **confirme** antes de escrever.
-4. **Nunca** copie tokens/secrets para o CLAUDE.md — só o nome/prefixo do server (`mcp__github__*`).
+1. Liste os MCP servers lendo `~/.claude.json`, `~/.claude/settings.json` (`mcpServers`),
+   `.mcp.json` do escopo, ou rodando `claude mcp list`.
+2. Proponha o mapeamento: git hosting (`github`/`gitlab`) → `code-host`; CI → `ci`;
+   notas/memória → `memory`; capability sem MCP → `nenhuma`.
+3. Mostre a proposta como diff e aplique após o usuário confirmar.
+4. Use apenas o nome/prefixo do server (`mcp__github__*`).
 
-## Passo 4 — Órfãos (existe no destino, não na fonte)
+## Passo 4 — Órfãos
 
-Liste agents/skills/workflows presentes em `~/.claude/` que **não** existem na fonte. Para cada
-um, pergunte: **manter** ou **apagar**. Nunca apague sem confirmação.
+Liste agents/skills/workflows que existem no `~/.claude/` e não na fonte. Para cada um,
+pergunte ao usuário **manter** ou **apagar**, e aja conforme a resposta.
 
 ## Template de apresentação
 
-Primeiro a **lista** (visão geral), depois o **detalhe por arquivo**.
+Mostre a lista primeiro, depois o detalhe por arquivo.
 
 ```
 ## Sync: <FONTE> → ~/.claude
 
-Conteúdo da lib (symlink):
-  novo:        N   |   já ok: M
-
-Configs (precisam de decisão):
-  [conflito] ~/.claude/CLAUDE.md
-  [ok]       ~/.claude/settings.json (idêntico)
-
-Capabilities/MCP:
-  code-host   (vazio)  → proposta: mcp__github__*
-  memory      (vazio)  → proposta: nenhuma
-
-Órfãos (existem no ~/.claude, não na fonte):
-  skills/old-skill/   → manter ou apagar?
+Conteúdo da lib (symlink):   novo: N   |   já ok: M
+Configs:  [conflito] CLAUDE.md   [ok] settings.json
+Capabilities/MCP:  code-host (vazio) → mcp__github__*   |   memory (vazio) → nenhuma
+Órfãos:  skills/old-skill/ → manter ou apagar?
 ```
 
-Detalhe de cada conflito (**atual** em cima, **novo** embaixo):
+Detalhe de conflito — **atual** em cima, **novo** embaixo:
 
 ```
-── ~/.claude/CLAUDE.md ─────────────────────────────
+── ~/.claude/CLAUDE.md ──────────────────
 ATUAL (sua máquina):
-  <trecho atual>
+  <trecho>
 NOVO (fonte):
-  <trecho novo>
-Ação? [merge / sobrescrever / manter o atual]
+  <trecho>
+Ação? [merge / sobrescrever / manter]
 ```
 
 ## Ao final
 
-Reporte: quantos linkados, quais configs resolvidos e como, o mapeamento de capabilities
-aplicado, e o que ficou pendente. Lembre o usuário de que o conteúdo da lib se auto-atualiza
-via `git pull` na FONTE (por serem symlinks).
+Reporte: quantos linkados, configs resolvidos, capabilities mapeadas e o que ficou pendente.
+Lembre o usuário de que o conteúdo da lib se auto-atualiza via `git pull` na fonte (symlinks).
