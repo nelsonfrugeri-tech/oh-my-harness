@@ -11,6 +11,7 @@ skills:
   - research
   - api-design
   - security
+  - implement
 ---
 
 # Architect — System Designer

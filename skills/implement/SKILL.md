@@ -18,6 +18,24 @@ type: capability
 
 # Implement — Software Development Methodology
 
+## Padrões de código — invioláveis
+
+**Ativar antes de escrever, modificar ou revisar qualquer linha de código.** Estas regras não são sugestões; a fonte completa com exemplos está em [`references/code-craft.md`](references/code-craft.md).
+
+- **Tipagem total, sempre** — nada sem tipo; `Any` só justificado. Concreto: [`../python/references/type-system.md`](../python/references/type-system.md), [`../typescript/references/type-system.md`](../typescript/references/type-system.md).
+- **Imutabilidade por padrão** — `frozen=True`, sem mutação in-place, sem estado compartilhado mutável.
+- **Superfície pública mínima** — um conceito público por módulo.
+- **Funções ≤ 15 linhas (teto ~25); arquivos ≤ 120 linhas** — cresceu, quebre por coesão (não por contagem de linha).
+- **Guard clauses, aninhamento ≤ 3** — early returns pros casos de borda; caminho feliz raso. Não force single-return.
+- **Mais de 3 `if/elif` no mesmo nível → design pattern** (polymorphism, strategy, dispatch, `match`).
+- **Não retorne `None`** — exceção pro erro, coleção vazia pro "nada", `Optional[T]` só quando a ausência é real.
+- **≤ 4 parâmetros** — senão, Parameter Object.
+- **Comentário explica o porquê, nunca o o quê** — código auto-explicativo; docstrings em inglês.
+- **SOLID/patterns na medida (YAGNI)** — sem generalização especulativa.
+- **Quality gate ao terminar** — format → lint → typecheck → test, com o comando descoberto do projeto (nunca hardcoded).
+
+---
+
 ## Purpose
 
 This skill is the knowledge base for systematic software development methodology.
