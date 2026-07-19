@@ -9,7 +9,7 @@ Write the config once. Plug the tools per machine. Run it on Claude Code today �
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-22-DC5F00?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-23-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -53,7 +53,7 @@ This repository is the **source**. You sync it into your harness's **global stat
 │  agents/                    skills/                  claude-code/  │
 │  ├── engineers/  (6)        ├── engineers/ (17)       CLAUDE.md     │
 │  ├── harness/    (1)        ├── harness/    (1)       settings.json │
-│  └── tools/      (2)        └── tools/      (4)       workflows/    │
+│  └── tools/      (2)        └── tools/      (5)       workflows/    │
 │      (themed; discovery         (themed source; flattened on       │
 │       is recursive)              install — leaf name only)         │
 └──────────────────────────────┬──────────────────────────────────────┘
@@ -75,6 +75,8 @@ This repository is the **source**. You sync it into your harness's **global stat
 │    session start; `explorer` runs only on FULL/DELTA)               │
 │  {project}/notes/ — immutable notes (`knowledge-base` agent →       │
 │    kb-write/kb-retrieval), indexed in local Qdrant via BGE-M3       │
+│  {project}/sessions/ — living session records (`kb-session`),       │
+│    pointing at the harness's raw transcripts for deep search        │
 └───────────────────────────────────────────────────────────────────┘
 ```
 
@@ -90,8 +92,9 @@ This repository is the **source**. You sync it into your harness's **global stat
   the *current* project at `~/knowledge-base/{project}/context.md` — built and updated by the
   `explorer` skill, entirely outside the project's own working tree.
 - The agent **`knowledge-base`** manages the persistent knowledge base: infra (local Qdrant +
-  BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`) and retrieval (`kb-retrieval`)
-  — see [Knowledge base](#knowledge-base).
+  BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`), 3-step retrieval
+  (`kb-retrieval`) and the harness's session memory — living session records plus deep search
+  inside raw transcripts (`kb-session`) — see [Knowledge base](#knowledge-base).
 
 ---
 
@@ -161,7 +164,7 @@ is only organizational, the agent's real name comes from its frontmatter `name:`
 | `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
 | `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/{project}/context.md` | sonnet |
-| `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, semantic retrieval | sonnet |
+| `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
 
 ### Skills
 
@@ -177,7 +180,7 @@ skill must land as a direct child.
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (hybrid semantic search + disk navigation). Invoked by the `context` and `knowledge-base` agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside the harness's raw transcripts). Invoked by the `context` and `knowledge-base` agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 
@@ -200,15 +203,22 @@ Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
     context.md              # living context: snapshot (rewritten) + append-only timeline
     notes/
       <date>--<slug>.md     # immutable notes: frontmatter (id, type, summary, ...) + body
+    sessions/
+      <session_id>.json     # living session records: name, description, resume, transcript_path
   .qdrant/                  # local Qdrant volume (docker, port 6333)
   .venv/                    # embedding environment
 ```
 
 - **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
   archived. Types: `decision · event · procedure · reference · conversation`.
-- **Search is hybrid** — the note `summary` is embedded with **`BAAI/bge-m3`** (dense 1024-dim +
-  lexical sparse in one forward pass) and queried in Qdrant with dense+sparse prefetch fused by
-  Reciprocal Rank Fusion. No Qdrant? Retrieval degrades to structured disk navigation.
+- **Session records are living documents** — one JSON per harness session, rewritten in place
+  (a named exception to note immutability), pointing at the harness's raw transcript so
+  retrieval can deep-search what was actually said in past sessions.
+- **Search is hybrid, retrieval is a 3-step ladder** — note summaries and session resumes are
+  embedded with **`BAAI/bge-m3`** (dense 1024-dim + lexical sparse in one forward pass) and
+  queried in Qdrant with dense+sparse prefetch fused by Reciprocal Rank Fusion; no Qdrant means
+  structured disk navigation; and when neither answers, `kb-session` grep-dives the raw
+  transcript of the most relevant sessions.
 - **Infra is one command away** — the `kb-infra` skill ships a pinned `docker-compose.yml`
   (`qdrant/qdrant:v1.18.0`, container `oh-my-harness-qdrant`) and the embedding setup.
 

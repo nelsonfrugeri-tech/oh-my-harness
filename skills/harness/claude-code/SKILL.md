@@ -72,7 +72,7 @@ o destino:
   - `FONTE/skills/engineers/python/` → `~/.claude/skills/python/`
   - `FONTE/skills/harness/claude-code/` → `~/.claude/skills/claude-code/`
   - `FONTE/skills/tools/explorer/` → `~/.claude/skills/explorer/`
-  - `FONTE/skills/tools/kb-infra/` → `~/.claude/skills/kb-infra/` (idem `kb-write`, `kb-retrieval`)
+  - `FONTE/skills/tools/kb-infra/` → `~/.claude/skills/kb-infra/` (idem `kb-write`, `kb-retrieval`, `kb-session`)
 
 O symlink é sempre do **diretório-folha inteiro** — assim `references/` e arquivos de
 suporte da skill (ex.: o `docker-compose.yml` de `kb-infra`) viajam junto.

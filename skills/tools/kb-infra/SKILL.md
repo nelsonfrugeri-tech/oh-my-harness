@@ -7,9 +7,10 @@ description: |
   persistente em ~/knowledge-base/.qdrant) e o ambiente de embedding BAAI/bge-m3 via
   FlagEmbedding (python, dense 1024-dim + lexical sparse no mesmo forward pass). Cobre
   criação idempotente da collection com named vectors (dense cosine + sparse) e payload
-  indexes, health checks (docker up? collection existe? modelo responde?), reindex das
-  notas em disco e teardown. Invocada pelo agent `knowledge-base` quando a intenção é
-  subir/verificar/derrubar infra — não destinada a invocação direta pelo usuário.
+  indexes (created_at, project, kind), health checks (docker up? collection existe?
+  modelo responde?), reindex das notas e session records em disco e teardown. Invocada
+  pelo agent `knowledge-base` quando a intenção é subir/verificar/derrubar infra — não
+  destinada a invocação direta pelo usuário.
 type: capability
 ---
 
@@ -151,7 +152,9 @@ está instalado — volte à instalação.
 ## 3. Collection do Qdrant — desenho espelhado da era oh-my-kb
 
 Uma collection única, `knowledge-base`, em layout de hybrid search com **named
-vectors**, e as notas de todos os projetos separadas por payload `project`:
+vectors**, com os pontos de todos os projetos separados por payload `project` e dois
+**kinds** de ponto convivendo na mesma collection: notas (`kind: "note"`, escritas por
+`kb-write`) e session records (`kind: "session"`, mantidos por `kb-session`):
 
 | Item | Valor |
 |---|---|
@@ -160,7 +163,13 @@ vectors**, e as notas de todos os projetos separadas por payload `project`:
 | Named vector sparse | `"sparse"` — `SparseVectorParams()` |
 | Payload index | `created_at` → `DATETIME` (permite `order_by`/filtros temporais sem full-scan) |
 | Payload index | `project` → `KEYWORD` (acelera filtro por projeto) |
-| Payload por ponto | `id`, `title`, `type`, `project`, `created_at`, `summary`, `path`, `supersedes`, `archived` |
+| Payload index | `kind` → `KEYWORD` (separa notas de session records no filtro) |
+| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `project`, `created_at`, `summary`, `path`, `supersedes`, `archived` |
+| Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `project`, `name`, `created_at`, `updated_at`, `transcript_path` |
+
+O payload de session **intencionalmente não carrega** `description`/`resume` nem `path`:
+o disco é a fonte da verdade — um hit de sessão leva à leitura do JSON em
+`~/knowledge-base/<project>/sessions/<session_id>.json` (path derivável do payload).
 
 Criação convergente (idempotente — o `if not exists` protege a collection; os payload
 indexes são reaplicados sempre, pois `create_payload_index` é idempotente no servidor):
@@ -178,22 +187,27 @@ if not client.collection_exists("knowledge-base"):
     )
 client.create_payload_index("knowledge-base", "created_at", field_schema=PayloadSchemaType.DATETIME)
 client.create_payload_index("knowledge-base", "project", field_schema=PayloadSchemaType.KEYWORD)
+client.create_payload_index("knowledge-base", "kind", field_schema=PayloadSchemaType.KEYWORD)
 ```
 
 ---
 
 ## 4. Reindex — reconciliar Qdrant com o disco
 
-Quando notas foram escritas com o Qdrant fora do ar (indexação pendente), ou o volume
-foi perdido, reconstrua o índice a partir do disco:
+Quando notas ou session records foram escritos com o Qdrant fora do ar (indexação
+pendente), ou o volume foi perdido, reconstrua o índice a partir do disco:
 
-1. Liste as notas: `~/knowledge-base/*/notes/*.md`.
+1. Liste as notas (`~/knowledge-base/*/notes/*.md`) **e** os session records
+   (`~/knowledge-base/*/sessions/*.json`).
 2. Para cada nota, extraia o frontmatter (`id`, `title`, `type`, `project`,
    `created_at`, `summary`, `supersedes`, `archived`) e embede o **summary**
-   (dense + sparse).
-3. Faça upsert no Qdrant usando o `id` (UUID) da nota como point id — upsert por id é
-   naturalmente idempotente: reindexar duas vezes não duplica nada.
-4. Reporte: N notas em disco, N indexadas, divergências encontradas.
+   (dense + sparse), com payload `kind: "note"`. Para cada session record, embede
+   `name + "\n" + description + "\n" + resume` com payload `kind: "session"` (campos
+   em `kb-session`).
+3. Faça upsert no Qdrant usando o UUID como point id (`id` da nota; `session_id` do
+   record) — upsert por id é naturalmente idempotente: reindexar duas vezes não
+   duplica nada.
+4. Reporte: N notas + N sessions em disco, N indexados, divergências encontradas.
 
 ---
 

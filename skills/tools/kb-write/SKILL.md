@@ -40,6 +40,12 @@ existente; escreva uma nota nova e defina `supersedes` com o id da nota substitu
 Sinais do usuário que significam "superseder": "atualiza", "corrige", "revisa",
 "agora ficou assim", "muda para", "a partir de hoje X em vez de Y".
 
+> **Fronteira**: *session records* (os JSONs de `~/knowledge-base/{project}/sessions/`)
+> **não são notas** — são documentos vivos mantidos pela skill `kb-session`, reescritos
+> in-place por definição. A imutabilidade e o `supersedes` desta skill valem **apenas
+> para notas**. Se a intenção é registrar/atualizar a sessão corrente, o playbook é o
+> de `kb-session`, não este.
+
 Se não tiver certeza entre "isso corrige uma nota existente" e "isso é algo novo",
 pergunte ao usuário uma vez. Não adivinhe.
 
@@ -203,8 +209,9 @@ summary: >
 
 Após gravar o arquivo, indexe no Qdrant (collection `knowledge-base`, desenho em
 `kb-infra`): embede o **summary** com bge-m3 (dense 1024 + sparse) e faça upsert com o
-`id` da nota como point id e payload `id`, `title`, `type`, `project`, `created_at`,
-`summary`, `path` (path absoluto do arquivo), `supersedes`, `archived: false`. Ao
+`id` da nota como point id e payload `kind: "note"`, `id`, `title`, `type`, `project`,
+`created_at`, `summary`, `path` (path absoluto do arquivo), `supersedes`,
+`archived: false`. Ao
 superseder, além de indexar a nova, atualize o payload da nota antiga para
 `archived: true` (o arquivo dela em disco não muda — imutabilidade é do conteúdo).
 

@@ -40,7 +40,7 @@ Agents e skills **nunca** citam uma tool concreta (ex.: `mcp__github__create_pul
 | ------------ | ------------------------------------------------- | ------------------------------------------- |
 | `code-host`  | Pull/Merge Requests, issues, reviews remotos      | _(preencher — ex.: `mcp__github__*`)_       |
 | `ci`         | Pipelines de CI/CD                                | _(preencher — ex.: GitHub Actions via CLI)_ |
-| `memory`     | Notas/contexto persistente do projeto (opcional)  | _(preencher, ou `nenhuma`)_                 |
+| `memory`     | Notas/contexto persistente do projeto (opcional)  | _(preencher; vazio = default: agent `knowledge-base` sobre a KB local)_ |
 | `web`        | Busca e fetch na web                              | `WebSearch`, `WebFetch`                      |
 
 **Primitivos universais** (sempre disponíveis, não precisam de plugue): `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`.
@@ -66,7 +66,7 @@ pluga os tools agents: quem são, o que operam e os fatos de ambiente que eles o
 | Agent | Papel | Skills | Disparo |
 | --- | --- | --- | --- |
 | `context` | Mantém e carrega o contexto vivo do projeto atual (`~/knowledge-base/{project}/context.md`) | `explorer` | Hook `SessionStart` (reminder `# omh-managed: context`) + pedido explícito ("atualize o context") |
-| `knowledge-base` | Gerencia a knowledge base: infra (Qdrant + embedding), escrita de notas (scribe) e recuperação (busca semântica + navegação) | `kb-infra`, `kb-write`, `kb-retrieval` | Pedido do usuário ("registra isso", "o que decidimos sobre X?", "sobe a KB") ou de outro agent |
+| `knowledge-base` | Gerencia a knowledge base: infra (Qdrant + embedding), escrita de notas (scribe), recuperação (escada de 3 degraus) e memória de sessão do harness (session records + deep search) | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` | Pedido do usuário ("registra isso", "o que decidimos sobre X?", "sobe a KB", "o que falamos naquela sessão?") ou de outro agent; **de carona**, toda invocação do agent atualiza o session record da sessão corrente |
 
 O roteamento fino (que skill usar em cada intenção) vive nas descriptions dos próprios
 agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
@@ -74,8 +74,8 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
 ### Fatos de ambiente (vinculantes)
 
 1. **Knowledge base em `~/knowledge-base/{project}/`** — `context.md` (contexto vivo) +
-   `notes/` (notas do scribe). Sempre **fora** do repositório do usuário; `{project}` =
-   basename do cwd em lowercase-kebab.
+   `notes/` (notas do scribe) + `sessions/` (session records da `kb-session`). Sempre
+   **fora** do repositório do usuário; `{project}` = basename do cwd em lowercase-kebab.
 2. **Infra da KB** = Qdrant local (docker, container `oh-my-harness-qdrant`, porta `6333`,
    volume `~/knowledge-base/.qdrant`) + embedding **`BAAI/bge-m3`** via `FlagEmbedding`
    (**dense 1024-dim + lexical sparse** no mesmo forward pass). Collection `knowledge-base`
@@ -88,6 +88,28 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
 4. **Formato timeline do `context.md`**: um **snapshot vivo** no topo (reescrito a cada run —
    é o que os agents downstream leem) + um **log append-only** (`## Timeline`) — cada run
    apenda uma entrada datada em ISO 8601 UTC; entradas antigas nunca são reescritas.
+5. **Session record = documento vivo** — um JSON por sessão em
+   `~/knowledge-base/{project}/sessions/<session_id>.json`, **reescrito in-place** a cada
+   atualização (exceção nomeada à imutabilidade das notas). Schema resumido: `harness`,
+   `session_id`, `project`, `name`, `description`, `resume` (núcleo do texto embedado —
+   o embedding é `name + description + resume`), `transcript_path` (caminho absoluto),
+   `created_at` (nunca muda) / `updated_at` (ISO 8601 UTC). Indexado no
+   Qdrant com `kind: "session"` (notas usam `kind: "note"`), re-upsert no mesmo point —
+   detalhes na skill `kb-session`.
+
+### Session memory por harness
+
+Onde vive a **memória bruta de sessão** (transcripts) de cada harness **nesta máquina** —
+é esta tabela que a `kb-session` consulta para achar o transcript da sessão corrente:
+
+| Harness | Session memory nesta máquina |
+| --- | --- |
+| `claude-code` | `~/.claude/projects/<cwd-munged>/<session-uuid>.jsonl` — `<cwd-munged>` = caminho absoluto do cwd com `/` e `.` trocados por `-` |
+| `codex` | _(preencher)_ |
+| `cursor` | _(preencher)_ |
+
+Harness sem mapeamento: a `kb-session` degrada — escreve o record sem `transcript_path` e
+declara o que ficou pendente.
 
 ### Regras (vinculantes)
 
@@ -97,7 +119,36 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
    (indexação fica pendente, reconciliada pelo reindex de `kb-infra`) e a recuperação cai
    para navegação estruturada em disco; sempre explicitando o modo degradado.
 3. **Notas são imutáveis** — nunca editar uma nota existente; correção/atualização é uma nota
-   nova com `supersedes` apontando para a anterior (a antiga fica arquivada).
+   nova com `supersedes` apontando para a anterior (a antiga fica arquivada). **Session
+   records e `context.md` são documentos vivos** — reescritos in-place, nunca via
+   `supersedes`.
+
+---
+
+## Auto-avaliação antes de responder (recall & precision)
+
+**Regra dura.** Diante de qualquer pergunta, query ou dúvida do usuário, **antes de
+responder**, auto-avalie a resposta candidata em três eixos — **relevância pro contexto
+atual**, **atualidade** e **factualidade** — sob a lente de *recall* (tenho TODO o
+conhecimento necessário para responder?) e *precision* (o que tenho está correto e no
+ponto?).
+
+- **Todos os eixos ≥ 90% de confiança** → responda direto.
+- **Qualquer eixo < 90%** → **NÃO responda de memória.** Busque primeiro, roteando pela
+  natureza da questão:
+  - **Pública** (conhecimento de mundo, docs, versões, notícias) → capability `web`.
+  - **Privada** (assuntos internos de trabalho/empresa ou vida pessoal do usuário) →
+    knowledge-base.
+  - **Projeto de trabalho, questão procedural/processual, memória episódica ou fato
+    passado** → knowledge-base — incluindo, se preciso, o deep search na session memory
+    via `kb-session` (degrau 3 do retrieval).
+
+Após a busca, **reavalie e responda citando a fonte**; se ainda faltar informação, diga
+explicitamente o que falta em vez de inventar.
+
+> Honestidade embutida: o limiar de 90% é **autoconfiança calibrada**, não métrica
+> mensurável. O efeito prático vinculante é: **na dúvida, buscar antes de responder;
+> nunca responder de memória o que é privado/episódico sem consultar a knowledge-base.**
 
 ---
 
