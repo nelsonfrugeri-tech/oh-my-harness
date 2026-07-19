@@ -1,6 +1,6 @@
-# Observability by Design
+# Observabilidade por Design
 
-## Three Pillars Integration
+## Integração dos Três Pilares
 ```
 Request → Trace (distributed, spans) 
        → Metrics (aggregated, counters/histograms)
@@ -9,7 +9,7 @@ Request → Trace (distributed, spans)
 Link: trace_id in all three → correlated debugging
 ```
 
-## Correlation Pattern
+## Padrão de Correlação
 ```python
 # Inject trace_id into every log entry
 import structlog
@@ -23,16 +23,16 @@ structlog.configure(
 )
 ```
 
-## RED/USE Dashboard Pattern
-- **RED** for services: Rate, Errors, Duration
-- **USE** for resources: Utilization, Saturation, Errors
-- Every service gets both
+## Padrão de Dashboard RED/USE
+- **RED** para serviços: Rate, Errors, Duration
+- **USE** para recursos: Utilization, Saturation, Errors
+- Todo serviço recebe os dois
 
-## Observability Checklist for New Services
-- [ ] Structured logging with trace_id correlation
-- [ ] OpenTelemetry instrumentation (auto + manual for critical paths)
-- [ ] RED metrics exported to Prometheus
-- [ ] Health endpoint (/health, /ready)
-- [ ] SLO defined and dashboarded
-- [ ] Alerts based on SLO burn rate
-- [ ] Runbook written and linked to alerts
+## Checklist de Observabilidade para Novos Serviços
+- [ ] Logging estruturado com correlação por trace_id
+- [ ] Instrumentação com OpenTelemetry (automática + manual para caminhos críticos)
+- [ ] Métricas RED exportadas para o Prometheus
+- [ ] Endpoint de health (/health, /ready)
+- [ ] SLO definido e com dashboard
+- [ ] Alertas baseados na burn rate do SLO
+- [ ] Runbook escrito e vinculado aos alertas

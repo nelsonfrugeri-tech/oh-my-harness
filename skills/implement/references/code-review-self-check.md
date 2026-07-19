@@ -1,40 +1,40 @@
-# Pre-Submission Self-Check
+# Self-Check Pré-Submissão
 
-## Before Opening a PR
+## Antes de Abrir um PR
 
 ### Qualidade de Código
-- [ ] All tests pass locally
-- [ ] No debug/print statements left
-- [ ] No commented-out code
-- [ ] No TODO without a linked issue
-- [ ] No hardcoded values that should be config
-- [ ] Error handling covers edge cases
+- [ ] Todos os testes passam localmente
+- [ ] Nenhum statement de debug/print deixado para trás
+- [ ] Nenhum código comentado
+- [ ] Nenhum TODO sem uma issue vinculada
+- [ ] Nenhum valor hardcoded que deveria ser config
+- [ ] O tratamento de erros cobre os edge cases
 
-### Security
-- [ ] No secrets/credentials in code
-- [ ] Input validation at boundaries
-- [ ] No SQL injection vectors
-- [ ] No XSS vectors (if frontend)
+### Segurança
+- [ ] Nenhum segredo/credencial no código
+- [ ] Validação de input nas fronteiras
+- [ ] Nenhum vetor de SQL injection
+- [ ] Nenhum vetor de XSS (se for frontend)
 
 ### Testes
-- [ ] New code has tests
-- [ ] Edge cases covered (empty, null, boundary)
-- [ ] Error paths tested
-- [ ] Tests are deterministic (no flaky)
+- [ ] O código novo tem testes
+- [ ] Edge cases cobertos (vazio, nulo, limite)
+- [ ] Caminhos de erro testados
+- [ ] Os testes são determinísticos (sem flaky)
 
 ### Documentação
-- [ ] CHANGELOG updated
-- [ ] README updated (if behavior changed)
-- [ ] Complex logic has inline comments
-- [ ] Public API documented
+- [ ] CHANGELOG atualizado
+- [ ] README atualizado (se o comportamento mudou)
+- [ ] Lógica complexa tem comentários inline
+- [ ] API pública documentada
 
 ### Higiene de Git
-- [ ] Commits are logical units (not "fix" or "wip")
-- [ ] Branch is rebased on latest main
-- [ ] No merge commits in feature branch
-- [ ] PR description explains WHY, not just WHAT
+- [ ] Os commits são unidades lógicas (não "fix" ou "wip")
+- [ ] A branch está rebaseada na main mais recente
+- [ ] Nenhum merge commit na feature branch
+- [ ] A descrição do PR explica o PORQUÊ, não só o O QUÊ
 
 ### Performance
-- [ ] No N+1 queries introduced
-- [ ] No unbounded collections in memory
-- [ ] Pagination for list endpoints
+- [ ] Nenhuma query N+1 introduzida
+- [ ] Nenhuma coleção sem limite em memória
+- [ ] Paginação para endpoints de listagem

@@ -6,7 +6,7 @@ Referência técnica completa de concorrência em Python. Para decisões de qual
 
 Python oferece três modelos de concorrência, cada um otimizado para diferentes workloads:
 
-| Modelo | Best For | Parallelism | GIL Impact |
+| Modelo | Melhor Para | Paralelismo | Impacto do GIL |
 |--------|----------|-------------|------------|
 | **asyncio** | I/O-bound (network, disk) | Cooperativo (single-thread) | Não afetado |
 | **threading** | I/O-bound legado, blocking libs | Concurrent (multi-thread) | Limitado pelo GIL |
@@ -274,12 +274,12 @@ result = await async_retry(flaky_api_call, max_attempts=3)
 - Batch queries
 
 **HTTP Clients** (httpx, aiohttp):
-- Multiple API calls
+- Múltiplas chamadas de API
 - Web scraping
 
 **Message Queues** (aio-pika, aiokafka):
-- Async consumers
-- Event processing
+- Consumidores assíncronos
+- Processamento de eventos
 
 ---
 
@@ -537,17 +537,17 @@ for t in threads:
 ### Casos de Uso Estabelecidos
 
 **Legacy Code Integration:**
-- Wrapping bibliotecas síncronas em async contexts
+- Encapsulando bibliotecas síncronas em contextos async
 - Migração gradual para async
 
-**I/O-bound com Blocking Libraries:**
+**I/O-bound com Bibliotecas Bloqueantes:**
 - requests, ftplib, smtplib
 - Pillow, OpenCV (I/O operations)
 
 **Background Tasks:**
-- Email sending
-- Report generation
-- File processing
+- Envio de email
+- Geração de relatórios
+- Processamento de arquivos
 
 ---
 
@@ -824,7 +824,7 @@ shm.unlink()
 ### Casos de Uso Estabelecidos
 
 **Data Science** (pandas, numpy):
-- Large dataset processing
+- Processamento de grandes datasets
 - Feature engineering pipelines
 
 **Machine Learning** (scikit-learn, PyTorch):
@@ -833,12 +833,12 @@ shm.unlink()
 - Batch inference
 
 **Image Processing** (OpenCV, Pillow):
-- Video frame processing
+- Processamento de frames de vídeo
 - Batch transformations
 
 **Scientific Computing** (scipy, sympy):
-- Simulations
-- Monte Carlo methods
+- Simulações
+- Métodos de Monte Carlo
 
 ---
 
@@ -945,7 +945,7 @@ multiprocessing_time = time.perf_counter() - start
 
 ## Escolhendo o Modelo Certo
 
-### Decision Tree
+### Árvore de Decisão
 ```
 Workload é CPU-bound (cálculos pesados)?
 ├─ SIM → multiprocessing
@@ -970,7 +970,7 @@ Workload é CPU-bound (cálculos pesados)?
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Use asyncio como primeira escolha para I/O**
 ```python

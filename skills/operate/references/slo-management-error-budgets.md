@@ -1,36 +1,36 @@
 # Error Budgets
 
 ## Conceito
-Error budget = allowed unreliability. If SLO is 99.9%, you can afford 0.1% failures.
+Error budget = indisponibilidade permitida. Se o SLO é 99,9%, você pode tolerar 0,1% de falhas.
 
 ## Burn Rate
 ```
 burn_rate = actual_error_rate / allowed_error_rate
 ```
-- burn_rate = 1 → consuming budget at exactly the allowed pace
-- burn_rate > 1 → consuming faster than sustainable
-- burn_rate = 10 → budget exhausted in 1/10th of the window
+- burn_rate = 1 → consumindo o orçamento exatamente no ritmo permitido
+- burn_rate > 1 → consumindo mais rápido do que o sustentável
+- burn_rate = 10 → orçamento esgotado em 1/10 da janela
 
-## Multi-Window Burn Rate Alerting
-| Severity | Long window | Short window | Burn rate | Budget consumed |
+## Alertas de burn rate com múltiplas janelas
+| Severidade | Janela longa | Janela curta | Burn rate | Orçamento consumido |
 |----------|------------|--------------|-----------|----------------|
-| Page (P1) | 1h | 5min | 14.4x | 2% in 1h |
-| Page (P2) | 6h | 30min | 6x | 5% in 6h |
-| Ticket | 3d | 6h | 1x | 10% in 3d |
+| Page (P1) | 1h | 5min | 14.4x | 2% em 1h |
+| Page (P2) | 6h | 30min | 6x | 5% em 6h |
+| Ticket | 3d | 6h | 1x | 10% em 3d |
 
-## Budget Exhaustion Policy
-When error budget is exhausted:
-1. **Freeze** feature releases — stability-only work
-2. **Mandatory** postmortems for all incidents that consumed budget
-3. **Invest** in reliability work (toil reduction, automation, testing)
-4. **Resume** feature work when budget recovers above threshold (e.g., 50%)
+## Política de esgotamento do orçamento
+Quando o error budget se esgota:
+1. **Congele** os lançamentos de features — apenas trabalho voltado a estabilidade
+2. **Exija** postmortems para todos os incidentes que consumiram orçamento
+3. **Invista** em trabalho de confiabilidade (redução de toil, automação, testes)
+4. **Retome** o trabalho em features quando o orçamento se recuperar acima do threshold (por exemplo, 50%)
 
-## Budget Tracking
-- Dashboard showing remaining budget % over rolling window
-- Weekly email/Slack report to product + engineering
-- Automated freeze trigger when budget < 10%
+## Acompanhamento do orçamento
+- Dashboard mostrando o % de orçamento restante ao longo da janela móvel
+- Relatório semanal por e-mail/Slack para produto + engenharia
+- Gatilho automático de congelamento quando o orçamento < 10%
 
 ## Trade-offs
-- Too generous → team ignores reliability
-- Too tight → can't ship anything, frustration
-- Sweet spot: budget aligns with user pain threshold
+- Generoso demais → o time ignora a confiabilidade
+- Rígido demais → não dá para entregar nada, frustração
+- Ponto ideal: o orçamento se alinha ao limiar de dor do usuário

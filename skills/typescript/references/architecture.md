@@ -1,49 +1,49 @@
-# State Management Architecture
+# Arquitetura de Gerenciamento de Estado
 
 Decision tree para escolher a ferramenta certa para cada tipo de estado.
 
 ---
 
-## State Categories
+## Categorias de Estado
 
-| Category | Description | Tool | Examples |
+| Categoria | Descrição | Ferramenta | Exemplos |
 |----------|-------------|------|----------|
-| **Server state** | Data from APIs/DB | TanStack Query | Users, posts, products |
-| **Client state** | App-wide UI state | Zustand | Theme, sidebar, notifications |
-| **Local state** | Component-specific | useState | Form inputs, toggles, modals |
-| **Form state** | Complex form logic | React Hook Form | Multi-step forms, validation |
-| **URL state** | Navigation/filters | URL params | Search, pagination, filters |
+| **Estado do servidor** | Dados de APIs/DB | TanStack Query | Usuários, posts, produtos |
+| **Estado do cliente** | Estado de UI de toda a app | Zustand | Tema, sidebar, notificações |
+| **Estado local** | Específico do componente | useState | Inputs de formulário, toggles, modais |
+| **Estado de formulário** | Lógica de formulário complexa | React Hook Form | Formulários multi-step, validação |
+| **Estado da URL** | Navegação/filtros | URL params | Busca, paginação, filtros |
 
 ---
 
-## Decision Tree
+## Árvore de Decisão
 
 ```
-Is the data from an API/database?
-├── YES → TanStack Query
-│   (caching, background refetch, loading/error states)
+Os dados vêm de uma API/banco de dados?
+├── SIM → TanStack Query
+│   (cache, refetch em segundo plano, estados de carregamento/erro)
 │
-└── NO → Is it shared across many components?
-    ├── YES → Zustand
-    │   (global UI state, user preferences, shopping cart)
+└── NÃO → É compartilhado entre muitos componentes?
+    ├── SIM → Zustand
+    │   (estado de UI global, preferências do usuário, carrinho de compras)
     │
-    └── NO → Is it complex form logic?
-        ├── YES → React Hook Form
-        │   (validation, multi-step, dynamic fields)
+    └── NÃO → É lógica de formulário complexa?
+        ├── SIM → React Hook Form
+        │   (validação, multi-step, campos dinâmicos)
         │
-        └── NO → Is it in the URL?
-            ├── YES → URL search params
-            │   (filters, pagination, search query)
+        └── NÃO → Está na URL?
+            ├── SIM → URL search params
+            │   (filtros, paginação, query de busca)
             │
-            └── NO → useState / useReducer
-                (local toggle, modal open, input value)
+            └── NÃO → useState / useReducer
+                (toggle local, modal aberto, valor do input)
 ```
 
 ---
 
-## Server State (TanStack Query)
+## Estado do Servidor (TanStack Query)
 
-**Use for:** Any data that comes from an external source (API, database).
+**Use para:** Qualquer dado que vem de uma fonte externa (API, banco de dados).
 
 ```typescript
 // GOOD — server data managed by TanStack Query
@@ -58,21 +58,21 @@ function UsersList() {
 }
 ```
 
-**Features you get for free:**
-- Automatic background refetching
-- Cache with configurable stale time
-- Loading and error states
-- Optimistic updates
-- Infinite scroll/pagination
+**Recursos que você ganha de graça:**
+- Refetch automático em segundo plano
+- Cache com stale time configurável
+- Estados de carregamento e erro
+- Atualizações otimistas
+- Scroll infinito/paginação
 - Prefetching
-- Window focus refetching
-- Offline support
+- Refetch ao focar a janela
+- Suporte offline
 
 ---
 
-## Client State (Zustand)
+## Estado do Cliente (Zustand)
 
-**Use for:** Global UI state that doesn't come from a server.
+**Use para:** Estado de UI global que não vem de um servidor.
 
 ```typescript
 // GOOD — UI state in Zustand
@@ -90,9 +90,9 @@ const useUIStore = create<UIStore>((set) => ({
 
 ---
 
-## Local State (useState)
+## Estado Local (useState)
 
-**Use for:** State that belongs to a single component and its children.
+**Use para:** Estado que pertence a um único componente e seus filhos.
 
 ```typescript
 // GOOD — local state
@@ -126,9 +126,9 @@ function FilteredList({ items }: { items: Item[] }) {
 
 ---
 
-## Form State (React Hook Form)
+## Estado de Formulário (React Hook Form)
 
-**Use for:** Complex forms with validation, dynamic fields, multi-step.
+**Use para:** Formulários complexos com validação, campos dinâmicos, multi-step.
 
 ```typescript
 import { useForm } from "react-hook-form";
@@ -180,9 +180,9 @@ function CreateUserForm() {
 
 ---
 
-## URL State
+## Estado da URL
 
-**Use for:** Filters, search queries, pagination — anything that should be shareable via URL.
+**Use para:** Filtros, queries de busca, paginação — qualquer coisa que deveria ser compartilhável via URL.
 
 ```typescript
 // Next.js App Router
@@ -220,9 +220,9 @@ function ProductFilters() {
 
 ---
 
-## Anti-Patterns
+## Anti-Padrões
 
-### 1. Server State in Zustand
+### 1. Estado do Servidor no Zustand
 
 ```typescript
 // BAD — managing server data in Zustand
@@ -245,7 +245,7 @@ function useUsers() {
 }
 ```
 
-### 2. Global State for Local Concerns
+### 2. Estado Global para Questões Locais
 
 ```typescript
 // BAD — modal state in global store
@@ -277,7 +277,7 @@ function UserRow({ user }: { user: User }) {
 // If data rarely changes — Context is fine (theme, locale, auth)
 ```
 
-### 4. Derived State Stored Separately
+### 4. Estado Derivado Armazenado Separadamente
 
 ```typescript
 // BAD — storing derived state
@@ -312,16 +312,16 @@ function FilteredList() {
 
 ---
 
-## Summary Table
+## Tabela de Resumo
 
-| Question | Answer |
+| Pergunta | Resposta |
 |----------|--------|
-| Data from API? | TanStack Query |
-| Global UI state? | Zustand |
-| Local toggle/input? | useState |
-| Complex form? | React Hook Form + Zod |
-| Shareable via URL? | URL search params |
-| Rarely changing context? | React Context |
+| Dados de API? | TanStack Query |
+| Estado de UI global? | Zustand |
+| Toggle/input local? | useState |
+| Formulário complexo? | React Hook Form + Zod |
+| Compartilhável via URL? | URL search params |
+| Contexto que muda raramente? | React Context |
 
 ---
 

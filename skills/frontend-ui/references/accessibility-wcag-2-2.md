@@ -1,17 +1,17 @@
-# WCAG 2.2 — Frontend Implementation Guide
+# WCAG 2.2 — Guia de Implementação no Frontend
 
-## Overview
+## Visão Geral
 
-WCAG 2.2 (published October 2023) adds 9 new success criteria to WCAG 2.1.
-Target: **Level AA** compliance as baseline.
+O WCAG 2.2 (publicado em outubro de 2023) adiciona 9 novos critérios de sucesso ao WCAG 2.1.
+Alvo: conformidade **Level AA** como linha de base.
 
 ---
 
-## New in WCAG 2.2
+## Novidades no WCAG 2.2
 
 ### 2.4.11 Focus Not Obscured (Minimum) — Level AA
 
-Focused elements must not be fully hidden by sticky headers, floating bars, etc.
+Elementos focados não podem ficar totalmente escondidos por sticky headers, barras flutuantes, etc.
 
 ```css
 /* Ensure focused elements scroll into visible area */
@@ -36,11 +36,11 @@ dialog::backdrop {
 
 ### 2.4.12 Focus Not Obscured (Enhanced) — Level AAA
 
-No part of the focused element is hidden (stricter than 2.4.11).
+Nenhuma parte do elemento focado fica escondida (mais rigoroso que o 2.4.11).
 
 ### 2.4.13 Focus Appearance — Level AAA
 
-Focus indicator must be at least 2px outline with 3:1 contrast ratio.
+O indicador de foco deve ter no mínimo 2px de outline com razão de contraste de 3:1.
 
 ```css
 :focus-visible {
@@ -51,7 +51,7 @@ Focus indicator must be at least 2px outline with 3:1 contrast ratio.
 
 ### 2.5.7 Dragging Movements — Level AA
 
-Any operation that uses dragging must also work with a single pointer (click/tap).
+Qualquer operação que use arrastar também deve funcionar com um único ponteiro (click/tap).
 
 ```tsx
 // BAD: only drag-and-drop to reorder
@@ -75,7 +75,7 @@ Any operation that uses dragging must also work with a single pointer (click/tap
 
 ### 2.5.8 Target Size (Minimum) — Level AA
 
-Interactive targets must be at least **24x24 CSS pixels**.
+Alvos interativos devem ter no mínimo **24x24 pixels CSS**.
 
 ```css
 /* Ensure all clickable elements meet minimum target size */
@@ -102,15 +102,15 @@ p a {
 
 ### 3.2.6 Consistent Help — Level A
 
-Help mechanisms (contact, FAQ links) must appear in the same relative location.
+Mecanismos de ajuda (contato, links de FAQ) devem aparecer na mesma posição relativa.
 
 ### 3.3.7 Redundant Entry — Level A
 
-Don't ask users to re-enter info they already provided in the same session.
+Não peça aos usuários para reinserir informações que eles já forneceram na mesma sessão.
 
 ### 3.3.8 Accessible Authentication (Minimum) — Level AA
 
-Don't require cognitive tests (CAPTCHA, remembering passwords) without alternatives.
+Não exija testes cognitivos (CAPTCHA, lembrar senhas) sem alternativas.
 
 ```tsx
 // BAD: CAPTCHA with no alternative
@@ -124,13 +124,13 @@ Don't require cognitive tests (CAPTCHA, remembering passwords) without alternati
 
 ### 3.3.9 Accessible Authentication (Enhanced) — Level AAA
 
-No cognitive tests at all, including object recognition.
+Nenhum teste cognitivo, incluindo reconhecimento de objetos.
 
 ---
 
-## Core WCAG Principles in Code
+## Princípios Fundamentais do WCAG em Código
 
-### Focus Management
+### Gerenciamento de Foco
 
 ```css
 /* The correct focus approach: focus-visible */
@@ -165,9 +165,9 @@ select:focus-visible {
 }
 ```
 
-### Focus Trapping in Modals
+### Focus Trapping em Modais
 
-Radix Dialog handles this automatically. If building custom:
+O Radix Dialog cuida disso automaticamente. Se você estiver construindo do zero:
 
 ```tsx
 function useFocusTrap(ref: React.RefObject<HTMLElement>) {
@@ -207,33 +207,33 @@ function useFocusTrap(ref: React.RefObject<HTMLElement>) {
 
 ---
 
-## APCA Contrast
+## Contraste APCA
 
-APCA (Advanced Perceptual Contrast Algorithm) is the next-generation contrast
-standard, designed to replace WCAG 2 contrast ratios.
+O APCA (Advanced Perceptual Contrast Algorithm) é o padrão de contraste de próxima geração,
+projetado para substituir as razões de contraste do WCAG 2.
 
-### Key Differences from WCAG 2
+### Principais Diferenças em Relação ao WCAG 2
 
-| Aspect | WCAG 2 | APCA |
+| Aspecto | WCAG 2 | APCA |
 |--------|--------|------|
-| Metric | Contrast ratio (e.g., 4.5:1) | Lc value (e.g., Lc 60) |
-| Polarity | Same threshold light/dark | Different thresholds by polarity |
-| Font-size aware | Partially (large text exception) | Fully (thresholds vary by size+weight) |
-| Accuracy | Over-reports some, under-reports others | More perceptually accurate |
+| Métrica | Razão de contraste (ex.: 4.5:1) | Valor Lc (ex.: Lc 60) |
+| Polaridade | Mesmo limiar para claro/escuro | Limiares diferentes por polaridade |
+| Sensível ao tamanho da fonte | Parcialmente (exceção para texto grande) | Totalmente (limiares variam por tamanho+peso) |
+| Precisão | Superestima alguns, subestima outros | Mais preciso perceptualmente |
 
-### APCA Minimums
+### Mínimos do APCA
 
-| Content | Minimum Lc | Notes |
+| Conteúdo | Lc Mínimo | Observações |
 |---------|-----------|-------|
-| Body text (16px, 400) | Lc 75 | Primary content |
-| Large text (24px+, 700) | Lc 45 | Headings |
-| Non-text UI | Lc 30 | Borders, icons |
-| Placeholder text | Lc 40 | Muted helper text |
-| Disabled elements | No minimum | Visually distinct is enough |
+| Texto de corpo (16px, 400) | Lc 75 | Conteúdo principal |
+| Texto grande (24px+, 700) | Lc 45 | Títulos |
+| UI não textual | Lc 30 | Bordas, ícones |
+| Texto de placeholder | Lc 40 | Texto auxiliar esmaecido |
+| Elementos desabilitados | Sem mínimo | Basta ser visualmente distinto |
 
-### Testing with OKLCH
+### Testando com OKLCH
 
-OKLCH makes contrast intuitive:
+OKLCH torna o contraste intuitivo:
 
 ```css
 /* Light mode: text L=0.15 on bg L=0.99 */
@@ -253,9 +253,9 @@ OKLCH makes contrast intuitive:
 
 ---
 
-## Semantic HTML > ARIA
+## HTML Semântico > ARIA
 
-**The first rule of ARIA: don't use ARIA if native HTML works.**
+**A primeira regra do ARIA: não use ARIA se o HTML nativo resolver.**
 
 ```tsx
 // BAD: div soup with ARIA
@@ -275,9 +275,9 @@ OKLCH makes contrast intuitive:
 </nav>
 ```
 
-### Common Semantic Mappings
+### Mapeamentos Semânticos Comuns
 
-| Instead of | Use |
+| Em vez de | Use |
 |-----------|-----|
 | `<div role="button">` | `<button>` |
 | `<div role="link">` | `<a href="...">` |
@@ -290,7 +290,7 @@ OKLCH makes contrast intuitive:
 | `<div role="list">` | `<ul>` or `<ol>` |
 | `<span role="status">` | `<output>` |
 
-### When ARIA IS Needed
+### Quando o ARIA É Necessário
 
 ```tsx
 // Tabs (no native HTML element)
@@ -319,9 +319,9 @@ OKLCH makes contrast intuitive:
 
 ---
 
-## Accessible Component Patterns
+## Padrões de Componentes Acessíveis
 
-### Accessible Form
+### Formulário Acessível
 
 ```tsx
 function SignupForm() {
@@ -361,7 +361,7 @@ function SignupForm() {
 }
 ```
 
-### Screen Reader Only Text
+### Texto Exclusivo para Screen Reader
 
 ```css
 .sr-only {
@@ -387,19 +387,19 @@ function SignupForm() {
 
 ---
 
-## Testing Tools
+## Ferramentas de Teste
 
-| Tool | Type | When to Use |
+| Ferramenta | Tipo | Quando Usar |
 |------|------|-------------|
-| **axe-core** | Automated | CI pipeline, catch common issues |
-| **Playwright a11y** | Automated | E2E a11y testing |
-| **axe DevTools** | Browser extension | Manual dev testing |
-| **VoiceOver** (macOS) | Screen reader | Manual testing |
-| **NVDA** (Windows) | Screen reader | Manual testing |
-| **Lighthouse** | Audit | Quick overview scoring |
-| **WAVE** | Browser extension | Visual a11y overlay |
+| **axe-core** | Automatizado | Pipeline de CI, detectar problemas comuns |
+| **Playwright a11y** | Automatizado | Testes E2E de a11y |
+| **axe DevTools** | Extensão de navegador | Testes manuais durante o desenvolvimento |
+| **VoiceOver** (macOS) | Screen reader | Testes manuais |
+| **NVDA** (Windows) | Screen reader | Testes manuais |
+| **Lighthouse** | Auditoria | Pontuação de visão geral rápida |
+| **WAVE** | Extensão de navegador | Overlay visual de a11y |
 
-### Automated Testing with Playwright
+### Testes Automatizados com Playwright
 
 ```ts
 import { test, expect } from "@playwright/test";
@@ -427,7 +427,7 @@ test("modal is accessible", async ({ page }) => {
 });
 ```
 
-### axe-core in Unit Tests
+### axe-core em Testes Unitários
 
 ```tsx
 import { render } from "@testing-library/react";
@@ -446,18 +446,18 @@ test("Button is accessible", async () => {
 
 ## Checklist
 
-- [ ] All interactive elements reachable via keyboard (Tab)
-- [ ] Focus indicator visible (`:focus-visible`)
-- [ ] Focus never obscured by sticky/fixed elements
-- [ ] Touch targets >= 24x24px
-- [ ] Color contrast meets APCA Lc 60+ for text
-- [ ] Images have descriptive alt text (or `alt=""` for decorative)
-- [ ] Forms have linked labels (`htmlFor` / `id`)
-- [ ] Error messages linked via `aria-describedby`
-- [ ] Dynamic content uses `aria-live` regions
-- [ ] Modals trap focus
-- [ ] `prefers-reduced-motion` respected
-- [ ] Skip navigation link present
-- [ ] Heading hierarchy is logical (h1 > h2 > h3)
-- [ ] Language attribute set (`<html lang="en">`)
-- [ ] No CAPTCHA without alternative
+- [ ] Todos os elementos interativos acessíveis via teclado (Tab)
+- [ ] Indicador de foco visível (`:focus-visible`)
+- [ ] Foco nunca obscurecido por elementos sticky/fixed
+- [ ] Alvos de toque >= 24x24px
+- [ ] Contraste de cor atende APCA Lc 60+ para texto
+- [ ] Imagens têm alt text descritivo (ou `alt=""` para decorativas)
+- [ ] Formulários têm labels vinculados (`htmlFor` / `id`)
+- [ ] Mensagens de erro vinculadas via `aria-describedby`
+- [ ] Conteúdo dinâmico usa regiões `aria-live`
+- [ ] Modais fazem trap do foco
+- [ ] `prefers-reduced-motion` respeitado
+- [ ] Link de skip navigation presente
+- [ ] Hierarquia de headings é lógica (h1 > h2 > h3)
+- [ ] Atributo de idioma definido (`<html lang="en">`)
+- [ ] Sem CAPTCHA sem alternativa

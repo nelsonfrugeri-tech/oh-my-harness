@@ -1,11 +1,11 @@
-# Loading States — Skeletons, Optimistic UI & Streaming
+# Loading States — Skeleton Screens, Optimistic UI e Streaming
 
 ## Skeleton Screens
 
-Skeleton screens show the layout structure while content loads. They reduce
-perceived loading time and prevent layout shift.
+Skeleton screens mostram a estrutura do layout enquanto o conteúdo carrega. Eles reduzem
+o tempo de carregamento percebido e evitam layout shift.
 
-### Basic Skeleton with Tailwind
+### Skeleton Básico com Tailwind
 
 ```tsx
 function CardSkeleton() {
@@ -31,7 +31,7 @@ function CardSkeleton() {
 }
 ```
 
-### Shimmer Effect (Premium Feel)
+### Efeito Shimmer (Sensação Premium)
 
 ```css
 @keyframes shimmer {
@@ -71,7 +71,7 @@ function ProfileSkeleton() {
 }
 ```
 
-### Dark Mode Shimmer
+### Shimmer em Dark Mode
 
 ```tsx
 function Shimmer({ className }: { className?: string }) {
@@ -88,7 +88,7 @@ function Shimmer({ className }: { className?: string }) {
 }
 ```
 
-### Table Skeleton
+### Skeleton de Tabela
 
 ```tsx
 function TableSkeleton({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) {
@@ -119,12 +119,12 @@ function TableSkeleton({ rows = 5, cols = 4 }: { rows?: number; cols?: number })
 
 ---
 
-## Spinners — When to Use
+## Spinners — Quando Usar
 
-Spinners are appropriate ONLY for:
-- Short, indeterminate waits (< 3 seconds)
-- Inline loading within buttons
-- Small areas where skeleton doesn't make sense
+Spinners são apropriados APENAS para:
+- Esperas curtas e indeterminadas (< 3 segundos)
+- Loading inline dentro de botões
+- Áreas pequenas onde um skeleton não faz sentido
 
 ```tsx
 function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
@@ -171,7 +171,7 @@ function LoadingButton({ loading, children, ...props }: LoadingButtonProps) {
 
 ## Progress Bars
 
-For operations with known progress (uploads, multi-step wizards):
+Para operações com progresso conhecido (uploads, wizards de múltiplas etapas):
 
 ```tsx
 function ProgressBar({ value, max = 100 }: { value: number; max?: number }) {
@@ -198,9 +198,9 @@ function ProgressBar({ value, max = 100 }: { value: number; max?: number }) {
 
 ## Optimistic UI
 
-Update the UI immediately, before the server confirms. Revert if it fails.
+Atualize a UI imediatamente, antes de o servidor confirmar. Reverta se falhar.
 
-### TanStack Query Pattern
+### Padrão TanStack Query
 
 ```tsx
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -248,21 +248,21 @@ function useTodoToggle() {
 }
 ```
 
-### When to Use Optimistic UI
+### Quando Usar Optimistic UI
 
-| Use Case | Optimistic? | Why |
+| Caso de Uso | Optimistic? | Por quê |
 |----------|-------------|-----|
-| Toggle (like, bookmark) | Yes | High confidence, easy revert |
-| Add to list | Yes | Fast feedback, revert = remove |
-| Delete item | Maybe | Show "undo" toast instead |
-| Form submission | No | Complex validation, high-stakes |
-| Payment | Never | Irreversible action |
+| Toggle (like, bookmark) | Sim | Alta confiança, fácil reverter |
+| Adicionar à lista | Sim | Feedback rápido, reverter = remover |
+| Excluir item | Talvez | Mostre um toast de "undo" no lugar |
+| Envio de formulário | Não | Validação complexa, alto risco |
+| Pagamento | Nunca | Ação irreversível |
 
 ---
 
-## AI Streaming Text Pattern
+## Padrão de Streaming de Texto de IA
 
-For AI/LLM responses that stream token by token:
+Para respostas de IA/LLM que fazem streaming token a token:
 
 ```tsx
 function StreamingText({ text }: { text: string }) {
@@ -306,11 +306,11 @@ function StreamingMessage({ tokens }: { tokens: string[] }) {
 
 ---
 
-## Rules
+## Regras
 
-1. **Skeleton > spinner** for content areas — skeletons reduce perceived load time
-2. **Match the skeleton to the real layout** — same dimensions, same structure
-3. **Optimistic UI for low-risk actions** — toggles, likes, bookmarks
-4. **Always handle the error state** — revert optimistic updates, show toast
-5. **prefers-reduced-motion** — disable shimmer animation, use static gray
-6. **aria-busy="true"** on loading containers for screen readers
+1. **Skeleton > spinner** para áreas de conteúdo — skeletons reduzem o tempo de carregamento percebido
+2. **Faça o skeleton corresponder ao layout real** — mesmas dimensões, mesma estrutura
+3. **Optimistic UI para ações de baixo risco** — toggles, likes, bookmarks
+4. **Sempre trate o estado de erro** — reverta as atualizações otimistas, mostre um toast
+5. **prefers-reduced-motion** — desative a animação de shimmer, use cinza estático
+6. **aria-busy="true"** em containers de loading para leitores de tela

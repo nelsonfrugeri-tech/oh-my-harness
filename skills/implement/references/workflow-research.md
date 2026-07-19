@@ -1,31 +1,31 @@
-# Research Methodology
+# Metodologia de Pesquisa
 
-## Research Checklist
+## Checklist de Pesquisa
 
-1. **Codebase search first** — Has this been solved before in this project?
-2. **Documentation check** — Is there existing docs on how to approach this?
-3. **Web search** — What are current best practices?
-4. **Multiple sources** — Cross-reference at least 2-3 sources
-5. **Recency check** — Are the sources current (last 6 months)?
-6. **Trade-off analysis** — What are the alternatives?
+1. **Busca no codebase primeiro** — Isso já foi resolvido antes neste projeto?
+2. **Verificação da documentação** — Existe documentação sobre como abordar isso?
+3. **Busca na web** — Quais são as melhores práticas atuais?
+4. **Múltiplas fontes** — Cruze pelo menos 2-3 fontes
+5. **Verificação de atualidade** — As fontes são recentes (últimos 6 meses)?
+6. **Análise de trade-offs** — Quais são as alternativas?
 
-## Research Triggers
+## Gatilhos de Pesquisa
 
-Always research when:
-- Choosing a library or framework
-- Choosing an architectural pattern
-- Adding a new dependency
-- Dealing with a technology you haven't used recently
-- The problem seems common (someone likely solved it well)
+Sempre pesquise quando:
+- Escolher uma biblioteca ou framework
+- Escolher um padrão arquitetural
+- Adicionar uma nova dependência
+- Lidar com uma tecnologia que você não usa recentemente
+- O problema parece comum (alguém provavelmente já resolveu bem)
 
-Skip research when:
-- The solution is obvious and well-established
-- You already verified this approach recently
-- It is a trivial change with no alternatives
+Pule a pesquisa quando:
+- A solução é óbvia e bem estabelecida
+- Você já verificou essa abordagem recentemente
+- É uma mudança trivial sem alternativas
 
-## How to Document Research
+## Como Documentar a Pesquisa
 
-For significant decisions, document:
+Para decisões significativas, documente:
 ```markdown
 ## Decision: {what was decided}
 

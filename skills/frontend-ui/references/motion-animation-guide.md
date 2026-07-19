@@ -1,6 +1,6 @@
-# Animation Guide — Decision Tree, Performance & Implementation
+# Guia de Animação — Árvore de Decisão, Performance e Implementação
 
-## Decision Tree
+## Árvore de Decisão
 
 ```
 Need to animate?
@@ -31,9 +31,9 @@ Need to animate?
 
 ---
 
-## CSS Transitions — The Default Choice
+## CSS Transitions — A Escolha Padrão
 
-Use for simple state changes. Always the first option.
+Use para mudanças de estado simples. Sempre a primeira opção.
 
 ```css
 .button {
@@ -58,14 +58,14 @@ Use for simple state changes. Always the first option.
 }
 ```
 
-### Timing Guidelines
+### Diretrizes de Timing
 
-| Duration | Use Case |
+| Duração | Caso de Uso |
 |----------|----------|
-| 100-150ms | Micro-interactions: button hover, toggle |
-| 200-300ms | Component transitions: accordion, tab switch |
-| 300-500ms | Layout transitions: sidebar, modal enter |
-| 500ms+ | Rarely. Page transitions, complex sequences |
+| 100-150ms | Micro-interações: hover de botão, toggle |
+| 200-300ms | Transições de componente: accordion, troca de aba |
+| 300-500ms | Transições de layout: sidebar, entrada de modal |
+| 500ms+ | Raramente. Transições de página, sequências complexas |
 
 ### Easing
 
@@ -79,7 +79,7 @@ Use for simple state changes. Always the first option.
 
 ---
 
-## CSS @keyframes — Multi-Step Sequences
+## CSS @keyframes — Sequências de Múltiplos Passos
 
 ```css
 /* Skeleton shimmer effect */
@@ -132,12 +132,12 @@ Use for simple state changes. Always the first option.
 
 ---
 
-## Motion (Framer) — The React Standard
+## Motion (Framer) — O Padrão do React
 
-Motion (formerly Framer Motion) is the go-to for React animations that need
-layout awareness, gestures, or orchestration.
+Motion (antigo Framer Motion) é a escolha padrão para animações em React que precisam
+de consciência de layout, gestos ou orquestração.
 
-### Basic Animations
+### Animações Básicas
 
 ```tsx
 import { motion } from "motion/react";
@@ -156,9 +156,9 @@ function FadeIn({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### Layout Animations
+### Animações de Layout
 
-The killer feature: animate layout changes smoothly.
+O recurso matador: animar mudanças de layout de forma suave.
 
 ```tsx
 function ExpandableCard({ isExpanded }: { isExpanded: boolean }) {
@@ -186,7 +186,7 @@ function ExpandableCard({ isExpanded }: { isExpanded: boolean }) {
 }
 ```
 
-### AnimatePresence — Exit Animations
+### AnimatePresence — Animações de Saída
 
 ```tsx
 import { motion, AnimatePresence } from "motion/react";
@@ -212,7 +212,7 @@ function NotificationList({ items }: { items: Notification[] }) {
 }
 ```
 
-### Gesture Animations
+### Animações de Gesto
 
 ```tsx
 <motion.button
@@ -225,7 +225,7 @@ function NotificationList({ items }: { items: Notification[] }) {
 </motion.button>
 ```
 
-### Staggered Children
+### Filhos Escalonados
 
 ```tsx
 const container = {
@@ -258,17 +258,17 @@ function StaggeredList({ items }: { items: string[] }) {
 
 ## Spring Physics
 
-Springs are preferred over duration-based easing because they feel natural.
+Springs são preferidas ao easing baseado em duração porque parecem naturais.
 
-### Key Parameters
+### Parâmetros Principais
 
-| Parameter | Description | Typical Range |
+| Parâmetro | Descrição | Faixa Típica |
 |-----------|-------------|---------------|
-| `stiffness` | How taut the spring (higher = faster) | 100-1000 |
-| `damping` | How much friction (higher = less bounce) | 10-50 |
-| `mass` | Weight of the object (higher = slower) | 0.5-3 |
+| `stiffness` | Quão tensa é a spring (maior = mais rápido) | 100-1000 |
+| `damping` | Quanto de atrito (maior = menos bounce) | 10-50 |
+| `mass` | Peso do objeto (maior = mais lento) | 0.5-3 |
 
-### Common Presets
+### Presets Comuns
 
 ```tsx
 // Snappy (buttons, toggles)
@@ -286,20 +286,20 @@ transition={{ type: "spring", stiffness: 200, damping: 20 }}
 
 ### Material 3 Expressive Spring System
 
-Google's Material 3 Expressive introduces a spring system based on spatial hierarchy:
+O Material 3 Expressive do Google introduz um sistema de springs baseado em hierarquia espacial:
 
-| Spatial | Stiffness | Damping | Use |
+| Spatial | Stiffness | Damping | Uso |
 |---------|-----------|---------|-----|
-| Spatial Default | 500 | 0.9 | Most UI elements |
-| Spatial Large | 380 | 0.85 | Large surfaces (sheets, dialogs) |
-| Spatial Small | 700 | 0.93 | Small elements (chips, FAB) |
-| Effects | 200 | 0.6 | Decorative, background |
+| Spatial Default | 500 | 0.9 | Maioria dos elementos de UI |
+| Spatial Large | 380 | 0.85 | Superfícies grandes (sheets, dialogs) |
+| Spatial Small | 700 | 0.93 | Elementos pequenos (chips, FAB) |
+| Effects | 200 | 0.6 | Decorativo, background |
 
 ---
 
 ## View Transitions API
 
-Page-level transitions without a framework:
+Transições em nível de página sem framework:
 
 ```tsx
 // Basic usage
@@ -329,14 +329,14 @@ function navigateTo(url: string) {
 
 ---
 
-## Performance Tiers
+## Camadas de Performance
 
-| Tier | Properties | Cost | Notes |
+| Camada | Propriedades | Custo | Observações |
 |------|-----------|------|-------|
-| **Cheap** | `transform`, `opacity` | GPU-composited | Always prefer these |
-| **Medium** | `filter`, `clip-path` | Repaint only | OK for occasional use |
-| **Expensive** | `width`, `height`, `padding`, `margin` | Layout + repaint | Avoid animating |
-| **Very Expensive** | `box-shadow`, `border-radius` (on change) | Full repaint | Use transform: scale() instead |
+| **Barato** | `transform`, `opacity` | Composto na GPU | Sempre prefira estes |
+| **Médio** | `filter`, `clip-path` | Apenas repaint | OK para uso ocasional |
+| **Caro** | `width`, `height`, `padding`, `margin` | Layout + repaint | Evite animar |
+| **Muito Caro** | `box-shadow`, `border-radius` (ao mudar) | Repaint completo | Use transform: scale() no lugar |
 
 ```css
 /* BAD: animates layout properties */
@@ -352,7 +352,7 @@ function navigateTo(url: string) {
 }
 ```
 
-### will-change Hint
+### Dica will-change
 
 ```css
 /* Tell browser to prepare GPU layer */
@@ -365,9 +365,9 @@ function navigateTo(url: string) {
 
 ---
 
-## prefers-reduced-motion — Non-Negotiable
+## prefers-reduced-motion — Inegociável
 
-### CSS Implementation
+### Implementação CSS
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -382,7 +382,7 @@ function navigateTo(url: string) {
 }
 ```
 
-### React Implementation
+### Implementação React
 
 ```tsx
 import { useReducedMotion } from "motion/react";
@@ -406,23 +406,23 @@ function AnimatedCard({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### What to Do When Motion is Reduced
+### O Que Fazer Quando o Movimento é Reduzido
 
-| Normal | Reduced Motion |
+| Normal | Movimento Reduzido |
 |--------|---------------|
-| Slide in | Instant appear (opacity only, 0ms) |
-| Bouncy entrance | Fade in (200ms max) |
-| Parallax scroll | Static |
-| Auto-playing animation | Static frame |
-| Loading spinner | Static progress bar or text |
+| Deslizar para dentro | Aparição instantânea (apenas opacity, 0ms) |
+| Entrada com bounce | Fade in (200ms no máximo) |
+| Scroll com parallax | Estático |
+| Animação com reprodução automática | Quadro estático |
+| Spinner de carregamento | Barra de progresso estática ou texto |
 
 ---
 
-## Rules
+## Regras
 
-1. **CSS transitions first** — only reach for Motion/GSAP when CSS can't do it
-2. **Spring physics > easing curves** — springs feel more natural
-3. **Transform and opacity only** — avoid animating layout properties
-4. **prefers-reduced-motion always** — every animation must have a reduced alternative
-5. **150ms for micro, 300ms for components, 500ms max for page** — duration guidelines
-6. **Animation communicates state** — loading, success, error, navigation. Never decoration alone
+1. **CSS transitions primeiro** — só recorra a Motion/GSAP quando o CSS não der conta
+2. **Spring physics > curvas de easing** — springs parecem mais naturais
+3. **Apenas transform e opacity** — evite animar propriedades de layout
+4. **prefers-reduced-motion sempre** — toda animação deve ter uma alternativa reduzida
+5. **150ms para micro, 300ms para componentes, 500ms no máximo para página** — diretrizes de duração
+6. **A animação comunica estado** — loading, sucesso, erro, navegação. Nunca apenas decoração

@@ -786,13 +786,13 @@ def should_continue(state: State) -> str:
 
 ### 1. Infinite loops
 
-**Problem:** Graph cycles sem stopping condition
+**Problema:** Graph cycles sem stopping condition
 ```python
 # ❌ No stop condition
 graph.add_edge("process", "process")
 ```
 
-**Solution:** Add iteration counter + max limit
+**Solução:** Adicione um iteration counter + limite máximo
 ```python
 def should_continue(state):
     if state["iteration"] >= max_iter:
@@ -802,7 +802,7 @@ def should_continue(state):
 
 ### 2. State não atualiza
 
-**Problem:** Node não retorna partial update
+**Problema:** Node não retorna partial update
 ```python
 # ❌ Modifica state in-place
 async def node(state):
@@ -815,9 +815,9 @@ async def node(state):
 
 ### 3. Checkpointing overhead
 
-**Problem:** SQLite checkpointer slow para high throughput
+**Problema:** SQLite checkpointer lento para high throughput
 
-**Solution:** Use in-memory checkpointer ou Redis
+**Solução:** Use in-memory checkpointer ou Redis
 ```python
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -826,9 +826,9 @@ checkpointer = MemorySaver()  # Fast, mas não persiste
 
 ### 4. Complex state merging
 
-**Problem:** State merge behavior não é claro
+**Problema:** O comportamento do state merge não é claro
 
-**Solution:** Use Annotated reducers
+**Solução:** Use Annotated reducers
 ```python
 from operator import add
 
@@ -855,7 +855,7 @@ for event in app.stream(input_data):
 print(f"Final state iteration: {result['iteration']}")
 ```
 
-### State não contém expected keys
+### State não contém as keys esperadas
 
 **Debug:**
 ```python
@@ -865,9 +865,9 @@ async for event in app.astream(input_data):
     print(f"{node_name} state: {event[node_name]}")
 ```
 
-### Checkpoint not saving
+### Checkpoint não está salvando
 
-**Check:**
+**Verifique:**
 - Checkpointer configured: `app = graph.compile(checkpointer=...)`
 - Config has thread_id: `config = {"configurable": {"thread_id": "..."}}`
 - Database file writable

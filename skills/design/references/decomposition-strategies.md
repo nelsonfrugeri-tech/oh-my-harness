@@ -1,11 +1,11 @@
-# System Decomposition Strategies
+# Estratégias de Decomposição de Sistemas
 
-## Domain-Driven Design (DDD) — Strategic Patterns
+## Domain-Driven Design (DDD) — Padrões Estratégicos
 
 ### Bounded Contexts
 
-A bounded context is a boundary within which a domain model is consistent and meaningful.
-The same term (e.g., "Order") can mean different things in different bounded contexts.
+Um bounded context é uma fronteira dentro da qual um domain model é consistente e faz sentido.
+O mesmo termo (ex.: "Order") pode significar coisas diferentes em bounded contexts diferentes.
 
 ```
 Sales Context:          Order = quote + pricing + discounts
@@ -13,19 +13,19 @@ Fulfillment Context:    Order = items + shipping address + tracking
 Billing Context:        Order = invoice + payment status + refunds
 ```
 
-### Context Mapping Patterns
+### Padrões de Context Mapping
 
-| Pattern | Description | When to use |
+| Padrão | Descrição | Quando usar |
 |---------|-------------|-------------|
-| **Shared Kernel** | Two contexts share a subset of the model | Tightly coupled teams, shared core |
-| **Customer-Supplier** | Upstream supplies, downstream consumes | Clear dependency direction |
-| **Conformist** | Downstream conforms to upstream model | No negotiation power |
-| **Anti-Corruption Layer** | Translation layer between contexts | Integrating with legacy/external |
-| **Open Host Service** | Upstream provides stable published API | Multiple consumers |
-| **Published Language** | Shared language (e.g., protocol, schema) | Cross-context communication |
-| **Separate Ways** | No integration, duplicate if needed | Truly independent contexts |
+| **Shared Kernel** | Dois contextos compartilham um subconjunto do modelo | Times fortemente acoplados, núcleo compartilhado |
+| **Customer-Supplier** | O upstream fornece, o downstream consome | Direção de dependência clara |
+| **Conformist** | O downstream se conforma ao modelo do upstream | Sem poder de negociação |
+| **Anti-Corruption Layer** | Camada de tradução entre contextos | Integração com legado/externo |
+| **Open Host Service** | O upstream fornece uma API publicada estável | Múltiplos consumidores |
+| **Published Language** | Linguagem compartilhada (ex.: protocolo, schema) | Comunicação entre contextos |
+| **Separate Ways** | Sem integração, duplique se necessário | Contextos verdadeiramente independentes |
 
-### Decomposition Heuristics
+### Heurísticas de Decomposição
 
 ```
 1. Linguistic boundary
@@ -57,9 +57,9 @@ Billing Context:        Order = invoice + payment status + refunds
    Signal: Payment failure should not block product browsing
 ```
 
-## Strangler Fig Pattern
+## Padrão Strangler Fig
 
-For migrating from monolith to services gradually:
+Para migrar de monolito para serviços de forma gradual:
 
 ```
 Phase 1: Route all traffic through facade
@@ -80,36 +80,36 @@ Phase 4: Monolith fully replaced
                         -> Payment Service
 ```
 
-**Rules:**
-1. Extract one bounded context at a time
-2. Start with the least coupled context
-3. Keep the monolith working throughout
-4. Each extraction is a complete, tested migration
-5. Never do big bang — always incremental
+**Regras:**
+1. Extraia um bounded context por vez
+2. Comece pelo contexto menos acoplado
+3. Mantenha o monolito funcionando durante todo o processo
+4. Cada extração é uma migração completa e testada
+5. Nunca faça big bang — sempre incremental
 
-## Anti-patterns
+## Anti-padrões
 
-### Distributed Monolith
-Services that must be deployed together, defeating the purpose of microservices.
-**Signal:** Changing service A requires changing service B and deploying both.
-**Fix:** Review service boundaries, merge tightly coupled services.
+### Monolito Distribuído
+Serviços que precisam ser implantados juntos, anulando o propósito dos microservices.
+**Sinal:** alterar o serviço A exige alterar o serviço B e implantar ambos.
+**Correção:** revise as fronteiras dos serviços, una os serviços fortemente acoplados.
 
-### Shared Database
-Multiple services reading/writing the same tables.
-**Signal:** Schema changes require coordinating across teams.
-**Fix:** Each service owns its data. Communicate via APIs or events.
+### Banco de Dados Compartilhado
+Múltiplos serviços lendo/escrevendo nas mesmas tabelas.
+**Sinal:** mudanças de schema exigem coordenação entre times.
+**Correção:** cada serviço é dono dos seus dados. Comunique-se via APIs ou eventos.
 
-### Chatty Services
-Too many synchronous calls between services for a single operation.
-**Signal:** One user request triggers 10+ inter-service HTTP calls.
-**Fix:** Merge services, use async events, or denormalize data.
+### Serviços Tagarelas (Chatty Services)
+Chamadas síncronas em excesso entre serviços para uma única operação.
+**Sinal:** uma requisição de usuário dispara 10+ chamadas HTTP entre serviços.
+**Correção:** una serviços, use eventos assíncronos ou desnormalize os dados.
 
-### Nano-services
-Services so small that the operational overhead exceeds the value.
-**Signal:** A service has one endpoint and 50 lines of code.
-**Fix:** Merge into a larger bounded context.
+### Nano-serviços
+Serviços tão pequenos que o overhead operacional supera o valor.
+**Sinal:** um serviço tem um único endpoint e 50 linhas de código.
+**Correção:** una a um bounded context maior.
 
-## Sources
+## Fontes
 
 - Eric Evans, "Domain-Driven Design" (2003)
 - Vaughn Vernon, "Implementing Domain-Driven Design" (2013)

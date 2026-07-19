@@ -1,32 +1,32 @@
-# Event-Driven Architecture Patterns
+# Padrões de Arquitetura Orientada a Eventos
 
 ## CQRS (Command Query Responsibility Segregation)
-- Separate read and write models
-- Write model: normalized, optimized for consistency
-- Read model: denormalized, optimized for queries
-- Use when: read/write patterns differ significantly, need independent scaling
+- Separe os modelos de leitura e escrita
+- Modelo de escrita: normalizado, otimizado para consistência
+- Modelo de leitura: desnormalizado, otimizado para queries
+- Use quando: os padrões de leitura/escrita diferem significativamente, necessidade de escala independente
 
 ## Event Sourcing
-- Store events (facts), not current state
-- Rebuild state by replaying events
-- Benefits: full audit trail, time-travel debugging, event-driven integration
-- Trade-offs: complexity, eventual consistency, event versioning challenges
-- Use when: audit requirements, complex domain logic, need event replay
+- Armazene eventos (fatos), não o estado atual
+- Reconstrua o estado reproduzindo os eventos
+- Benefícios: trilha de auditoria completa, debugging com time-travel, integração orientada a eventos
+- Trade-offs: complexidade, consistência eventual, desafios de versionamento de eventos
+- Use quando: requisitos de auditoria, lógica de domínio complexa, necessidade de replay de eventos
 
-## Saga Patterns
+## Padrões de Saga
 ### Choreography
-- Services react to events from other services
-- No central coordinator — loose coupling
-- Harder to understand full flow, compensating transactions distributed
-- Use when: simple flows, few services
+- Os serviços reagem a eventos de outros serviços
+- Sem coordenador central — acoplamento fraco
+- Fluxo completo mais difícil de entender, transações compensatórias distribuídas
+- Use quando: fluxos simples, poucos serviços
 
 ### Orchestration  
-- Central orchestrator coordinates the saga steps
-- Easier to understand, centralized error handling
-- Single point of failure risk, tighter coupling to orchestrator
-- Use when: complex flows, many services, need visibility
+- Um orquestrador central coordena os passos da saga
+- Mais fácil de entender, tratamento de erros centralizado
+- Risco de ponto único de falha, acoplamento mais forte ao orquestrador
+- Use quando: fluxos complexos, muitos serviços, necessidade de visibilidade
 
-## Event Design
+## Design de Eventos
 ```json
 {
   "event_id": "uuid",
@@ -39,7 +39,7 @@
 }
 ```
 
-## Event Versioning
+## Versionamento de Eventos
 - Schema registry (Confluent, AWS Glue)
-- Upcasters: transform old events to new schema on read
-- Never delete event types — deprecate and stop producing
+- Upcasters: transformam eventos antigos para o novo schema na leitura
+- Nunca apague tipos de evento — deprecie e pare de produzir

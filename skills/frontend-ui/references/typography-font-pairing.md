@@ -1,10 +1,10 @@
-# Font Pairing — Principles & Proven Combinations
+# Combinação de fontes — princípios e combinações comprovadas
 
-## Principles of Pairing
+## Princípios de combinação
 
-### 1. Contrast, Not Conflict
+### 1. Contraste, não conflito
 
-Good pairings have clear contrast in ONE dimension while sharing others:
+Boas combinações têm contraste claro em UMA dimensão enquanto compartilham as outras:
 
 ```
 GOOD: Serif heading + Sans body  (contrast: category)
@@ -13,10 +13,10 @@ BAD:  Two similar sans-serifs  (no contrast, looks like a mistake)
 BAD:  Decorative heading + decorative body  (competing for attention)
 ```
 
-### 2. The Rule of Two
+### 2. A regra do dois
 
-Use at most **two** font families. If you need a third, use the same family
-in a different weight or style.
+Use no máximo **duas** famílias de fontes. Se precisar de uma terceira, use a mesma família
+em um peso ou estilo diferente.
 
 ```css
 :root {
@@ -26,23 +26,23 @@ in a different weight or style.
 }
 ```
 
-### 3. Match the x-height
+### 3. Combine a x-height
 
-Fonts that pair well tend to have similar x-heights (the height of lowercase letters).
-If x-heights differ significantly, the fonts look mismatched at the same font-size.
+Fontes que combinam bem tendem a ter x-heights parecidas (a altura das letras minúsculas).
+Se as x-heights diferem muito, as fontes parecem desalinhadas no mesmo font-size.
 
-### 4. Historical Harmony
+### 4. Harmonia histórica
 
-Fonts from the same era or design tradition tend to pair naturally:
-- **Humanist serif + Humanist sans** (e.g., Garamond + Gill Sans)
-- **Geometric sans + Geometric slab** (e.g., Futura + Rockwell)
-- **Modern serif + Grotesk sans** (e.g., Didot + Helvetica)
+Fontes da mesma época ou tradição de design tendem a combinar naturalmente:
+- **Serif humanista + Sans humanista** (ex.: Garamond + Gill Sans)
+- **Sans geométrica + Slab geométrica** (ex.: Futura + Rockwell)
+- **Serif moderna + Sans grotesk** (ex.: Didot + Helvetica)
 
 ---
 
-## 5 Proven Combinations for 2026
+## 5 combinações comprovadas para 2026
 
-### 1. The SaaS Standard — Inter Variable
+### 1. O padrão SaaS — Inter Variable
 
 ```css
 :root {
@@ -55,11 +55,11 @@ h2 { font-weight: 600; letter-spacing: -0.02em; }
 body { font-weight: 400; }
 ```
 
-**Vibe:** Clean, neutral, professional. Works for everything.
-**Used by:** Linear, Vercel, Raycast, countless SaaS products.
-**When to use:** When you want the design to be invisible, letting content shine.
+**Vibe:** Limpa, neutra, profissional. Funciona para tudo.
+**Usada por:** Linear, Vercel, Raycast, incontáveis produtos SaaS.
+**Quando usar:** Quando você quer que o design seja invisível, deixando o conteúdo brilhar.
 
-### 2. The Editorial — Instrument Serif + Inter
+### 2. A editorial — Instrument Serif + Inter
 
 ```css
 :root {
@@ -79,11 +79,11 @@ body {
 }
 ```
 
-**Vibe:** Elegant, editorial, premium. Strong personality.
-**Used by:** Notion marketing site, editorial blogs, luxury brands.
-**When to use:** Landing pages, blogs, portfolios, when you want warmth.
+**Vibe:** Elegante, editorial, premium. Personalidade forte.
+**Usada por:** Site de marketing do Notion, blogs editoriais, marcas de luxo.
+**Quando usar:** Landing pages, blogs, portfólios, quando você quer aconchego.
 
-### 3. The Tech Modern — Space Grotesk + DM Sans
+### 3. A tech moderna — Space Grotesk + DM Sans
 
 ```css
 :root {
@@ -103,11 +103,11 @@ body {
 }
 ```
 
-**Vibe:** Tech-forward, geometric, modern. Confident.
-**Used by:** Developer tools, crypto/web3, startup landing pages.
-**When to use:** When you want to signal innovation and technical sophistication.
+**Vibe:** Voltada a tecnologia, geométrica, moderna. Confiante.
+**Usada por:** Ferramentas para desenvolvedores, crypto/web3, landing pages de startups.
+**Quando usar:** Quando você quer sinalizar inovação e sofisticação técnica.
 
-### 4. The Warm Friendly — Fraunces + Source Sans 3
+### 4. A calorosa e amigável — Fraunces + Source Sans 3
 
 ```css
 :root {
@@ -126,11 +126,11 @@ body {
 }
 ```
 
-**Vibe:** Warm, friendly, approachable. Human touch.
-**Used by:** Community platforms, education, non-profits.
-**When to use:** When you want to feel welcoming and trustworthy.
+**Vibe:** Calorosa, amigável, acessível. Toque humano.
+**Usada por:** Plataformas de comunidade, educação, organizações sem fins lucrativos.
+**Quando usar:** Quando você quer transmitir acolhimento e confiança.
 
-### 5. The Developer Stack — Geist Sans + Geist Mono
+### 5. A stack de desenvolvedor — Geist Sans + Geist Mono
 
 ```css
 :root {
@@ -150,38 +150,38 @@ code, pre {
 }
 ```
 
-**Vibe:** Technical, precise, Vercel-native. Clean developer aesthetic.
-**Used by:** Vercel, Next.js docs, developer tools.
-**When to use:** Developer-facing products, documentation, technical blogs.
+**Vibe:** Técnica, precisa, nativa da Vercel. Estética limpa para desenvolvedores.
+**Usada por:** Vercel, documentação do Next.js, ferramentas para desenvolvedores.
+**Quando usar:** Produtos voltados a desenvolvedores, documentação, blogs técnicos.
 
 ---
 
-## System Font Stacks — When Custom Fonts Are Not Needed
+## Stacks de fontes do sistema — quando fontes customizadas não são necessárias
 
-### The GitHub Stack
+### A stack do GitHub
 
 ```css
 --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
              Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
 ```
 
-### The Modern Stack
+### A stack moderna
 
 ```css
 --font-body: system-ui, -apple-system, sans-serif;
 ```
 
-**When to use system fonts:**
-- Admin panels and internal tools (speed > branding)
-- Performance-critical applications (zero font loading)
-- Content-heavy apps where familiarity matters
-- Progressive enhancement: system font as base, custom as enhancement
+**Quando usar fontes do sistema:**
+- Painéis administrativos e ferramentas internas (velocidade > branding)
+- Aplicações críticas em performance (zero carregamento de fontes)
+- Apps com muito conteúdo, onde a familiaridade importa
+- Melhoria progressiva: fonte do sistema como base, customizada como aprimoramento
 
 ---
 
-## Loading Optimization for Pairings
+## Otimização de carregamento para combinações
 
-### Strategy: Load Primary First
+### Estratégia: carregue a primária primeiro
 
 ```html
 <head>
@@ -193,9 +193,9 @@ code, pre {
 </head>
 ```
 
-### Matching Fallback Metrics
+### Métricas de fallback compatíveis
 
-Use `@font-face` `size-adjust` to minimize layout shift when swapping:
+Use `size-adjust` no `@font-face` para minimizar o layout shift na troca:
 
 ```css
 /* System fallback with adjusted metrics to match Inter */
@@ -213,17 +213,17 @@ Use `@font-face` `size-adjust` to minimize layout shift when swapping:
 }
 ```
 
-Tools for calculating fallback metrics:
+Ferramentas para calcular métricas de fallback:
 - https://screenspan.net/fallback
-- `next/font` does this automatically in Next.js
+- `next/font` faz isso automaticamente no Next.js
 
 ---
 
-## Rules
+## Regras
 
-1. **Maximum two families** — mono is a functional exception
-2. **Heading + body must contrast** — serif/sans, geometric/humanist, or weight
-3. **Self-host when possible** — fontsource packages, zero third-party dependency
-4. **Always set font-display: swap** — text should never be invisible
-5. **Preload above-the-fold font** — the font visible on first render
-6. **Test on real devices** — fonts render differently on macOS vs Windows vs Android
+1. **No máximo duas famílias** — a mono é uma exceção funcional
+2. **Título + corpo devem contrastar** — serif/sans, geométrica/humanista ou peso
+3. **Faça self-host quando possível** — pacotes fontsource, zero dependência de terceiros
+4. **Sempre defina font-display: swap** — o texto nunca deve ficar invisível
+5. **Faça preload da fonte above-the-fold** — a fonte visível na primeira renderização
+6. **Teste em dispositivos reais** — fontes renderizam de forma diferente em macOS vs Windows vs Android

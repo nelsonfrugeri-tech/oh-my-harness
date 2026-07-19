@@ -1,4 +1,4 @@
-# .env Management
+# Gerenciamento de .env
 
 ## Estrutura
 ```
@@ -8,7 +8,7 @@
 .env.production — NEVER on disk, only in CI/CD secrets
 ```
 
-## Validation Pattern
+## Padrão de Validação
 ```python
 # Python with pydantic-settings
 from pydantic_settings import BaseSettings
@@ -22,11 +22,11 @@ class Settings(BaseSettings):
 ```
 
 ## Regras
-1. **Never commit .env** — add to .gitignore
-2. **Always commit .env.example** — documents required vars
-3. **Validate on startup** — fail fast if missing required vars
-4. **No secrets in docker-compose.yml** — use env_file directive
-5. **Rotate secrets** — never reuse across environments
+1. **Nunca faça commit do .env** — adicione ao .gitignore
+2. **Sempre faça commit do .env.example** — documenta as variáveis obrigatórias
+3. **Valide na inicialização** — falhe rápido se faltar alguma variável obrigatória
+4. **Sem segredos no docker-compose.yml** — use a diretiva env_file
+5. **Rotacione os segredos** — nunca reutilize entre ambientes
 
 ## Docker Compose
 ```yaml

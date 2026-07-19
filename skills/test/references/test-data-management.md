@@ -1,10 +1,10 @@
-# Test Data Management
+# Gerenciamento de Dados de Teste
 
-## Approaches
+## Abordagens
 
-### 1. Fixtures (Static Data)
+### 1. Fixtures (Dados Estáticos)
 
-Best for: reference data, configuration, known-good examples.
+Melhor para: dados de referência, configuração, exemplos conhecidos como válidos.
 
 ```python
 import pytest
@@ -26,9 +26,9 @@ def sample_products() -> list[dict]:
     return json.loads((FIXTURES_DIR / "products.json").read_text())
 ```
 
-### 2. Factories (Dynamic Data)
+### 2. Factories (Dados Dinâmicos)
 
-Best for: tests needing many variations of the same entity.
+Melhor para: testes que precisam de muitas variações da mesma entidade.
 
 ```python
 import factory
@@ -62,9 +62,9 @@ class UserModelFactory(factory.alchemy.SQLAlchemyModelFactory):
     # same fields as above
 ```
 
-### 3. Builders (Complex Graphs)
+### 3. Builders (Grafos Complexos)
 
-Best for: entities with many relationships.
+Melhor para: entidades com muitos relacionamentos.
 
 ```python
 class OrderBuilder:
@@ -106,9 +106,9 @@ order = (OrderBuilder()
     .build())
 ```
 
-### 4. Seeding (Database Pre-Population)
+### 4. Seeding (Pré-População do Banco de Dados)
 
-Best for: shared reference data needed by many tests.
+Melhor para: dados de referência compartilhados necessários a muitos testes.
 
 ```python
 @pytest.fixture(scope="session")
@@ -122,9 +122,9 @@ def seed_reference_data(db_engine):
         session.commit()
 ```
 
-## Cleanup Strategies
+## Estratégias de Limpeza
 
-### Transaction Rollback (fastest)
+### Rollback de Transação (mais rápido)
 ```python
 @pytest.fixture(autouse=True)
 def auto_rollback(db_session):
@@ -132,7 +132,7 @@ def auto_rollback(db_session):
     db_session.rollback()
 ```
 
-### Truncation (when rollback not possible)
+### Truncation (quando o rollback não é possível)
 ```python
 @pytest.fixture(autouse=True)
 def truncate(db_engine):
@@ -144,9 +144,9 @@ def truncate(db_engine):
 
 ## Regras
 
-1. **Each test creates its own data** -- never rely on state from another test
-2. **Use factories over raw SQL** -- factories respect model validation
-3. **Avoid sequential IDs in assertions** -- use UUIDs or query by attribute
-4. **Never use production data** -- synthetic data only
-5. **Seed only reference/lookup data** -- countries, roles, currencies
-6. **Clean up after each test** -- transaction rollback preferred
+1. **Cada teste cria seus próprios dados** -- nunca dependa do estado de outro teste
+2. **Prefira factories a SQL puro** -- factories respeitam a validação do modelo
+3. **Evite IDs sequenciais em asserções** -- use UUIDs ou consulte por atributo
+4. **Nunca use dados de produção** -- apenas dados sintéticos
+5. **Faça seed apenas de dados de referência/lookup** -- países, papéis, moedas
+6. **Limpe após cada teste** -- rollback de transação é preferível

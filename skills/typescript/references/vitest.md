@@ -57,7 +57,7 @@ afterEach(() => {
 
 ---
 
-## Basic Tests
+## Testes Básicos
 
 ```typescript
 import { describe, it, expect } from "vitest";
@@ -97,7 +97,7 @@ describe("fetchUser", () => {
 
 ## Mocking
 
-### vi.fn() — mock functions
+### vi.fn() — funções mock
 
 ```typescript
 import { vi, describe, it, expect } from "vitest";
@@ -112,7 +112,7 @@ it("calls callback with correct args", () => {
 });
 ```
 
-### vi.mock() — mock modules
+### vi.mock() — módulos mock
 
 ```typescript
 import { vi, describe, it, expect, beforeEach } from "vitest";
@@ -140,7 +140,7 @@ describe("createUser", () => {
 });
 ```
 
-### vi.spyOn() — spy on methods
+### vi.spyOn() — espionar métodos
 
 ```typescript
 it("logs errors", () => {
@@ -175,7 +175,7 @@ it("fetches data", async () => {
 
 ---
 
-## Testing React Components
+## Testando Componentes React
 
 ```typescript
 import { render, screen, waitFor } from "@testing-library/react";
@@ -221,7 +221,7 @@ describe("LoginForm", () => {
 
 ---
 
-## Snapshot Testing
+## Testes de Snapshot
 
 ```typescript
 it("renders correctly", () => {
@@ -250,7 +250,7 @@ pnpm vitest --coverage --ui
 
 ---
 
-## Workspace Mode (Monorepo)
+## Modo Workspace (Monorepo)
 
 ```typescript
 // vitest.workspace.ts

@@ -4,12 +4,12 @@ Mental model, patterns e best practices para Server Components e Server Actions.
 
 ---
 
-## Mental Model
+## Modelo Mental
 
-### Server vs Client Boundary
+### Fronteira Server vs Client
 
 ```
-Server (runs on Node.js)          Client (runs in browser)
+Server (roda no Node.js)          Client (roda no browser)
 ┌─────────────────────┐           ┌─────────────────────┐
 │  Server Components   │           │  Client Components   │
 │  - async/await       │    ──►   │  - useState          │
@@ -20,27 +20,27 @@ Server (runs on Node.js)          Client (runs in browser)
 └─────────────────────┘           └─────────────────────┘
 ```
 
-**Default in App Router: Server Components.** Only add `"use client"` when you need interactivity.
+**Padrão no App Router: Server Components.** Adicione `"use client"` apenas quando precisar de interatividade.
 
-### Decision Tree
+### Árvore de Decisão
 
 ```
-Need useState/useEffect/event handlers?     → "use client"
-Need browser APIs (window, localStorage)?   → "use client"
-Need third-party lib using hooks?            → "use client"
-Just rendering data?                         → Server Component
-Fetching data from DB/API?                   → Server Component
-Using secrets/env vars?                      → Server Component
-Heavy dependencies (markdown, syntax hl)?    → Server Component
+Precisa de useState/useEffect/event handlers?   → "use client"
+Precisa de browser APIs (window, localStorage)? → "use client"
+Precisa de lib third-party usando hooks?        → "use client"
+Apenas renderizando dados?                      → Server Component
+Buscando dados de DB/API?                       → Server Component
+Usando secrets/env vars?                        → Server Component
+Dependências pesadas (markdown, syntax hl)?     → Server Component
 ```
 
 ---
 
 ## Server Components
 
-### Data Fetching
+### Busca de Dados
 
-Server Components can be async and fetch data directly:
+Server Components podem ser async e buscar dados diretamente:
 
 ```typescript
 // app/users/page.tsx — Server Component (default)
@@ -67,9 +67,9 @@ async function UsersPage() {
 export default UsersPage;
 ```
 
-### Streaming with Suspense
+### Streaming com Suspense
 
-Use Suspense to stream parts of the page as they become ready:
+Use Suspense para transmitir partes da página conforme ficam prontas:
 
 ```typescript
 // app/dashboard/page.tsx
@@ -112,9 +112,9 @@ async function RevenueChart() {
 
 ---
 
-## "use client" Directive
+## Diretiva "use client"
 
-Marks the boundary where code starts running on the client:
+Marca a fronteira onde o código começa a rodar no client:
 
 ```typescript
 "use client";
@@ -139,7 +139,7 @@ export function Counter({ initialCount }: CounterProps) {
 }
 ```
 
-### Composition: Server wrapping Client
+### Composição: Server envolvendo Client
 
 ```typescript
 // app/dashboard/page.tsx — Server Component
@@ -159,9 +159,9 @@ async function DashboardPage() {
 }
 ```
 
-### Push "use client" Down
+### Empurre "use client" para baixo
 
-Minimize client components by pushing the boundary as low as possible:
+Minimize client components empurrando a fronteira o mais para baixo possível:
 
 ```typescript
 // BAD — entire page is client
@@ -187,7 +187,7 @@ async function ProductPage({ params }: { params: { id: string } }) {
 
 ## Server Actions
 
-Functions that run on the server, callable from client components:
+Funções que rodam no servidor, chamáveis a partir de client components:
 
 ```typescript
 // app/actions/user.ts
@@ -226,7 +226,7 @@ export async function updateUser(
 }
 ```
 
-### Using Server Actions in Forms
+### Usando Server Actions em Formulários
 
 ```typescript
 "use client";
@@ -255,9 +255,9 @@ function EditUserForm({ userId }: { userId: string }) {
 
 ---
 
-## Cache and Revalidation
+## Cache e Revalidação
 
-### fetch with Next.js caching
+### fetch com caching do Next.js
 
 ```typescript
 // Cached by default (SSG-like)
@@ -274,7 +274,7 @@ const data = await fetch("https://api.example.com/data", {
 });
 ```
 
-### unstable_cache (for non-fetch data)
+### unstable_cache (para dados non-fetch)
 
 ```typescript
 import { unstable_cache } from "next/cache";
@@ -298,9 +298,9 @@ revalidateTag("users");
 
 ---
 
-## Patterns
+## Padrões
 
-### Preloading Data
+### Pré-carregando Dados
 
 ```typescript
 // lib/queries.ts
@@ -324,7 +324,7 @@ async function UserSidebar({ userId }: { userId: string }) {
 }
 ```
 
-### Parallel Data Fetching
+### Busca de Dados em Paralelo
 
 ```typescript
 async function Dashboard() {
@@ -347,16 +347,16 @@ async function Dashboard() {
 
 ---
 
-## Anti-Patterns
+## Anti-Padrões
 
-### 1. "use client" on everything
+### 1. "use client" em tudo
 ```typescript
 // BAD — defeats the purpose of RSC
 "use client";
 export default function Page() { ... }
 ```
 
-### 2. Passing non-serializable props across boundary
+### 2. Passando props não serializáveis através da fronteira
 ```typescript
 // BAD — functions are not serializable
 <ClientComponent onClick={() => doStuff()} />
@@ -365,7 +365,7 @@ export default function Page() { ... }
 <ClientComponent action={serverAction} />
 ```
 
-### 3. Fetching in client when server can do it
+### 3. Buscando no client quando o server pode fazer
 ```typescript
 // BAD — unnecessary client fetch
 "use client";

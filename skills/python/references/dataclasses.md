@@ -224,7 +224,7 @@ print(p2)  # Point2D(x=10.0, y=5.0)
 - Coordinates, Dimensions
 - Sempre imutáveis por design
 
-**Keys em Dicts/Sets**:
+**Chaves em Dicts/Sets**:
 - Precisa ser hashable
 - Identidade por valor
 
@@ -327,8 +327,8 @@ particles = [
 
 **Performance-Critical Code**:
 - Game engines
-- Simulations
-- Real-time systems
+- Simulações
+- Sistemas de tempo real
 
 **Restrição: Não pode adicionar atributos dinamicamente**
 ```python
@@ -715,7 +715,7 @@ class PointFrozen:
 | Métodos | Pode adicionar | Pode adicionar | Pode adicionar |
 | Herança | Limitada | Completa | Completa |
 | Performance | Mais rápido | Normal | Normal |
-| Memory | Menor | Maior | Maior |
+| Memória | Menor | Maior | Maior |
 | Use quando | Tuplas simples | Objetos complexos | Value objects |
 
 ### Dataclass vs TypedDict
@@ -745,7 +745,7 @@ print(type(user_class))  # <class '__main__.UserClass'>
 
 **Quando usar cada:**
 
-| Use Case | TypedDict | Dataclass |
+| Caso de Uso | TypedDict | Dataclass |
 |----------|-----------|-----------|
 | JSON/API payloads | ✅ Ideal | ❌ Overhead |
 | Objetos de domínio | ❌ Sem métodos | ✅ Ideal |
@@ -784,7 +784,7 @@ user_dc = UserDataclass(id=1, email="invalid")  # OK em runtime
 
 **Quando usar cada:**
 
-| Use Case | Dataclass | Pydantic |
+| Caso de Uso | Dataclass | Pydantic |
 |----------|-----------|----------|
 | Dados internos | ✅ Leve | ❌ Overhead |
 | API externa | ❌ Sem validação | ✅ Ideal |
@@ -934,7 +934,7 @@ class UserCreatedEvent:
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Use frozen=True para value objects**
 ```python

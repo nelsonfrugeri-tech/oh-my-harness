@@ -2,68 +2,69 @@
 version: 1.0.0
 name: environment
 description: |
-  Local development environment knowledge base (2026). Covers environment lifecycle,
-  Docker best practices (multi-stage builds, layer caching, security), Docker Compose patterns
-  (health checks, depends_on, volumes, profiles, watch mode), database initialization
-  (PostgreSQL, MongoDB, Redis — init scripts, seeding, migrations), .env management,
-  service orchestration (startup order, readiness probes), port management, hot reload,
-  dependency installation by ecosystem (pip, poetry, npm, pnpm), teardown, and error recovery.
-  Use when: (1) Setting up local environment with Docker, (2) Configuring databases,
-  (3) Troubleshooting local infrastructure, (4) Orchestrating multi-service stacks,
-  (5) Debugging containers.
+  Base de conhecimento de ambiente de desenvolvimento local (2026). Cobre o ciclo de vida do
+  ambiente, boas práticas de Docker (multi-stage builds, layer caching, segurança), padrões de
+  Docker Compose (health checks, depends_on, volumes, profiles, watch mode), inicialização de
+  bancos de dados (PostgreSQL, MongoDB, Redis — init scripts, seeding, migrations), gerenciamento
+  de .env, orquestração de serviços (ordem de inicialização, readiness probes), gerenciamento de
+  portas, hot reload, instalação de dependências por ecossistema (pip, poetry, npm, pnpm), teardown
+  e recuperação de erros.
+  Use quando: (1) Configurar o ambiente local com Docker, (2) Configurar bancos de dados,
+  (3) Diagnosticar a infraestrutura local, (4) Orquestrar stacks multi-serviço,
+  (5) Depurar containers.
   Triggers: /environment, /env, docker, compose, database setup, container, devenv, local infra.
 type: capability
 ---
 
-# Environment — Local Development Infrastructure
+# Environment — Infraestrutura de Desenvolvimento Local
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for local development infrastructure (2026).
-It covers everything needed to run, debug, and maintain multi-service development environments.
+Esta skill é a base de conhecimento para infraestrutura de desenvolvimento local (2026).
+Ela cobre tudo o que é necessário para executar, depurar e manter ambientes de desenvolvimento multi-serviço.
 
-**What this skill contains:**
-- Docker best practices (multi-stage builds, security, layer caching)
-- Docker Compose patterns (health checks, depends_on, volumes, networks)
-- Database setup (PostgreSQL, MongoDB, Redis)
-- .env management (validation, templates, secrets)
-- Service orchestration (startup order, readiness probes)
-- Port management and conflict resolution
-- Dependency installation by ecosystem
-- Log streaming and debugging
-- Watch mode and hot reload
-- Error recovery procedures
+**O que esta skill contém:**
+- Boas práticas de Docker (multi-stage builds, segurança, layer caching)
+- Padrões de Docker Compose (health checks, depends_on, volumes, networks)
+- Setup de bancos de dados (PostgreSQL, MongoDB, Redis)
+- Gerenciamento de .env (validação, templates, secrets)
+- Orquestração de serviços (ordem de inicialização, readiness probes)
+- Gerenciamento de portas e resolução de conflitos
+- Instalação de dependências por ecossistema
+- Streaming de logs e debugging
+- Watch mode e hot reload
+- Procedimentos de recuperação de erros
 
-**What this skill does NOT contain:**
-- Cloud deployment (AWS, GCP, Azure) — focus is local
-- Kubernetes / Helm — focus is Docker Compose
-- CI/CD pipelines — focus is developer workstation
+**O que esta skill NÃO contém:**
+- Deploy em cloud (AWS, GCP, Azure) — o foco é local
+- Kubernetes / Helm — o foco é Docker Compose
+- Pipelines de CI/CD — o foco é a estação de trabalho do desenvolvedor
 
 ---
 
-## Reference Versions
+## Versões de Referência
 
-> Always check current versions before using. Verify at official sites (Docker Hub, PyPI, npmjs.com, etc.)
+> Sempre verifique as versões atuais antes de usar. Confira nos sites oficiais (Docker Hub, PyPI, npmjs.com, etc.)
 
-| Tool | Version | Notes |
+| Ferramenta | Versão | Notas |
 |------|---------|-------|
-| Docker Engine | 29.3.1 | Latest stable |
-| Docker Compose | v2.40+ | CLI plugin, no `version:` field needed |
-| PostgreSQL | 18.3 | Latest stable |
-| MongoDB | 8.2.3 | Latest stable |
-| Redis | 8.4.2 | Latest stable |
-| Python | 3.14.3 | Latest stable |
+| Docker Engine | 29.3.1 | Última estável |
+| Docker Compose | v2.40+ | Plugin de CLI, sem necessidade do campo `version:` |
+| PostgreSQL | 18.3 | Última estável |
+| MongoDB | 8.2.3 | Última estável |
+| Redis | 8.4.2 | Última estável |
+| Python | 3.14.3 | Última estável |
 | Node.js | 24.14.1 | LTS |
-| Poetry | 2.3.3 | Latest stable |
-| pnpm | 10.33.0 | Latest stable |
+| Poetry | 2.3.3 | Última estável |
+| pnpm | 10.33.0 | Última estável |
 
 ---
 
-## 1. Docker Best Practices
+## 1. Boas Práticas de Docker
 
 ### Multi-Stage Builds
 
-Multi-stage builds reduce image size by up to 97%.
+Multi-stage builds reduzem o tamanho da imagem em até 97%.
 
 ```dockerfile
 # Stage 1: Build
@@ -88,7 +89,7 @@ CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "
 
 ### Layer Caching
 
-Order instructions from least to most frequently changing:
+Ordene as instruções da que muda com menos frequência para a que muda com mais frequência:
 
 ```dockerfile
 # 1. Base image (rarely changes)
@@ -108,7 +109,7 @@ RUN corepack enable && pnpm install --frozen-lockfile
 COPY src/ ./src/
 ```
 
-### Security
+### Segurança
 
 ```dockerfile
 # Use minimal base images
@@ -128,20 +129,20 @@ USER appuser
 # .pytest_cache
 ```
 
-### Image Selection
+### Seleção de Imagem
 
-| Use Case | Base Image | Size |
+| Caso de Uso | Imagem Base | Tamanho |
 |----------|-----------|------|
-| Python production | `python:3.14.3-slim` | ~150MB |
-| Python minimal | `python:3.14.3-alpine` | ~50MB |
-| Node.js production | `node:24.14.1-slim` | ~200MB |
-| Maximum security | `gcr.io/distroless/python3` | ~30MB |
+| Python em produção | `python:3.14.3-slim` | ~150MB |
+| Python mínimo | `python:3.14.3-alpine` | ~50MB |
+| Node.js em produção | `node:24.14.1-slim` | ~200MB |
+| Segurança máxima | `gcr.io/distroless/python3` | ~30MB |
 
 ---
 
-## 2. Docker Compose Patterns
+## 2. Padrões de Docker Compose
 
-### Service Dependencies with Health Checks
+### Dependências de Serviço com Health Checks
 
 ```yaml
 # compose.yaml (no `version:` field -- deprecated in Compose v2)
@@ -202,7 +203,7 @@ volumes:
   redis_data:
 ```
 
-### Profiles for Optional Services
+### Profiles para Serviços Opcionais
 
 ```yaml
 services:
@@ -250,11 +251,11 @@ docker compose watch  # auto-sync files, rebuild on dependency changes
 
 ---
 
-## 3. Database Configuration
+## 3. Configuração de Banco de Dados
 
-### PostgreSQL — Initialization Scripts
+### PostgreSQL — Scripts de Inicialização
 
-Files in `/docker-entrypoint-initdb.d/` run on first start (alphabetical order):
+Arquivos em `/docker-entrypoint-initdb.d/` são executados no primeiro start (ordem alfabética):
 
 ```sql
 -- init-scripts/postgres/01-extensions.sql
@@ -299,9 +300,9 @@ docker exec <container> redis-cli -a ${REDIS_PASSWORD} flushall
 
 ---
 
-## 4. .env Management
+## 4. Gerenciamento de .env
 
-### .env.example Template
+### Template .env.example
 
 ```bash
 # Database
@@ -326,7 +327,7 @@ STRIPE_API_KEY=                 # Required for payment features
 SENDGRID_API_KEY=               # Required for email features
 ```
 
-### .env Validation (Python — pydantic-settings)
+### Validação de .env (Python — pydantic-settings)
 
 ```python
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -352,18 +353,18 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-### Rules
+### Regras
 
-1. **Never commit `.env`** — add to `.gitignore`
-2. **Always commit `.env.example`** — template with empty values
-3. **Validate on startup** — use pydantic-settings or dotenv-vault
-4. **Never log env vars** — they contain secrets
+1. **Nunca faça commit do `.env`** — adicione ao `.gitignore`
+2. **Sempre faça commit do `.env.example`** — template com valores vazios
+3. **Valide no startup** — use pydantic-settings ou dotenv-vault
+4. **Nunca logue variáveis de ambiente** — elas contêm secrets
 
 ---
 
-## 5. Service Readiness Probes
+## 5. Readiness Probes de Serviço
 
-### Waiting for Services in Scripts
+### Aguardando Serviços em Scripts
 
 ```bash
 #!/bin/bash
@@ -382,7 +383,7 @@ done
 echo "API is ready"
 ```
 
-### Readiness in Python
+### Readiness em Python
 
 ```python
 import asyncio
@@ -406,22 +407,22 @@ async def wait_for_service(url: str, timeout: int = 30) -> None:
 
 ---
 
-## 6. Port Management
+## 6. Gerenciamento de Portas
 
-### Standard Port Assignments
+### Atribuições Padrão de Portas
 
-| Service | Default Port | Dev Override |
+| Serviço | Porta Padrão | Override em Dev |
 |---------|-------------|--------------|
-| API | 8000 | Configurable via env |
-| Frontend | 3000 | Configurable via env |
-| PostgreSQL | 5432 | 5433 for test |
-| Redis | 6379 | 6380 for test |
-| MongoDB | 27017 | 27018 for test |
+| API | 8000 | Configurável via env |
+| Frontend | 3000 | Configurável via env |
+| PostgreSQL | 5432 | 5433 para teste |
+| Redis | 6379 | 6380 para teste |
+| MongoDB | 27017 | 27018 para teste |
 | Adminer | 8080 | — |
 | Prometheus | 9090 | — |
-| Grafana | 3000 | 3001 (conflict with frontend) |
+| Grafana | 3000 | 3001 (conflito com o frontend) |
 
-### Conflict Resolution
+### Resolução de Conflitos
 
 ```bash
 # Find what is using a port
@@ -436,7 +437,7 @@ docker ps --format "table {{.Names}}\t{{.Ports}}"
 
 ---
 
-## 7. Dependency Installation
+## 7. Instalação de Dependências
 
 ### Python — Poetry
 
@@ -478,9 +479,9 @@ pnpm audit
 
 ---
 
-## 8. Log Streaming and Debugging
+## 8. Streaming de Logs e Debugging
 
-### Container Logs
+### Logs de Container
 
 ```bash
 # Follow logs for all services
@@ -496,7 +497,7 @@ docker compose logs --tail=100 api
 docker compose logs api | grep '"level":"error"'
 ```
 
-### Interactive Debugging
+### Debugging Interativo
 
 ```bash
 # Shell into running container
@@ -516,7 +517,7 @@ docker inspect $(docker compose ps -q api)
 
 ## 9. Teardown
 
-### Clean Shutdown
+### Shutdown Limpo
 
 ```bash
 # Stop containers, keep volumes
@@ -532,7 +533,7 @@ docker compose down -v --rmi all
 docker compose rm --force --stop -v
 ```
 
-### Full System Cleanup
+### Limpeza Completa do Sistema
 
 ```bash
 # Remove all unused containers, networks, images, volumes
@@ -547,23 +548,23 @@ docker image prune -a
 
 ---
 
-## 10. Error Recovery
+## 10. Recuperação de Erros
 
-### Common Issues and Solutions
+### Problemas Comuns e Soluções
 
-**Port already in use:**
+**Porta já em uso:**
 ```bash
 lsof -i :5432
 kill -9 $(lsof -t -i:5432)
 ```
 
-**Container won't start (check logs):**
+**Container não inicia (verifique os logs):**
 ```bash
 docker compose logs <service>
 docker compose events  # real-time event stream
 ```
 
-**Database connection refused:**
+**Conexão com o banco recusada:**
 ```bash
 # Check if container is healthy
 docker compose ps
@@ -571,13 +572,13 @@ docker compose ps
 docker inspect <container_id> | jq '.[0].State.Health'
 ```
 
-**Volume permissions:**
+**Permissões de volume:**
 ```bash
 # Fix file ownership issues
 docker compose exec <service> chown -R <user>:<group> /path
 ```
 
-**Out of disk space:**
+**Sem espaço em disco:**
 ```bash
 docker system df          # check usage
 docker system prune -a    # clean up
@@ -587,11 +588,11 @@ docker system prune -a    # clean up
 
 ## Reference Files
 
-- [references/databases-setup-patterns.md](references/databases-setup-patterns.md) — Database Setup Patterns
-- [references/debugging-error-recovery.md](references/debugging-error-recovery.md) — Error Recovery Procedures
-- [references/debugging-log-streaming.md](references/debugging-log-streaming.md) — Log Streaming & Debugging
-- [references/docker-compose-patterns.md](references/docker-compose-patterns.md) — Docker Compose Advanced Patterns
-- [references/docker-dependency-installation.md](references/docker-dependency-installation.md) — Dependency Installation by Ecosystem
-- [references/docker-dockerfile-patterns.md](references/docker-dockerfile-patterns.md) — Dockerfile Patterns
-- [references/orchestration-env-management.md](references/orchestration-env-management.md) — .env Management
-- [references/orchestration-startup-order.md](references/orchestration-startup-order.md) — Service Startup Order
+- [references/databases-setup-patterns.md](references/databases-setup-patterns.md) — Padrões de Setup de Banco de Dados
+- [references/debugging-error-recovery.md](references/debugging-error-recovery.md) — Procedimentos de Recuperação de Erros
+- [references/debugging-log-streaming.md](references/debugging-log-streaming.md) — Streaming de Logs e Debugging
+- [references/docker-compose-patterns.md](references/docker-compose-patterns.md) — Padrões Avançados de Docker Compose
+- [references/docker-dependency-installation.md](references/docker-dependency-installation.md) — Instalação de Dependências por Ecossistema
+- [references/docker-dockerfile-patterns.md](references/docker-dockerfile-patterns.md) — Padrões de Dockerfile
+- [references/orchestration-env-management.md](references/orchestration-env-management.md) — Gerenciamento de .env
+- [references/orchestration-startup-order.md](references/orchestration-startup-order.md) — Ordem de Inicialização de Serviços

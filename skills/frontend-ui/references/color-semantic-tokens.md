@@ -1,17 +1,17 @@
-# Semantic Token System — Two-Tier Architecture
+# Sistema de Tokens Semânticos — Arquitetura de Dois Níveis
 
-## Overview
+## Visão Geral
 
-A robust design system uses **two tiers** of tokens:
-1. **Primitive tokens** — the raw palette (blue-500, gray-100, etc.)
-2. **Semantic tokens** — what the primitives mean in context (--color-primary, --color-bg)
+Um design system robusto usa **dois níveis** de tokens:
+1. **Tokens primitivos** — a paleta bruta (blue-500, gray-100, etc.)
+2. **Tokens semânticos** — o que os primitivos significam em contexto (--color-primary, --color-bg)
 
-This decoupling allows you to change the entire visual identity by swapping
-primitive assignments without touching component code.
+Esse desacoplamento permite mudar toda a identidade visual apenas trocando as
+atribuições dos primitivos, sem tocar no código dos componentes.
 
 ---
 
-## Architecture
+## Arquitetura
 
 ```
 Primitive Tokens          Semantic Tokens            Components
@@ -24,15 +24,15 @@ Primitive Tokens          Semantic Tokens            Components
 --red-500     ------>    --color-destructive
 ```
 
-Components NEVER reference primitives directly. Always go through semantic tokens.
+Os componentes NUNCA referenciam primitivos diretamente. Sempre passe pelos tokens semânticos.
 
 ---
 
-## Naming Conventions
+## Convenções de Nomenclatura
 
-### Primitive Token Naming
+### Nomenclatura de Tokens Primitivos
 
-Use `{color}-{shade}` pattern with OKLCH values:
+Use o padrão `{color}-{shade}` com valores OKLCH:
 
 ```css
 :root {
@@ -69,9 +69,9 @@ Use `{color}-{shade}` pattern with OKLCH values:
 }
 ```
 
-### Semantic Token Naming
+### Nomenclatura de Tokens Semânticos
 
-Use `{category}-{element}-{modifier}` pattern:
+Use o padrão `{category}-{element}-{modifier}`:
 
 ```css
 :root {
@@ -134,9 +134,9 @@ Use `{category}-{element}-{modifier}` pattern:
 
 ---
 
-## Dark Mode via Semantic Tokens
+## Dark Mode via Tokens Semânticos
 
-The power of semantic tokens: dark mode is just re-assigning the same token names.
+O poder dos tokens semânticos: dark mode é apenas reatribuir os mesmos nomes de token.
 
 ```css
 [data-theme="dark"] {
@@ -198,7 +198,7 @@ The power of semantic tokens: dark mode is just re-assigning the same token name
 
 ## W3C Design Tokens Color Module
 
-The W3C Design Tokens Community Group defines a JSON format for token exchange:
+O W3C Design Tokens Community Group define um formato JSON para troca de tokens:
 
 ```json
 {
@@ -217,13 +217,13 @@ The W3C Design Tokens Community Group defines a JSON format for token exchange:
 }
 ```
 
-This standard enables tool interop between Figma, Style Dictionary, and code.
+Esse padrão permite a interoperabilidade entre ferramentas como Figma, Style Dictionary e código.
 
 ---
 
-## Tailwind v4 Integration
+## Integração com Tailwind v4
 
-Map semantic tokens in your `@theme` directive:
+Mapeie os tokens semânticos na sua diretiva `@theme`:
 
 ```css
 @import "tailwindcss";
@@ -247,7 +247,7 @@ Map semantic tokens in your `@theme` directive:
 }
 ```
 
-Usage in components:
+Uso em componentes:
 ```tsx
 <div className="bg-background text-foreground">
   <button className="bg-primary text-primary-foreground">
@@ -259,11 +259,11 @@ Usage in components:
 
 ---
 
-## Rules
+## Regras
 
-1. **Components never reference primitives** — always use semantic tokens
-2. **One source of truth** — tokens defined in CSS custom properties
-3. **Dark mode = re-assignment** — same semantic names, different primitive values
-4. **Name by purpose, not appearance** — `--color-destructive`, not `--color-red`
-5. **Foreground always accompanies background** — every bg token has a foreground pair
-6. **Test both themes** — every component must look correct in light and dark
+1. **Componentes nunca referenciam primitivos** — sempre use tokens semânticos
+2. **Uma única fonte de verdade** — tokens definidos em CSS custom properties
+3. **Dark mode = reatribuição** — mesmos nomes semânticos, valores primitivos diferentes
+4. **Nomeie por propósito, não por aparência** — `--color-destructive`, não `--color-red`
+5. **Foreground sempre acompanha o background** — todo token de bg tem um par de foreground
+6. **Teste os dois temas** — todo componente deve ficar correto no claro e no escuro

@@ -1,8 +1,8 @@
-# Pair and Mob Programming
+# Pair Programming e Mob Programming
 
-## Pair Programming Styles
+## Estilos de Pair Programming
 
-### Driver-Navigator (Classic)
+### Driver-Navigator (Clássico)
 
 ```
 Driver:    Writes code, handles the tactical
@@ -10,9 +10,9 @@ Navigator: Watches, thinks strategically, catches issues
            ↕ Switch every 15-25 minutes
 ```
 
-**Best for:** General development, code review alternative.
+**Ideal para:** Desenvolvimento geral, alternativa ao code review.
 
-### Ping-Pong (TDD-native)
+### Ping-Pong (nativo do TDD)
 
 ```
 Developer A: Writes a failing test
@@ -21,7 +21,7 @@ Developer A: Makes it pass, then writes the next failing test
              ↕ Natural switching on each RED-GREEN cycle
 ```
 
-**Best for:** TDD practice, learning, balanced contribution.
+**Ideal para:** Praticar TDD, aprendizado, contribuição equilibrada.
 
 ### Strong-Style
 
@@ -32,43 +32,43 @@ Driver:    Types only what is dictated, asks questions
             it MUST go through someone else's hands"
 ```
 
-**Best for:** Teaching, onboarding, knowledge transfer.
+**Ideal para:** Ensino, onboarding, transferência de conhecimento.
 
-## When to Pair
+## Quando Fazer Par
 
-| Situation | Pair? | Why |
+| Situação | Fazer Par? | Por quê |
 |-----------|-------|-----|
-| Onboarding | Yes | Knowledge transfer |
-| Complex logic | Yes | Two brains, fewer bugs |
-| Stuck > 30 min | Yes | Fresh perspective |
-| Routine CRUD | No | Not enough complexity |
-| Spikes | Maybe | Depends on familiarity |
-| Debugging | Yes | Rubber duck + expertise |
+| Onboarding | Sim | Transferência de conhecimento |
+| Lógica complexa | Sim | Duas mentes, menos bugs |
+| Travado > 30 min | Sim | Perspectiva nova |
+| CRUD rotineiro | Não | Complexidade insuficiente |
+| Spikes | Talvez | Depende da familiaridade |
+| Debugging | Sim | Rubber duck + expertise |
 
 ## Mob Programming
 
-### Setup
-- One screen, one keyboard
-- Whole team present
-- Rotate driver every 10-15 minutes
-- Timer visible to everyone
+### Preparação
+- Uma tela, um teclado
+- Time inteiro presente
+- Rotacione o driver a cada 10-15 minutos
+- Timer visível para todos
 
-### Roles
-- **Driver:** Types ONLY what the mob says
-- **Navigator(s):** Direct the driver, discuss approach
-- **Facilitator:** Manages rotation, keeps focus, ensures participation
+### Papéis
+- **Driver:** Digita APENAS o que o mob diz
+- **Navigator(s):** Direcionam o driver, discutem a abordagem
+- **Facilitator:** Gerencia a rotação, mantém o foco, garante a participação
 
-### Rules
-1. Treat everyone's ideas with respect
-2. "Yes, and..." over "No, but..."
-3. If stuck, take a 5-minute break
-4. Breaks every 50 minutes
-5. Everyone participates (no spectators)
-6. Trust the process — it feels slow but produces quality
+### Regras
+1. Trate as ideias de todos com respeito
+2. "Sim, e..." em vez de "Não, mas..."
+3. Se travar, faça uma pausa de 5 minutos
+4. Pausas a cada 50 minutos
+5. Todos participam (sem espectadores)
+6. Confie no processo — parece lento, mas produz qualidade
 
-### When to Mob
-- Architectural decisions the whole team needs to understand
-- Complex integrations touching multiple subsystems
-- Team alignment on new patterns or conventions
-- Spikes where collective knowledge is valuable
-- Code review of critical changes (live review)
+### Quando Fazer Mob
+- Decisões de arquitetura que todo o time precisa entender
+- Integrações complexas que envolvem múltiplos subsistemas
+- Alinhamento do time sobre novos padrões ou convenções
+- Spikes onde o conhecimento coletivo é valioso
+- Code review de mudanças críticas (revisão ao vivo)

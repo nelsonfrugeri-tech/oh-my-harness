@@ -1,6 +1,6 @@
-# OpenTelemetry Python Setup
+# Setup do OpenTelemetry em Python
 
-## Installation
+## Instalação
 
 ```bash
 # Core SDK — pin to exact versions
@@ -20,7 +20,7 @@ pip install opentelemetry-instrumentation-redis==0.49b0
 pip install opentelemetry-instrumentation-logging==0.49b0
 ```
 
-## Full Setup Pattern
+## Padrão de Setup Completo
 
 ```python
 from opentelemetry import trace, metrics
@@ -71,7 +71,7 @@ def setup_telemetry(
     metrics.set_meter_provider(meter_provider)
 ```
 
-## OTel Collector Config
+## Configuração do OTel Collector
 
 ```yaml
 # otel-collector-config.yaml
@@ -112,7 +112,7 @@ service:
       exporters: [prometheus]
 ```
 
-## Environment Variables
+## Variáveis de Ambiente
 
 ```bash
 # Standard OTel env vars
@@ -124,7 +124,7 @@ OTEL_TRACES_SAMPLER_ARG=0.1  # 10% sampling
 OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production
 ```
 
-## Sources
+## Fontes
 
 - [OpenTelemetry Python Docs](https://opentelemetry.io/docs/languages/python/)
 - [OTel Collector Configuration](https://opentelemetry.io/docs/collector/configuration/)

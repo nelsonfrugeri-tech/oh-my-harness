@@ -853,7 +853,7 @@ settings = Settings()
 
 ---
 
-## FastAPI Integration
+## Integração com FastAPI
 
 ### Request/Response Models
 ```python
@@ -894,7 +894,7 @@ async def create_user(user: UserCreate) -> UserResponse:
     return UserResponse(**db_user)
 ```
 
-### Dependency Injection with Validation
+### Dependency Injection com Validação
 ```python
 from fastapi import FastAPI, Depends, Query
 from pydantic import BaseModel, Field
@@ -932,7 +932,7 @@ async def list_items(
 
 ## Custom Types
 
-### Creating Custom Types
+### Criando Custom Types
 ```python
 from pydantic import BaseModel, field_validator
 from typing import Annotated
@@ -983,9 +983,9 @@ except ValidationError:
 
 ---
 
-## Performance Considerations
+## Considerações de Performance
 
-### Comparison: Pydantic v1 vs v2
+### Comparação: Pydantic v1 vs v2
 
 Pydantic v2 é **5-50x mais rápido** devido ao core em Rust:
 ```python
@@ -1008,7 +1008,7 @@ elapsed = time.perf_counter() - start
 # Pydantic v2: ~0.3 segundos (~8x mais rápido)
 ```
 
-### When Validation is Expensive
+### Quando a Validação é Custosa
 
 Para dados já confiáveis, use `model_construct`:
 ```python
@@ -1035,21 +1035,21 @@ user2 = User.model_construct(id=1, name="Alice", email="alice@example.com")
 
 ## Casos de Uso Estabelecidos
 
-### API Development (FastAPI)
+### Desenvolvimento de API (FastAPI)
 ```python
 @app.post("/orders", response_model=OrderResponse)
 async def create_order(order: OrderCreate):
     ...
 ```
 
-### Configuration Management
+### Gerenciamento de Configuração
 ```python
 class Settings(BaseSettings):
     database_url: str
     redis_url: str
 ```
 
-### Data Parsing
+### Parsing de Dados
 ```python
 # Parse JSON com validação
 user = User.model_validate_json(json_string)
@@ -1064,7 +1064,7 @@ for row in csv_reader:
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Use validators para regras de negócio**
 ```python

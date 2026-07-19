@@ -76,7 +76,7 @@ Biome substitui ESLint + Prettier com uma unica ferramenta ultrarapida.
 
 ---
 
-## Commands
+## Comandos
 
 ```bash
 # Check everything (lint + format + imports)
@@ -97,7 +97,7 @@ biome ci .
 
 ---
 
-## Migration from ESLint + Prettier
+## Migração do ESLint + Prettier
 
 ```bash
 # Auto-migrate ESLint config
@@ -107,10 +107,10 @@ biome migrate eslint --write
 biome migrate prettier --write
 ```
 
-After migration:
-1. Remove `.eslintrc`, `.prettierrc`, `.eslintignore`, `.prettierignore`
-2. Remove `eslint`, `prettier`, and all plugins from `package.json`
-3. Update scripts:
+Após a migração:
+1. Remova `.eslintrc`, `.prettierrc`, `.eslintignore`, `.prettierignore`
+2. Remova `eslint`, `prettier`, e todos os plugins do `package.json`
+3. Atualize os scripts:
    ```json
    {
      "scripts": {
@@ -122,11 +122,11 @@ After migration:
 
 ---
 
-## Editor Integration
+## Integração com o Editor
 
 ### VS Code
 
-Install `biomejs.biome` extension.
+Instale a extensão `biomejs.biome`.
 
 ```jsonc
 // .vscode/settings.json
@@ -145,7 +145,7 @@ Install `biomejs.biome` extension.
 
 ---
 
-## CI Setup
+## Configuração de CI
 
 ```yaml
 # .github/workflows/lint.yml
@@ -164,7 +164,7 @@ jobs:
 
 ---
 
-## Ignore Patterns
+## Padrões de Ignore
 
 ```jsonc
 // biome.json
@@ -180,7 +180,7 @@ jobs:
 }
 ```
 
-Inline suppression:
+Supressão inline:
 ```typescript
 // biome-ignore lint/suspicious/noExplicitAny: legacy API requires any
 const data: any = legacyApi.getData();
@@ -191,20 +191,20 @@ function parseComplex() { ... }
 
 ---
 
-## Key Lint Rules
+## Principais Regras de Lint
 
-| Rule | Category | What it catches |
+| Regra | Categoria | O que detecta |
 |------|----------|-----------------|
-| `noExplicitAny` | suspicious | Using `any` type |
-| `noUnusedImports` | correctness | Dead imports |
-| `noUnusedVariables` | correctness | Dead variables |
-| `useExhaustiveDependencies` | correctness | Missing hook deps |
-| `noNonNullAssertion` | style | Unsafe `!` operator |
-| `useConst` | style | `let` that should be `const` |
-| `useImportType` | style | Missing `type` in type-only imports |
-| `noConsole` | suspicious | Console statements in prod code |
-| `noBannedTypes` | complexity | `{}`, `Object`, `Function` types |
-| `a11y/*` | a11y | Accessibility issues in JSX |
+| `noExplicitAny` | suspicious | Uso do tipo `any` |
+| `noUnusedImports` | correctness | Imports mortos |
+| `noUnusedVariables` | correctness | Variáveis mortas |
+| `useExhaustiveDependencies` | correctness | Deps de hook faltando |
+| `noNonNullAssertion` | style | Operador `!` inseguro |
+| `useConst` | style | `let` que deveria ser `const` |
+| `useImportType` | style | `type` faltando em imports type-only |
+| `noConsole` | suspicious | Statements de console em código de produção |
+| `noBannedTypes` | complexity | Tipos `{}`, `Object`, `Function` |
+| `a11y/*` | a11y | Problemas de acessibilidade em JSX |
 
 ---
 

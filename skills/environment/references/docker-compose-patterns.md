@@ -1,6 +1,6 @@
-# Docker Compose Advanced Patterns
+# Padrões Avançados de Docker Compose
 
-## Networks
+## Redes
 
 ```yaml
 services:
@@ -26,7 +26,7 @@ networks:
     driver: bridge
 ```
 
-## Volume Patterns
+## Padrões de Volume
 
 ```yaml
 volumes:
@@ -57,7 +57,7 @@ services:
       - /tmp
 ```
 
-## Resource Limits
+## Limites de Recursos
 
 ```yaml
 services:
@@ -72,7 +72,7 @@ services:
           memory: 256M
 ```
 
-## Restart Policies
+## Políticas de Restart
 
 ```yaml
 services:
@@ -86,14 +86,14 @@ services:
     restart: "no"             # run once, don't restart
 ```
 
-## Environment Variable Precedence
+## Precedência de Variáveis de Ambiente
 
-1. `environment:` in compose.yaml (highest)
-2. `env_file:` in compose.yaml
-3. Shell environment variables
-4. `.env` file in project root (lowest)
+1. `environment:` no compose.yaml (maior precedência)
+2. `env_file:` no compose.yaml
+3. Variáveis de ambiente do shell
+4. Arquivo `.env` na raiz do projeto (menor precedência)
 
-## Extend and Override
+## Estender e Sobrescrever
 
 ```yaml
 # compose.yaml (base)
@@ -128,7 +128,7 @@ docker compose up
 docker compose -f compose.yaml -f compose.prod.yaml up -d
 ```
 
-## Init Containers Pattern
+## Padrão de Init Containers
 
 ```yaml
 services:
@@ -149,15 +149,15 @@ services:
         condition: service_healthy
 ```
 
-## Compose Watch Actions (v2.22+)
+## Ações do Compose Watch (v2.22+)
 
-| Action | Trigger | Behavior |
+| Ação | Gatilho | Comportamento |
 |--------|---------|----------|
-| `sync` | File change | Copy changed files into container |
-| `rebuild` | File change | Rebuild image and recreate container |
-| `sync+restart` | File change | Copy files + restart container process |
+| `sync` | Alteração de arquivo | Copia os arquivos alterados para o container |
+| `rebuild` | Alteração de arquivo | Refaz o build da imagem e recria o container |
+| `sync+restart` | Alteração de arquivo | Copia os arquivos + reinicia o processo do container |
 
-Best practices:
-- `sync` for source code (fastest feedback)
-- `rebuild` for dependency files (pyproject.toml, package.json)
-- `sync+restart` for config files that need process restart
+Boas práticas:
+- `sync` para código-fonte (feedback mais rápido)
+- `rebuild` para arquivos de dependências (pyproject.toml, package.json)
+- `sync+restart` para arquivos de configuração que exigem reinício do processo

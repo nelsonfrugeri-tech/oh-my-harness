@@ -1,8 +1,8 @@
-# Questioning Techniques
+# Técnicas de Questionamento
 
-## The 5 Whys
+## Os 5 Porquês
 
-For every requirement, ask "why" until you reach the root need.
+Para cada requisito, pergunte "por quê" até chegar à necessidade raiz.
 
 ```
 Requirement: "Add a cache to the API"
@@ -15,48 +15,48 @@ Why? → "Schema was created without performance analysis"
 Real solution: Add indexes, not a cache.
 ```
 
-## Question Categories
+## Categorias de Perguntas
 
-### Scope Questions
-- What exactly should this change?
-- What should NOT change?
-- Are there related features affected?
-- What is the minimal viable implementation?
+### Perguntas de Escopo
+- O que exatamente isso deve alterar?
+- O que NÃO deve mudar?
+- Há funcionalidades relacionadas afetadas?
+- Qual é a implementação mínima viável?
 
-### Behavior Questions
-- What are the inputs and expected outputs?
-- What happens with invalid input?
-- What happens with empty/null input?
-- What happens under concurrent access?
-- What are the boundary conditions?
+### Perguntas de Comportamento
+- Quais são as entradas e as saídas esperadas?
+- O que acontece com entrada inválida?
+- O que acontece com entrada vazia/nula?
+- O que acontece sob acesso concorrente?
+- Quais são as condições de contorno?
 
-### Constraint Questions
-- What are the performance requirements? (latency, throughput)
-- What are the security implications?
-- What backwards compatibility must be maintained?
-- What environments must this work in?
+### Perguntas de Restrição
+- Quais são os requisitos de performance? (latência, throughput)
+- Quais são as implicações de segurança?
+- Qual compatibilidade retroativa deve ser mantida?
+- Em quais ambientes isso deve funcionar?
 
-### Dependency Questions
-- What existing code does this interact with?
-- What external services does this depend on?
-- Are there database migrations needed?
-- Are there configuration changes needed?
+### Perguntas de Dependência
+- Com qual código existente isso interage?
+- De quais serviços externos isso depende?
+- São necessárias migrações de banco de dados?
+- São necessárias mudanças de configuração?
 
-### Acceptance Questions
-- How will we know this is done?
-- Who approves the implementation?
-- What tests prove it works?
-- What does "production-ready" mean for this?
+### Perguntas de Aceitação
+- Como saberemos que isso está concluído?
+- Quem aprova a implementação?
+- Quais testes provam que funciona?
+- O que "pronto para produção" significa para isso?
 
-## When to Ask the User
+## Quando Perguntar ao Usuário
 
-Ask when:
-- The requirement is ambiguous
-- Multiple valid interpretations exist
-- The scope is unclear
-- Trade-offs need a product decision
+Pergunte quando:
+- O requisito é ambíguo
+- Existem múltiplas interpretações válidas
+- O escopo não está claro
+- Trade-offs exigem uma decisão de produto
 
-Do NOT ask when:
-- The answer is in the code/docs
-- It is a purely technical decision
-- The requirement is clear and unambiguous
+NÃO pergunte quando:
+- A resposta está no código/docs
+- É uma decisão puramente técnica
+- O requisito é claro e não ambíguo

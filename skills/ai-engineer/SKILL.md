@@ -2,50 +2,50 @@
 version: 1.0.0
 name: ai-engineer
 description: |
-  AI/ML engineering knowledge base (2026). Covers LLM integration patterns (Anthropic, OpenAI,
-  Bedrock, Gemini), prompt engineering (few-shot, chain-of-thought, structured outputs), RAG
-  architecture (naive, advanced, agentic), chunking strategies, embeddings, Qdrant vector database,
-  semantic caching (MongoDB, Redis), agent frameworks (LangGraph, custom loops), multi-provider
-  fallback strategy, testing AI systems (mocking, golden datasets, LLM-as-judge, ragas evaluation),
-  production patterns (cost optimization, reliability, rate limit handling), and security
+  Base de conhecimento de engenharia de IA/ML (2026). Cobre padrões de LLM integration (Anthropic, OpenAI,
+  Bedrock, Gemini), prompt engineering (few-shot, chain-of-thought, structured outputs), arquitetura de RAG
+  (naive, advanced, agentic), estratégias de chunking, embeddings, Qdrant vector database,
+  semantic caching (MongoDB, Redis), agent frameworks (LangGraph, custom loops), estratégia de fallback
+  multi-provider, testes de sistemas de IA (mocking, golden datasets, LLM-as-judge, ragas evaluation),
+  padrões de produção (cost optimization, reliability, rate limit handling) e segurança
   (prompt injection prevention, PII handling, content filtering).
-  Use when: (1) Building LLM/RAG/agent systems, (2) Integrating multiple LLM providers,
-  (3) Implementing semantic caching, (4) Testing or evaluating AI systems, (5) Optimizing AI costs.
+  Use quando: (1) Construir sistemas de LLM/RAG/agent, (2) Integrar múltiplos LLM providers,
+  (3) Implementar semantic caching, (4) Testar ou avaliar sistemas de IA, (5) Otimizar custos de IA.
   Triggers: /ai-ml, /ai, LLM, RAG, agent, langchain, langgraph, qdrant, anthropic, openai, embeddings.
 type: knowledge
 ---
 
-# AI/ML — Knowledge Base
+# IA/ML — Base de Conhecimento
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for AI/ML engineering in Python (2026).
-It covers LLM integration, RAG architecture, agent frameworks, evaluation, and production patterns.
+Esta skill é a base de conhecimento para engenharia de IA/ML em Python (2026).
+Cobre LLM integration, arquitetura de RAG, agent frameworks, avaliação e padrões de produção.
 
-**What this skill contains:**
+**O que esta skill contém:**
 - LLM integration (Anthropic Claude, OpenAI GPT, AWS Bedrock, Google Gemini)
 - Prompt engineering (few-shot, CoT, structured outputs, Pydantic AI)
-- RAG architecture (naive, advanced, agentic)
-- Chunking strategies and embedding models
+- Arquitetura de RAG (naive, advanced, agentic)
+- Estratégias de chunking e embedding models
 - Vector databases (Qdrant)
 - Semantic caching (MongoDB, Redis)
 - Agent frameworks (LangGraph, custom loops)
-- Multi-provider fallback and routing
-- Testing AI systems (mocking, golden datasets, ragas, LLM-as-judge)
-- Observability (structured logging, Langfuse)
-- Security (prompt injection, PII handling)
-- Production patterns (cost optimization, reliability)
+- Fallback e routing multi-provider
+- Testes de sistemas de IA (mocking, golden datasets, ragas, LLM-as-judge)
+- Observabilidade (structured logging, Langfuse)
+- Segurança (prompt injection, PII handling)
+- Padrões de produção (cost optimization, reliability)
 
 ---
 
-## Fundamental Principles
+## Princípios Fundamentais
 
-1. **Determinism where possible** — temperature=0 when reproducibility matters, seed when available
-2. **Test AI systems** — mock LLM calls in unit tests, golden datasets for regression, LLM-as-judge for quality
-3. **Observe everything** — log prompts + responses (with PII redaction), track tokens and cost
-4. **Cache aggressively** — semantic caching for similar queries; LLM tokens are expensive
-5. **Multi-provider** — no single provider dependency; fallback strategy is always defined
-6. **Safety first** — validate all inputs, filter outputs, rate limit, prevent prompt injection
+1. **Determinismo onde possível** — temperature=0 quando a reprodutibilidade importa, seed quando disponível
+2. **Teste sistemas de IA** — faça mock de chamadas de LLM em unit tests, golden datasets para regressão, LLM-as-judge para qualidade
+3. **Observe tudo** — logue prompts + responses (com PII redaction), rastreie tokens e custo
+4. **Faça cache de forma agressiva** — semantic caching para queries similares; tokens de LLM são caros
+5. **Multi-provider** — sem dependência de um único provider; a estratégia de fallback está sempre definida
+6. **Segurança em primeiro lugar** — valide todas as entradas, filtre as saídas, aplique rate limit, previna prompt injection
 
 ---
 
@@ -91,7 +91,7 @@ async def stream_generate(prompt: str) -> AsyncIterator[str]:
             yield text
 ```
 
-### Structured Outputs with Pydantic AI
+### Structured Outputs com Pydantic AI
 
 ```python
 from pydantic import BaseModel
@@ -131,7 +131,7 @@ async def openai_generate(prompt: str, model: str = "gpt-4o-mini") -> str:
     return response.choices[0].message.content or ""
 ```
 
-**Reference:** [references/llm-integration-anthropic-sdk.md](references/llm-integration-anthropic-sdk.md)
+**Referência:** [references/llm-integration-anthropic-sdk.md](references/llm-integration-anthropic-sdk.md)
 
 ---
 
@@ -202,15 +202,15 @@ def extract_answer_from_cot(response: str) -> str:
 
 ## 3. RAG Architecture
 
-### Pattern Selection
+### Seleção de Padrão
 
-| Pattern | When to Use | Complexity |
+| Padrão | Quando Usar | Complexidade |
 |---------|------------|-----------|
-| **Naive RAG** | MVP, < 10K documents, no quality requirements | Low |
-| **Advanced RAG** | Production, quality matters, large corpus | Medium |
-| **Agentic RAG** | Complex multi-step questions, tool use needed | High |
+| **Naive RAG** | MVP, < 10K documentos, sem requisitos de qualidade | Baixa |
+| **Advanced RAG** | Produção, qualidade importa, corpus grande | Média |
+| **Agentic RAG** | Perguntas complexas multi-step, uso de tools necessário | Alta |
 
-### Naive RAG Implementation
+### Implementação de Naive RAG
 
 ```python
 from qdrant_client import QdrantClient
@@ -256,15 +256,15 @@ class SimpleRAG:
         return await self.generate(question, context)
 ```
 
-### Chunking Strategies
+### Estratégias de Chunking
 
-| Strategy | Use Case | Chunk Size |
+| Estratégia | Caso de Uso | Tamanho do Chunk |
 |----------|---------|-----------|
-| Fixed-size | Generic text, no structure | 512-1024 tokens |
-| Sentence | Narrative content | 1-3 sentences |
-| Recursive | Code, mixed content | Variable |
-| Semantic | High-quality retrieval | Variable |
-| Document-aware | PDFs, structured docs | Section-based |
+| Fixed-size | Texto genérico, sem estrutura | 512-1024 tokens |
+| Sentence | Conteúdo narrativo | 1-3 frases |
+| Recursive | Código, conteúdo misto | Variável |
+| Semantic | Retrieval de alta qualidade | Variável |
+| Document-aware | PDFs, docs estruturados | Baseado em seção |
 
 ```python
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -278,13 +278,13 @@ splitter = RecursiveCharacterTextSplitter(
 chunks = splitter.split_text(document_text)
 ```
 
-**Reference:** [references/rag-architecture.md](references/rag-architecture.md)
+**Referência:** [references/rag-architecture.md](references/rag-architecture.md)
 
 ---
 
 ## 4. Qdrant Vector Database
 
-### Collection Setup
+### Configuração da Collection
 
 ```python
 from qdrant_client import QdrantClient
@@ -468,11 +468,11 @@ graph.add_conditional_edges("generate", should_retry, {"retrieve": "retrieve", "
 agent = graph.compile()
 ```
 
-**Reference:** [references/agent-frameworks-custom-agents.md](references/agent-frameworks-custom-agents.md)
+**Referência:** [references/agent-frameworks-custom-agents.md](references/agent-frameworks-custom-agents.md)
 
 ---
 
-## 7. Multi-Provider Strategy
+## 7. Estratégia Multi-Provider
 
 ```python
 from enum import Enum
@@ -513,9 +513,9 @@ class MultiProviderClient:
 
 ---
 
-## 8. Testing AI Systems
+## 8. Testes de Sistemas de IA
 
-### Mock LLM Calls
+### Mock de Chamadas de LLM
 
 ```python
 import pytest
@@ -546,7 +546,7 @@ async def test_rag_query(mock_anthropic_client: AsyncMock) -> None:
     mock_anthropic_client.messages.create.assert_called_once()
 ```
 
-### Golden Dataset for Regression
+### Golden Dataset para Regressão
 
 ```python
 import json
@@ -566,7 +566,7 @@ async def test_rag_golden_dataset(case: dict, mock_anthropic_client: AsyncMock) 
     assert case["expected_answer"] in result or _semantic_match(result, case["expected_answer"])
 ```
 
-### Ragas Evaluation
+### Avaliação com Ragas
 
 ```python
 from ragas import evaluate
@@ -597,13 +597,13 @@ def evaluate_rag_pipeline(test_cases: list[dict]) -> dict[str, float]:
     }
 ```
 
-**Reference:** [references/rag-evaluation.md](references/rag-evaluation.md)
+**Referência:** [references/rag-evaluation.md](references/rag-evaluation.md)
 
 ---
 
-## 9. Security for AI Systems
+## 9. Segurança para Sistemas de IA
 
-### Prompt Injection Prevention
+### Prevenção de Prompt Injection
 
 ```python
 import re
@@ -644,7 +644,7 @@ User question (answer based on context only):
 </question>"""
 ```
 
-### PII Handling
+### Tratamento de PII
 
 ```python
 import re
@@ -666,19 +666,19 @@ def redact_pii(text: str) -> str:
 
 ---
 
-## 10. Production Cost Optimization
+## 10. Otimização de Custo em Produção
 
-### Model Selection by Task
+### Seleção de Model por Tarefa
 
-| Task | Recommended Model | Why |
+| Tarefa | Model Recomendado | Por quê |
 |------|------------------|-----|
-| Simple Q&A, classification | claude-haiku-4-5, gpt-4o-mini | Fast, cheap, sufficient |
-| RAG with long context | claude-sonnet-4-5 | Good reasoning, long context |
-| Complex analysis, coding | claude-opus-4-5, gpt-4o | Highest quality |
-| Embedding | text-embedding-3-small | Fast, cheap, 99% as good |
-| High-volume pipeline | Use caching first | Cache hits cost $0 |
+| Q&A simples, classificação | claude-haiku-4-5, gpt-4o-mini | Rápido, barato, suficiente |
+| RAG com contexto longo | claude-sonnet-4-5 | Bom reasoning, contexto longo |
+| Análise complexa, coding | claude-opus-4-5, gpt-4o | Qualidade máxima |
+| Embedding | text-embedding-3-small | Rápido, barato, 99% tão bom |
+| Pipeline de alto volume | Use caching primeiro | Cache hits custam $0 |
 
-### Cost Tracking
+### Rastreamento de Custo
 
 ```python
 COST_PER_MILLION_TOKENS = {
@@ -712,13 +712,13 @@ logger.info(
 
 ## Reference Files
 
-- [references/agent-frameworks-custom-agents.md](references/agent-frameworks-custom-agents.md) — Custom Agents - Build Your Own Agent Loop
+- [references/agent-frameworks-custom-agents.md](references/agent-frameworks-custom-agents.md) — Custom Agents - Construa seu próprio Agent Loop
 - [references/agent-frameworks-langchain.md](references/agent-frameworks-langchain.md) — LangChain - Framework para LLM Applications
 - [references/agent-frameworks-langgraph.md](references/agent-frameworks-langgraph.md) — LangGraph - State Machines para Agents
-- [references/agent-frameworks-multi-agent.md](references/agent-frameworks-multi-agent.md) — Multi-Agent Systems - Agent Collaboration Patterns
+- [references/agent-frameworks-multi-agent.md](references/agent-frameworks-multi-agent.md) — Multi-Agent Systems - Padrões de Agent Collaboration
 - [references/agent-frameworks-tool-integration.md](references/agent-frameworks-tool-integration.md) — Tool Integration - Tool Calling & API Integration
-- [references/llm-integration-anthropic-sdk.md](references/llm-integration-anthropic-sdk.md) — Anthropic SDK - Claude API Patterns
-- [references/rag-architecture.md](references/rag-architecture.md) — RAG Architecture - Retrieval-Augmented Generation Patterns
+- [references/llm-integration-anthropic-sdk.md](references/llm-integration-anthropic-sdk.md) — Anthropic SDK - Padrões da Claude API
+- [references/rag-architecture.md](references/rag-architecture.md) — RAG Architecture - Padrões de Retrieval-Augmented Generation
 - [references/rag-chunking-strategies.md](references/rag-chunking-strategies.md) — Chunking Strategies - Como Quebrar Documentos para RAG
 - [references/rag-embeddings.md](references/rag-embeddings.md) — Embeddings - Vector Representations para RAG
 - [references/rag-evaluation.md](references/rag-evaluation.md) — RAG Evaluation - Como Medir Qualidade de RAG Systems

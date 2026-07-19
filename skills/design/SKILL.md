@@ -2,117 +2,117 @@
 version: 1.0.0
 name: design
 description: |
-  Software architecture knowledge base (2026). Covers SOLID principles with real trade-offs,
-  Architecture Decision Records (ADR/MADR template), C4 Model (Context/Container/Component/Code),
-  system decomposition (DDD, bounded contexts), trade-off analysis (ATAM, utility trees),
-  fitness functions, microservices vs monolith vs modular monolith decision tree,
-  security architecture (zero trust, STRIDE threat modeling), API design (REST/GraphQL/gRPC),
-  and event-driven architecture (CQRS, event sourcing).
-  Use when: (1) Making architectural decisions, (2) Writing ADRs, (3) Creating C4 diagrams,
-  (4) Evaluating trade-offs, (5) Planning system decomposition, (6) Designing APIs,
-  (7) Choosing between monolith/microservices.
-  Triggers: /design, architecture, ADR, C4, trade-off, decomposition, design review.
+  Base de conhecimento de arquitetura de software (2026). Cobre princípios SOLID com trade-offs reais,
+  Architecture Decision Records (template ADR/MADR), C4 Model (Context/Container/Component/Code),
+  decomposição de sistemas (DDD, bounded contexts), análise de trade-offs (ATAM, utility trees),
+  fitness functions, árvore de decisão entre microservices, monolito e monolito modular,
+  arquitetura de segurança (zero trust, STRIDE threat modeling), design de APIs (REST/GraphQL/gRPC),
+  e arquitetura orientada a eventos (CQRS, event sourcing).
+  Use quando: (1) Tomar decisões arquiteturais, (2) Escrever ADRs, (3) Criar diagramas C4,
+  (4) Avaliar trade-offs, (5) Planejar decomposição de sistemas, (6) Projetar APIs,
+  (7) Escolher entre monolito/microservices.
+  Gatilhos: /design, arquitetura, ADR, C4, trade-off, decomposição, design review.
 type: capability
 ---
 
-# Design — Software Architecture Methodology
+# Design — Metodologia de Arquitetura de Software
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for software architecture (2026).
-It is **language-agnostic** — it complements language skills with the design and architectural
-decision-making layer.
+Esta skill é a base de conhecimento para arquitetura de software (2026).
+Ela é **agnóstica de linguagem** — complementa as skills de linguagem com a camada de design e de
+tomada de decisão arquitetural.
 
-**What this skill contains:**
-- SOLID principles with real trade-offs (not textbook)
-- Architecture Decision Records (ADR) — templates, lifecycle, MADR
+**O que esta skill contém:**
+- Princípios SOLID com trade-offs reais (não os de livro-texto)
+- Architecture Decision Records (ADR) — templates, ciclo de vida, MADR
 - C4 Model (Context, Container, Component, Code)
-- Diagrams — when to use each type
-- Design review with fitness functions
-- System decomposition (DDD, bounded contexts)
-- Trade-off analysis (ATAM, utility trees)
-- Security architecture (zero trust, STRIDE, defense in depth)
-- API design (REST, GraphQL, gRPC)
-- Event-driven architecture (CQRS, event sourcing)
-- Microservices vs monolith vs modular monolith decision
+- Diagramas — quando usar cada tipo
+- Design review com fitness functions
+- Decomposição de sistemas (DDD, bounded contexts)
+- Análise de trade-offs (ATAM, utility trees)
+- Arquitetura de segurança (zero trust, STRIDE, defense in depth)
+- Design de APIs (REST, GraphQL, gRPC)
+- Arquitetura orientada a eventos (CQRS, event sourcing)
+- Decisão entre microservices, monolito e monolito modular
 
 ---
 
-## Philosophy
+## Filosofia
 
-### Architecture is About Decisions, Not Diagrams
+### Arquitetura é sobre Decisões, não Diagramas
 
-Software architecture is the set of decisions that are expensive to change.
-Diagrams are just the visual representation of those decisions.
+Arquitetura de software é o conjunto de decisões que são caras de mudar.
+Diagramas são apenas a representação visual dessas decisões.
 
-### Fundamental Principles
+### Princípios Fundamentais
 
-1. **Explicit and documented decisions** — every significant architectural decision deserves an ADR
-2. **Trade-offs, never silver bullets** — every decision has cost and benefit; quantify them
-3. **Simplicity first** — start with the simplest solution that solves the problem
-4. **Fitness functions as guardrails** — automated metrics protect architectural decisions
-5. **Evolution, not big bang** — architecture evolves incrementally
+1. **Decisões explícitas e documentadas** — toda decisão arquitetural significativa merece um ADR
+2. **Trade-offs, nunca soluções mágicas** — toda decisão tem custo e benefício; quantifique-os
+3. **Simplicidade primeiro** — comece com a solução mais simples que resolve o problema
+4. **Fitness functions como guardrails** — métricas automatizadas protegem decisões arquiteturais
+5. **Evolução, não big bang** — a arquitetura evolui de forma incremental
 
 ---
 
-## 1. SOLID Principles — With Real Trade-offs
+## 1. Princípios SOLID — Com Trade-offs Reais
 
-SOLID is not dogma. It is a toolkit. Each principle has cost and context where it makes sense.
+SOLID não é dogma. É um conjunto de ferramentas. Cada princípio tem custo e um contexto onde faz sentido.
 
 ### Single Responsibility Principle (SRP)
 
-**What it really means:** A module has one, and only one, reason to change.
+**O que realmente significa:** Um módulo tem uma, e apenas uma, razão para mudar.
 
-**Real trade-off:**
-- Excessive SRP = explosion of tiny classes/modules
-- Insufficient SRP = god classes that change for 5 different reasons
-- **Heuristic:** if you can't name the responsibility in one phrase, it's too large; if you need 3 classes to follow one flow, it's too granular
+**Trade-off real:**
+- SRP excessivo = explosão de classes/módulos minúsculos
+- SRP insuficiente = god classes que mudam por 5 razões diferentes
+- **Heurística:** se você não consegue nomear a responsabilidade em uma frase, ela é grande demais; se você precisa de 3 classes para seguir um único fluxo, ela é granular demais
 
 ### Open/Closed Principle (OCP)
 
-**What it really means:** Open for extension, closed for modification.
+**O que realmente significa:** Aberto para extensão, fechado para modificação.
 
-**Real trade-off:**
-- Premature OCP = unnecessary abstractions, Strategy pattern for something that changes once
-- **Heuristic:** apply OCP when the variation point has already appeared 2+ times, not the first time
+**Trade-off real:**
+- OCP prematuro = abstrações desnecessárias, Strategy pattern para algo que muda uma única vez
+- **Heurística:** aplique OCP quando o ponto de variação já apareceu 2 ou mais vezes, não na primeira vez
 
 ### Liskov Substitution Principle (LSP)
 
-**What it really means:** Subtypes must be substitutable for their base types.
+**O que realmente significa:** Subtipos devem ser substituíveis por seus tipos base.
 
-**Real trade-off:**
-- Prefer composition; use inheritance only for genuine "is-a" relationships
+**Trade-off real:**
+- Prefira composição; use herança apenas para relações genuínas de "is-a"
 
 ### Interface Segregation Principle (ISP)
 
-**What it really means:** Clients should not depend on interfaces they don't use.
+**O que realmente significa:** Clientes não devem depender de interfaces que não usam.
 
-**Real trade-off:**
-- Excessive ISP = 20 one-method interfaces, impossible to navigate
-- **Heuristic:** group by usage cohesion, not maximum granularity
+**Trade-off real:**
+- ISP excessivo = 20 interfaces de um único método, impossíveis de navegar
+- **Heurística:** agrupe por coesão de uso, não por granularidade máxima
 
 ### Dependency Inversion Principle (DIP)
 
-**What it really means:** High-level modules should not depend on low-level modules; both should depend on abstractions.
+**O que realmente significa:** Módulos de alto nível não devem depender de módulos de baixo nível; ambos devem depender de abstrações.
 
-**Real trade-off:**
-- DIP is essential at architectural boundaries (domain vs infrastructure)
-- DIP on EVERYTHING = indirection hell
-- **Heuristic:** apply at boundaries; within the same module, direct dependencies are ok
+**Trade-off real:**
+- DIP é essencial nas fronteiras arquiteturais (domínio vs infraestrutura)
+- DIP em TUDO = inferno de indireção
+- **Heurística:** aplique nas fronteiras; dentro do mesmo módulo, dependências diretas são ok
 
-### When NOT to Apply SOLID
+### Quando NÃO Aplicar SOLID
 
-- Prototypes and MVPs (throwaway code is cheaper than abstraction)
-- Utility scripts (< 200 lines)
-- Glue code between systems (simple adapters)
+- Protótipos e MVPs (código descartável é mais barato que abstração)
+- Scripts utilitários (< 200 linhas)
+- Código de cola entre sistemas (adapters simples)
 
 ---
 
 ## 2. Architecture Decision Records (ADR)
 
-ADRs capture significant architectural decisions with context, alternatives, and consequences.
+ADRs capturam decisões arquiteturais significativas com contexto, alternativas e consequências.
 
-### MADR Template
+### Template MADR
 
 ```markdown
 # ADR-{NNN}: {Decision Title}
@@ -169,7 +169,7 @@ What constraints exist? What motivated this decision?}
 - {participants}
 ```
 
-### Lifecycle
+### Ciclo de Vida
 
 ```
 Proposed -> Accepted -> [Active]
@@ -177,84 +177,84 @@ Proposed -> Accepted -> [Active]
                      -> Superseded by ADR-XXX (decision replaced)
 ```
 
-### Best Practices
+### Boas Práticas
 
-1. **One decision per ADR** — split if necessary
-2. **Write DURING the decision** — not after
-3. **5-10 minutes to read** — concise, focused
-4. **Store in `/docs/adr/`** — versioned with the code
-5. **Accepted ADRs are immutable** — new decision = new ADR that supersedes
-6. **Review every 6-12 months** — deprecate what no longer applies
+1. **Uma decisão por ADR** — divida se necessário
+2. **Escreva DURANTE a decisão** — não depois
+3. **5-10 minutos de leitura** — conciso, focado
+4. **Armazene em `/docs/adr/`** — versionado junto com o código
+5. **ADRs aceitos são imutáveis** — nova decisão = novo ADR que substitui
+6. **Revise a cada 6-12 meses** — deprecie o que não se aplica mais
 
 ---
 
 ## 3. C4 Model
 
-The C4 Model by Simon Brown organizes diagrams in 4 levels of progressive zoom.
+O C4 Model, de Simon Brown, organiza diagramas em 4 níveis de zoom progressivo.
 
-### Level 1: System Context
+### Nível 1: System Context
 
-**What it shows:** The system as a black box + users + external systems.
-**Audience:** Everyone (devs, PMs, stakeholders).
-**Rule:** Maximum 10-15 elements.
+**O que mostra:** O sistema como uma caixa-preta + usuários + sistemas externos.
+**Público:** Todos (devs, PMs, stakeholders).
+**Regra:** No máximo 10-15 elementos.
 
 ```
 [User] --> [Your System] --> [External System A]
                          --> [External System B]
 ```
 
-### Level 2: Container
+### Nível 2: Container
 
-**What it shows:** Deployable containers within the system (web app, API, database, queue).
-**Audience:** Devs and ops.
-**Rule:** One container = one deployment unit. Database is a container. Queue is a container.
+**O que mostra:** Containers implantáveis dentro do sistema (web app, API, banco de dados, fila).
+**Público:** Devs e ops.
+**Regra:** Um container = uma unidade de deploy. Banco de dados é um container. Fila é um container.
 
 ```
 [Web App] --> [API Server] --> [Database]
                            --> [Message Queue] --> [Worker]
 ```
 
-### Level 3: Component
+### Nível 3: Component
 
-**What it shows:** Logical components within a container (controllers, services, repositories).
-**Audience:** Team developers.
-**Rule:** Use only for complex containers. Not needed for all.
+**O que mostra:** Componentes lógicos dentro de um container (controllers, services, repositories).
+**Público:** Desenvolvedores do time.
+**Regra:** Use apenas para containers complexos. Não é necessário para todos.
 
-### Level 4: Code
+### Nível 4: Code
 
-**What it shows:** Classes/functions within a component.
-**Rule:** Almost never worth maintaining. Use the IDE.
+**O que mostra:** Classes/funções dentro de um componente.
+**Regra:** Quase nunca vale a pena manter. Use a IDE.
 
-### When to Create Each Level
+### Quando Criar Cada Nível
 
-| Level | When to create | When to update | Maintain? |
+| Nível | Quando criar | Quando atualizar | Manter? |
 |-------|----------------|----------------|-----------|
-| Context | Always | Each new external system | Yes |
-| Container | Always | Each new container | Yes |
-| Component | Complex containers | Large refactors | Maybe |
-| Code | Never (use IDE) | — | No |
+| Context | Sempre | A cada novo sistema externo | Sim |
+| Container | Sempre | A cada novo container | Sim |
+| Component | Containers complexos | Refatorações grandes | Talvez |
+| Code | Nunca (use a IDE) | — | Não |
 
 ---
 
 ## 4. Fitness Functions
 
-Fitness functions are automated metrics that protect architectural decisions.
+Fitness functions são métricas automatizadas que protegem decisões arquiteturais.
 
 ```
 Fitness Function = metric + baseline + target + threshold + automation
 ```
 
-| Aspect | Example | Tool |
+| Aspecto | Exemplo | Ferramenta |
 |--------|---------|------|
-| Coupling | Cyclic dependencies = 0 | deptry, madge |
-| Complexity | Cyclomatic complexity < 15 | ruff, biome |
-| Performance | p99 latency < 200ms | k6, locust |
-| Security | Critical vulnerabilities = 0 | Snyk, Trivy |
-| Coverage | Test coverage > 80% | pytest-cov, vitest |
-| Bundle | Bundle size < 200KB gzip | webpack-bundle-analyzer |
+| Coupling | Dependências cíclicas = 0 | deptry, madge |
+| Complexidade | Complexidade ciclomática < 15 | ruff, biome |
+| Performance | Latência p99 < 200ms | k6, locust |
+| Segurança | Vulnerabilidades críticas = 0 | Snyk, Trivy |
+| Cobertura | Cobertura de testes > 80% | pytest-cov, vitest |
+| Bundle | Tamanho do bundle < 200KB gzip | webpack-bundle-analyzer |
 | API | Breaking changes = 0 | openapi-diff |
 
-### Architecture Tests (Fitness Functions in Code)
+### Testes de Arquitetura (Fitness Functions em Código)
 
 ```python
 # Domain layer must not import infrastructure
@@ -276,7 +276,7 @@ def test_domain_does_not_import_infra():
 
 ---
 
-## 5. Design Review Checklist
+## 5. Checklist de Design Review
 
 ```markdown
 ## Pre-Review
@@ -311,11 +311,11 @@ def test_domain_does_not_import_infra():
 
 ---
 
-## 6. System Decomposition
+## 6. Decomposição de Sistemas
 
 ### DDD — Bounded Contexts
 
-**Bounded Context** = logical boundary where a domain model is consistent.
+**Bounded Context** = fronteira lógica onde um modelo de domínio é consistente.
 
 ```
 Decomposition Heuristics:
@@ -326,28 +326,28 @@ Decomposition Heuristics:
 5. Compliance boundary  — regulatory requirements isolate components?
 ```
 
-### Decomposition Strategies
+### Estratégias de Decomposição
 
-| Strategy | When to use | Risk |
+| Estratégia | Quando usar | Risco |
 |----------|-------------|------|
-| By business capability | Clear domains, aligned teams | May create silos |
-| By subdomain (DDD) | Core vs supporting vs generic | Requires domain expertise |
-| By volatility | Parts that change a lot vs stable | Overengineering |
-| By data ownership | Each service owns its data | Distributed transactions |
-| Strangler fig | Gradual legacy migration | Long, requires discipline |
+| Por capacidade de negócio | Domínios claros, times alinhados | Pode criar silos |
+| Por subdomínio (DDD) | Core vs supporting vs generic | Exige domínio de negócio |
+| Por volatilidade | Partes que mudam muito vs estáveis | Overengineering |
+| Por posse de dados | Cada serviço é dono dos seus dados | Transações distribuídas |
+| Strangler fig | Migração gradual de legado | Longa, exige disciplina |
 
-### Anti-patterns
+### Anti-padrões
 
-1. **Distributed monolith** — microservices that need to deploy together
-2. **Shared database** — multiple services reading/writing the same table
-3. **Chatty services** — 10 calls between services for one operation
-4. **Nano-services** — services so small that overhead > value
+1. **Monolito distribuído** — microservices que precisam ser implantados juntos
+2. **Banco de dados compartilhado** — múltiplos serviços lendo/gravando na mesma tabela
+3. **Serviços tagarelas** — 10 chamadas entre serviços para uma única operação
+4. **Nano-serviços** — serviços tão pequenos que o overhead > valor
 
 ---
 
-## 7. Microservices vs Monolith Decision
+## 7. Decisão entre Microservices e Monolito
 
-### Decision Tree
+### Árvore de Decisão
 
 ```
 Start here: Do you have well-defined bounded contexts?
@@ -369,21 +369,21 @@ Start here: Do you have well-defined bounded contexts?
         YES --> Consider microservices
 ```
 
-### Maturity Requirements for Microservices
+### Requisitos de Maturidade para Microservices
 
-Before splitting into microservices, you MUST have:
+Antes de dividir em microservices, você DEVE ter:
 - [ ] Service discovery
 - [ ] Distributed tracing (OpenTelemetry)
-- [ ] Centralized logging
+- [ ] Logging centralizado
 - [ ] API gateway
 - [ ] Circuit breakers
-- [ ] Automated testing at service boundaries
-- [ ] CI/CD per service
-- [ ] On-call rotation (microservices fail in new ways)
+- [ ] Testes automatizados nas fronteiras dos serviços
+- [ ] CI/CD por serviço
+- [ ] Rotação de on-call (microservices falham de novas maneiras)
 
 ---
 
-## 8. Trade-off Analysis (ATAM)
+## 8. Análise de Trade-offs (ATAM)
 
 ### Utility Tree
 
@@ -405,9 +405,9 @@ Quality Attribute
       +-- "Zero-downtime deployments" (H,M)
 ```
 
-### Trade-off Quantification
+### Quantificação de Trade-offs
 
-Don't just list trade-offs — quantify them:
+Não apenas liste trade-offs — quantifique-os:
 
 ```markdown
 | Decision | Option A | Option B | Winner |
@@ -422,9 +422,9 @@ Don't just list trade-offs — quantify them:
 
 ---
 
-## 9. Security Architecture
+## 9. Arquitetura de Segurança
 
-### Zero Trust Principles
+### Princípios de Zero Trust
 
 ```
 1. Never trust, always verify
@@ -434,7 +434,7 @@ Don't just list trade-offs — quantify them:
 5. Continuous verification
 ```
 
-### Defense in Depth Layers
+### Camadas de Defense in Depth
 
 ```
 Layer 1: Network     — firewall, VPN, network segmentation
@@ -446,16 +446,16 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 
 ### STRIDE Threat Modeling
 
-| Threat | Description | Mitigation |
+| Ameaça | Descrição | Mitigação |
 |--------|-------------|------------|
-| **S**poofing | Faking identity | Authentication, MFA |
-| **T**ampering | Modifying data | Integrity checks, signing |
-| **R**epudiation | Denying actions | Audit logging |
-| **I**nformation Disclosure | Data leak | Encryption, access control |
-| **D**enial of Service | Overloading system | Rate limiting, CDN |
-| **E**levation of Privilege | Unauthorized access | Least privilege, RBAC |
+| **S**poofing | Falsificar identidade | Authentication, MFA |
+| **T**ampering | Modificar dados | Integrity checks, signing |
+| **R**epudiation | Negar ações | Audit logging |
+| **I**nformation Disclosure | Vazamento de dados | Encryption, access control |
+| **D**enial of Service | Sobrecarregar o sistema | Rate limiting, CDN |
+| **E**levation of Privilege | Acesso não autorizado | Least privilege, RBAC |
 
-### Security Checklist
+### Checklist de Segurança
 
 ```markdown
 - [ ] Authentication: OIDC/OAuth2, MFA for privileged ops
@@ -472,7 +472,7 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 
 ---
 
-## 10. API Design
+## 10. Design de APIs
 
 ### REST
 
@@ -504,7 +504,7 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 - Deadline propagation: always set deadlines on calls
 ```
 
-### API Design Checklist
+### Checklist de Design de APIs
 
 ```markdown
 - [ ] Contract defined first (OpenAPI / Protobuf / GraphQL schema)
@@ -521,14 +521,14 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 
 ## Reference Files
 
-- [references/adr-templates.md](references/adr-templates.md) — ADR Templates
-- [references/api-design-comparison.md](references/api-design-comparison.md) — API Design — REST vs GraphQL vs gRPC
-- [references/c4-model-guide.md](references/c4-model-guide.md) — C4 Model Guide
-- [references/decomposition-monolith-vs-microservices.md](references/decomposition-monolith-vs-microservices.md) — Monolith vs Modular Monolith vs Microservices
-- [references/decomposition-strategies.md](references/decomposition-strategies.md) — System Decomposition Strategies
-- [references/event-driven-patterns.md](references/event-driven-patterns.md) — Event-Driven Architecture Patterns
-- [references/observability-design-patterns.md](references/observability-design-patterns.md) — Observability by Design
-- [references/security-zero-trust.md](references/security-zero-trust.md) — Security Architecture
-- [references/testing-strategy-by-layer.md](references/testing-strategy-by-layer.md) — Testing Strategy by Architectural Layer
+- [references/adr-templates.md](references/adr-templates.md) — Templates de ADR
+- [references/api-design-comparison.md](references/api-design-comparison.md) — Design de APIs — REST vs GraphQL vs gRPC
+- [references/c4-model-guide.md](references/c4-model-guide.md) — Guia do C4 Model
+- [references/decomposition-monolith-vs-microservices.md](references/decomposition-monolith-vs-microservices.md) — Monolito vs Monolito Modular vs Microservices
+- [references/decomposition-strategies.md](references/decomposition-strategies.md) — Estratégias de Decomposição de Sistemas
+- [references/event-driven-patterns.md](references/event-driven-patterns.md) — Padrões de Arquitetura Orientada a Eventos
+- [references/observability-design-patterns.md](references/observability-design-patterns.md) — Observabilidade por Design
+- [references/security-zero-trust.md](references/security-zero-trust.md) — Arquitetura de Segurança
+- [references/testing-strategy-by-layer.md](references/testing-strategy-by-layer.md) — Estratégia de Testes por Camada Arquitetural
 - [references/trade-off-analysis-atam.md](references/trade-off-analysis-atam.md) — ATAM — Architecture Tradeoff Analysis Method
 - [references/trade-off-analysis-fitness-functions.md](references/trade-off-analysis-fitness-functions.md) — Architecture Fitness Functions

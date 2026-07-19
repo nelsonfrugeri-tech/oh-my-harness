@@ -12,7 +12,7 @@
 - Ótimo para entender uma área de pesquisa rapidamente
 
 ## Semantic Scholar
-- https://www.semanticscholar.org/ — busca acadêmica alimentada por AI
+- https://www.semanticscholar.org/ — busca acadêmica alimentada por IA
 - Mostra contagem de citações, citações influentes, resumos TLDR
 
 ## Papers with Code

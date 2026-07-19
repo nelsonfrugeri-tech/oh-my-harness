@@ -2,46 +2,46 @@
 version: 1.0.0
 name: typescript
 description: |
-  TypeScript/Frontend knowledge base (2026). Covers the advanced type system (discriminated unions,
+  Base de conhecimento TypeScript/Frontend (2026). Cobre o type system avançado (discriminated unions,
   branded types, template literals, satisfies, conditional and mapped types), strict tsconfig,
-  TypeScript structural patterns, React 19+ (compound components, polymorphic, Server Components,
-  Server Actions, streaming), custom hooks, state management decision tree (TanStack Query vs Zustand
-  vs useState vs React Hook Form), Tailwind CSS v4, Vitest, Playwright E2E, performance optimization
-  (Core Web Vitals, code splitting), and tooling (Biome, pnpm, Vite).
-  Use when: (1) Writing or reviewing TypeScript/React code, (2) Choosing state management strategy,
-  (3) Designing React component architecture, (4) Setting up frontend tooling.
+  padrões estruturais de TypeScript, React 19+ (compound components, polymorphic, Server Components,
+  Server Actions, streaming), custom hooks, árvore de decisão de state management (TanStack Query vs Zustand
+  vs useState vs React Hook Form), Tailwind CSS v4, Vitest, Playwright E2E, otimização de performance
+  (Core Web Vitals, code splitting) e ferramentas (Biome, pnpm, Vite).
+  Use quando: (1) Escrever ou revisar código TypeScript/React, (2) Escolher estratégia de state management,
+  (3) Projetar arquitetura de componentes React, (4) Configurar ferramentas de frontend.
   Triggers: /typescript, typescript, react, nextjs, frontend, vitest, tailwind, zustand, tanstack.
 type: knowledge
 ---
 
-# TypeScript — Knowledge Base
+# TypeScript — Base de Conhecimento
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for modern TypeScript and frontend engineering (2026).
-It covers the type system, React architecture, state management, testing, and tooling.
+Esta skill é a base de conhecimento para engenharia moderna de TypeScript e frontend (2026).
+Ela cobre o type system, arquitetura React, state management, testes e ferramentas.
 
-**What this skill contains:**
-- TypeScript type system (discriminated unions, branded types, utility types)
-- Strict tsconfig configuration
-- React 19+ patterns (compound components, polymorphic, Server Components)
-- Custom hooks and hook composition
-- State management architecture (decision tree)
+**O que esta skill contém:**
+- Type system de TypeScript (discriminated unions, branded types, utility types)
+- Configuração de strict tsconfig
+- Padrões de React 19+ (compound components, polymorphic, Server Components)
+- Custom hooks e composição de hooks
+- Arquitetura de state management (árvore de decisão)
 - Tailwind CSS v4 (utility-first, OKLCH, CSS-first config)
-- Vitest + Testing Library (unit and component tests)
-- Playwright (E2E, visual regression)
-- Performance (Core Web Vitals, code splitting, memoization)
-- Tooling (Biome, pnpm, Vite)
+- Vitest + Testing Library (testes de unidade e de componentes)
+- Playwright (E2E, regressão visual)
+- Performance (Core Web Vitals, code splitting, memoização)
+- Ferramentas (Biome, pnpm, Vite)
 
 ---
 
-## Fundamental Principles
+## Princípios Fundamentais
 
-1. **Always `strict: true`** — no implicit Any, null safety, contravariante function checks
-2. **Types are contracts** — discriminated unions over nullable fields, branded types at boundaries
-3. **Composition over inheritance** — compound components, hooks, not class hierarchies
-4. **Server-first in Next.js** — default to Server Components, add "use client" only when needed
-5. **Format: Biome** — tabs, double quotes, semicolons, trailing commas (replaces ESLint + Prettier)
+1. **Sempre `strict: true`** — sem Any implícito, null safety, checagens contravariantes de funções
+2. **Tipos são contratos** — discriminated unions em vez de campos nullable, branded types nas fronteiras
+3. **Composição sobre herança** — compound components, hooks, não hierarquias de classes
+4. **Server-first no Next.js** — priorize Server Components, adicione "use client" apenas quando necessário
+5. **Formatação: Biome** — tabs, aspas duplas, ponto e vírgula, trailing commas (substitui ESLint + Prettier)
 
 ---
 
@@ -123,7 +123,7 @@ palette.red.map((x) => x * 2); // OK
 palette.green.toUpperCase();    // OK
 ```
 
-**Reference:** [references/type-system.md](references/type-system.md)
+**Referência:** [references/type-system.md](references/type-system.md)
 
 ---
 
@@ -165,7 +165,7 @@ palette.green.toUpperCase();    // OK
 }
 ```
 
-**Reference:** [references/strict-config.md](references/strict-config.md)
+**Referência:** [references/strict-config.md](references/strict-config.md)
 
 ---
 
@@ -243,7 +243,7 @@ function Text<T extends React.ElementType = "span">({
 <Text as="button" onClick={() => {}}>Button</Text>    // button props
 ```
 
-**Reference:** [references/component-patterns.md](references/component-patterns.md)
+**Referência:** [references/component-patterns.md](references/component-patterns.md)
 
 ---
 
@@ -326,7 +326,7 @@ export async function createPost(formData: FormData): Promise<{ error?: string }
 }
 ```
 
-**Reference:** [references/server-components.md](references/server-components.md)
+**Referência:** [references/server-components.md](references/server-components.md)
 
 ---
 
@@ -382,29 +382,29 @@ function useAsync<T>(fn: () => Promise<T>, deps: React.DependencyList): AsyncSta
 }
 ```
 
-**Reference:** [references/hooks.md](references/hooks.md)
+**Referência:** [references/hooks.md](references/hooks.md)
 
 ---
 
 ## 6. State Management
 
-### Decision Tree
+### Árvore de Decisão
 
 ```
-What kind of state?
+Que tipo de estado?
   |
-  +-- Server/async data (API calls, DB) --> TanStack Query
+  +-- Dados server/async (chamadas de API, DB) --> TanStack Query
   |
-  +-- URL / navigation state           --> Next.js router, nuqs
+  +-- Estado de URL / navegação                --> Next.js router, nuqs
   |
-  +-- Form state                       --> React Hook Form
+  +-- Estado de formulário                     --> React Hook Form
   |
-  +-- Complex client state             --> Zustand
+  +-- Estado complexo de client                --> Zustand
   |
-  +-- Simple local state               --> useState / useReducer
+  +-- Estado local simples                     --> useState / useReducer
 ```
 
-### TanStack Query (Server State)
+### TanStack Query (Estado de Servidor)
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -430,7 +430,7 @@ function useUpdateUser() {
 }
 ```
 
-### Zustand (Client State)
+### Zustand (Estado de Client)
 
 ```typescript
 import { create } from "zustand";
@@ -487,7 +487,7 @@ const useCartStore = create<CartStore>()(
 );
 ```
 
-**Reference:** [references/tanstack-query.md](references/tanstack-query.md)
+**Referência:** [references/tanstack-query.md](references/tanstack-query.md)
 
 ---
 
@@ -528,11 +528,11 @@ const useCartStore = create<CartStore>()(
 }
 ```
 
-**Reference:** [references/tailwind.md](references/tailwind.md)
+**Referência:** [references/tailwind.md](references/tailwind.md)
 
 ---
 
-## 8. Testing with Vitest
+## 8. Testes com Vitest
 
 ```typescript
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -578,15 +578,15 @@ export default defineConfig({
 });
 ```
 
-**Reference:** [references/vitest.md](references/vitest.md)
+**Referência:** [references/vitest.md](references/vitest.md)
 
 ---
 
 ## 9. Performance
 
-### Core Web Vitals Targets
+### Metas de Core Web Vitals
 
-| Metric | Good | Needs Improvement | Poor |
+| Métrica | Bom | Precisa Melhorar | Ruim |
 |--------|------|-------------------|------|
 | LCP (Largest Contentful Paint) | < 2.5s | 2.5–4s | > 4s |
 | INP (Interaction to Next Paint) | < 200ms | 200–500ms | > 500ms |
@@ -611,7 +611,7 @@ function App(): React.JSX.Element {
 }
 ```
 
-### Memoization (use with measurement)
+### Memoização (use com medição)
 
 ```typescript
 // memo: prevent re-render when props unchanged
@@ -632,20 +632,20 @@ const handleDelete = useCallback(
 );
 ```
 
-**Reference:** [references/performance.md](references/performance.md)
+**Referência:** [references/performance.md](references/performance.md)
 
 ---
 
-## 10. Essential Tooling
+## 10. Ferramentas Essenciais
 
-| Category | Tool | Purpose | Command |
+| Categoria | Ferramenta | Propósito | Comando |
 |----------|------|---------|---------|
-| Lint + Format | **Biome** | Unified linter and formatter | `biome check --write .` |
-| Test | **Vitest** | Unit/component tests | `vitest run` |
-| E2E | **Playwright** | End-to-end tests | `playwright test` |
-| Package | **pnpm** | Dependency management | `pnpm install` |
-| Build | **Vite** | Build tool and dev server | `vite dev` |
-| Types | **TypeScript** | Static type checking | `tsc --noEmit` |
+| Lint + Format | **Biome** | Linter e formatter unificado | `biome check --write .` |
+| Teste | **Vitest** | Testes de unidade/componente | `vitest run` |
+| E2E | **Playwright** | Testes end-to-end | `playwright test` |
+| Pacote | **pnpm** | Gerenciamento de dependências | `pnpm install` |
+| Build | **Vite** | Ferramenta de build e dev server | `vite dev` |
+| Tipos | **TypeScript** | Checagem estática de tipos | `tsc --noEmit` |
 
 ### biome.json
 
@@ -677,26 +677,26 @@ const handleDelete = useCallback(
 }
 ```
 
-**Reference:** [references/biome.md](references/biome.md)
+**Referência:** [references/biome.md](references/biome.md)
 
 ---
 
 ## Reference Files
 
-- [references/architecture.md](references/architecture.md) — State Management Architecture
+- [references/architecture.md](references/architecture.md) — Arquitetura de State Management
 - [references/biome.md](references/biome.md) — Biome 2+ - Linter & Formatter
-- [references/component-patterns.md](references/component-patterns.md) — React Component Patterns - React 19+
-- [references/hooks.md](references/hooks.md) — React Hooks - Custom Hooks & Patterns
-- [references/patterns.md](references/patterns.md) — TypeScript Patterns
-- [references/performance.md](references/performance.md) — React Performance - Core Web Vitals & Optimization
-- [references/playwright.md](references/playwright.md) — Playwright 1.50+ - E2E Testing
-- [references/pnpm.md](references/pnpm.md) — pnpm 10+ - Package Manager
+- [references/component-patterns.md](references/component-patterns.md) — Padrões de Componentes React - React 19+
+- [references/hooks.md](references/hooks.md) — React Hooks - Custom Hooks & Padrões
+- [references/patterns.md](references/patterns.md) — Padrões de TypeScript
+- [references/performance.md](references/performance.md) — Performance React - Core Web Vitals & Otimização
+- [references/playwright.md](references/playwright.md) — Playwright 1.50+ - Testes E2E
+- [references/pnpm.md](references/pnpm.md) — pnpm 10+ - Gerenciador de Pacotes
 - [references/server-components.md](references/server-components.md) — React Server Components - Next.js 15+
-- [references/strict-config.md](references/strict-config.md) — TypeScript Strict Config - tsconfig.json Best Practices
-- [references/tailwind.md](references/tailwind.md) — Tailwind CSS 4+ - Utility-First Styling
-- [references/tanstack-query.md](references/tanstack-query.md) — TanStack Query v5 - Server State Management
-- [references/testing-library.md](references/testing-library.md) — Testing Library - React Testing
-- [references/type-system.md](references/type-system.md) — Type System Avancado - TypeScript 5.7+
+- [references/strict-config.md](references/strict-config.md) — TypeScript Strict Config - Boas Práticas de tsconfig.json
+- [references/tailwind.md](references/tailwind.md) — Tailwind CSS 4+ - Estilização Utility-First
+- [references/tanstack-query.md](references/tanstack-query.md) — TanStack Query v5 - Gerenciamento de Server State
+- [references/testing-library.md](references/testing-library.md) — Testing Library - Testes React
+- [references/type-system.md](references/type-system.md) — Type System Avançado - TypeScript 5.7+
 - [references/vite.md](references/vite.md) — Vite 6+ - Build Tool & Dev Server
-- [references/vitest.md](references/vitest.md) — Vitest 3+ - Testing Framework
+- [references/vitest.md](references/vitest.md) — Vitest 3+ - Framework de Testes
 - [references/zustand.md](references/zustand.md) — Zustand 5+ - State Management

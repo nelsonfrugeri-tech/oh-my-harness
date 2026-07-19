@@ -1,24 +1,24 @@
-# Dashboard Patterns
+# Padrões de Dashboard
 
-## Four Golden Signals (Google SRE)
-| Signal | What | Metric |
+## Os Quatro Golden Signals (Google SRE)
+| Sinal | O Que | Métrica |
 |--------|------|--------|
-| Latency | Time to serve a request | `histogram_quantile(0.99, rate(http_duration_seconds_bucket[5m]))` |
-| Traffic | Request volume | `sum(rate(http_requests_total[5m]))` |
-| Errors | Rate of failed requests | `sum(rate(http_requests_total{code=~"5.."}[5m]))` |
-| Saturation | Resource utilization | `container_memory_usage_bytes / container_spec_memory_limit_bytes` |
+| Latency | Tempo para servir uma requisição | `histogram_quantile(0.99, rate(http_duration_seconds_bucket[5m]))` |
+| Traffic | Volume de requisições | `sum(rate(http_requests_total[5m]))` |
+| Errors | Taxa de requisições que falharam | `sum(rate(http_requests_total{code=~"5.."}[5m]))` |
+| Saturation | Utilização de recursos | `container_memory_usage_bytes / container_spec_memory_limit_bytes` |
 
-## RED Method (for request-driven services)
-- **Rate**: requests per second
-- **Errors**: errors per second
-- **Duration**: latency distribution (p50, p95, p99)
+## Método RED (para serviços orientados a requisições)
+- **Rate**: requisições por segundo
+- **Errors**: erros por segundo
+- **Duration**: distribuição de latência (p50, p95, p99)
 
-## USE Method (for resources: CPU, memory, disk, network)
-- **Utilization**: % time resource is busy
-- **Saturation**: queue depth / work waiting
-- **Errors**: error count
+## Método USE (para recursos: CPU, memória, disco, rede)
+- **Utilization**: % de tempo em que o recurso está ocupado
+- **Saturation**: profundidade da fila / trabalho aguardando
+- **Errors**: contagem de erros
 
-## Dashboard Layout Best Practices
+## Boas Práticas de Layout de Dashboard
 ```
 Row 1: SLO status (availability, latency budget remaining)
 Row 2: Golden signals (rate, errors, latency, saturation)
@@ -26,8 +26,8 @@ Row 3: Dependency health (database, cache, external APIs)
 Row 4: Infrastructure (CPU, memory, disk, network)
 ```
 
-## Grafana Patterns
-- Use variables for service/namespace/environment selection
-- Template dashboards per service type (API, worker, database)
-- Annotations for deploys, incidents, config changes
-- Link alerts to relevant dashboard panels
+## Padrões do Grafana
+- Use variáveis para seleção de service/namespace/environment
+- Crie templates de dashboards por tipo de serviço (API, worker, database)
+- Anotações para deploys, incidentes, mudanças de configuração
+- Vincule alertas aos painéis de dashboard relevantes

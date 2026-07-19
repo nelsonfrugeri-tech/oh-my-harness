@@ -4,7 +4,7 @@ Patterns modernos para construir componentes reutilizaveis, composiveis e type-s
 
 ---
 
-## Composition Over Inheritance
+## Composição Sobre Herança
 
 React favorece composicao sobre heranca. Nunca use heranca de componentes.
 
@@ -41,7 +41,7 @@ function UserCard({ user }: { user: User }) {
 
 ## Compound Components
 
-Components that work together sharing implicit state:
+Componentes que trabalham juntos compartilhando estado implícito:
 
 ```typescript
 import { createContext, use, type ReactNode } from "react";
@@ -140,7 +140,7 @@ function App() {
 
 ## Polymorphic Components
 
-Components that can render as different HTML elements:
+Componentes que podem renderizar como diferentes elementos HTML:
 
 ```typescript
 import { type ComponentPropsWithoutRef, type ElementType } from "react";
@@ -196,7 +196,7 @@ function Text<E extends ElementType = "span">({
 
 ## forwardRef (React 19)
 
-In React 19, `ref` is a regular prop — no more `forwardRef` wrapper needed:
+No React 19, `ref` é uma prop normal — não é mais necessário o wrapper `forwardRef`:
 
 ```typescript
 // React 19 — ref as prop
@@ -237,9 +237,9 @@ function Form() {
 
 ---
 
-## React.memo Best Practices
+## Boas Práticas de React.memo
 
-`React.memo` prevents re-renders when props haven't changed:
+`React.memo` previne re-renders quando as props não mudaram:
 
 ```typescript
 // GOOD — stable identity for complex renders
@@ -276,19 +276,19 @@ const Chart = memo(
 );
 ```
 
-**When to use memo:**
-- Component re-renders often with same props
-- Component has expensive render logic
-- Component is deep in tree and parent re-renders frequently
+**Quando usar memo:**
+- Componente re-renderiza com frequência com as mesmas props
+- Componente tem lógica de render custosa
+- Componente está fundo na árvore e o pai re-renderiza com frequência
 
-**When NOT to use memo:**
-- Simple/cheap components
-- Props change on every render (object/array literals, inline callbacks)
-- Component rarely re-renders
+**Quando NÃO usar memo:**
+- Componentes simples/baratos
+- Props mudam a cada render (literais de object/array, callbacks inline)
+- Componente raramente re-renderiza
 
 ---
 
-## Children Typing Patterns
+## Padrões de Tipagem de Children
 
 ```typescript
 import type { ReactNode, ReactElement } from "react";
@@ -334,9 +334,9 @@ interface SlotProps {
 
 ---
 
-## Render Props (Still Useful)
+## Render Props (Ainda Úteis)
 
-Render props are less common with hooks but still useful for headless components:
+Render props são menos comuns com hooks mas ainda úteis para componentes headless:
 
 ```typescript
 interface UseToggleReturn {

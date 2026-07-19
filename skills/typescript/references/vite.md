@@ -41,7 +41,7 @@ export default defineConfig({
 
 ---
 
-## Plugin System
+## Sistema de Plugins
 
 ```typescript
 import { defineConfig } from "vite";
@@ -74,7 +74,7 @@ export default defineConfig(({ mode }) => ({
 
 ---
 
-## Environment Variables
+## Variáveis de Ambiente
 
 ```bash
 # .env
@@ -96,7 +96,7 @@ const isDev = import.meta.env.DEV; // boolean
 const isProd = import.meta.env.PROD; // boolean
 ```
 
-Type definitions:
+Definições de tipo:
 ```typescript
 // env.d.ts
 /// <reference types="vite/client" />
@@ -113,7 +113,7 @@ interface ImportMeta {
 
 ---
 
-## Proxy Setup
+## Configuração de Proxy
 
 ```typescript
 // vite.config.ts
@@ -143,7 +143,7 @@ export default defineConfig({
 
 ---
 
-## Build Optimization
+## Otimização de Build
 
 ### Manual Chunks
 
@@ -168,10 +168,10 @@ build: {
 
 ### Tree Shaking
 
-Vite uses Rollup which tree-shakes by default. Ensure:
-- Use named imports: `import { map } from "lodash-es"` not `import _ from "lodash"`
-- Use ESM packages (check package.json `"module"` field)
-- Avoid side-effectful imports when possible
+Vite usa Rollup, que faz tree-shake por padrão. Garanta:
+- Use named imports: `import { map } from "lodash-es"` em vez de `import _ from "lodash"`
+- Use pacotes ESM (verifique o campo `"module"` do package.json)
+- Evite imports com side-effect quando possível
 
 ### CSS Code Splitting
 
@@ -185,7 +185,7 @@ build: {
 
 ## HMR (Hot Module Replacement)
 
-HMR works out of the box with `@vitejs/plugin-react`. Custom HMR:
+HMR funciona out of the box com `@vitejs/plugin-react`. HMR customizado:
 
 ```typescript
 // Manual HMR for non-React modules
@@ -206,7 +206,7 @@ if (import.meta.hot) {
 
 ## Library Mode
 
-Build a library (not an app):
+Faça build de uma biblioteca (não de um app):
 
 ```typescript
 // vite.config.ts

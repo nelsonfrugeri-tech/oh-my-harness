@@ -311,7 +311,7 @@ exclude = [
 ]
 ```
 
-### Setuptools (Legacy)
+### Setuptools (Legado)
 ```toml
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
@@ -348,7 +348,7 @@ pytest = "^7.0.0"
 
 ## Virtual Environments
 
-### venv (Built-in)
+### venv (Nativo)
 ```bash
 # Criar virtual environment
 python -m venv .venv
@@ -364,7 +364,7 @@ pip install -e ".[dev]"
 deactivate
 ```
 
-### virtualenv (Third-party)
+### virtualenv (Terceiros)
 ```bash
 # Instalar
 pip install virtualenv
@@ -419,7 +419,7 @@ clean:
 
 ---
 
-## Installing Packages
+## Instalando Pacotes
 
 ### Editable Install
 ```bash
@@ -468,7 +468,7 @@ pip-compile pyproject.toml -o requirements.txt
 
 ---
 
-## Building Distributions
+## Gerando Distribuições
 
 ### Build Package
 ```bash
@@ -530,7 +530,7 @@ ls -lh dist/
 
 ---
 
-## Publishing to PyPI
+## Publicando no PyPI
 
 ### Setup
 ```bash
@@ -548,7 +548,7 @@ username = __token__
 password = pypi-AgENdGVzdC5weXBpLm9yZwI...
 ```
 
-### Upload to TestPyPI
+### Upload para TestPyPI
 ```bash
 # Build
 python -m build
@@ -563,7 +563,7 @@ twine upload --repository testpypi dist/*
 pip install --index-url https://test.pypi.org/simple/ myproject
 ```
 
-### Upload to PyPI
+### Upload para PyPI
 ```bash
 # Upload to PyPI (production)
 twine upload dist/*
@@ -747,7 +747,7 @@ source = "vcs"
 
 ---
 
-## Type Hints Support
+## Suporte a Type Hints
 
 ### py.typed Marker
 ```
@@ -822,7 +822,7 @@ poetry update
 poetry lock
 ```
 
-### uv (Modern, Fast)
+### uv (Moderno, Rápido)
 ```bash
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -841,7 +841,7 @@ uv pip install -e ".[dev]"
 
 ---
 
-## Advanced Patterns
+## Padrões Avançados
 
 ### Namespace Packages
 ```
@@ -865,7 +865,7 @@ from company.project1 import feature1
 from company.project2 import feature2
 ```
 
-### Plugin Systems
+### Sistemas de Plugins
 ```toml
 [project.entry-points."myapp.plugins"]
 builtin = "myapp.plugins.builtin:BuiltinPlugin"
@@ -882,7 +882,7 @@ for plugin in plugins:
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Use src/ layout**
 ```
@@ -940,20 +940,20 @@ dependencies = ["package>=1.2.0,<2.0.0"]
 
 ## Casos de Uso Estabelecidos
 
-### Library Package
+### Pacote de Biblioteca
 ```toml
 [project]
 name = "mylib"
 dependencies = ["requests>=2.28.0"]
 ```
 
-### CLI Application
+### Aplicação CLI
 ```toml
 [project.scripts]
 mytool = "mytool.cli:main"
 ```
 
-### Internal Package
+### Pacote Interno
 ```bash
 # Install from git
 pip install git+https://github.com/company/internal-lib.git

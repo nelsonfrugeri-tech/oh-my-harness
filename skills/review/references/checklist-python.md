@@ -1,295 +1,295 @@
-# Python Code Review Checklist
+# Checklist de Code Review Python
 
-Detailed checklist for Python code review. 25 checks across 7 categories.
-
----
-
-## How to Use
-
-For each modified Python file:
-1. Go through the categories below sequentially
-2. Mark [x] when item verified
-3. If you find a violation, write a comment with: check violated, typical severity, code fix
-
-Severity is indicative. Use judgment based on context.
+Checklist detalhado para code review de Python. 25 verificações em 7 categorias.
 
 ---
 
-## Security
+## Como Usar
 
-### [ ] 1. Secrets and Configuration
-**Check:**
-- No API keys, tokens, passwords hardcoded
-- Configuration comes from environment variables
-- Use pydantic-settings or similar
+Para cada arquivo Python modificado:
+1. Percorra as categorias abaixo sequencialmente
+2. Marque [x] quando o item for verificado
+3. Se encontrar uma violação, escreva um comentário com: verificação violada, severidade típica, correção de código
 
-**Typical severity:** BLOCKER
-
----
-
-### [ ] 2. External Input Validation
-**Check:**
-- Data from APIs, requests, files is validated
-- Use Pydantic for schemas
-- Required fields, types, custom validations
-
-**Typical severity:** MAJOR
+A severidade é indicativa. Use o bom senso conforme o contexto.
 
 ---
 
-### [ ] 3. SQL Injection Prevention
-**Check:**
-- Parameterized queries (not string concatenation)
-- Use ORM or prepared statements
-- No f-strings in SQL
+## Segurança
 
-**Typical severity:** BLOCKER
+### [ ] 1. Secrets e Configuração
+**Verificar:**
+- Nenhuma API key, token ou senha hardcoded
+- Configuração vem de variáveis de ambiente
+- Use pydantic-settings ou similar
 
----
-
-### [ ] 4. Authentication and Authorization
-**Check:**
-- Endpoints protected when required
-- Ownership/permissions checked
-- Token validation adequate
-
-**Typical severity:** BLOCKER (public endpoints) / MAJOR (internal)
+**Severidade típica:** BLOCKER
 
 ---
 
-### [ ] 5. Sensitive Data in Logs
-**Check:**
-- No passwords, tokens, PII in logs
-- Structured logging without sensitive data
-- Request/response bodies sanitized
+### [ ] 2. Validação de Entrada Externa
+**Verificar:**
+- Dados de APIs, requests, arquivos são validados
+- Use Pydantic para schemas
+- Campos obrigatórios, tipos, validações customizadas
 
-**Typical severity:** BLOCKER
+**Severidade típica:** MAJOR
+
+---
+
+### [ ] 3. Prevenção de SQL Injection
+**Verificar:**
+- Queries parametrizadas (não concatenação de strings)
+- Use ORM ou prepared statements
+- Sem f-strings em SQL
+
+**Severidade típica:** BLOCKER
+
+---
+
+### [ ] 4. Autenticação e Autorização
+**Verificar:**
+- Endpoints protegidos quando necessário
+- Ownership/permissões verificados
+- Validação de token adequada
+
+**Severidade típica:** BLOCKER (endpoints públicos) / MAJOR (interno)
+
+---
+
+### [ ] 5. Dados Sensíveis em Logs
+**Verificar:**
+- Nenhuma senha, token, PII em logs
+- Logging estruturado sem dados sensíveis
+- Bodies de request/response sanitizados
+
+**Severidade típica:** BLOCKER
 
 ---
 
 ## Performance
 
 ### [ ] 6. N+1 Queries
-**Check:**
-- No loops with DB queries inside
-- Eager loading of relationships
-- JOINs instead of multiple queries
+**Verificar:**
+- Nenhum loop com queries a DB dentro
+- Eager loading de relacionamentos
+- JOINs em vez de múltiplas queries
 
-**Typical severity:** MAJOR
-
----
-
-### [ ] 7. Efficient Algorithms
-**Check:**
-- Algorithmic complexity (avoid O(n²) or worse in hot paths)
-- Appropriate data structures
-- Expensive operations outside loops
-
-**Typical severity:** MINOR / MAJOR (if in hot path)
+**Severidade típica:** MAJOR
 
 ---
 
-### [ ] 8. Resource Management
-**Check:**
-- Context managers for files, connections, locks
-- No memory leaks (bounded caches, cleaned references)
-- Resources released properly
+### [ ] 7. Algoritmos Eficientes
+**Verificar:**
+- Complexidade algorítmica (evitar O(n²) ou pior em hot paths)
+- Estruturas de dados apropriadas
+- Operações caras fora de loops
 
-**Typical severity:** BLOCKER (confirmed leaks) / MAJOR (suspected)
-
----
-
-## Testing
-
-### [ ] 9. Test Coverage
-**Check:**
-- Critical code has tests (auth, payment, data)
-- New endpoints/features have tests
-- Coverage >60% (general), >80% (core), 100% (critical)
-
-**Typical severity:** BLOCKER (critical code without tests) / MAJOR (coverage <50%)
+**Severidade típica:** MINOR / MAJOR (se em hot path)
 
 ---
 
-### [ ] 10. Test Quality
-**Check:**
-- Tests are not brittle (no sleep, no hardcoded IDs/timestamps)
-- Edge cases tested
-- Specific and clear assertions
+### [ ] 8. Gerenciamento de Recursos
+**Verificar:**
+- Context managers para arquivos, conexões, locks
+- Sem memory leaks (caches limitados, referências limpas)
+- Recursos liberados corretamente
 
-**Typical severity:** MINOR
+**Severidade típica:** BLOCKER (leaks confirmados) / MAJOR (suspeitos)
 
 ---
 
-## Code Quality
+## Testes
+
+### [ ] 9. Cobertura de Testes
+**Verificar:**
+- Código crítico tem testes (auth, pagamento, dados)
+- Novos endpoints/features têm testes
+- Cobertura >60% (geral), >80% (core), 100% (crítico)
+
+**Severidade típica:** BLOCKER (código crítico sem testes) / MAJOR (cobertura <50%)
+
+---
+
+### [ ] 10. Qualidade dos Testes
+**Verificar:**
+- Testes não são frágeis (sem sleep, sem IDs/timestamps hardcoded)
+- Edge cases testados
+- Asserções específicas e claras
+
+**Severidade típica:** MINOR
+
+---
+
+## Qualidade de Código
 
 ### [ ] 11. Type Hints
-**Check:**
-- Function parameters typed
-- Function returns typed
-- Complex variables typed
-- Modern types used (`list[str]` not `List[str]`)
+**Verificar:**
+- Parâmetros de função tipados
+- Retornos de função tipados
+- Variáveis complexas tipadas
+- Tipos modernos usados (`list[str]` e não `List[str]`)
 
-**Typical severity:** MINOR (private functions) / MAJOR (public APIs)
-
----
-
-### [ ] 12. Error Handling
-**Check:**
-- Try/except on operations that can fail
-- Specific exceptions (not generic `Exception`)
-- Errors logged adequately
-- Cleanup in `finally` or context managers
-
-**Typical severity:** BLOCKER (critical operations) / MAJOR (APIs) / MINOR (general)
+**Severidade típica:** MINOR (funções privadas) / MAJOR (APIs públicas)
 
 ---
 
-### [ ] 13. Structured Logging
-**Check:**
-- Logs on critical operations
-- Context included (user_id, request_id, order_id)
-- Appropriate levels (info/warning/error)
-- Structured logging (JSON) preferred
+### [ ] 12. Tratamento de Erros
+**Verificar:**
+- Try/except em operações que podem falhar
+- Exceções específicas (não `Exception` genérica)
+- Erros logados adequadamente
+- Cleanup em `finally` ou context managers
 
-**Typical severity:** MAJOR (APIs and services) / MINOR (internal code)
+**Severidade típica:** BLOCKER (operações críticas) / MAJOR (APIs) / MINOR (geral)
+
+---
+
+### [ ] 13. Logging Estruturado
+**Verificar:**
+- Logs em operações críticas
+- Contexto incluído (user_id, request_id, order_id)
+- Níveis apropriados (info/warning/error)
+- Logging estruturado (JSON) preferido
+
+**Severidade típica:** MAJOR (APIs e serviços) / MINOR (código interno)
 
 ---
 
 ### [ ] 14. Docstrings
-**Check:**
-- Public APIs documented
-- Complex functions explained
-- Parameters and returns described
-- Examples when necessary
+**Verificar:**
+- APIs públicas documentadas
+- Funções complexas explicadas
+- Parâmetros e retornos descritos
+- Exemplos quando necessário
 
-**Typical severity:** MAJOR (public APIs) / MINOR (complex) / NIT (simple)
-
----
-
-### [ ] 15. Naming
-**Check:**
-- Names reveal intent
-- Conventions followed (snake_case functions, PascalCase classes)
-- No obscure abbreviations
-- Consistency within module
-
-**Typical severity:** MINOR (variables) / MAJOR (public APIs)
+**Severidade típica:** MAJOR (APIs públicas) / MINOR (complexas) / NIT (simples)
 
 ---
 
-### [ ] 16. Single Responsibility Principle
-**Check:**
-- Function does one thing
-- <20-30 lines ideally
-- Can be tested in isolation
-- Name doesn't contain "and" (process_AND_send_AND_update)
+### [ ] 15. Nomeação
+**Verificar:**
+- Nomes revelam a intenção
+- Convenções seguidas (snake_case para funções, PascalCase para classes)
+- Sem abreviações obscuras
+- Consistência dentro do módulo
 
-**Typical severity:** MINOR / MAJOR (if very complex)
+**Severidade típica:** MINOR (variáveis) / MAJOR (APIs públicas)
+
+---
+
+### [ ] 16. Princípio da Responsabilidade Única
+**Verificar:**
+- Função faz uma coisa
+- <20-30 linhas idealmente
+- Pode ser testada isoladamente
+- Nome não contém "and" (process_AND_send_AND_update)
+
+**Severidade típica:** MINOR / MAJOR (se muito complexa)
 
 ---
 
 ### [ ] 17. DRY (Don't Repeat Yourself)
-**Check:**
-- No duplicated code
-- Repeated logic extracted to functions
-- Patterns identified and abstracted
+**Verificar:**
+- Sem código duplicado
+- Lógica repetida extraída para funções
+- Padrões identificados e abstraídos
 
-**Typical severity:** MINOR
-
----
-
-### [ ] 18. Cyclomatic Complexity
-**Check:**
-- Decision points reasonable (<10 ideal, <15 acceptable)
-- Nested if/loops minimized
-- Function can be split if too complex
-
-**Typical severity:** MINOR (>10) / MAJOR (>15)
-**Tool:** `radon cc --min C`
+**Severidade típica:** MINOR
 
 ---
 
-### [ ] 19. Imports Organized
-**Check:**
-- Order: stdlib → third-party → local
-- No unused imports
-- No star imports (`import *`)
-- One import per line
+### [ ] 18. Complexidade Ciclomática
+**Verificar:**
+- Pontos de decisão razoáveis (<10 ideal, <15 aceitável)
+- If/loops aninhados minimizados
+- Função pode ser dividida se muito complexa
 
-**Typical severity:** NIT
-**Tool:** `ruff check --select I`
-
----
-
-## Architecture
-
-### [ ] 20. Separation of Concerns
-**Check:**
-- Models don't have business logic
-- Controllers/endpoints are thin
-- Services contain logic
-- Repositories isolate data access
-
-**Typical severity:** MINOR / MAJOR (serious violation)
+**Severidade típica:** MINOR (>10) / MAJOR (>15)
+**Ferramenta:** `radon cc --min C`
 
 ---
 
-### [ ] 21. Dependency Injection
-**Check:**
-- Dependencies injected, not imported directly
-- Easy to test with mocks
-- Configuration comes from outside
+### [ ] 19. Imports Organizados
+**Verificar:**
+- Ordem: stdlib → third-party → local
+- Sem imports não usados
+- Sem star imports (`import *`)
+- Um import por linha
 
-**Typical severity:** MINOR
-
----
-
-## Configuration and Dependencies
-
-### [ ] 22. Pinned Dependencies
-**Check:**
-- Versions pinned (requirements.txt or poetry.lock)
-- No overly broad version ranges
-- Dev dependencies separated
-
-**Typical severity:** MAJOR (production) / MINOR (dev)
+**Severidade típica:** NIT
+**Ferramenta:** `ruff check --select I`
 
 ---
 
-### [ ] 23. Correct Async/Await
-**Check:**
-- I/O-bound operations use async
-- Does not block event loop
-- Await on asynchronous operations
+## Arquitetura
 
-**Typical severity:** MAJOR (if blocking event loop) / MINOR (performance)
+### [ ] 20. Separação de Responsabilidades
+**Verificar:**
+- Models não têm lógica de negócio
+- Controllers/endpoints são finos
+- Services contêm a lógica
+- Repositories isolam o acesso a dados
 
----
-
-## Documentation
-
-### [ ] 24. README Updated
-**Check:**
-- Setup instructions reflect changes
-- New dependencies documented
-- New endpoints/features described
-
-**Typical severity:** MINOR
+**Severidade típica:** MINOR / MAJOR (violação séria)
 
 ---
 
-### [ ] 25. CHANGELOG Updated
-**Check:**
-- Breaking changes documented
-- New features listed
-- Consistent format
+### [ ] 21. Injeção de Dependência
+**Verificar:**
+- Dependências injetadas, não importadas diretamente
+- Fácil de testar com mocks
+- Configuração vem de fora
 
-**Typical severity:** NIT
+**Severidade típica:** MINOR
 
 ---
 
-## Automation Tools
+## Configuração e Dependências
+
+### [ ] 22. Dependências Fixadas
+**Verificar:**
+- Versões fixadas (requirements.txt ou poetry.lock)
+- Sem ranges de versão amplos demais
+- Dependências de dev separadas
+
+**Severidade típica:** MAJOR (produção) / MINOR (dev)
+
+---
+
+### [ ] 23. Async/Await Correto
+**Verificar:**
+- Operações I/O-bound usam async
+- Não bloqueia o event loop
+- Await em operações assíncronas
+
+**Severidade típica:** MAJOR (se bloquear o event loop) / MINOR (performance)
+
+---
+
+## Documentação
+
+### [ ] 24. README Atualizado
+**Verificar:**
+- Instruções de setup refletem as mudanças
+- Novas dependências documentadas
+- Novos endpoints/features descritos
+
+**Severidade típica:** MINOR
+
+---
+
+### [ ] 25. CHANGELOG Atualizado
+**Verificar:**
+- Breaking changes documentadas
+- Novas features listadas
+- Formato consistente
+
+**Severidade típica:** NIT
+
+---
+
+## Ferramentas de Automação
 
 ```bash
 # Type checking

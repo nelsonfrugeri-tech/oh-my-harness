@@ -4,9 +4,9 @@ Tailwind CSS e a biblioteca recomendada para styling na maioria dos projetos.
 
 ---
 
-## Utility-First Philosophy
+## Filosofia Utility-First
 
-Write styles directly in markup instead of separate CSS files:
+Escreva estilos diretamente no markup em vez de arquivos CSS separados:
 
 ```typescript
 // Instead of writing CSS classes
@@ -22,9 +22,9 @@ function Card({ title, children }: { title: string; children: ReactNode }) {
 
 ---
 
-## Responsive Design
+## Design Responsivo
 
-Mobile-first breakpoints:
+Breakpoints mobile-first:
 
 ```typescript
 // sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px
@@ -61,9 +61,9 @@ Mobile-first breakpoints:
 
 ---
 
-## Custom Theme
+## Tema Customizado
 
-Tailwind 4 uses CSS-first configuration:
+Tailwind 4 usa configuração CSS-first:
 
 ```css
 /* app.css */
@@ -93,7 +93,7 @@ Tailwind 4 uses CSS-first configuration:
 }
 ```
 
-Usage:
+Uso:
 ```typescript
 <button className="rounded-btn bg-brand-500 px-4 py-2 text-white hover:bg-brand-600">
 	Click me
@@ -106,9 +106,9 @@ Usage:
 
 ---
 
-## cn() Utility
+## Utilitário cn()
 
-Combine class names conditionally with `clsx` + `tailwind-merge`:
+Combine class names condicionalmente com `clsx` + `tailwind-merge`:
 
 ```typescript
 // lib/utils.ts
@@ -120,7 +120,7 @@ export function cn(...inputs: ClassValue[]): string {
 }
 ```
 
-Usage:
+Uso:
 ```typescript
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	variant?: "primary" | "secondary" | "danger";
@@ -166,9 +166,9 @@ function Button({
 
 ---
 
-## Component Extraction
+## Extração de Componentes
 
-When utility strings get repetitive, extract to components (not CSS):
+Quando strings de utilities ficam repetitivas, extraia para componentes (não CSS):
 
 ```typescript
 // GOOD — extract component
@@ -204,7 +204,7 @@ function Badge({
 
 ## Typography Plugin
 
-For long-form content (markdown, CMS):
+Para conteúdo long-form (markdown, CMS):
 
 ```css
 /* app.css */
@@ -221,7 +221,7 @@ For long-form content (markdown, CMS):
 
 ---
 
-## Animation Utilities
+## Utilitários de Animação
 
 ```typescript
 // Built-in animations
@@ -247,9 +247,9 @@ For long-form content (markdown, CMS):
 
 ---
 
-## Tailwind with RSC
+## Tailwind com RSC
 
-Tailwind works seamlessly with React Server Components — no runtime JS needed:
+Tailwind funciona perfeitamente com React Server Components — sem necessidade de JS em runtime:
 
 ```typescript
 // Server Component — zero client JS, just CSS classes

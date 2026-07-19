@@ -1,30 +1,30 @@
-# Technical Debt Quadrant (Martin Fowler)
+# Quadrante de Dívida Técnica (Martin Fowler)
 
-## The Quadrant
-|  | Deliberate | Inadvertent |
+## O Quadrante
+|  | Deliberada | Inadvertida |
 |--|-----------|-------------|
-| **Prudent** | "We know this is a shortcut, we'll fix it next sprint" | "Now we know how we should have done it" |
-| **Reckless** | "We don't have time for design" | "What's layering?" |
+| **Prudente** | "Sabemos que isto é um atalho, vamos corrigir no próximo sprint" | "Agora sabemos como deveríamos ter feito" |
+| **Imprudente** | "Não temos tempo para design" | "O que é layering?" |
 
-## Management Strategy
+## Estratégia de Gestão
 ### Rastrear
-- Tag debt in code: `# DEBT: <description> — <issue-link>`
-- Maintain a debt backlog (separate from feature backlog)
-- Quantify: estimate cost to fix + cost of NOT fixing (interest)
+- Marque a dívida no código: `# DEBT: <description> — <issue-link>`
+- Mantenha um backlog de dívida (separado do backlog de features)
+- Quantifique: estime o custo de corrigir + o custo de NÃO corrigir (juros)
 
 ### Priorizar
-1. **High interest**: debt that slows every feature (e.g., no test suite)
-2. **Blocking**: debt that prevents important features
-3. **Low interest**: ugly but stable code that nobody touches
-4. **Accept**: deliberate prudent debt with documented timeline
+1. **Juros altos**: dívida que atrasa toda feature (ex: sem suíte de testes)
+2. **Bloqueante**: dívida que impede features importantes
+3. **Juros baixos**: código feio mas estável que ninguém toca
+4. **Aceitar**: dívida deliberada e prudente com prazo documentado
 
 ### Orçamento
-- Allocate 15-20% of sprint capacity to debt reduction
-- Never "debt sprint" — distribute across every sprint
-- Tie debt work to feature work when possible (boy scout rule)
+- Aloque 15-20% da capacidade do sprint para redução de dívida
+- Nunca faça "sprint de dívida" — distribua ao longo de todos os sprints
+- Vincule o trabalho de dívida ao trabalho de feature quando possível (boy scout rule)
 
 ### Métricas
-- Lead time trend (increasing = accumulating debt)
-- Defect rate in high-debt areas
-- Developer satisfaction surveys
-- Time to onboard new team member
+- Tendência do lead time (crescente = acúmulo de dívida)
+- Taxa de defeitos em áreas de alta dívida
+- Pesquisas de satisfação de desenvolvedores
+- Tempo para integrar um novo membro no time

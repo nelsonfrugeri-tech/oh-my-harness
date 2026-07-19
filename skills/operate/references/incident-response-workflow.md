@@ -1,76 +1,76 @@
-# Incident Response Workflow
+# Fluxo de Resposta a Incidentes
 
-## The Five Phases
+## As Cinco Fases
 
-### 1. Detect
+### 1. Detectar
 
-**Goal:** Minimize time-to-detection (TTD).
+**Objetivo:** Minimizar o time-to-detection (TTD).
 
-- Symptom-based alerts fire (user-facing impact, not internal cause)
-- Burn-rate alerts on SLO breach trajectory
-- Customer reports via support channels
-- Synthetic monitoring failures
+- Alertas baseados em sintomas disparam (impacto visível ao usuário, não causa interna)
+- Alertas de burn-rate na trajetória de violação do SLO
+- Relatos de clientes via canais de suporte
+- Falhas de monitoramento sintético
 
-**Key metric:** TTD = time from incident start to first alert.
+**Métrica chave:** TTD = tempo do início do incidente até o primeiro alerta.
 
-### 2. Triage
+### 2. Triagem
 
-**Goal:** Assess severity, assemble responders, communicate.
+**Objetivo:** Avaliar a severidade, reunir os responders, comunicar.
 
-**Severity levels:**
+**Níveis de severidade:**
 
-| Level | Impact | Response Time | Example |
+| Nível | Impacto | Tempo de Resposta | Exemplo |
 |-------|--------|---------------|---------|
-| SEV1 | Full outage, data loss | Immediate, all-hands | Payment system down |
-| SEV2 | Major degradation | 15 min, on-call team | 50% error rate |
-| SEV3 | Minor degradation | 1 hour, primary on-call | Slow responses, one region |
-| SEV4 | Low impact | Next business day | Cosmetic issues |
+| SEV1 | Indisponibilidade total, perda de dados | Imediato, all-hands | Sistema de pagamento fora do ar |
+| SEV2 | Degradação grave | 15 min, equipe de on-call | 50% de taxa de erro |
+| SEV3 | Degradação leve | 1 hora, on-call primário | Respostas lentas, uma região |
+| SEV4 | Baixo impacto | Próximo dia útil | Problemas cosméticos |
 
-**Triage actions:**
-1. Assign Incident Commander (IC)
-2. Open incident channel (Slack #inc-YYYYMMDD-short-desc)
-3. Post initial assessment: what, when, who's affected, severity
-4. Page additional responders if needed
+**Ações de triagem:**
+1. Designe o Incident Commander (IC)
+2. Abra o canal de incidente (Slack #inc-YYYYMMDD-short-desc)
+3. Poste a avaliação inicial: o quê, quando, quem é afetado, severidade
+4. Acione (page) responders adicionais se necessário
 
-### 3. Mitigate
+### 3. Mitigar
 
-**Goal:** Restore service ASAP. Fix later, mitigate now.
+**Objetivo:** Restaurar o serviço o mais rápido possível. Corrija depois, mitigue agora.
 
-**Common mitigations:**
-- Rollback deployment
-- Toggle feature flag off
+**Mitigações comuns:**
+- Rollback do deployment
+- Desligar feature flag
 - Scale up / failover
 - Rate limit / shed load
-- Redirect traffic to healthy region
-- Restart crashed processes
+- Redirecionar o tráfego para uma região saudável
+- Reiniciar processos que travaram
 
-**Anti-patterns:**
-- Debugging root cause before mitigating
-- Making untested changes to prod
-- Multiple people making changes simultaneously without coordination
+**Anti-padrões:**
+- Depurar a causa raiz antes de mitigar
+- Fazer mudanças não testadas em prod
+- Várias pessoas fazendo mudanças simultaneamente sem coordenação
 
-### 4. Resolve
+### 4. Resolver
 
-**Goal:** Confirm full recovery, monitor for recurrence.
+**Objetivo:** Confirmar a recuperação total, monitorar recorrência.
 
-- Verify all metrics return to baseline
-- Confirm via synthetic checks and real user monitoring
-- Remove temporary mitigations (or document if they stay)
-- Close incident channel with summary
-- Update status page
+- Verifique se todas as métricas voltaram ao baseline
+- Confirme via synthetic checks e monitoramento de usuários reais
+- Remova as mitigações temporárias (ou documente se permanecerem)
+- Feche o canal de incidente com um resumo
+- Atualize a status page
 
 ### 5. Postmortem
 
-**Goal:** Learn and prevent recurrence. See `postmortem-template.md`.
+**Objetivo:** Aprender e prevenir recorrência. Consulte `postmortem-template.md`.
 
-**Timeline:**
-- Draft within 48 hours
-- Review within 1 week
-- Action items tracked to completion
+**Prazos:**
+- Rascunho em até 48 horas
+- Revisão em até 1 semana
+- Itens de ação acompanhados até a conclusão
 
-## Communication During Incidents
+## Comunicação Durante Incidentes
 
-### Status Update Template
+### Template de Atualização de Status
 
 ```
 [HH:MM UTC] Status Update #N
@@ -79,25 +79,25 @@ Current status: {investigating | mitigating | monitoring | resolved}
 Next update: {time or "in 30 minutes"}
 ```
 
-### Cadence
-- SEV1: Every 15 minutes
-- SEV2: Every 30 minutes
-- SEV3: Every hour
+### Cadência
+- SEV1: A cada 15 minutos
+- SEV2: A cada 30 minutos
+- SEV3: A cada hora
 
-## Roles
+## Papéis
 
-| Role | Responsibility |
+| Papel | Responsabilidade |
 |------|---------------|
-| **Incident Commander** | Coordinates response, delegates, communicates |
-| **Tech Lead** | Drives technical investigation and mitigation |
-| **Communications** | Updates status page, stakeholders, customers |
-| **Scribe** | Documents timeline, actions, decisions |
+| **Incident Commander** | Coordena a resposta, delega, comunica |
+| **Tech Lead** | Conduz a investigação técnica e a mitigação |
+| **Communications** | Atualiza a status page, stakeholders, clientes |
+| **Scribe** | Documenta a linha do tempo, ações, decisões |
 
-## Post-Incident Checklist
+## Checklist Pós-Incidente
 
-- [ ] Timeline documented
-- [ ] Root cause identified (see `root-cause-analysis.md`)
-- [ ] Postmortem written (see `postmortem-template.md`)
-- [ ] Action items created with owners and deadlines
-- [ ] Runbook updated if applicable
-- [ ] Monitoring/alerting gaps addressed
+- [ ] Linha do tempo documentada
+- [ ] Causa raiz identificada (consulte `root-cause-analysis.md`)
+- [ ] Postmortem escrito (consulte `postmortem-template.md`)
+- [ ] Itens de ação criados com responsáveis e prazos
+- [ ] Runbook atualizado se aplicável
+- [ ] Lacunas de monitoramento/alertas tratadas

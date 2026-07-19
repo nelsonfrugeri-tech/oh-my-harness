@@ -2,54 +2,54 @@
 version: 1.0.0
 name: python
 description: |
-  Python knowledge base (2026). Covers the modern Python type system (Protocol, TypeVar, Generic,
-  Literal, TypedDict, union syntax), async/await and concurrency models (asyncio, threading,
+  Base de conhecimento de Python (2026). Abrange o sistema de tipos moderno do Python (Protocol, TypeVar, Generic,
+  Literal, TypedDict, sintaxe de union), async/await e modelos de concorrência (asyncio, threading,
   multiprocessing), dataclasses (frozen, slots), context managers, decorators, Pydantic v2
-  (validators, computed fields), error handling hierarchies, structured logging with structlog,
-  configuration management with pydantic-settings, generators and lazy evaluation, modern packaging
-  (pyproject.toml), and essential tooling (ruff, black, mypy, pytest, pre-commit).
-  Use when: (1) Writing or reviewing Python code, (2) Choosing patterns for type safety, async I/O,
-  error handling, or testing, (3) Setting up Python tooling, (4) Designing Pydantic models or configs.
+  (validators, computed fields), hierarquias de tratamento de erros, logging estruturado com structlog,
+  gerenciamento de configuração com pydantic-settings, generators e avaliação preguiçosa, empacotamento moderno
+  (pyproject.toml) e ferramentas essenciais (ruff, black, mypy, pytest, pre-commit).
+  Use quando: (1) Escrever ou revisar código Python, (2) Escolher padrões para segurança de tipos, I/O assíncrona,
+  tratamento de erros ou testes, (3) Configurar ferramentas de Python, (4) Projetar modelos ou configs Pydantic.
   Triggers: /python, python, type hints, pydantic, async, pytest, structlog, fastapi, mypy.
 type: knowledge
 ---
 
-# Python — Knowledge Base
+# Python — Base de Conhecimento
 
-## Purpose
+## Objetivo
 
-This skill is the knowledge base for modern Python engineering (2026).
-It covers idiomatic patterns, type safety, async I/O, testing, and tooling.
+Esta skill é a base de conhecimento para engenharia moderna de Python (2026).
+Abrange padrões idiomáticos, segurança de tipos, I/O assíncrona, testes e ferramentas.
 
-**What this skill contains:**
-- Type system (Protocol, TypeVar, Generic, Literal, TypedDict)
-- Async/await and concurrency (asyncio, threading, multiprocessing)
+**O que esta skill contém:**
+- Sistema de tipos (Protocol, TypeVar, Generic, Literal, TypedDict)
+- Async/await e concorrência (asyncio, threading, multiprocessing)
 - Dataclasses (frozen, slots, field defaults)
 - Context managers (@contextmanager, __enter__/__exit__)
-- Decorators (functools.wraps, cache, custom decorators)
-- Pydantic v2 (validation, computed fields, settings)
-- Error handling (custom hierarchies, explicit exception handling)
-- Structured logging with structlog
-- Configuration management with pydantic-settings
-- Generators and lazy evaluation
-- Modern packaging (pyproject.toml, Poetry)
-- Essential tooling (ruff, black, mypy, pytest, pre-commit)
+- Decorators (functools.wraps, cache, decorators customizados)
+- Pydantic v2 (validação, computed fields, settings)
+- Tratamento de erros (hierarquias customizadas, tratamento explícito de exceções)
+- Logging estruturado com structlog
+- Gerenciamento de configuração com pydantic-settings
+- Generators e avaliação preguiçosa
+- Empacotamento moderno (pyproject.toml, Poetry)
+- Ferramentas essenciais (ruff, black, mypy, pytest, pre-commit)
 
 ---
 
-## Fundamental Principles
+## Princípios Fundamentais
 
-1. **Explicit over implicit** — type hints on every function signature, no implicit Any
-2. **Fail fast** — validate at boundaries (Pydantic), raise custom exceptions
-3. **Async by default for I/O** — asyncio for network, files, database calls
-4. **Test everything** — pytest with fixtures and parametrize, 100% coverage on critical paths
-5. **Format: Black + 88 chars** — double quotes, trailing commas on multi-line structures
+1. **Explícito acima de implícito** — type hints em toda assinatura de função, sem Any implícito
+2. **Falhe rápido** — valide nas fronteiras (Pydantic), lance exceções customizadas
+3. **Async por padrão para I/O** — asyncio para chamadas de rede, arquivos e banco de dados
+4. **Teste tudo** — pytest com fixtures e parametrize, 100% de cobertura nos caminhos críticos
+5. **Formato: Black + 88 chars** — aspas duplas, trailing commas em estruturas multilinha
 
 ---
 
-## 1. Type System
+## 1. Sistema de Tipos
 
-### Core Syntax (Python 3.10+)
+### Sintaxe Básica (Python 3.10+)
 
 ```python
 from typing import Protocol, TypeVar, Generic, Literal, TypedDict
@@ -94,7 +94,7 @@ process(FileSource())
 process(HttpSource())
 ```
 
-### TypeVar and Generic
+### TypeVar e Generic
 
 ```python
 from typing import TypeVar, Generic
@@ -137,21 +137,21 @@ order_id = OrderId("ord_456")
 # user_id == order_id → type error (mypy catches this)
 ```
 
-**Reference:** [references/type-system.md](references/type-system.md)
+**Referência:** [references/type-system.md](references/type-system.md)
 
 ---
 
 ## 2. Async/Await
 
-### When to Use Async
+### Quando Usar Async
 
-| Workload | Model | Why |
+| Carga de trabalho | Modelo | Por quê |
 |----------|-------|-----|
-| HTTP calls, DB queries | asyncio | Non-blocking, single thread |
-| Legacy blocking I/O | threading | GIL doesn't block I/O |
-| CPU-bound computation | multiprocessing | Bypasses GIL |
+| Chamadas HTTP, queries de DB | asyncio | Não bloqueante, thread única |
+| I/O bloqueante legada | threading | O GIL não bloqueia I/O |
+| Computação CPU-bound | multiprocessing | Contorna o GIL |
 
-### Async Patterns
+### Padrões Async
 
 ```python
 import asyncio
@@ -219,7 +219,7 @@ async def main() -> None:
         print(item)
 ```
 
-**Reference:** [references/async-patterns.md](references/async-patterns.md)
+**Referência:** [references/async-patterns.md](references/async-patterns.md)
 
 ---
 
@@ -253,14 +253,14 @@ class Order:
 
 ### Dataclass vs Pydantic
 
-| Use Case | Dataclass | Pydantic |
+| Caso de uso | Dataclass | Pydantic |
 |----------|-----------|---------|
-| Internal data structures | Yes | Overkill |
-| External data (API, config) | No — no validation | Yes |
-| Serialization/deserialization | Manual | Built-in |
-| Performance (no validation) | Faster | Slightly slower |
+| Estruturas de dados internas | Sim | Exagero |
+| Dados externos (API, config) | Não — sem validação | Sim |
+| Serialização/desserialização | Manual | Integrado |
+| Desempenho (sem validação) | Mais rápido | Levemente mais lento |
 
-**Reference:** [references/dataclasses.md](references/dataclasses.md)
+**Referência:** [references/dataclasses.md](references/dataclasses.md)
 
 ---
 
@@ -298,7 +298,7 @@ with Timer() as t:
 print(f"Elapsed: {t.elapsed:.3f}s")
 ```
 
-**Reference:** [references/context-managers.md](references/context-managers.md)
+**Referência:** [references/context-managers.md](references/context-managers.md)
 
 ---
 
@@ -341,13 +341,13 @@ def fibonacci(n: int) -> int:
     return fibonacci(n - 1) + fibonacci(n - 2)
 ```
 
-**Reference:** [references/decorators.md](references/decorators.md)
+**Referência:** [references/decorators.md](references/decorators.md)
 
 ---
 
 ## 6. Pydantic v2
 
-### Models and Validation
+### Modelos e Validação
 
 ```python
 from pydantic import BaseModel, Field, field_validator, model_validator, computed_field
@@ -404,13 +404,13 @@ StrictModel(count="5", value="3.14")  # ValidationError — no coercion in stric
 StrictModel(count=5, value=3.14)      # OK
 ```
 
-**Reference:** [references/pydantic.md](references/pydantic.md)
+**Referência:** [references/pydantic.md](references/pydantic.md)
 
 ---
 
-## 7. Error Handling
+## 7. Tratamento de Erros
 
-### Custom Exception Hierarchy
+### Hierarquia de Exceções Customizada
 
 ```python
 class AppError(Exception):
@@ -439,7 +439,7 @@ class ExternalServiceError(AppError):
         self.__cause__ = cause
 ```
 
-### Rules
+### Regras
 
 ```python
 # GOOD: catch specific, re-raise with context
@@ -463,11 +463,11 @@ except SpecificError:
 #     pass
 ```
 
-**Reference:** [references/error-handling.md](references/error-handling.md)
+**Referência:** [references/error-handling.md](references/error-handling.md)
 
 ---
 
-## 8. Structured Logging
+## 8. Logging Estruturado
 
 ```python
 import structlog
@@ -507,11 +507,11 @@ def process_order(order_id: str, user_id: str) -> None:
         raise
 ```
 
-**Reference:** [references/logging.md](references/logging.md)
+**Referência:** [references/logging.md](references/logging.md)
 
 ---
 
-## 9. Configuration Management
+## 9. Gerenciamento de Configuração
 
 ```python
 from pydantic import Field, PostgresDsn, RedisDsn
@@ -546,11 +546,11 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-**Reference:** [references/configuration.md](references/configuration.md)
+**Referência:** [references/configuration.md](references/configuration.md)
 
 ---
 
-## 10. Generators and Lazy Evaluation
+## 10. Generators e Avaliação Preguiçosa
 
 ```python
 from typing import Iterator, Generator
@@ -581,11 +581,11 @@ def batch(iterable: Iterator[T], size: int) -> Iterator[list[T]]:
         yield batch
 ```
 
-**Reference:** [references/generators.md](references/generators.md)
+**Referência:** [references/generators.md](references/generators.md)
 
 ---
 
-## 11. Testing with pytest
+## 11. Testes com pytest
 
 ```python
 import pytest
@@ -639,17 +639,17 @@ def test_not_found_raises() -> None:
 
 ---
 
-## 12. Essential Tooling
+## 12. Ferramentas Essenciais
 
-| Category | Tool | Purpose | Command |
+| Categoria | Ferramenta | Propósito | Comando |
 |----------|------|---------|---------|
-| Lint | **ruff** | Ultra-fast linter | `ruff check . --fix` |
-| Format | **black** | Opinionated formatter | `black .` |
-| Types | **mypy** | Static type checker | `mypy src/` |
-| Test | **pytest** | Test framework | `pytest` |
-| Coverage | **pytest-cov** | Coverage reports | `pytest --cov=src --cov-report=term-missing` |
+| Lint | **ruff** | Linter ultrarrápido | `ruff check . --fix` |
+| Format | **black** | Formatador opinativo | `black .` |
+| Types | **mypy** | Verificador estático de tipos | `mypy src/` |
+| Test | **pytest** | Framework de testes | `pytest` |
+| Coverage | **pytest-cov** | Relatórios de cobertura | `pytest --cov=src --cov-report=term-missing` |
 | Hooks | **pre-commit** | Git hooks | `pre-commit install` |
-| Deps | **Poetry** | Dependency management | `poetry install` |
+| Deps | **Poetry** | Gerenciamento de dependências | `poetry install` |
 
 ### pyproject.toml
 
@@ -699,17 +699,17 @@ omit = ["*/tests/*"]
 
 ---
 
-## Reference Files
+## Arquivos de Referência
 
-- [references/async-patterns.md](references/async-patterns.md) — Async/Await Patterns - Python 3.10+
-- [references/concurrency.md](references/concurrency.md) — Concurrency - Python 3.10+
+- [references/async-patterns.md](references/async-patterns.md) — Padrões de Async/Await - Python 3.10+
+- [references/concurrency.md](references/concurrency.md) — Concorrência - Python 3.10+
 - [references/configuration.md](references/configuration.md) — configuration.md
 - [references/context-managers.md](references/context-managers.md) — Context Managers - Python 3.10+
 - [references/dataclasses.md](references/dataclasses.md) — Data Classes - Python 3.10+
 - [references/decorators.md](references/decorators.md) — Decorators - Python 3.10+
-- [references/error-handling.md](references/error-handling.md) — Error Handling - Python 3.10+
-- [references/generators.md](references/generators.md) — Generators e Lazy Evaluation - Python 3.10+
+- [references/error-handling.md](references/error-handling.md) — Tratamento de Erros - Python 3.10+
+- [references/generators.md](references/generators.md) — Generators e Avaliação Preguiçosa - Python 3.10+
 - [references/logging.md](references/logging.md) — Logging Estruturado - Python 3.10+
 - [references/packaging.md](references/packaging.md) — Python Packaging - Python 3.10+
 - [references/pydantic.md](references/pydantic.md) — Pydantic v2 - Python 3.10+
-- [references/type-system.md](references/type-system.md) — Type System Avançado - Python 3.10+
+- [references/type-system.md](references/type-system.md) — Sistema de Tipos Avançado - Python 3.10+

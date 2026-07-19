@@ -1,14 +1,14 @@
-# Load Testing
+# Teste de Carga
 
-## Load Profiles
-| Profile | Pattern | Purpose |
+## Perfis de Carga
+| Perfil | Padrão | Objetivo |
 |---------|---------|---------|
-| Ramp-up | Gradual increase 0→N users | Find breaking point |
-| Spike | Sudden burst | Test auto-scaling, error handling |
-| Soak | Constant load for hours | Find memory leaks, connection exhaustion |
-| Stress | Beyond expected capacity | Find failure modes |
+| Ramp-up | Aumento gradual de 0→N usuários | Encontrar o ponto de ruptura |
+| Spike | Rajada repentina | Testar auto-scaling e tratamento de erros |
+| Soak | Carga constante por horas | Encontrar vazamentos de memória e esgotamento de conexões |
+| Stress | Além da capacidade esperada | Encontrar os modos de falha |
 
-## k6 Example
+## Exemplo com k6
 ```javascript
 // load-test.js
 import http from 'k6/http';
@@ -34,7 +34,7 @@ export default function () {
 }
 ```
 
-## Locust Example (Python)
+## Exemplo com Locust (Python)
 ```python
 from locust import HttpUser, task, between
 
@@ -50,10 +50,10 @@ class APIUser(HttpUser):
         self.client.post("/api/users", json={"name": "test"})
 ```
 
-## Metrics to Watch
-- Response time (p50, p95, p99)
-- Error rate
+## Métricas a Observar
+- Tempo de resposta (p50, p95, p99)
+- Taxa de erros
 - Throughput (req/s)
-- Resource utilization (CPU, memory, connections)
+- Utilização de recursos (CPU, memória, conexões)
 
-## Tools: k6 0.54+ (2026), Locust 2.32+ (2026)
+## Ferramentas: k6 0.54+ (2026), Locust 2.32+ (2026)

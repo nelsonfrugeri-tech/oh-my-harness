@@ -1,11 +1,11 @@
-# Modern CSS Layout — Container Queries, Subgrid, :has() & More
+# Layout Moderno com CSS — Container Queries, Subgrid, :has() e Mais
 
 ## Container Queries
 
-Container queries let components respond to their container's size, not the viewport.
-This is the single biggest CSS advancement for component-based design.
+Container queries permitem que componentes respondam ao tamanho do seu container, e não ao viewport.
+Este é o maior avanço isolado do CSS para o design baseado em componentes.
 
-### Basic Usage
+### Uso Básico
 
 ```css
 /* Define a containment context */
@@ -31,7 +31,7 @@ This is the single biggest CSS advancement for component-based design.
 }
 ```
 
-### Container Query Units
+### Unidades de Container Query
 
 ```css
 /* cqw = 1% of container width, cqh = 1% of container height */
@@ -45,7 +45,7 @@ This is the single biggest CSS advancement for component-based design.
 }
 ```
 
-### Real Example: Responsive Product Card
+### Exemplo Real: Card de Produto Responsivo
 
 ```css
 .product-wrapper {
@@ -92,10 +92,10 @@ This is the single biggest CSS advancement for component-based design.
 
 ## CSS Subgrid
 
-Subgrid lets child elements inherit their parent's grid tracks, enabling
-alignment ACROSS sibling elements.
+Subgrid permite que elementos filhos herdem as trilhas de grid do pai, possibilitando
+alinhamento ENTRE elementos irmãos.
 
-### The Problem Subgrid Solves
+### O Problema que o Subgrid Resolve
 
 ```
 Without subgrid:                  With subgrid:
@@ -109,7 +109,7 @@ Without subgrid:                  With subgrid:
 +--------+                       +--------+ +--------+
 ```
 
-### Implementation
+### Implementação
 
 ```css
 /* Parent grid */
@@ -146,11 +146,11 @@ Without subgrid:                  With subgrid:
 
 ---
 
-## :has() Selector
+## Seletor :has()
 
-The most powerful CSS selector: style parents based on their children.
+O seletor CSS mais poderoso: estiliza pais com base em seus filhos.
 
-### Form Validation
+### Validação de Formulário
 
 ```css
 /* Highlight form group when input is invalid */
@@ -174,7 +174,7 @@ The most powerful CSS selector: style parents based on their children.
 }
 ```
 
-### Conditional Layout
+### Layout Condicional
 
 ```css
 /* Card layout depends on whether it has an image */
@@ -196,7 +196,7 @@ nav:not(:has(input[type="search"]:focus)) {
 }
 ```
 
-### State-Based Styling
+### Estilização Baseada em Estado
 
 ```css
 /* Style sidebar differently when any dialog is open */
@@ -219,7 +219,7 @@ main:not(:has(+ aside)) {
 
 ## CSS Nesting
 
-Native CSS nesting — no preprocessor needed:
+Aninhamento nativo de CSS — sem necessidade de pré-processador:
 
 ```css
 .card {
@@ -260,7 +260,7 @@ Native CSS nesting — no preprocessor needed:
 
 ## Cascade Layers (@layer)
 
-Control specificity without `!important`:
+Controle a especificidade sem `!important`:
 
 ```css
 /* Define layer order — later layers win */
@@ -296,13 +296,13 @@ Control specificity without `!important`:
 }
 ```
 
-Tailwind v4 uses `@layer` internally: `@layer base, components, utilities`.
+O Tailwind v4 usa `@layer` internamente: `@layer base, components, utilities`.
 
 ---
 
 ## Scroll-Driven Animations
 
-Animate based on scroll position — no JavaScript:
+Anime com base na posição do scroll — sem JavaScript:
 
 ```css
 /* Progress bar that fills as you scroll */
@@ -346,9 +346,9 @@ Animate based on scroll position — no JavaScript:
 
 ---
 
-## Complete Example: Responsive Card Grid
+## Exemplo Completo: Grid de Cards Responsivo
 
-Combining container queries + subgrid + :has() + nesting:
+Combinando container queries + subgrid + :has() + nesting:
 
 ```css
 .product-grid {

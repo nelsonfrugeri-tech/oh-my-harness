@@ -8,7 +8,7 @@ Patterns estruturais e organizacionais para projetos TypeScript modernos.
 
 ### Barrel Files (index.ts)
 
-Barrel files re-export from a directory to simplify imports:
+Barrel files re-exportam de um diretório para simplificar imports:
 
 ```typescript
 // components/Button/Button.tsx
@@ -23,18 +23,18 @@ export type { ButtonProps } from "./Button";
 import { Button } from "@/components/Button";
 ```
 
-**Pros:**
-- Clean import paths
-- Encapsulation of internal structure
+**Prós:**
+- Paths de import limpos
+- Encapsulamento da estrutura interna
 
-**Cons — and why to be careful:**
-- Can cause massive bundle sizes (tree-shaking issues)
-- Circular dependency risk in large codebases
-- Slower TypeScript compilation in monorepos
+**Contras — e por que ter cuidado:**
+- Podem causar bundle sizes enormes (problemas de tree-shaking)
+- Risco de dependência circular em codebases grandes
+- Compilação de TypeScript mais lenta em monorepos
 
-**Rule:** Use barrel files at feature/component boundaries, NOT at every directory level. Never barrel the entire `src/`.
+**Regra:** Use barrel files nos limites de feature/componente, NÃO em cada nível de diretório. Nunca faça barrel do `src/` inteiro.
 
-### Recommended Structure
+### Estrutura Recomendada
 
 ```
 src/
@@ -63,7 +63,7 @@ src/
 
 ## Path Aliases
 
-Configure path aliases in tsconfig.json for clean imports:
+Configure path aliases no tsconfig.json para imports limpos:
 
 ```jsonc
 {
@@ -79,7 +79,7 @@ Configure path aliases in tsconfig.json for clean imports:
 }
 ```
 
-Vite config must mirror these:
+A config do Vite deve espelhar isso:
 ```typescript
 // vite.config.ts
 import { resolve } from "node:path";
@@ -131,7 +131,7 @@ const repo = new PrismaUserRepository(prisma);
 const service = new UserService(repo, logger);
 ```
 
-### Function Injection (Lighter Weight)
+### Function Injection (Mais Leve)
 
 ```typescript
 interface Dependencies {

@@ -2,67 +2,67 @@
 version: 1.0.0
 name: test
 description: |
-  Modern Quality Assurance knowledge base (2026). Covers testing strategy (pyramid vs trophy),
-  E2E testing (Playwright, pytest), test data management (fixtures, factories, seeding),
-  integration testing (real deps vs mocks, testcontainers), API contract testing (Pact),
-  performance testing (k6, Locust), accessibility testing (axe-core, WCAG 2.2),
-  visual regression testing, smoke testing, test reporting, Definition of Done validation,
-  and production readiness checklist.
-  Use when: (1) Defining testing strategy, (2) Setting up isolated test environments,
-  (3) Implementing E2E/integration/contract/performance/a11y/visual tests, (4) Validating
-  Definition of Done, (5) Evaluating production readiness.
-  Triggers: /test, /qa, QA, quality assurance, testing strategy, test plan, smoke test.
+  Base de conhecimento moderna de Quality Assurance (2026). Cobre estratégia de testes (pyramid vs trophy),
+  testes E2E (Playwright, pytest), gerenciamento de dados de teste (fixtures, factories, seeding),
+  testes de integração (dependências reais vs mocks, testcontainers), testes de contrato de API (Pact),
+  testes de performance (k6, Locust), testes de acessibilidade (axe-core, WCAG 2.2),
+  testes de regressão visual, smoke testing, relatórios de teste, validação da Definition of Done,
+  e checklist de prontidão para produção.
+  Use quando: (1) Definir estratégia de testes, (2) Configurar ambientes de teste isolados,
+  (3) Implementar testes E2E/integração/contrato/performance/a11y/visuais, (4) Validar
+  a Definition of Done, (5) Avaliar a prontidão para produção.
+  Gatilhos: /test, /qa, QA, quality assurance, testing strategy, test plan, smoke test.
 type: capability
 ---
 
-# Test — Quality Assurance Methodology
+# Test — Metodologia de Quality Assurance
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for modern Quality Assurance (2026).
-It complements language skills (`python`, `typescript`) with QA-specific patterns and strategies.
+Esta skill é a base de conhecimento para Quality Assurance moderna (2026).
+Ela complementa as skills de linguagem (`python`, `typescript`) com padrões e estratégias específicos de QA.
 
-**What this skill contains:**
-- Testing strategy (pyramid vs trophy, what to test at each layer)
-- E2E testing (Playwright, pytest, isolation, flakiness prevention)
-- Test data management (fixtures, factories, seeding, cleanup)
-- Integration testing (real dependencies vs mocks, testcontainers)
-- API contract testing (Pact, consumer-driven contracts)
-- Performance testing (k6, Locust, load/stress/soak)
-- Accessibility testing (axe-core, Lighthouse, WCAG 2.2)
-- Visual regression testing
-- Environment setup and teardown
+**O que esta skill contém:**
+- Estratégia de testes (pyramid vs trophy, o que testar em cada camada)
+- Testes E2E (Playwright, pytest, isolamento, prevenção de flakiness)
+- Gerenciamento de dados de teste (fixtures, factories, seeding, limpeza)
+- Testes de integração (dependências reais vs mocks, testcontainers)
+- Testes de contrato de API (Pact, contratos orientados ao consumidor)
+- Testes de performance (k6, Locust, load/stress/soak)
+- Testes de acessibilidade (axe-core, Lighthouse, WCAG 2.2)
+- Testes de regressão visual
+- Configuração e teardown de ambiente
 - Smoke testing
-- Definition of Done validation checklist
-- Production readiness checklist
+- Checklist de validação da Definition of Done
+- Checklist de prontidão para produção
 
-**What this skill does NOT contain:**
-- Language-specific coding patterns (those live in `python` / `typescript`)
-- CI/CD pipeline configuration (that lives in `ci-cd`)
-- Execution workflow (agents handle that)
-
----
-
-## Philosophy
-
-### Tests are Engineering, Not an Afterthought
-
-Quality is built in, not tested in. Tests are first-class artifacts with the same standards
-as production code: typed, reviewed, maintained, and refactored.
-
-### Fundamental Principles
-
-1. **Test what matters, not what is easy** — focus on user-facing behavior and critical business paths
-2. **Deterministic tests or no tests** — every test must produce the same result on every run
-3. **Fast feedback loops** — unit: <1s, integration: <5s, E2E: <30s, total suite: <10 min in CI
-4. **Isolation is non-negotiable** — each test starts with clean state
-5. **Test the contract, not the implementation** — assert on observable behavior, not internal state
+**O que esta skill NÃO contém:**
+- Padrões de código específicos de linguagem (esses ficam em `python` / `typescript`)
+- Configuração de pipeline CI/CD (isso fica em `ci-cd`)
+- Fluxo de execução (os agentes cuidam disso)
 
 ---
 
-## 1. Test Strategy — Pyramid vs Trophy
+## Filosofia
 
-### The Test Pyramid (Martin Fowler)
+### Testes são Engenharia, Não uma Reflexão Tardia
+
+Qualidade é construída, não testada no final. Testes são artefatos de primeira classe com os mesmos padrões
+do código de produção: tipados, revisados, mantidos e refatorados.
+
+### Princípios Fundamentais
+
+1. **Teste o que importa, não o que é fácil** — foque no comportamento visível ao usuário e nos caminhos críticos de negócio
+2. **Testes determinísticos ou nenhum teste** — cada teste deve produzir o mesmo resultado em toda execução
+3. **Ciclos de feedback rápidos** — unit: <1s, integração: <5s, E2E: <30s, suíte total: <10 min no CI
+4. **Isolamento é inegociável** — cada teste começa com estado limpo
+5. **Teste o contrato, não a implementação** — faça asserções sobre o comportamento observável, não sobre o estado interno
+
+---
+
+## 1. Estratégia de Testes — Pyramid vs Trophy
+
+### A Pirâmide de Testes (Martin Fowler)
 
 ```
         /  E2E  \          Few, slow, expensive
@@ -73,9 +73,9 @@ as production code: typed, reviewed, maintained, and refactored.
    /____________________\
 ```
 
-**When to use:** Backend services, libraries, utilities with clear function boundaries.
+**Quando usar:** Serviços de backend, bibliotecas, utilitários com fronteiras de função bem definidas.
 
-### The Test Trophy (Kent C. Dodds)
+### O Troféu de Testes (Kent C. Dodds)
 
 ```
         ___E2E___          Few, high confidence
@@ -88,57 +88,57 @@ as production code: typed, reviewed, maintained, and refactored.
        |__________|
 ```
 
-**When to use:** Frontend applications, APIs, systems where integration points are the primary risk.
+**Quando usar:** Aplicações frontend, APIs, sistemas onde os pontos de integração são o risco principal.
 
-### Decision Framework
+### Framework de Decisão
 
-| Signal | Prefer Pyramid | Prefer Trophy |
+| Sinal | Prefira Pyramid | Prefira Trophy |
 |--------|---------------|---------------|
-| Pure business logic | Yes | |
-| Complex algorithms | Yes | |
-| UI-heavy application | | Yes |
-| API with many integrations | | Yes |
-| Library / SDK | Yes | |
-| Microservices | | Yes |
-| Data pipeline | Yes | |
+| Lógica de negócio pura | Sim | |
+| Algoritmos complexos | Sim | |
+| Aplicação com muita UI | | Sim |
+| API com muitas integrações | | Sim |
+| Biblioteca / SDK | Sim | |
+| Microsserviços | | Sim |
+| Pipeline de dados | Sim | |
 
-### What to Test at Each Layer
+### O que Testar em Cada Camada
 
-**Static Analysis (base):**
-- Type checking (mypy, TypeScript strict)
+**Análise Estática (base):**
+- Verificação de tipos (mypy, TypeScript strict)
 - Linting (ruff, Biome)
-- Security scanning (bandit, semgrep)
+- Varredura de segurança (bandit, semgrep)
 
-**Unit Tests:**
-- Pure functions with no side effects
-- Business logic calculations
-- Data transformations, validation rules
-- Edge cases and boundary conditions
+**Testes Unitários:**
+- Funções puras sem efeitos colaterais
+- Cálculos de lógica de negócio
+- Transformações de dados, regras de validação
+- Casos extremos e condições de fronteira
 
-**Integration Tests:**
-- API endpoint behavior (request -> response)
-- Database queries and mutations
-- External service interactions
-- Authentication and authorization flows
+**Testes de Integração:**
+- Comportamento de endpoint de API (request -> response)
+- Consultas e mutações de banco de dados
+- Interações com serviços externos
+- Fluxos de autenticação e autorização
 
-**E2E Tests:**
-- Critical user journeys (signup, purchase, core workflows)
-- Cross-service flows
-- Browser-specific behavior
-- Accessibility compliance
+**Testes E2E:**
+- Jornadas críticas do usuário (signup, compra, fluxos principais)
+- Fluxos entre serviços
+- Comportamento específico de navegador
+- Conformidade de acessibilidade
 
 ---
 
-## 2. Test Environment Setup
+## 2. Configuração de Ambiente de Teste
 
-### Principles
+### Princípios
 
-1. **Reproducible** — same environment every time
-2. **Isolated** — tests cannot interfere with each other
-3. **Ephemeral** — created before tests, destroyed after
-4. **Fast** — environment setup takes seconds, not minutes
+1. **Reproduzível** — mesmo ambiente toda vez
+2. **Isolado** — os testes não podem interferir uns nos outros
+3. **Efêmero** — criado antes dos testes, destruído depois
+4. **Rápido** — a configuração do ambiente leva segundos, não minutos
 
-### Docker Compose for Test Dependencies
+### Docker Compose para Dependências de Teste
 
 ```yaml
 # docker-compose.test.yml
@@ -167,7 +167,7 @@ services:
       SERVICES: s3,sqs,sns
 ```
 
-### Testcontainers (Programmatic)
+### Testcontainers (Programático)
 
 ```python
 import pytest
@@ -185,17 +185,17 @@ def redis():
         yield r.get_connection_url()
 ```
 
-### Teardown Checklist
+### Checklist de Teardown
 
-After every test run:
-- [ ] Database tables truncated or dropped
-- [ ] Redis keys flushed
-- [ ] Temporary files deleted
-- [ ] Docker containers stopped and removed
-- [ ] Ports released
-- [ ] Environment variables restored
+Após cada execução de testes:
+- [ ] Tabelas do banco de dados truncadas ou removidas
+- [ ] Chaves do Redis limpas (flush)
+- [ ] Arquivos temporários deletados
+- [ ] Containers Docker parados e removidos
+- [ ] Portas liberadas
+- [ ] Variáveis de ambiente restauradas
 
-### conftest.py Pattern (pytest)
+### Padrão conftest.py (pytest)
 
 ```python
 import pytest
@@ -215,17 +215,17 @@ def reset_redis(redis_client):
 
 ---
 
-## 3. E2E Testing
+## 3. Testes E2E
 
-### Tool Selection
+### Seleção de Ferramenta
 
-| Tool | Language | Best For |
+| Ferramenta | Linguagem | Melhor Para |
 |------|----------|----------|
-| **Playwright** | Python, JS/TS, .NET, Java | Cross-browser, API + UI, modern web |
-| **pytest** | Python | Backend E2E, API testing |
-| **Vitest** | TypeScript | Frontend unit + integration |
+| **Playwright** | Python, JS/TS, .NET, Java | Cross-browser, API + UI, web moderna |
+| **pytest** | Python | E2E de backend, testes de API |
+| **Vitest** | TypeScript | Unit + integração de frontend |
 
-### Playwright Best Practices
+### Boas Práticas do Playwright
 
 ```python
 # Page Object Model
@@ -248,16 +248,16 @@ async def test_login_success(page: Page) -> None:
     await expect(page).to_have_url("/dashboard")
 ```
 
-### Locator Strategy (Priority Order)
+### Estratégia de Locators (Ordem de Prioridade)
 
-1. `get_by_role()` — semantic, accessible, resilient
-2. `get_by_label()` — form elements
-3. `get_by_text()` — visible text content
-4. `get_by_test_id()` — last resort, explicit data-testid
+1. `get_by_role()` — semântico, acessível, resiliente
+2. `get_by_label()` — elementos de formulário
+3. `get_by_text()` — conteúdo de texto visível
+4. `get_by_test_id()` — último recurso, data-testid explícito
 
-**Never use:** CSS selectors tied to styling, XPath, auto-generated class names
+**Nunca use:** seletores CSS atrelados à estilização, XPath, nomes de classe gerados automaticamente
 
-### Flakiness Prevention
+### Prevenção de Flakiness
 
 ```python
 # BAD: arbitrary sleep
@@ -268,35 +268,35 @@ await page.wait_for_selector("[data-loaded='true']")
 await expect(page.get_by_role("heading")).to_be_visible()
 ```
 
-### What to E2E Test
+### O que Testar com E2E
 
-- [ ] User registration and login
-- [ ] Core business workflow (the one that makes money)
-- [ ] Payment/checkout flow
-- [ ] Permission boundaries (admin vs user)
-- [ ] Error recovery (network failure, invalid input)
+- [ ] Registro e login de usuário
+- [ ] Fluxo de negócio principal (aquele que gera receita)
+- [ ] Fluxo de pagamento/checkout
+- [ ] Fronteiras de permissão (admin vs usuário)
+- [ ] Recuperação de erro (falha de rede, entrada inválida)
 
-### What NOT to E2E Test
+### O que NÃO Testar com E2E
 
-- Individual component rendering (use unit tests)
-- CSS styling details (use visual regression)
-- API response schemas (use contract tests)
-- Performance under load (use performance tests)
+- Renderização de componente individual (use testes unitários)
+- Detalhes de estilização CSS (use regressão visual)
+- Schemas de resposta de API (use testes de contrato)
+- Performance sob carga (use testes de performance)
 
 ---
 
-## 4. Test Data Management
+## 4. Gerenciamento de Dados de Teste
 
-### Approaches
+### Abordagens
 
-| Approach | When to Use | Pros | Cons |
+| Abordagem | Quando Usar | Prós | Contras |
 |----------|-------------|------|------|
-| **Fixtures** | Static reference data | Simple, readable | Brittle if schema changes |
-| **Factories** | Dynamic test objects | Flexible, DRY | Requires setup code |
-| **Seeding** | Database pre-population | Realistic data | Slower, harder to maintain |
-| **Builders** | Complex object graphs | Fluent API, composable | More code to maintain |
+| **Fixtures** | Dados de referência estáticos | Simples, legível | Frágil se o schema mudar |
+| **Factories** | Objetos de teste dinâmicos | Flexível, DRY | Requer código de setup |
+| **Seeding** | Pré-população do banco de dados | Dados realistas | Mais lento, mais difícil de manter |
+| **Builders** | Grafos de objetos complexos | API fluente, componível | Mais código para manter |
 
-### Factory Pattern (Python — factory_boy)
+### Padrão Factory (Python — factory_boy)
 
 ```python
 import factory
@@ -319,29 +319,29 @@ admin = AdminFactory(name="Admin User")
 users = UserFactory.create_batch(10)
 ```
 
-### Data Cleanup Rules
+### Regras de Limpeza de Dados
 
-1. **Each test creates its own data** — never rely on pre-existing data
-2. **Each test cleans up after itself** — use transaction rollback or truncation
-3. **Never use production data in tests** — generate synthetic data
-4. **Avoid auto-increment ID assumptions** — use UUIDs or query by attributes
-5. **Seed data is for shared reference only** — countries, currencies, roles
+1. **Cada teste cria seus próprios dados** — nunca dependa de dados pré-existentes
+2. **Cada teste faz sua própria limpeza** — use rollback de transação ou truncamento
+3. **Nunca use dados de produção nos testes** — gere dados sintéticos
+4. **Evite suposições sobre IDs auto-incrementais** — use UUIDs ou consulte por atributos
+5. **Dados de seed são apenas para referência compartilhada** — países, moedas, papéis (roles)
 
 ---
 
-## 5. Integration Testing
+## 5. Testes de Integração
 
-### Real Dependencies vs Mocks
+### Dependências Reais vs Mocks
 
-| Use Real Deps | Use Mocks |
+| Use Dependências Reais | Use Mocks |
 |---------------|-----------|
-| Database queries (testcontainers) | Third-party APIs (Stripe, Twilio) |
-| Redis cache behavior | Email sending |
-| Message queue integration | SMS sending |
-| File system operations | External services with rate limits |
-| Auth provider (local Keycloak) | Services you do not control |
+| Consultas de banco de dados (testcontainers) | APIs de terceiros (Stripe, Twilio) |
+| Comportamento de cache do Redis | Envio de e-mail |
+| Integração com fila de mensagens | Envio de SMS |
+| Operações de sistema de arquivos | Serviços externos com rate limit |
+| Provedor de autenticação (Keycloak local) | Serviços que você não controla |
 
-### Testing with Real Database
+### Testando com Banco de Dados Real
 
 ```python
 @pytest.fixture(scope="session")
@@ -362,21 +362,21 @@ def db_session(db_engine):
     connection.close()
 ```
 
-### Integration Test Scope
+### Escopo do Teste de Integração
 
-Each integration test validates ONE integration point:
-- API endpoint + database
-- Service + message queue
-- Service + cache
-- Service + external API (mocked)
+Cada teste de integração valida UM ponto de integração:
+- Endpoint de API + banco de dados
+- Serviço + fila de mensagens
+- Serviço + cache
+- Serviço + API externa (mockada)
 
-Never test the full system in an integration test — that is E2E.
+Nunca teste o sistema completo em um teste de integração — isso é E2E.
 
 ---
 
-## 6. API Contract Testing (Pact)
+## 6. Testes de Contrato de API (Pact)
 
-### Consumer-Driven Contracts
+### Contratos Orientados ao Consumidor
 
 ```
 Consumer (frontend/client)          Provider (backend/API)
@@ -390,7 +390,7 @@ Consumer (frontend/client)          Provider (backend/API)
         |                    4. Publish verification result
 ```
 
-### Consumer Test (Python)
+### Teste de Consumer (Python)
 
 ```python
 from pact import Consumer, Provider
@@ -414,33 +414,33 @@ def test_get_user():
         assert result["name"] == "Alice"
 ```
 
-### When to Use Contract Testing
+### Quando Usar Testes de Contrato
 
-- Microservices communicating via HTTP/gRPC
-- Frontend consuming a backend API
-- Multiple teams maintaining separate services
+- Microsserviços comunicando via HTTP/gRPC
+- Frontend consumindo uma API de backend
+- Múltiplos times mantendo serviços separados
 
-### When NOT to Use
+### Quando NÃO Usar
 
-- Monolithic applications
-- Single team owning both consumer and provider
-- Early prototyping phase
+- Aplicações monolíticas
+- Um único time sendo dono tanto do consumer quanto do provider
+- Fase inicial de prototipação
 
 ---
 
-## 7. Performance Testing
+## 7. Testes de Performance
 
-### Test Types
+### Tipos de Teste
 
-| Type | Purpose | Duration | Load Pattern |
+| Tipo | Propósito | Duração | Padrão de Carga |
 |------|---------|----------|--------------|
-| **Smoke** | Verify system works under minimal load | 1-5 min | 1-5 VUs |
-| **Load** | Validate under expected traffic | 15-30 min | Ramp to target VUs |
-| **Stress** | Find breaking point | 30-60 min | Ramp beyond target |
-| **Soak** | Detect memory leaks | 2-8 hours | Sustained target load |
-| **Spike** | Test sudden traffic bursts | 5-10 min | Sudden ramp up/down |
+| **Smoke** | Verificar se o sistema funciona sob carga mínima | 1-5 min | 1-5 VUs |
+| **Load** | Validar sob tráfego esperado | 15-30 min | Ramp até os VUs alvo |
+| **Stress** | Encontrar o ponto de ruptura | 30-60 min | Ramp além do alvo |
+| **Soak** | Detectar vazamentos de memória | 2-8 horas | Carga alvo sustentada |
+| **Spike** | Testar picos súbitos de tráfego | 5-10 min | Ramp súbito para cima/baixo |
 
-### k6 Example
+### Exemplo k6
 
 ```javascript
 import http from "k6/http";
@@ -468,7 +468,7 @@ export default function () {
 }
 ```
 
-### Locust Example
+### Exemplo Locust
 
 ```python
 from locust import HttpUser, task, between
@@ -485,22 +485,22 @@ class APIUser(HttpUser):
         self.client.post("/users", json={"name": "Test", "email": "t@t.com"})
 ```
 
-### Performance Budgets
+### Orçamentos de Performance
 
-| Metric | Target |
+| Métrica | Alvo |
 |--------|--------|
-| p95 response time | < 500ms |
-| p99 response time | < 1000ms |
-| Error rate | < 0.1% |
+| Tempo de resposta p95 | < 500ms |
+| Tempo de resposta p99 | < 1000ms |
+| Taxa de erro | < 0.1% |
 | LCP (frontend) | < 2.5s |
 | FID (frontend) | < 100ms |
 | CLS (frontend) | < 0.1 |
 
 ---
 
-## 8. Accessibility Testing
+## 8. Testes de Acessibilidade
 
-### Automated Testing (catches ~57% of WCAG issues)
+### Testes Automatizados (detectam ~57% dos problemas de WCAG)
 
 ```python
 # Playwright + axe-core (Python)
@@ -524,42 +524,42 @@ test("homepage has no a11y violations", async ({ page }) => {
 });
 ```
 
-### WCAG 2.2 Key Criteria
+### Critérios-Chave do WCAG 2.2
 
-| Level | Criterion | What |
+| Nível | Critério | O que |
 |-------|-----------|------|
-| A | 2.4.7 | Focus visible on keyboard navigation |
-| AA | 1.4.3 | Contrast ratio >= 4.5:1 for text |
-| AA | 2.5.8 | Touch target >= 24x24px |
-| AA | 2.4.11 | Focus not obscured by sticky elements |
+| A | 2.4.7 | Foco visível na navegação por teclado |
+| AA | 1.4.3 | Razão de contraste >= 4.5:1 para texto |
+| AA | 2.5.8 | Alvo de toque >= 24x24px |
+| AA | 2.4.11 | Foco não obscurecido por elementos fixos (sticky) |
 
-### What Automation Catches
+### O que a Automação Detecta
 
-- Missing alt text on images
-- Missing form labels
-- Insufficient color contrast
-- Missing ARIA attributes
+- Texto alternativo (alt) ausente em imagens
+- Labels de formulário ausentes
+- Contraste de cor insuficiente
+- Atributos ARIA ausentes
 
-### What Requires Manual Testing
+### O que Requer Teste Manual
 
-- Keyboard navigation flow (logical tab order)
-- Screen reader experience
-- Focus management in dynamic content (modals, drawers)
-- Content reflow at 400% zoom
+- Fluxo de navegação por teclado (ordem lógica de tab)
+- Experiência com leitor de tela
+- Gerenciamento de foco em conteúdo dinâmico (modais, drawers)
+- Refluxo de conteúdo com zoom de 400%
 
 ---
 
-## 9. Visual Regression Testing
+## 9. Testes de Regressão Visual
 
-### Approaches
+### Abordagens
 
-| Approach | Tool | Pros | Cons |
+| Abordagem | Ferramenta | Prós | Contras |
 |----------|------|------|------|
-| **Pixel comparison** | Playwright built-in | Free, no external deps | Sensitive to rendering diffs |
-| **Cloud-based** | Percy, Chromatic | Cross-browser, smart diffing | Paid |
-| **Component-level** | Storybook + Chromatic | Isolated, fast | Only components, not pages |
+| **Comparação de pixels** | Playwright nativo | Grátis, sem dependências externas | Sensível a diffs de renderização |
+| **Baseado em nuvem** | Percy, Chromatic | Cross-browser, diffing inteligente | Pago |
+| **Nível de componente** | Storybook + Chromatic | Isolado, rápido | Apenas componentes, não páginas |
 
-### Playwright Screenshot Comparison
+### Comparação de Screenshot com Playwright
 
 ```python
 async def test_homepage_visual(page: Page) -> None:
@@ -573,25 +573,25 @@ await page.add_style_tag(
 )
 ```
 
-### When to Use
+### Quando Usar
 
-- Design system components
-- Landing pages and marketing pages
-- After CSS/Tailwind refactors
+- Componentes de design system
+- Landing pages e páginas de marketing
+- Após refatorações de CSS/Tailwind
 
 ---
 
 ## 10. Smoke Testing
 
-Smoke tests are the **minimum viable test suite** that validates the system is alive.
-Run after every deployment.
+Smoke tests são a **suíte de testes mínima viável** que valida se o sistema está vivo.
+Execute após cada deployment.
 
-### Characteristics
+### Características
 
-- **Fast:** < 2 minutes total
-- **Critical paths only:** login, main feature, health endpoints
-- **No edge cases:** happy path only
-- **Idempotent:** safe to run multiple times
+- **Rápido:** < 2 minutos no total
+- **Apenas caminhos críticos:** login, funcionalidade principal, health endpoints
+- **Sem casos extremos:** apenas o happy path
+- **Idempotente:** seguro executar várias vezes
 
 ```python
 class SmokeTests:
@@ -615,102 +615,102 @@ class SmokeTests:
 
 ### Smoke vs Sanity vs Regression
 
-| Type | Scope | When | Duration |
+| Tipo | Escopo | Quando | Duração |
 |------|-------|------|----------|
-| **Smoke** | Core paths only | After deploy | < 2 min |
-| **Sanity** | Changed features | After bug fix | 5-15 min |
-| **Regression** | Full suite | Before release | 30-120 min |
+| **Smoke** | Apenas caminhos principais | Após deploy | < 2 min |
+| **Sanity** | Funcionalidades alteradas | Após correção de bug | 5-15 min |
+| **Regression** | Suíte completa | Antes do release | 30-120 min |
 
 ---
 
-## 11. Definition of Done — Test Validation
+## 11. Definition of Done — Validação de Testes
 
-A delivery is done ONLY when all of these are verified:
+Uma entrega está pronta SOMENTE quando todos estes itens forem verificados:
 
-### Code Quality
-- [ ] Static analysis clean (mypy, TypeScript, ruff, biome — zero warnings)
-- [ ] No new lint warnings
-- [ ] Type hints complete
+### Qualidade de Código
+- [ ] Análise estática limpa (mypy, TypeScript, ruff, biome — zero warnings)
+- [ ] Nenhum novo warning de lint
+- [ ] Type hints completos
 
-### Test Coverage
-- [ ] Unit tests written for new business logic
-- [ ] Integration tests for new API endpoints
-- [ ] E2E tests for new user-facing flows
-- [ ] Test coverage meets project threshold
+### Cobertura de Testes
+- [ ] Testes unitários escritos para nova lógica de negócio
+- [ ] Testes de integração para novos endpoints de API
+- [ ] Testes E2E para novos fluxos visíveis ao usuário
+- [ ] Cobertura de testes atinge o limiar do projeto
 
-### Test Quality
-- [ ] All tests deterministic (no flaky tests introduced)
-- [ ] Tests cover happy path AND error paths
-- [ ] Test names describe behavior
-- [ ] No commented-out tests
+### Qualidade dos Testes
+- [ ] Todos os testes determinísticos (nenhum teste flaky introduzido)
+- [ ] Testes cobrem o happy path E os caminhos de erro
+- [ ] Nomes dos testes descrevem o comportamento
+- [ ] Nenhum teste comentado
 
-### Environment
-- [ ] Tests run in isolated environment
-- [ ] Environment tears down cleanly after tests
-- [ ] No port conflicts
+### Ambiente
+- [ ] Testes executam em ambiente isolado
+- [ ] Ambiente faz teardown de forma limpa após os testes
+- [ ] Nenhum conflito de porta
 
-### Evidence
-- [ ] Test results documented
-- [ ] Coverage report generated
+### Evidências
+- [ ] Resultados dos testes documentados
+- [ ] Relatório de cobertura gerado
 
 ---
 
-## 12. Production Readiness Checklist
+## 12. Checklist de Prontidão para Produção
 
-Before any release:
+Antes de qualquer release:
 
-### Testing
-- [ ] Full regression test results (pass/fail/skip counts)
-- [ ] Coverage report (>80% threshold met)
-- [ ] Performance test results (p95, p99, error rate)
-- [ ] Accessibility audit results (WCAG 2.2 AA)
-- [ ] Smoke tests passing in staging
-- [ ] No open BLOCKER issues from review
+### Testes
+- [ ] Resultados completos de testes de regressão (contagens de pass/fail/skip)
+- [ ] Relatório de cobertura (limiar de >80% atingido)
+- [ ] Resultados de testes de performance (p95, p99, taxa de erro)
+- [ ] Resultados de auditoria de acessibilidade (WCAG 2.2 AA)
+- [ ] Smoke tests passando em staging
+- [ ] Nenhum problema BLOCKER em aberto da revisão
 
-### Operations
-- [ ] Health check endpoints implemented
-- [ ] Structured logging configured
-- [ ] Metrics exposed (RED method)
-- [ ] Alerting configured for error rate and latency
-- [ ] Runbook exists for known failure modes
-- [ ] Rollback procedure documented and tested
+### Operações
+- [ ] Endpoints de health check implementados
+- [ ] Logging estruturado configurado
+- [ ] Métricas expostas (método RED)
+- [ ] Alertas configurados para taxa de erro e latência
+- [ ] Runbook existente para modos de falha conhecidos
+- [ ] Procedimento de rollback documentado e testado
 
-### Security
-- [ ] SAST scan clean (bandit, semgrep)
-- [ ] Dependency audit clean (pip-audit, npm audit)
-- [ ] No secrets in codebase
-- [ ] Authentication/authorization reviewed
+### Segurança
+- [ ] Varredura SAST limpa (bandit, semgrep)
+- [ ] Auditoria de dependências limpa (pip-audit, npm audit)
+- [ ] Nenhum segredo no codebase
+- [ ] Autenticação/autorização revisada
 
 ---
 
 ## Reference Files
 
-- [references/accessibility-automated-testing.md](references/accessibility-automated-testing.md) — Automated Accessibility Testing
-- [references/contract-testing-pact.md](references/contract-testing-pact.md) — Consumer-Driven Contract Testing with Pact
-- [references/e2e-playwright.md](references/e2e-playwright.md) — Playwright E2E Testing Patterns
-- [references/e2e-strategy.md](references/e2e-strategy.md) — Test Strategy -- Pyramid vs Trophy
-- [references/environment-setup-teardown.md](references/environment-setup-teardown.md) — Environment Setup and Teardown
-- [references/integration-patterns.md](references/integration-patterns.md) — Integration Testing Patterns
-- [references/performance-load-testing.md](references/performance-load-testing.md) — Load Testing
-- [references/reporting-evidence-collection.md](references/reporting-evidence-collection.md) — Test Reporting & Evidence Collection
-- [references/test-data-management.md](references/test-data-management.md) — Test Data Management
-- [references/visual-regression-screenshot-testing.md](references/visual-regression-screenshot-testing.md) — Visual Regression Testing
-## 13. Pre-Merge QA — What to Verify Before Saying PASS
+- [references/accessibility-automated-testing.md](references/accessibility-automated-testing.md) — Testes Automatizados de Acessibilidade
+- [references/contract-testing-pact.md](references/contract-testing-pact.md) — Testes de Contrato Orientados ao Consumidor com Pact
+- [references/e2e-playwright.md](references/e2e-playwright.md) — Padrões de Testes E2E com Playwright
+- [references/e2e-strategy.md](references/e2e-strategy.md) — Estratégia de Testes -- Pyramid vs Trophy
+- [references/environment-setup-teardown.md](references/environment-setup-teardown.md) — Configuração e Teardown de Ambiente
+- [references/integration-patterns.md](references/integration-patterns.md) — Padrões de Testes de Integração
+- [references/performance-load-testing.md](references/performance-load-testing.md) — Testes de Carga
+- [references/reporting-evidence-collection.md](references/reporting-evidence-collection.md) — Relatórios de Teste & Coleta de Evidências
+- [references/test-data-management.md](references/test-data-management.md) — Gerenciamento de Dados de Teste
+- [references/visual-regression-screenshot-testing.md](references/visual-regression-screenshot-testing.md) — Testes de Regressão Visual
+## 13. QA Pré-Merge — O que Verificar Antes de Dizer PASS
 
-Six structural checks that catch what automated suites routinely miss.
-Apply on every PR QA pass before issuing a verdict.
+Seis verificações estruturais que capturam o que as suítes automatizadas rotineiramente deixam passar.
+Aplique em cada passagem de QA de PR antes de emitir um veredito.
 
-### 13.1 Documented Smoke-Test Path
+### 13.1 Caminho de Smoke-Test Documentado
 
-**Why:** Without a documented manual test path, the QA agent must reverse-engineer the
-env-var contract on every pass and reviewers cannot reproduce results independently.
+**Por quê:** Sem um caminho de teste manual documentado, o agente de QA precisa fazer engenharia reversa do
+contrato de env-var em cada passagem e os revisores não conseguem reproduzir os resultados de forma independente.
 
-**Look for:** `TESTING.md`, `CONTRIBUTING.md` smoke-test section, `.env.example` covering
-every variable the install wizard reads, a script like `scripts/smoke_test.sh`.
+**Procure por:** `TESTING.md`, seção de smoke-test no `CONTRIBUTING.md`, `.env.example` cobrindo
+toda variável que o assistente de instalação lê, um script como `scripts/smoke_test.sh`.
 
-**When absent:** File a structural finding — not a missing-doc complaint:
-> "No documented manual smoke-test path exists. Add TESTING.md listing env vars,
-> prerequisites, and the exact command sequence to validate the core flow on a clean machine."
+**Quando ausente:** Registre uma constatação estrutural — não uma reclamação de doc ausente:
+> "Nenhum caminho de smoke-test manual documentado existe. Adicione TESTING.md listando env vars,
+> pré-requisitos, e a sequência exata de comandos para validar o fluxo principal em uma máquina limpa."
 
 ```bash
 ls TESTING.md CONTRIBUTING.md docs/testing* 2>/dev/null
@@ -719,17 +719,17 @@ grep -ri "smoke\|TESTING" README.md 2>/dev/null | head -5
 
 ---
 
-### 13.2 Hardcoded Resource Names Block Isolation
+### 13.2 Nomes de Recursos Hardcoded Impedem Isolamento
 
-**Why:** Hardcoded container names, ports, or paths mean two test runs cannot coexist and
-the test container may collide with a user's real one.
+**Por quê:** Nomes de container, portas ou caminhos hardcoded significam que duas execuções de teste não podem coexistir e
+o container de teste pode colidir com um real do usuário.
 
-**Look for:** String literals for container names, ports, or volume names inside install
-commands or wizard steps. Pattern: `name="my-app-service"`, `port=6333`.
+**Procure por:** Literais de string para nomes de container, portas ou nomes de volume dentro de
+comandos de instalação ou passos do assistente. Padrão: `name="my-app-service"`, `port=6333`.
 
-**When found:**
-> "Resource name '{name}' is hardcoded. Add an env-var override (e.g. CONTAINER_NAME,
-> CONTAINER_PORT) so isolated parallel runs and test-vs-production separation are possible."
+**Quando encontrado:**
+> "O nome de recurso '{name}' está hardcoded. Adicione um override via env-var (ex.: CONTAINER_NAME,
+> CONTAINER_PORT) para que execuções paralelas isoladas e a separação teste-vs-produção sejam possíveis."
 
 ```bash
 grep -rn 'name="' src/ --include="*.py" | grep -v test | head -20
@@ -738,44 +738,44 @@ grep -rn 'port\s*=\s*[0-9]\{4,5\}' src/ --include="*.py" | grep -v '#' | head -2
 
 ---
 
-### 13.3 Checkpoint Labels Must Match What They Verify
+### 13.3 Rótulos de Checkpoint Devem Corresponder ao que Verificam
 
-**Why:** A step that prints "[OK]" while swallowing exceptions is a silent lie — harder to
-debug than an outright failure, and misleads operators during incidents.
+**Por quê:** Um passo que imprime "[OK]" enquanto engole exceções é uma mentira silenciosa — mais difícil de
+debugar do que uma falha explícita, e engana operadores durante incidentes.
 
-**Test approach:** Deliberately make each dependency unavailable (stop the daemon, block
-the port) and re-run. If the step still prints "[OK]", the check is hollow.
+**Abordagem de teste:** Deliberadamente torne cada dependência indisponível (pare o daemon, bloqueie
+a porta) e execute novamente. Se o passo ainda imprimir "[OK]", a verificação é vazia.
 
-**When found:**
-> "[Step N] prints '{label}' but does not raise when {dependency} is unreachable. Propagate
-> the failure (raise/exit non-zero) so the label is truthful."
-
----
-
-### 13.4 Language/Locale Contract for Interactive Flows
-
-**Why:** Mixing the UI language with a library's default locale causes valid user input
-(e.g. 's' for 'sim') to be rejected as "invalid input."
-
-**Look for:** The project's contract language — check `locale/`, `i18n/`, template files,
-or string literals used in CLI prompts. If prompts are in language X, every interactive
-confirmation must also accept that language's affirmative/negative inputs.
-
-**Test approach:** Run every wizard step end-to-end using the contract language's expected
-inputs. Confirm no prompt falls back to a different locale's default.
-
-**When found:**
-> "Confirmation prompt at step N renders '{library_default}' but the UI contract is
-> {language}. Override the prompt choices to match the contract language."
+**Quando encontrado:**
+> "[Step N] imprime '{label}' mas não lança erro quando {dependency} está inacessível. Propague
+> a falha (raise/exit não-zero) para que o rótulo seja verdadeiro."
 
 ---
 
-### 13.5 Baseline Test Failures Before the PR Branch
+### 13.4 Contrato de Idioma/Locale para Fluxos Interativos
 
-**Why:** `make check` ending in N failures is ambiguous without a baseline — new regressions
-look identical to pre-existing failures.
+**Por quê:** Misturar o idioma da UI com o locale padrão de uma biblioteca faz com que entradas válidas do usuário
+(ex.: 's' para 'sim') sejam rejeitadas como "entrada inválida".
 
-**Protocol:**
+**Procure por:** O idioma de contrato do projeto — verifique `locale/`, `i18n/`, arquivos de template,
+ou literais de string usados em prompts de CLI. Se os prompts estão no idioma X, toda
+confirmação interativa também deve aceitar as entradas afirmativas/negativas daquele idioma.
+
+**Abordagem de teste:** Execute cada passo do assistente de ponta a ponta usando as entradas esperadas
+do idioma de contrato. Confirme que nenhum prompt recai no padrão de um locale diferente.
+
+**Quando encontrado:**
+> "O prompt de confirmação no passo N renderiza '{library_default}' mas o contrato da UI é
+> {language}. Sobrescreva as opções do prompt para corresponder ao idioma de contrato."
+
+---
+
+### 13.5 Baseline de Falhas de Teste Antes da Branch do PR
+
+**Por quê:** `make check` terminando em N falhas é ambíguo sem um baseline — novas regressões
+parecem idênticas a falhas pré-existentes.
+
+**Protocolo:**
 ```bash
 # On the merge-target branch first
 git stash && git checkout <target-branch>
@@ -784,26 +784,26 @@ git checkout -
 make check 2>&1 | tail -20   # compute delta: (PR failures) - (baseline failures)
 ```
 
-**When baseline is red and failures are unmarked:**
-> "make check on {target-branch} ends with {N} failures. Pre-existing failures must be
-> marked @pytest.mark.xfail or listed in known_failures.txt so regressions are immediately
-> distinguishable from known debt."
+**Quando o baseline está vermelho e as falhas não estão marcadas:**
+> "make check em {target-branch} termina com {N} falhas. Falhas pré-existentes devem ser
+> marcadas com @pytest.mark.xfail ou listadas em known_failures.txt para que regressões sejam imediatamente
+> distinguíveis do débito conhecido."
 
 ---
 
-### 13.6 Subprocess-Level CLI Smoke Tests
+### 13.6 Smoke Tests de CLI em Nível de Subprocesso
 
-**Why:** Mocked unit tests verify internal wiring only. The user path goes through the
-installed entry point; subprocess-level tests are the only way CI catches installation,
-import, and argument-parsing failures.
+**Por quê:** Testes unitários mockados verificam apenas o encanamento interno. O caminho do usuário passa pelo
+entry point instalado; testes em nível de subprocesso são a única forma de o CI capturar falhas de instalação,
+importação e parsing de argumentos.
 
-**Look for:** Test files calling `subprocess.run(["<cli>", ...])` or using the framework's
-`CliRunner` against the *installed* entry point — not a function imported directly.
+**Procure por:** Arquivos de teste chamando `subprocess.run(["<cli>", ...])` ou usando o
+`CliRunner` do framework contra o entry point *instalado* — não uma função importada diretamente.
 
-**When absent:** File a structural finding:
-> "All CLI tests mock the implementation. Add at least one subprocess-level smoke test
-> that invokes the installed entry point so CI validates the user path, not just internal
-> wiring."
+**Quando ausente:** Registre uma constatação estrutural:
+> "Todos os testes de CLI mockam a implementação. Adicione ao menos um smoke test em nível de subprocesso
+> que invoque o entry point instalado para que o CI valide o caminho do usuário, não apenas o encanamento
+> interno."
 
 ```python
 import subprocess

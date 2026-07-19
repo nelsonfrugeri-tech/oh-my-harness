@@ -4,16 +4,16 @@ pnpm e o gerenciador de pacotes recomendado para projetos TypeScript.
 
 ---
 
-## Why pnpm
+## Por que pnpm
 
-- **Disk efficient**: Hard links — packages stored once globally, linked into projects
-- **Strict by default**: No phantom dependencies (can't import what you didn't declare)
-- **Fast**: Parallel installation, content-addressable store
-- **Monorepo native**: Built-in workspace support
+- **Eficiente em disco**: Hard links — pacotes armazenados uma vez globalmente, linkados nos projetos
+- **Strict por padrão**: Sem dependências fantasma (não dá para importar o que você não declarou)
+- **Rápido**: Instalação paralela, store content-addressable
+- **Nativo para monorepo**: Suporte a workspace embutido
 
 ---
 
-## .npmrc Best Practices
+## Boas Práticas de .npmrc
 
 ```ini
 # .npmrc
@@ -66,7 +66,7 @@ my-monorepo/
         └── package.json
 ```
 
-### Workspace Commands
+### Comandos de Workspace
 
 ```bash
 # Install all workspace dependencies
@@ -93,7 +93,7 @@ pnpm --filter web add @myorg/shared --workspace
 
 ### Workspace Protocol
 
-Reference internal packages:
+Referencie pacotes internos:
 
 ```json
 // apps/web/package.json
@@ -105,17 +105,17 @@ Reference internal packages:
 }
 ```
 
-| Protocol | Meaning |
+| Protocolo | Significado |
 |----------|---------|
-| `workspace:*` | Any version — always resolves to local |
-| `workspace:^1.0.0` | Semver constraint for publishing |
-| `workspace:~1.0.0` | Tilde constraint for publishing |
+| `workspace:*` | Qualquer versão — sempre resolve para local |
+| `workspace:^1.0.0` | Constraint de semver para publicação |
+| `workspace:~1.0.0` | Constraint de tilde para publicação |
 
 ---
 
 ## Strict Mode
 
-pnpm is strict by default — you cannot import packages you haven't declared:
+pnpm é strict por padrão — você não pode importar pacotes que não declarou:
 
 ```json
 // If package A depends on package B, and B depends on lodash:
@@ -123,7 +123,7 @@ pnpm is strict by default — you cannot import packages you haven't declared:
 // You must explicitly add lodash to A's dependencies
 ```
 
-This prevents phantom dependencies — the #1 cause of "works on my machine" issues.
+Isso previne dependências fantasma — a causa #1 de problemas do tipo "funciona na minha máquina".
 
 ---
 
@@ -156,7 +156,7 @@ pnpm install --reporter=default
 
 ## Overrides
 
-Force a specific version across all packages:
+Força uma versão específica em todos os pacotes:
 
 ```json
 // package.json (root)
@@ -174,7 +174,7 @@ Force a specific version across all packages:
 
 ## Catalogs
 
-Centralize version management in monorepos:
+Centralize o gerenciamento de versões em monorepos:
 
 ```yaml
 # pnpm-workspace.yaml
@@ -195,7 +195,7 @@ catalogs:
     "@playwright/test": "1.50.1"
 ```
 
-Usage in package.json:
+Uso no package.json:
 ```json
 {
 	"dependencies": {
@@ -211,7 +211,7 @@ Usage in package.json:
 
 ---
 
-## Common Commands
+## Comandos Comuns
 
 ```bash
 # Install
@@ -245,7 +245,7 @@ pnpm store prune          # Clean up orphaned packages
 
 ---
 
-## CI Configuration
+## Configuração de CI
 
 ```yaml
 # .github/workflows/ci.yml

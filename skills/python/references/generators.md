@@ -139,7 +139,7 @@ print(next(squares_gen))  # 1
 print(next(squares_gen))  # 4
 ```
 
-### Memory Comparison
+### Comparação de Memória
 ```python
 import sys
 
@@ -696,7 +696,7 @@ asyncio.run(main())
 
 ---
 
-## Performance Comparisons
+## Comparações de Performance
 
 ### List vs Generator
 ```python
@@ -735,7 +735,7 @@ print(f"Generator: {gen_time:.6f}s, {gen_memory}bytes")
 # Generator é ~714,000x mais memory efficient
 ```
 
-### Real Processing Time
+### Tempo de Processamento Real
 ```python
 import time
 
@@ -768,7 +768,7 @@ print(f"Generator: {time.perf_counter() - start:.6f}s")
 
 ---
 
-## Infinite Sequences
+## Sequências Infinitas
 
 ### Definição
 
@@ -818,13 +818,13 @@ order_id_3 = next(id_gen)  # "order-20260211103045-000003"
 
 ## Casos de Uso Estabelecidos
 
-### Data Processing
+### Processamento de Dados
 ```python
 for record in read_large_csv("data.csv"):
     process_record(record)
 ```
 
-### Log Analysis
+### Análise de Logs
 ```python
 for error_line in parse_error_logs("/var/log/app.log"):
     alert_team(error_line)
@@ -836,7 +836,7 @@ async for event in stream_api_events():
     handle_event(event)
 ```
 
-### Database Cursors
+### Cursores de Banco de Dados
 ```python
 for row in db.stream_query("SELECT * FROM large_table"):
     transform_row(row)
@@ -849,7 +849,7 @@ pipeline = extract() | transform() | load()
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Use generators para large datasets**
 ```python

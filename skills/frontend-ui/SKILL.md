@@ -2,62 +2,62 @@
 version: 1.0.0
 name: frontend-ui
 description: |
-  Frontend UI/UX design knowledge base (2026). Covers OKLCH color theory (perceptual uniformity,
-  semantic tokens, dark mode design), fluid typography with clamp(), variable fonts, modern CSS
-  layout (container queries, subgrid, :has()), 8px spacing grid, Motion animation library (spring
-  physics, prefers-reduced-motion), UX patterns (skeleton screens, optimistic UI, command palette),
-  accessibility (WCAG 2.2 AA, APCA contrast, focus-visible, semantic HTML), design system stack
-  (Radix UI primitives + Tailwind CSS v4 + shadcn/ui), visual trends 2026 (bento grids,
-  glassmorphism, grain texture), and icon/image optimization.
-  Use when: (1) Designing interfaces, (2) Choosing color palettes and typography, (3) Implementing
-  animations, (4) Ensuring WCAG 2.2 accessibility, (5) Building design system components.
-  Triggers: /frontend-ui, /ui, /ux, design, color, typography, animation, accessibility, OKLCH.
+  Base de conhecimento de design de UI/UX frontend (2026). Cobre a teoria de cores OKLCH (uniformidade
+  perceptual, tokens semânticos, design de dark mode), tipografia fluida com clamp(), fontes variáveis,
+  layout moderno em CSS (container queries, subgrid, :has()), grade de espaçamento de 8px, biblioteca de
+  animação Motion (spring physics, prefers-reduced-motion), padrões de UX (skeleton screens, optimistic UI,
+  command palette), acessibilidade (WCAG 2.2 AA, contraste APCA, focus-visible, HTML semântico), stack de
+  design system (primitivos Radix UI + Tailwind CSS v4 + shadcn/ui), tendências visuais de 2026 (bento
+  grids, glassmorphism, textura de grão) e otimização de ícones/imagens.
+  Use quando: (1) Projetar interfaces, (2) Escolher paletas de cores e tipografia, (3) Implementar
+  animações, (4) Garantir acessibilidade WCAG 2.2, (5) Construir componentes de design system.
+  Gatilhos: /frontend-ui, /ui, /ux, design, color, typography, animation, accessibility, OKLCH.
 type: knowledge
 ---
 
-# Frontend UI — Knowledge Base
+# Frontend UI — Base de Conhecimento
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for frontend UI/UX design (2026).
-It covers visual design, layout, motion, accessibility, and the design system stack.
+Esta skill é a base de conhecimento para design de UI/UX frontend (2026).
+Ela cobre design visual, layout, motion, acessibilidade e a stack de design system.
 
-**What this skill contains:**
-- OKLCH color theory (perceptual uniformity, semantic tokens, dark mode)
-- Fluid typography with `clamp()` and variable fonts
-- Modern CSS layout (container queries, subgrid, `:has()`)
-- 8px spacing grid
-- Motion animations (Motion library, decision tree, reduced motion)
-- UX patterns (skeleton screens, optimistic UI, command palette)
-- Accessibility (WCAG 2.2, APCA, focus-visible, semantic HTML)
-- Design system stack (Radix UI + Tailwind v4 + shadcn/ui)
-- Visual trends 2026 (bento grids, glassmorphism, grain)
-- Icons and image optimization
-
----
-
-## Fundamental Principles
-
-1. **Tokens, not magic values** — every color, spacing, and font-size comes from a design token
-2. **OKLCH is the standard** — perceptually uniform, P3 gamut, built into Tailwind v4
-3. **Headless primitives first** — Radix UI for behavior + accessibility, Tailwind for styling
-4. **Motion with purpose** — animations communicate state, they are not decoration
-5. **Accessibility is non-negotiable** — WCAG 2.2 AA minimum, test with keyboard and screen reader
+**O que esta skill contém:**
+- Teoria de cores OKLCH (uniformidade perceptual, tokens semânticos, dark mode)
+- Tipografia fluida com `clamp()` e fontes variáveis
+- Layout moderno em CSS (container queries, subgrid, `:has()`)
+- Grade de espaçamento de 8px
+- Animações Motion (biblioteca Motion, árvore de decisão, reduced motion)
+- Padrões de UX (skeleton screens, optimistic UI, command palette)
+- Acessibilidade (WCAG 2.2, APCA, focus-visible, HTML semântico)
+- Stack de design system (Radix UI + Tailwind v4 + shadcn/ui)
+- Tendências visuais de 2026 (bento grids, glassmorphism, grão)
+- Ícones e otimização de imagens
 
 ---
 
-## 1. OKLCH Color Theory
+## Princípios Fundamentais
 
-### Why OKLCH over HSL
+1. **Tokens, não valores mágicos** — toda cor, espaçamento e font-size vem de um design token
+2. **OKLCH é o padrão** — perceptualmente uniforme, gamut P3, integrado ao Tailwind v4
+3. **Primitivos headless primeiro** — Radix UI para comportamento + acessibilidade, Tailwind para estilização
+4. **Motion com propósito** — animações comunicam estado, não são decoração
+5. **Acessibilidade é inegociável** — WCAG 2.2 AA no mínimo, teste com teclado e leitor de tela
 
-| Aspect | HSL | OKLCH |
+---
+
+## 1. Teoria de Cores OKLCH
+
+### Por que OKLCH em vez de HSL
+
+| Aspecto | HSL | OKLCH |
 |--------|-----|-------|
-| Perceptual uniformity | No — same L looks different across hues | Yes — L=0.5 always appears equally bright |
-| Color gamut | sRGB only | P3 (more vivid on modern displays) |
-| Dark mode | Adjust each color manually | Adjust L axis systematically |
-| Tailwind v4 | Legacy | Native support |
+| Uniformidade perceptual | Não — o mesmo L parece diferente entre matizes | Sim — L=0.5 sempre aparenta o mesmo brilho |
+| Gamut de cores | Apenas sRGB | P3 (mais vívido em telas modernas) |
+| Dark mode | Ajustar cada cor manualmente | Ajustar o eixo L de forma sistemática |
+| Tailwind v4 | Legado | Suporte nativo |
 
-### Token System (Two-Tier)
+### Sistema de Tokens (Dois Níveis)
 
 ```css
 /* Tier 1: Primitives (the full palette) */
@@ -99,7 +99,7 @@ It covers visual design, layout, motion, accessibility, and the design system st
 }
 ```
 
-### Tailwind v4 CSS-First Config
+### Config CSS-First do Tailwind v4
 
 ```css
 @import "tailwindcss";
@@ -115,13 +115,13 @@ It covers visual design, layout, motion, accessibility, and the design system st
 }
 ```
 
-**Reference:** [references/color-oklch.md](references/color-oklch.md)
+**Referência:** [references/color-oklch.md](references/color-oklch.md)
 
 ---
 
-## 2. Typography
+## 2. Tipografia
 
-### Fluid Type Scale (clamp)
+### Escala Tipográfica Fluida (clamp)
 
 ```css
 :root {
@@ -143,7 +143,7 @@ h3 { font-size: var(--text-2xl); font-weight: 600; line-height: 1.3; }
 p  { font-size: var(--text-base); line-height: 1.6; }
 ```
 
-### Variable Fonts
+### Fontes Variáveis
 
 ```css
 @font-face {
@@ -161,21 +161,21 @@ p  { font-size: var(--text-base); line-height: 1.6; }
 .nav-link:hover { font-variation-settings: "wght" 600; }
 ```
 
-### Font Pairings (2026)
+### Combinações de Fontes (2026)
 
-| Heading | Body | Character |
+| Título | Corpo | Caráter |
 |---------|------|-----------|
-| Inter Variable | Inter Variable | Clean, neutral, SaaS |
-| Instrument Serif | Inter Variable | Editorial, elegant |
-| Space Grotesk | DM Sans | Tech, modern |
-| Geist Sans | Geist Mono | Developer tools |
-| Fraunces Variable | Source Sans 3 | Warm, friendly |
+| Inter Variable | Inter Variable | Limpo, neutro, SaaS |
+| Instrument Serif | Inter Variable | Editorial, elegante |
+| Space Grotesk | DM Sans | Tech, moderno |
+| Geist Sans | Geist Mono | Ferramentas de desenvolvimento |
+| Fraunces Variable | Source Sans 3 | Acolhedor, amigável |
 
-**Reference:** [references/typography-fluid-typography.md](references/typography-fluid-typography.md)
+**Referência:** [references/typography-fluid-typography.md](references/typography-fluid-typography.md)
 
 ---
 
-## 3. Modern CSS Layout
+## 3. Layout Moderno em CSS
 
 ### Container Queries
 
@@ -202,7 +202,7 @@ p  { font-size: var(--text-base); line-height: 1.6; }
 }
 ```
 
-### Subgrid (aligned across siblings)
+### Subgrid (alinhado entre irmãos)
 
 ```css
 .product-grid {
@@ -218,7 +218,7 @@ p  { font-size: var(--text-base); line-height: 1.6; }
 }
 ```
 
-### :has() Selector
+### Seletor :has()
 
 ```css
 /* Parent selector — layout depends on children */
@@ -231,7 +231,7 @@ p  { font-size: var(--text-base); line-height: 1.6; }
 }
 ```
 
-### 8px Spacing Grid
+### Grade de Espaçamento de 8px
 
 ```
 4px   micro (gap inside icon, inline padding)
@@ -244,13 +244,13 @@ p  { font-size: var(--text-base); line-height: 1.6; }
 64px  3xl (hero sections)
 ```
 
-**Reference:** [references/layout-modern-css-layout.md](references/layout-modern-css-layout.md)
+**Referência:** [references/layout-modern-css-layout.md](references/layout-modern-css-layout.md)
 
 ---
 
 ## 4. Motion
 
-### Library Decision Tree
+### Árvore de Decisão de Bibliotecas
 
 ```
 Need animation?
@@ -266,7 +266,7 @@ Need animation?
   +-- Page transition                          → View Transitions API
 ```
 
-### Motion Library (Spring Physics)
+### Biblioteca Motion (Spring Physics)
 
 ```tsx
 import { motion, AnimatePresence } from "motion/react";
@@ -306,7 +306,7 @@ function FadeIn({ children }: { children: React.ReactNode }): React.JSX.Element 
 }
 ```
 
-### Reduced Motion (Non-Negotiable)
+### Reduced Motion (Inegociável)
 
 ```css
 /* CSS: disable all animations for users who prefer reduced motion */
@@ -336,11 +336,11 @@ function useReducedMotion(): boolean {
 }
 ```
 
-**Reference:** [references/motion-animation-guide.md](references/motion-animation-guide.md)
+**Referência:** [references/motion-animation-guide.md](references/motion-animation-guide.md)
 
 ---
 
-## 5. UX Patterns
+## 5. Padrões de UX
 
 ### Skeleton Screens
 
@@ -399,23 +399,23 @@ function useLikePost(postId: string) {
 }
 ```
 
-**Reference:** [references/ux-patterns-interaction-patterns.md](references/ux-patterns-interaction-patterns.md)
+**Referência:** [references/ux-patterns-interaction-patterns.md](references/ux-patterns-interaction-patterns.md)
 
 ---
 
-## 6. Accessibility (WCAG 2.2)
+## 6. Acessibilidade (WCAG 2.2)
 
-### Key WCAG 2.2 Criteria
+### Principais Critérios da WCAG 2.2
 
-| Criterion | Requirement | Implementation |
+| Critério | Requisito | Implementação |
 |-----------|-------------|----------------|
-| 1.4.3 Contrast (Min) | Text contrast ratio | APCA Lc >= 60 for body text |
-| 2.4.7 Focus Visible | Visible focus indicator | `:focus-visible` with 2px outline |
-| 2.4.11 Focus Not Obscured | Focus not hidden | `scroll-margin`, z-index management |
-| 2.5.8 Target Size (Min) | Touch target >= 24×24px | `min-w-6 min-h-6` |
-| 4.1.2 Name, Role, Value | Semantic markup | Semantic HTML + ARIA only when needed |
+| 1.4.3 Contraste (Mín.) | Razão de contraste do texto | APCA Lc >= 60 para texto de corpo |
+| 2.4.7 Foco Visível | Indicador de foco visível | `:focus-visible` com outline de 2px |
+| 2.4.11 Foco Não Obscurecido | Foco não escondido | `scroll-margin`, gestão de z-index |
+| 2.5.8 Tamanho do Alvo (Mín.) | Alvo de toque >= 24×24px | `min-w-6 min-h-6` |
+| 4.1.2 Nome, Papel, Valor | Marcação semântica | HTML semântico + ARIA apenas quando necessário |
 
-### Focus Management
+### Gestão de Foco
 
 ```css
 /* Global focus style — keyboard navigation only */
@@ -437,7 +437,7 @@ function useLikePost(postId: string) {
 }
 ```
 
-### Semantic HTML First
+### HTML Semântico Primeiro
 
 ```tsx
 // GOOD: semantic HTML — built-in behavior and accessibility
@@ -462,7 +462,7 @@ function useLikePost(postId: string) {
 />
 ```
 
-### Accessibility Testing
+### Testes de Acessibilidade
 
 ```typescript
 // Playwright with axe-core
@@ -477,13 +477,13 @@ test("homepage has no accessibility violations", async ({ page }) => {
 });
 ```
 
-**Reference:** [references/accessibility-wcag-2-2.md](references/accessibility-wcag-2-2.md)
+**Referência:** [references/accessibility-wcag-2-2.md](references/accessibility-wcag-2-2.md)
 
 ---
 
-## 7. Design System Stack
+## 7. Stack de Design System
 
-### Recommended Stack
+### Stack Recomendada
 
 ```
 Radix UI (behavior + accessibility primitives)
@@ -492,14 +492,14 @@ Radix UI (behavior + accessibility primitives)
   = Your Design System
 ```
 
-### shadcn/ui Setup
+### Configuração do shadcn/ui
 
 ```bash
 npx shadcn@latest init
 npx shadcn@latest add button card dialog dropdown-menu input label
 ```
 
-### cn() Utility (Essential)
+### Utilitário cn() (Essencial)
 
 ```typescript
 import { clsx, type ClassValue } from "clsx";
@@ -551,11 +551,11 @@ function Modal({ trigger, title, children }: ModalProps): React.JSX.Element {
 }
 ```
 
-**Reference:** [references/components-shadcn-ecosystem.md](references/components-shadcn-ecosystem.md)
+**Referência:** [references/components-shadcn-ecosystem.md](references/components-shadcn-ecosystem.md)
 
 ---
 
-## 8. Visual Trends 2026
+## 8. Tendências Visuais de 2026
 
 ### Bento Grid
 
@@ -575,7 +575,7 @@ function Modal({ trigger, title, children }: ModalProps): React.JSX.Element {
 }
 ```
 
-### Glassmorphism (used with taste)
+### Glassmorphism (usado com bom senso)
 
 ```css
 .glass {
@@ -592,7 +592,7 @@ function Modal({ trigger, title, children }: ModalProps): React.JSX.Element {
 }
 ```
 
-### Icons and Images
+### Ícones e Imagens
 
 ```tsx
 // Icons: Lucide React (consistent, tree-shakeable)
@@ -615,24 +615,24 @@ import { Search, ChevronRight, X } from "lucide-react";
 </picture>
 ```
 
-**Reference:** [references/visual-trends-2026.md](references/visual-trends-2026.md)
+**Referência:** [references/visual-trends-2026.md](references/visual-trends-2026.md)
 
 ---
 
 ## Reference Files
 
-- [references/accessibility-wcag-2-2.md](references/accessibility-wcag-2-2.md) — WCAG 2.2 — Frontend Implementation Guide
-- [references/color-dark-mode.md](references/color-dark-mode.md) — Dark Mode — Design-First Approach
-- [references/color-oklch.md](references/color-oklch.md) — OKLCH Color Space — In Depth
-- [references/color-semantic-tokens.md](references/color-semantic-tokens.md) — Semantic Token System — Two-Tier Architecture
-- [references/components-icons-images.md](references/components-icons-images.md) — Icons & Images — Lucide, Optimization & Best Practices
-- [references/components-shadcn-ecosystem.md](references/components-shadcn-ecosystem.md) — shadcn/ui Ecosystem — The Headless + Copy-Paste Architecture
-- [references/layout-modern-css-layout.md](references/layout-modern-css-layout.md) — Modern CSS Layout — Container Queries, Subgrid, :has() & More
-- [references/layout-spacing-system.md](references/layout-spacing-system.md) — Spacing System — 8px Grid & Token Architecture
-- [references/motion-animation-guide.md](references/motion-animation-guide.md) — Animation Guide — Decision Tree, Performance & Implementation
-- [references/typography-fluid-typography.md](references/typography-fluid-typography.md) — Fluid Typography — clamp() In Depth
-- [references/typography-font-pairing.md](references/typography-font-pairing.md) — Font Pairing — Principles & Proven Combinations
-- [references/typography-variable-fonts.md](references/typography-variable-fonts.md) — Variable Fonts — Axes, Performance & Animation
-- [references/ux-patterns-interaction-patterns.md](references/ux-patterns-interaction-patterns.md) — Interaction Patterns — Command Palettes, Toasts, Modals & More
-- [references/ux-patterns-loading-states.md](references/ux-patterns-loading-states.md) — Loading States — Skeletons, Optimistic UI & Streaming
-- [references/visual-trends-2026.md](references/visual-trends-2026.md) — Visual Trends 2026 — Bento, Glass, Grain & Beyond
+- [references/accessibility-wcag-2-2.md](references/accessibility-wcag-2-2.md) — WCAG 2.2 — Guia de Implementação Frontend
+- [references/color-dark-mode.md](references/color-dark-mode.md) — Dark Mode — Abordagem Design-First
+- [references/color-oklch.md](references/color-oklch.md) — Espaço de Cores OKLCH — Em Profundidade
+- [references/color-semantic-tokens.md](references/color-semantic-tokens.md) — Sistema de Tokens Semânticos — Arquitetura em Dois Níveis
+- [references/components-icons-images.md](references/components-icons-images.md) — Ícones e Imagens — Lucide, Otimização e Boas Práticas
+- [references/components-shadcn-ecosystem.md](references/components-shadcn-ecosystem.md) — Ecossistema shadcn/ui — A Arquitetura Headless + Copy-Paste
+- [references/layout-modern-css-layout.md](references/layout-modern-css-layout.md) — Layout Moderno em CSS — Container Queries, Subgrid, :has() e Mais
+- [references/layout-spacing-system.md](references/layout-spacing-system.md) — Sistema de Espaçamento — Grade de 8px e Arquitetura de Tokens
+- [references/motion-animation-guide.md](references/motion-animation-guide.md) — Guia de Animação — Árvore de Decisão, Performance e Implementação
+- [references/typography-fluid-typography.md](references/typography-fluid-typography.md) — Tipografia Fluida — clamp() em Profundidade
+- [references/typography-font-pairing.md](references/typography-font-pairing.md) — Combinação de Fontes — Princípios e Combinações Comprovadas
+- [references/typography-variable-fonts.md](references/typography-variable-fonts.md) — Fontes Variáveis — Eixos, Performance e Animação
+- [references/ux-patterns-interaction-patterns.md](references/ux-patterns-interaction-patterns.md) — Padrões de Interação — Command Palettes, Toasts, Modais e Mais
+- [references/ux-patterns-loading-states.md](references/ux-patterns-loading-states.md) — Estados de Carregamento — Skeletons, Optimistic UI e Streaming
+- [references/visual-trends-2026.md](references/visual-trends-2026.md) — Tendências Visuais de 2026 — Bento, Glass, Grão e Além

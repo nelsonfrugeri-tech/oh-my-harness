@@ -1,11 +1,11 @@
-# OpenTelemetry SDK Instrumentation
+# Instrumentação do SDK do OpenTelemetry
 
-## Instrumentation Strategy
+## Estratégia de instrumentação
 
-Start with auto-instrumentation for immediate visibility, then add manual spans
-as understanding deepens. The journey is incremental.
+Comece com a instrumentação automática para obter visibilidade imediata e depois
+adicione spans manuais à medida que o entendimento se aprofunda. A jornada é incremental.
 
-### Auto-Instrumentation
+### Instrumentação automática
 
 ```python
 # Python: zero-code auto-instrumentation
@@ -20,7 +20,7 @@ FlaskInstrumentor().instrument_app(app)
 SQLAlchemyInstrumentor().instrument(engine=engine)
 ```
 
-### Manual Instrumentation
+### Instrumentação manual
 
 ```python
 from opentelemetry import trace
@@ -42,9 +42,9 @@ def process_order(order_id: str) -> dict:
         raise
 ```
 
-## Context Propagation
+## Propagação de contexto
 
-### W3C Trace Context (default, recommended)
+### W3C Trace Context (padrão, recomendado)
 
 ```python
 from opentelemetry import propagate
@@ -60,7 +60,7 @@ with tracer.start_as_current_span("handle_request", context=ctx):
     pass
 ```
 
-### Baggage (cross-service context)
+### Baggage (contexto entre serviços)
 
 ```python
 from opentelemetry import baggage, context
@@ -70,7 +70,7 @@ token = context.attach(ctx)
 # Downstream reads: baggage.get_baggage("user.tier")
 ```
 
-## SDK Initialization (must be FIRST)
+## Inicialização do SDK (deve vir PRIMEIRO)
 
 ```python
 from opentelemetry import trace
@@ -86,12 +86,12 @@ trace.set_tracer_provider(provider)
 # MUST happen before any instrumented library is imported
 ```
 
-## Collector Deployment
+## Implantação do Collector
 
-Always send to OTel Collector, not directly to backends:
-- Decouples export problems from app
-- Simplifies secret management
-- Enables enrichment, sampling, routing
+Sempre envie para o OTel Collector, não diretamente para os backends:
+- Desacopla problemas de exportação da aplicação
+- Simplifica o gerenciamento de segredos
+- Habilita enriquecimento, sampling e roteamento
 
 ```yaml
 receivers:
@@ -112,11 +112,11 @@ service:
       exporters: [otlp]
 ```
 
-## Metrics Best Practices
+## Boas práticas de métricas
 
-- Avoid heap allocation on hot paths
-- Use pre-aggregation for predictable memory
-- Measure instrumentation coverage like code coverage
+- Evite alocação no heap em hot paths
+- Use pré-agregação para uso de memória previsível
+- Meça a cobertura de instrumentação como se mede a cobertura de código
 
 ```python
 from opentelemetry import metrics
@@ -125,16 +125,16 @@ request_counter = meter.create_counter("http.requests", unit="1")
 latency_histogram = meter.create_histogram("http.latency", unit="ms")
 ```
 
-## Sampling Strategies
+## Estratégias de sampling
 
-| Strategy | Use Case |
+| Estratégia | Caso de uso |
 |----------|----------|
 | AlwaysOn | Dev/staging |
-| TraceIdRatio(0.1) | 10% in high-traffic prod |
-| ParentBased | Respect upstream decision |
-| Custom | All errors + N% success |
+| TraceIdRatio(0.1) | 10% em produção com alto tráfego |
+| ParentBased | Respeitar a decisão do upstream |
+| Custom | Todos os erros + N% de sucesso |
 
-## Semantic Conventions
+## Convenções semânticas
 
-Follow OTel conventions: `http.request.method`, `db.system`,
-`rpc.service`. Custom: reverse-DNS (`com.mycompany.order.id`).
+Siga as convenções do OTel: `http.request.method`, `db.system`,
+`rpc.service`. Personalizadas: reverse-DNS (`com.mycompany.order.id`).

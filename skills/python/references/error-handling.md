@@ -235,7 +235,7 @@ except EcommerceError as e:
 
 ## Exception Context
 
-### Adding Context
+### Adicionando Contexto
 ```python
 class APIError(Exception):
     """API error com contexto rico."""
@@ -299,7 +299,7 @@ except APIError as e:
 
 ## try/except Patterns
 
-### Basic Pattern
+### Padrão Básico
 ```python
 import structlog
 
@@ -334,7 +334,7 @@ def process_file(filepath: str) -> dict:
         raise
 ```
 
-### Multiple Exceptions
+### Múltiplas Exceções
 ```python
 def fetch_user_data(user_id: str) -> dict:
     """Fetch data with multiple exception handlers."""
@@ -365,7 +365,7 @@ def fetch_user_data(user_id: str) -> dict:
         raise APIError("Network error", status_code=503)
 ```
 
-### else and finally
+### else e finally
 ```python
 def process_transaction(transaction_id: str) -> None:
     """Process transaction com else/finally."""
@@ -407,7 +407,7 @@ def process_transaction(transaction_id: str) -> None:
 
 ## Exception Chaining
 
-### from keyword
+### A palavra-chave from
 ```python
 class DatabaseError(Exception):
     """Database error."""
@@ -448,7 +448,7 @@ except DatabaseError as e:
     )
 ```
 
-### suppress chain
+### Suprimindo chain
 ```python
 def process_data(data: str) -> dict:
     """Process data suprimindo chain."""
@@ -595,7 +595,7 @@ async def create_order(order: dict) -> dict:
 
 ## Retry Patterns
 
-### Simple Retry
+### Retry Simples
 ```python
 import time
 import structlog
@@ -788,7 +788,7 @@ def get_user_profile(user_id: str) -> dict:
 
 ## Circuit Breaker Pattern
 
-### Basic Implementation
+### Implementação Básica
 ```python
 import time
 from typing import Callable, TypeVar
@@ -887,7 +887,7 @@ def call_external_api() -> dict:
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Use hierarquia de exceções**
 ```python

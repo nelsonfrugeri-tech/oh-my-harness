@@ -51,7 +51,7 @@ def greet(name: str) -> str:
 greet("Alice")  # wrapper executa
 ```
 
-### @wraps Importance
+### Importância do @wraps
 ```python
 from functools import wraps
 
@@ -633,7 +633,7 @@ def generate_chat_response(prompt: str) -> str:
 answer = generate_chat_response("Qual a capital da França?")
 ```
 
-### Output (JSON Estruturado)
+### Saída (JSON Estruturado)
 ```json
 {
   "event": "observerai.openai.completion.chat_create",
@@ -665,7 +665,7 @@ answer = generate_chat_response("Qual a capital da França?")
 }
 ```
 
-### Tool Calls Support
+### Suporte a Tool Calls
 ```python
 # Quando LLM usa function calling
 conversation = {
@@ -902,7 +902,7 @@ def typed_function(x: int) -> str:
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Sempre use @wraps**
 ```python

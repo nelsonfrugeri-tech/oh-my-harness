@@ -1,16 +1,16 @@
 # Langfuse
 
-## LLM Observability
+## Observabilidade de LLM
 
-### What to Trace
-- Prompt template + variables
-- Model, temperature, max_tokens
-- Input/output token counts
-- Latency (TTFT, total)
-- Cost per request
-- User feedback scores
+### O que rastrear
+- Template de prompt + variáveis
+- Modelo, temperature, max_tokens
+- Contagem de tokens de entrada/saída
+- Latência (TTFT, total)
+- Custo por requisição
+- Notas de feedback do usuário
 
-### Integration
+### Integração
 ```python
 from langfuse import Langfuse
 langfuse = Langfuse()
@@ -25,9 +25,9 @@ generation = trace.generation(
 )
 ```
 
-### Evaluation
-- Model-graded evaluation (LLM-as-judge)
-- Human annotation workflows
-- A/B testing prompt variants
+### Avaliação
+- Avaliação feita por modelo (LLM-as-judge)
+- Fluxos de anotação humana
+- Teste A/B de variantes de prompt
 
-### Version: Langfuse 3.x (2026 stable, self-hosted or cloud)
+### Versão: Langfuse 3.x (estável em 2026, self-hosted ou cloud)

@@ -1,6 +1,6 @@
-# Blameless Postmortem Template
+# Template de Postmortem Blameless
 
-## Header
+## Cabeçalho
 
 ```markdown
 # Postmortem: {Incident Title}
@@ -12,9 +12,9 @@
 **Status:** Draft | In Review | Complete
 ```
 
-## 1. Summary
+## 1. Resumo
 
-One paragraph: what happened, impact, duration, resolution.
+Um parágrafo: o que aconteceu, impacto, duração, resolução.
 
 ```markdown
 On {date}, {service} experienced {description of failure} for {duration},
@@ -22,7 +22,7 @@ affecting {N users / N% of traffic / specific functionality}. The root cause
 was {one sentence}. The incident was resolved by {mitigation action}.
 ```
 
-## 2. Impact
+## 2. Impacto
 
 ```markdown
 - **Duration:** HH:MM to HH:MM UTC ({N} minutes)
@@ -32,7 +32,7 @@ was {one sentence}. The incident was resolved by {mitigation action}.
 - **Data loss:** {yes/no, details}
 ```
 
-## 3. Timeline
+## 3. Linha do Tempo
 
 ```markdown
 | Time (UTC) | Event |
@@ -46,10 +46,10 @@ was {one sentence}. The incident was resolved by {mitigation action}.
 | HH:MM | All-clear declared |
 ```
 
-## 4. Root Cause
+## 4. Causa Raiz
 
-Detailed technical explanation. Use 5 Whys or fault tree analysis.
-See `root-cause-analysis.md` for techniques.
+Explicação técnica detalhada. Use os 5 Porquês ou análise de árvore de falhas.
+Consulte `root-cause-analysis.md` para técnicas.
 
 ```markdown
 The root cause was {detailed explanation}.
@@ -59,27 +59,27 @@ The root cause was {detailed explanation}.
 - {factor 2}
 ```
 
-## 5. What Went Well
+## 5. O Que Deu Certo
 
 ```markdown
 - {positive aspect of the response}
 - {thing that prevented worse outcome}
 ```
 
-## 6. What Went Wrong
+## 6. O Que Deu Errado
 
 ```markdown
 - {thing that made the incident worse or slower to resolve}
 - {gap in monitoring, process, or tooling}
 ```
 
-## 7. Where We Got Lucky
+## 7. Onde Tivemos Sorte
 
 ```markdown
 - {thing that could have made it worse but didn't}
 ```
 
-## 8. Action Items
+## 8. Itens de Ação
 
 ```markdown
 | # | Action | Type | Owner | Deadline | Status |
@@ -89,21 +89,21 @@ The root cause was {detailed explanation}.
 | 3 | {action} | Mitigate | {name} | {date} | TODO |
 ```
 
-**Action types:**
-- **Prevent:** Stop this from happening again
-- **Detect:** Catch it faster next time
-- **Mitigate:** Reduce impact when it happens
+**Tipos de ação:**
+- **Prevent:** Impedir que isso aconteça novamente
+- **Detect:** Detectar mais rápido na próxima vez
+- **Mitigate:** Reduzir o impacto quando acontecer
 
-## 9. Lessons Learned
+## 9. Lições Aprendidas
 
 ```markdown
 - {key takeaway for the team}
 ```
 
-## Blameless Culture Rules
+## Regras da Cultura Blameless
 
-1. Focus on systems and processes, not individuals
-2. "Who" is never the root cause -- "what system allowed this"
-3. Assume everyone acted with best intentions and available information
-4. The goal is learning, not punishment
-5. Share widely -- other teams benefit from your learnings
+1. Foque em sistemas e processos, não em indivíduos
+2. "Quem" nunca é a causa raiz -- "que sistema permitiu isso"
+3. Assuma que todos agiram com as melhores intenções e as informações disponíveis
+4. O objetivo é aprender, não punir
+5. Compartilhe amplamente -- outras equipes se beneficiam dos seus aprendizados

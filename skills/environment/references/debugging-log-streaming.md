@@ -1,6 +1,6 @@
-# Log Streaming & Debugging
+# Streaming de Logs e Depuração
 
-## Docker Logs
+## Logs do Docker
 ```bash
 # Follow logs for a service
 docker compose logs -f api
@@ -15,7 +15,7 @@ docker compose logs -f api worker
 docker compose logs -f -t api
 ```
 
-## Debugging Running Containers
+## Depurando Containers em Execução
 ```bash
 # Shell into container
 docker compose exec api bash
@@ -30,7 +30,7 @@ docker inspect <container_id> | jq '.[0].State'
 docker compose exec api curl -v http://postgres:5432
 ```
 
-## Structured Logging
+## Logging Estruturado
 ```python
 import structlog
 logger = structlog.get_logger()
@@ -38,10 +38,10 @@ logger.info("request_processed", method="GET", path="/api/users", duration_ms=42
 # Output: {"event": "request_processed", "method": "GET", "path": "/api/users", "duration_ms": 42}
 ```
 
-## Common Issues
-| Problem | Diagnosis |
+## Problemas Comuns
+| Problema | Diagnóstico |
 |---------|-----------|
-| Container crash loop | `docker logs <id>` — check startup error |
-| Port conflict | `lsof -i :PORT` — find process using port |
-| Volume permissions | Check UID/GID mapping between host and container |
-| DNS resolution | `docker compose exec api nslookup postgres` |
+| Container em loop de crash | `docker logs <id>` — verifique o erro de inicialização |
+| Conflito de porta | `lsof -i :PORT` — encontre o processo usando a porta |
+| Permissões de volume | Verifique o mapeamento de UID/GID entre host e container |
+| Resolução de DNS | `docker compose exec api nslookup postgres` |

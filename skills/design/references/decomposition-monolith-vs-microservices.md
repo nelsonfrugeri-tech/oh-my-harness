@@ -1,30 +1,30 @@
-# Monolith vs Modular Monolith vs Microservices
+# Monolito vs Monolito Modular vs Microservices
 
-## The Architecture Spectrum (2026)
+## O Espectro de Arquitetura (2026)
 
-The industry has moved beyond the binary monolith-vs-microservices debate.
-Architecture exists on a spectrum. The modular monolith is the pragmatic sweet spot
-for most teams in 2026.
+A indústria foi além do debate binário monolito-vs-microservices.
+A arquitetura existe em um espectro. O monolito modular é o ponto de equilíbrio pragmático
+para a maioria dos times em 2026.
 
-## Comparison Matrix
+## Matriz Comparativa
 
-| Criteria | Monolith | Modular Monolith | Microservices |
+| Critério | Monolito | Monolito Modular | Microservices |
 |----------|----------|-----------------|---------------|
-| Deployment | Single unit | Single unit | Independent per service |
-| Data consistency | ACID transactions | ACID within modules | Eventual consistency |
-| Communication | Function calls | Function calls (module API) | Network (HTTP/gRPC/events) |
-| Team autonomy | Low | Medium | High |
-| Operational complexity | Low | Low | High |
-| Latency overhead | None | None | Network hops |
-| Debug/trace | Simple stack traces | Simple stack traces | Distributed tracing |
-| Technology diversity | Single stack | Single stack | Polyglot possible |
-| Scaling granularity | Whole app | Whole app | Per service |
-| Dev velocity (small team) | Fast | Fast | Slow (overhead) |
-| Dev velocity (large org) | Slow (conflicts) | Medium | Fast (independence) |
+| Deployment | Unidade única | Unidade única | Independente por serviço |
+| Consistência de dados | Transações ACID | ACID dentro dos módulos | Consistência eventual |
+| Comunicação | Chamadas de função | Chamadas de função (API do módulo) | Rede (HTTP/gRPC/eventos) |
+| Autonomia do time | Baixa | Média | Alta |
+| Complexidade operacional | Baixa | Baixa | Alta |
+| Overhead de latência | Nenhum | Nenhum | Saltos de rede |
+| Debug/trace | Stack traces simples | Stack traces simples | Distributed tracing |
+| Diversidade de tecnologia | Stack único | Stack único | Poliglota possível |
+| Granularidade de escala | App inteiro | App inteiro | Por serviço |
+| Velocidade de dev (time pequeno) | Rápida | Rápida | Lenta (overhead) |
+| Velocidade de dev (organização grande) | Lenta (conflitos) | Média | Rápida (independência) |
 
-## Decision Framework
+## Framework de Decisão
 
-### Start with the Monolith
+### Comece pelo Monolito
 
 ```
 New project? Start with a monolith.
@@ -34,7 +34,7 @@ New project? Start with a monolith.
 - Debugging is trivial
 ```
 
-### Graduate to Modular Monolith
+### Evolua para o Monolito Modular
 
 ```
 Growing team (10-50)? Refactor to modular monolith.
@@ -44,7 +44,7 @@ Growing team (10-50)? Refactor to modular monolith.
 - No direct cross-module database access
 ```
 
-**Modular monolith structure:**
+**Estrutura do monolito modular:**
 ```
 src/
   modules/
@@ -66,13 +66,13 @@ src/
       tests/
 ```
 
-**Enforcement rules:**
-1. `__init__.py` exports only the public API
-2. Linting rule: no imports from `modules.X.domain` or `modules.X.infra` by other modules
-3. Architecture tests verify no cross-module boundary violations
-4. Each module has its own database schema (or schema prefix)
+**Regras de imposição:**
+1. `__init__.py` exporta apenas a API pública
+2. Regra de linting: nenhum import de `modules.X.domain` ou `modules.X.infra` por outros módulos
+3. Testes de arquitetura verificam que não há violações de fronteira entre módulos
+4. Cada módulo tem seu próprio schema de banco de dados (ou prefixo de schema)
 
-### Extract to Microservices (When Justified)
+### Extraia para Microservices (Quando Justificado)
 
 ```
 Only extract to microservices when:
@@ -82,40 +82,40 @@ Only extract to microservices when:
 - Compliance requires isolation (PCI-DSS, HIPAA)
 ```
 
-**Extract one module at a time:**
-1. Module already has clean API boundary (modular monolith)
-2. Replace in-process calls with HTTP/gRPC
-3. Extract database tables to separate database
-4. Deploy independently
-5. Add circuit breakers and timeouts
+**Extraia um módulo por vez:**
+1. O módulo já tem uma fronteira de API limpa (monolito modular)
+2. Substitua as chamadas in-process por HTTP/gRPC
+3. Extraia as tabelas do banco para um banco separado
+4. Implante de forma independente
+5. Adicione circuit breakers e timeouts
 
-## Real-World Signals
+## Sinais do Mundo Real
 
-**Signals you need microservices:**
-- Deploy queue is 2+ weeks long
-- Teams block each other on releases
-- One component needs 100x more resources
-- Different regulatory domains (PCI vs non-PCI)
+**Sinais de que você precisa de microservices:**
+- A fila de deploy tem 2+ semanas
+- Os times bloqueiam uns aos outros nas releases
+- Um componente precisa de 100x mais recursos
+- Domínios regulatórios distintos (PCI vs não-PCI)
 
-**Signals you DON'T need microservices:**
-- "Netflix does it" (you are not Netflix)
-- Team < 10 developers
-- Single business domain
-- No independent scaling needs
-- Team lacks distributed systems expertise
+**Sinais de que você NÃO precisa de microservices:**
+- "A Netflix faz isso" (você não é a Netflix)
+- Time com menos de 10 desenvolvedores
+- Domínio de negócio único
+- Sem necessidade de escala independente
+- O time não tem expertise em sistemas distribuídos
 
-## The Amazon Prime Video Case (2023)
+## O Caso da Amazon Prime Video (2023)
 
-Amazon Prime Video moved from microservices BACK to a monolith for their video quality
-monitoring system. The distributed architecture had:
-- High infrastructure cost (data transfer between services)
-- Scaling bottleneck at orchestration layer
-- Unnecessary complexity for a single-team service
+A Amazon Prime Video migrou de microservices DE VOLTA para um monolito no sistema de
+monitoramento de qualidade de vídeo. A arquitetura distribuída tinha:
+- Alto custo de infraestrutura (transferência de dados entre serviços)
+- Gargalo de escala na camada de orquestração
+- Complexidade desnecessária para um serviço de um único time
 
-**Lesson:** Architecture decisions are context-dependent. Even Amazon chooses monoliths
-when the context warrants it.
+**Lição:** decisões de arquitetura dependem do contexto. Até a Amazon escolhe monolitos
+quando o contexto justifica.
 
-## Sources
+## Fontes
 
 - https://blog.bytebytego.com/p/monolith-vs-microservices-vs-modular
 - https://www.javacodegeeks.com/2025/12/microservices-vs-modular-monoliths-in-2025-when-each-approach-wins.html

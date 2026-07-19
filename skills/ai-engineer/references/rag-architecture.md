@@ -554,24 +554,24 @@ async def rag_with_model_selection(query: str) -> str:
 ## Common Pitfalls
 
 ### 1. Chunk Size Too Large
-- **Problem:** LLM context overflow, slow retrieval
-- **Solution:** Use 512-1024 tokens per chunk
+- **Problema:** context overflow do LLM, retrieval lento
+- **Solução:** Use 512-1024 tokens por chunk
 
 ### 2. No Reranking
-- **Problem:** Retrieved docs may not be most relevant
-- **Solution:** Add reranker (cross-encoder)
+- **Problema:** os docs recuperados podem não ser os mais relevantes
+- **Solução:** Adicione um reranker (cross-encoder)
 
 ### 3. No Query Optimization
-- **Problem:** Poor retrieval for complex queries
-- **Solution:** Query transformation, multi-query
+- **Problema:** retrieval ruim para queries complexas
+- **Solução:** Query transformation, multi-query
 
 ### 4. No Evaluation
-- **Problem:** Don't know if RAG is working well
-- **Solution:** ragas metrics, human eval
+- **Problema:** não se sabe se o RAG está funcionando bem
+- **Solução:** métricas do ragas, human eval
 
 ### 5. No Caching
-- **Problem:** High cost, high latency for repeated queries
-- **Solution:** Semantic cache (Redis, MongoDB)
+- **Problema:** custo alto, latência alta para queries repetidas
+- **Solução:** Semantic cache (Redis, MongoDB)
 
 ---
 

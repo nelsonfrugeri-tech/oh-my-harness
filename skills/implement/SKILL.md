@@ -2,15 +2,15 @@
 version: 1.0.0
 name: implement
 description: |
-  Complete software development methodology. Covers the full workflow
+  Metodologia completa de desenvolvimento de software. Cobre todo o workflow
   QUESTION > RESEARCH > DESIGN > TEST > IMPLEMENT > VALIDATE > REVIEW,
-  test-first (TDD/BDD/ATDD), bug fix workflow, refactoring patterns (strangler fig,
-  branch by abstraction, parallel change, Mikado), feature decomposition (vertical slicing,
-  walking skeleton), self-review checklist, Definition of Done, technical debt management,
-  and CI discipline.
-  Use when: (1) Planning how to approach a development task, (2) Defining test strategy,
-  (3) Refactoring legacy systems, (4) Breaking large features into incremental deliveries,
-  (5) Preparing code for review, (6) Managing technical debt.
+  test-first (TDD/BDD/ATDD), workflow de bug fix, refactoring patterns (strangler fig,
+  branch by abstraction, parallel change, Mikado), decomposição de features (vertical slicing,
+  walking skeleton), self-review checklist, Definition of Done, gestão de technical debt
+  e CI discipline.
+  Use quando: (1) Planejar como abordar uma tarefa de desenvolvimento, (2) Definir estratégia de testes,
+  (3) Refatorar sistemas legados, (4) Quebrar features grandes em entregas incrementais,
+  (5) Preparar código para review, (6) Gerenciar technical debt.
   Triggers: /implement, development workflow, TDD, BDD, refactoring, vertical slice,
   walking skeleton, definition of done, technical debt, code review checklist.
 type: capability
@@ -36,145 +36,145 @@ type: capability
 
 ---
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for systematic software development methodology.
-It defines HOW to develop software — the process, discipline, and quality gates that
-transform requirements into production-ready code.
+Esta skill é a base de conhecimento para uma metodologia sistemática de desenvolvimento de software.
+Ela define COMO desenvolver software — o processo, a disciplina e os quality gates que
+transformam requisitos em código pronto para produção.
 
-**What this skill contains:**
-- Complete development workflow (7 phases)
-- Test-first methodology (TDD, BDD, ATDD)
-- Bug fix workflow (systematic reproduction to prevention)
-- Refactoring methodology (strangler fig, branch by abstraction, parallel change)
-- Large feature decomposition (vertical slicing, walking skeleton)
-- Code review self-check before submitting
-- Definition of Done criteria
-- Technical debt management (quadrant model)
-- CI discipline (small commits, green builds, fast feedback)
+**O que esta skill contém:**
+- Workflow completo de desenvolvimento (7 fases)
+- Metodologia test-first (TDD, BDD, ATDD)
+- Workflow de bug fix (da reprodução sistemática à prevenção)
+- Metodologia de refactoring (strangler fig, branch by abstraction, parallel change)
+- Decomposição de features grandes (vertical slicing, walking skeleton)
+- Self-check de code review antes de submeter
+- Critérios de Definition of Done
+- Gestão de technical debt (modelo de quadrantes)
+- CI discipline (commits pequenos, builds verdes, feedback rápido)
 
-**What this skill does NOT contain:**
-- Language-specific patterns (those live in `python`, `typescript`)
-- Test frameworks/tools (those live in `python`, `typescript`, `test`)
-- Architecture patterns (those live in `design`)
-
----
-
-## Philosophy
-
-### Process is Discipline, Not Bureaucracy
-
-Good methodology eliminates waste, reduces rework, and builds confidence.
-Bad methodology adds ceremony without value. This skill targets the former.
-
-### Principles
-
-1. **Understand before building** — read existing code, contracts, dependencies, and edge cases
-2. **Test before implementing** — define acceptance criteria first, write failing tests
-3. **Deliver in thin vertical slices** — each slice is deployable, testable, and valuable
-4. **Never deliver untested code** — "it compiles" is not a test
-5. **Leave the codebase better than you found it** — Boy Scout Rule
-6. **Small commits, green builds, fast feedback** — each commit is atomic and buildable
+**O que esta skill NÃO contém:**
+- Padrões específicos de linguagem (esses ficam em `python`, `typescript`)
+- Frameworks/ferramentas de teste (esses ficam em `python`, `typescript`, `test`)
+- Padrões de arquitetura (esses ficam em `design`)
 
 ---
 
-## 1. Development Workflow — 7 Phases
+## Filosofia
+
+### Processo é Disciplina, Não Burocracia
+
+Uma boa metodologia elimina desperdício, reduz retrabalho e constrói confiança.
+Uma má metodologia adiciona cerimônia sem valor. Esta skill mira na primeira.
+
+### Princípios
+
+1. **Entenda antes de construir** — leia o código existente, contratos, dependências e edge cases
+2. **Teste antes de implementar** — defina os acceptance criteria primeiro, escreva testes que falham
+3. **Entregue em thin vertical slices** — cada slice é deployável, testável e valiosa
+4. **Nunca entregue código sem testes** — "compila" não é um teste
+5. **Deixe o codebase melhor do que encontrou** — Boy Scout Rule
+6. **Commits pequenos, builds verdes, feedback rápido** — cada commit é atômico e buildável
+
+---
+
+## 1. Workflow de Desenvolvimento — 7 Fases
 
 ```
 QUESTION > RESEARCH > DESIGN > TEST > IMPLEMENT > VALIDATE > REVIEW
 ```
 
-Every task — feature, bug fix, refactor — follows these phases.
-No phase can be skipped. The depth of each phase scales with task complexity.
+Toda tarefa — feature, bug fix, refactor — segue estas fases.
+Nenhuma fase pode ser pulada. A profundidade de cada fase escala com a complexidade da tarefa.
 
-### Phase 1: QUESTION
+### Fase 1: QUESTION
 
-**Goal:** Ensure crystal-clear understanding of the task.
+**Objetivo:** Garantir um entendimento cristalino da tarefa.
 
-**Actions:**
-- Read the issue/ticket/requirement completely
-- Read related code, tests, and documentation
-- Identify ambiguities and resolve them BEFORE coding
-- Map dependencies (what does this affect?)
-- Identify constraints (performance, compatibility, security)
+**Ações:**
+- Leia a issue/ticket/requisito por completo
+- Leia código, testes e documentação relacionados
+- Identifique ambiguidades e resolva-as ANTES de codar
+- Mapeie dependências (o que isto afeta?)
+- Identifique restrições (performance, compatibilidade, segurança)
 
-**Exit criteria:**
-- [ ] Can articulate the problem in one sentence
-- [ ] Can describe the expected behavior (inputs -> outputs)
-- [ ] Can list affected components/files
-- [ ] All ambiguities resolved (asked the user if necessary)
+**Critérios de saída:**
+- [ ] Consegue articular o problema em uma frase
+- [ ] Consegue descrever o comportamento esperado (inputs -> outputs)
+- [ ] Consegue listar componentes/arquivos afetados
+- [ ] Todas as ambiguidades resolvidas (perguntou ao usuário se necessário)
 
 **Anti-patterns:**
-- Starting to code before understanding full scope
-- Assuming requirements when unclear
-- Ignoring edge cases discovered during questioning
+- Começar a codar antes de entender o escopo completo
+- Assumir requisitos quando não estão claros
+- Ignorar edge cases descobertos durante o questionamento
 
 ---
 
-### Phase 2: RESEARCH
+### Fase 2: RESEARCH
 
-**Goal:** Ground decisions in current knowledge, not assumptions.
+**Objetivo:** Fundamentar decisões em conhecimento atual, não em suposições.
 
-**Actions:**
-- Search for existing solutions in the codebase (was this solved before?)
-- Research current best practices (libraries, patterns, approaches)
-- Check if dependencies need updates
-- Cross-reference multiple sources (docs, GitHub, blogs, benchmarks)
-- **Dependency security check** (mandatory before any `pip install` / `pnpm add`):
-  1. Search for latest stable version (never trust training data)
-  2. Check CVEs: NVD, GitHub Advisories, Snyk
-  3. Verify library is maintained (last release, issues, active maintainer)
-  4. After installing: `pip-audit` / `npm audit`
+**Ações:**
+- Busque soluções existentes no codebase (isto já foi resolvido antes?)
+- Pesquise best practices atuais (libraries, patterns, abordagens)
+- Verifique se as dependências precisam de updates
+- Cruze múltiplas fontes (docs, GitHub, blogs, benchmarks)
+- **Dependency security check** (obrigatório antes de qualquer `pip install` / `pnpm add`):
+  1. Busque a última versão estável (nunca confie nos dados de treino)
+  2. Verifique CVEs: NVD, GitHub Advisories, Snyk
+  3. Verifique se a library é mantida (último release, issues, maintainer ativo)
+  4. Após instalar: `pip-audit` / `npm audit`
 
-**Exit criteria:**
-- [ ] Aware of existing solutions in the codebase
-- [ ] Aware of current best practices for this problem type
-- [ ] Dependencies identified with pinned versions and **security verified**
-- [ ] Trade-offs of different approaches understood
-
----
-
-### Phase 3: DESIGN
-
-**Goal:** Make design decisions explicit before writing code.
-
-**Actions:**
-- Define the API / public interface first
-- Identify data model / schema changes
-- Choose the pattern (and document WHY)
-- Consider at least 2 approaches with trade-offs
-- Document the chosen approach briefly
-
-**Deliverables (scale to task size):**
-- Trivial: mental model, no artifact needed
-- Small: comment in code or issue
-- Medium: brief design note (bullet points)
-- Large: design document with diagrams
-
-**Exit criteria:**
-- [ ] Interfaces/contracts defined
-- [ ] Pattern chosen with justification
-- [ ] Edge cases identified
-- [ ] Breaking changes identified (if any)
+**Critérios de saída:**
+- [ ] Ciente das soluções existentes no codebase
+- [ ] Ciente das best practices atuais para este tipo de problema
+- [ ] Dependências identificadas com versões pinadas e **segurança verificada**
+- [ ] Trade-offs das diferentes abordagens entendidos
 
 ---
 
-### Phase 4: TEST (Write Tests First)
+### Fase 3: DESIGN
 
-**Goal:** Encode expected behavior as executable tests BEFORE implementing.
+**Objetivo:** Tornar as decisões de design explícitas antes de escrever código.
 
-**Actions:**
-- Write failing tests that capture acceptance criteria
-- Include happy path, edge cases, and error cases
-- Use test names that describe behavior, not implementation
-- Set up fixtures and test data
+**Ações:**
+- Defina a API / interface pública primeiro
+- Identifique mudanças de data model / schema
+- Escolha o pattern (e documente o PORQUÊ)
+- Considere pelo menos 2 abordagens com trade-offs
+- Documente brevemente a abordagem escolhida
 
-**Test naming convention:**
+**Entregáveis (escalam com o tamanho da tarefa):**
+- Trivial: modelo mental, nenhum artefato necessário
+- Pequena: comentário no código ou na issue
+- Média: nota de design breve (bullet points)
+- Grande: documento de design com diagramas
+
+**Critérios de saída:**
+- [ ] Interfaces/contratos definidos
+- [ ] Pattern escolhido com justificativa
+- [ ] Edge cases identificados
+- [ ] Breaking changes identificados (se houver)
+
+---
+
+### Fase 4: TEST (Escreva os Testes Primeiro)
+
+**Objetivo:** Codificar o comportamento esperado como testes executáveis ANTES de implementar.
+
+**Ações:**
+- Escreva testes que falham capturando os acceptance criteria
+- Inclua happy path, edge cases e error cases
+- Use nomes de teste que descrevem comportamento, não implementação
+- Prepare fixtures e dados de teste
+
+**Convenção de nomenclatura de testes:**
 ```
 test_<behavior>_when_<condition>_then_<expected>
 ```
 
-**Examples:**
+**Exemplos:**
 ```python
 def test_create_user_when_email_valid_then_returns_user():
     ...
@@ -183,20 +183,20 @@ def test_create_user_when_email_duplicate_then_raises_conflict():
     ...
 ```
 
-**Exit criteria:**
-- [ ] Tests written and failing (RED phase)
-- [ ] Tests cover happy path
-- [ ] Tests cover main edge cases
-- [ ] Tests cover error/exception paths
-- [ ] Test names describe behavior clearly
+**Critérios de saída:**
+- [ ] Testes escritos e falhando (fase RED)
+- [ ] Testes cobrem o happy path
+- [ ] Testes cobrem os principais edge cases
+- [ ] Testes cobrem os caminhos de error/exception
+- [ ] Nomes de teste descrevem o comportamento claramente
 
 ---
 
-### Phase 5: IMPLEMENT
+### Fase 5: IMPLEMENT
 
-**Goal:** Write the minimum code to make tests pass, then refactor.
+**Objetivo:** Escrever o mínimo de código para os testes passarem, depois refatorar.
 
-**The RED-GREEN-REFACTOR cycle:**
+**O ciclo RED-GREEN-REFACTOR:**
 ```
 RED:      Write a failing test
 GREEN:    Write the simplest code that passes
@@ -204,61 +204,61 @@ REFACTOR: Improve design while staying green
 REPEAT
 ```
 
-**Exit criteria:**
-- [ ] All tests passing
-- [ ] Code follows project style and patterns
-- [ ] No unnecessary complexity
-- [ ] Refactoring complete (clean code)
+**Critérios de saída:**
+- [ ] Todos os testes passando
+- [ ] Código segue o estilo e os patterns do projeto
+- [ ] Nenhuma complexidade desnecessária
+- [ ] Refactoring completo (clean code)
 
 ---
 
-### Phase 6: VALIDATE
+### Fase 6: VALIDATE
 
-**Goal:** Prove the code works end-to-end, not just in unit tests.
+**Objetivo:** Provar que o código funciona end-to-end, não apenas em unit tests.
 
-**Actions:**
-- Run the full test suite (unit + integration + e2e)
-- Run linters and type checkers (`ruff`, `mypy`, `biome`)
-- Test manually if applicable (curl endpoints, check UI)
-- Verify in an environment as close to production as possible
-- Check for regressions (did something else break?)
+**Ações:**
+- Rode a suíte de testes completa (unit + integration + e2e)
+- Rode linters e type checkers (`ruff`, `mypy`, `biome`)
+- Teste manualmente se aplicável (curl nos endpoints, cheque a UI)
+- Verifique em um ambiente o mais próximo possível de produção
+- Cheque por regressões (algo mais quebrou?)
 
-**Exit criteria:**
-- [ ] All tests passing (unit, integration, e2e)
-- [ ] Linters clean (zero warnings)
-- [ ] Type checker clean
-- [ ] Manual verification done (if applicable)
-- [ ] No regressions introduced
-
----
-
-### Phase 7: REVIEW (Self-Check)
-
-**Goal:** Catch problems BEFORE submitting for review.
-
-**Actions:**
-- Run the self-check checklist (see Section 6)
-- Review your own diff as if you were the reviewer
-- Update documentation (CHANGELOG, README, API docs)
-- Clean commits (atomic, well-described)
-- Verify branch is up to date with base
-
-**Exit criteria:**
-- [ ] Self-check checklist passed
-- [ ] Documentation updated
-- [ ] Commits clean and atomic
-- [ ] Branch rebased on base branch
-- [ ] Ready for review
+**Critérios de saída:**
+- [ ] Todos os testes passando (unit, integration, e2e)
+- [ ] Linters limpos (zero warnings)
+- [ ] Type checker limpo
+- [ ] Verificação manual feita (se aplicável)
+- [ ] Nenhuma regressão introduzida
 
 ---
 
-## 2. Test-First Methodology
+### Fase 7: REVIEW (Self-Check)
+
+**Objetivo:** Pegar problemas ANTES de submeter para review.
+
+**Ações:**
+- Rode o checklist de self-check (veja a Seção 6)
+- Revise seu próprio diff como se você fosse o reviewer
+- Atualize a documentação (CHANGELOG, README, API docs)
+- Commits limpos (atômicos, bem descritos)
+- Verifique se a branch está atualizada com a base
+
+**Critérios de saída:**
+- [ ] Checklist de self-check aprovado
+- [ ] Documentação atualizada
+- [ ] Commits limpos e atômicos
+- [ ] Branch rebaseada na branch base
+- [ ] Pronto para review
+
+---
+
+## 2. Metodologia Test-First
 
 ### TDD (Test-Driven Development)
 
-Developer-centered. Focus on correct implementation of individual units.
+Centrado no desenvolvedor. Foco na implementação correta de unidades individuais.
 
-**Cycle:**
+**Ciclo:**
 ```
 1. RED    — Write a failing test
 2. GREEN  — Write the simplest code to pass
@@ -266,25 +266,25 @@ Developer-centered. Focus on correct implementation of individual units.
 4. REPEAT
 ```
 
-**When to use:**
-- Business logic, algorithms, data transformations
-- Pure functions, utility code
-- Any code with clear inputs and outputs
+**Quando usar:**
+- Business logic, algoritmos, transformações de dados
+- Pure functions, código utilitário
+- Qualquer código com inputs e outputs claros
 
-**Key rules:**
-- Never write production code without a failing test
-- Write only enough code to pass the current test
-- Refactor only when green
-- Each test should test ONE behavior
+**Regras-chave:**
+- Nunca escreva código de produção sem um teste que falha
+- Escreva apenas código suficiente para passar o teste atual
+- Refatore apenas quando verde
+- Cada teste deve testar UM comportamento
 
 ---
 
 ### BDD (Behavior-Driven Development)
 
-User-centered. Focus on system behavior from the user's perspective.
-Uses natural language (Given-When-Then) to describe behavior.
+Centrado no usuário. Foco no comportamento do sistema pela perspectiva do usuário.
+Usa linguagem natural (Given-When-Then) para descrever comportamento.
 
-**Format:**
+**Formato:**
 ```gherkin
 Feature: User registration
 
@@ -300,17 +300,17 @@ Feature: User registration
     Then the registration is rejected with "Email already exists"
 ```
 
-**When to use:**
-- User-facing features
-- Cross-functional communication (devs + product + QA)
-- Acceptance criteria that need stakeholder validation
-- API contract tests
+**Quando usar:**
+- Features voltadas ao usuário
+- Comunicação cross-funcional (devs + product + QA)
+- Acceptance criteria que precisam de validação de stakeholders
+- Testes de API contract
 
 ---
 
 ### ATDD (Acceptance Test-Driven Development)
 
-Combines TDD + BDD. Write acceptance tests first (BDD style), then implement using TDD.
+Combina TDD + BDD. Escreva os acceptance tests primeiro (estilo BDD), depois implemente usando TDD.
 
 ```
 1. Write acceptance test (BDD — Given/When/Then)
@@ -319,34 +319,34 @@ Combines TDD + BDD. Write acceptance tests first (BDD style), then implement usi
 4. Acceptance test passes — feature is done
 ```
 
-**When to use:**
-- Complex features with multiple components
-- Features requiring stakeholder approval
-- API endpoints (acceptance = API contract, TDD = internal logic)
+**Quando usar:**
+- Features complexas com múltiplos componentes
+- Features que exigem aprovação de stakeholders
+- API endpoints (acceptance = API contract, TDD = lógica interna)
 
 ---
 
-## 3. Bug Fix Workflow
+## 3. Workflow de Bug Fix
 
-Every bug fix follows a systematic 6-step process.
+Todo bug fix segue um processo sistemático de 6 passos.
 
 ```
 REPRODUCE > ISOLATE > WRITE TEST > FIX > VALIDATE > PREVENT
 ```
 
-### Step 1: REPRODUCE
+### Passo 1: REPRODUCE
 
-- Create a reliable reproduction case
-- Document exact steps, inputs, environment
-- Confirm the bug exists (not user error or stale data)
-- If you can't reproduce it, you can't fix it
+- Crie um caso de reprodução confiável
+- Documente passos exatos, inputs, ambiente
+- Confirme que o bug existe (não é erro do usuário nem dado desatualizado)
+- Se você não consegue reproduzir, não consegue corrigir
 
-### Step 2: ISOLATE
+### Passo 2: ISOLATE
 
-- Narrow down the affected code path
-- Use binary search (comment code, bisect commits)
-- Identify the root cause, not just the symptom
-- `git bisect` for regression bugs
+- Estreite o code path afetado
+- Use busca binária (comente código, faça bisect nos commits)
+- Identifique a root cause, não apenas o sintoma
+- `git bisect` para bugs de regressão
 
 ```bash
 git bisect start
@@ -359,53 +359,53 @@ git bisect good  # or git bisect bad
 git bisect reset
 ```
 
-### Step 3: WRITE TEST (before fixing)
+### Passo 3: WRITE TEST (antes de corrigir)
 
-- Write a test that reproduces the bug
-- The test MUST fail on current code
-- This is your regression safety net
-- Name clearly: `test_<what>_when_<condition>_does_not_<bug_behavior>`
+- Escreva um teste que reproduz o bug
+- O teste DEVE falhar no código atual
+- Esta é sua rede de segurança contra regressão
+- Nomeie com clareza: `test_<what>_when_<condition>_does_not_<bug_behavior>`
 
-### Step 4: FIX
+### Passo 4: FIX
 
-- Fix the root cause, not the symptom
-- Change the minimum amount of code
-- Do not mix the fix with refactoring or features
+- Corrija a root cause, não o sintoma
+- Mude a menor quantidade de código possível
+- Não misture a correção com refactoring ou features
 
-### Step 5: VALIDATE
+### Passo 5: VALIDATE
 
-- Run the failing test — it must now pass
-- Run the full test suite — no regressions
-- Test manually if applicable
-- Test the original reproduction case
+- Rode o teste que falha — agora ele deve passar
+- Rode a suíte de testes completa — sem regressões
+- Teste manualmente se aplicável
+- Teste o caso de reprodução original
 
-### Step 6: PREVENT
+### Passo 6: PREVENT
 
-- Add the regression test to CI
-- Consider if the bug class needs a linter rule
-- Document the root cause if not obvious
-- Consider if similar bugs exist elsewhere
+- Adicione o teste de regressão ao CI
+- Considere se a classe do bug precisa de uma regra de linter
+- Documente a root cause se não for óbvia
+- Considere se bugs similares existem em outros lugares
 
 ---
 
-## 4. Refactoring Methodology
+## 4. Metodologia de Refactoring
 
-Refactoring changes code structure without changing behavior.
-Always refactor with safety nets (tests). Never refactor without tests.
+O refactoring muda a estrutura do código sem mudar o comportamento.
+Sempre refatore com redes de segurança (testes). Nunca refatore sem testes.
 
-### When to Refactor
+### Quando Refatorar
 
-- During the REFACTOR step of TDD (every cycle)
-- When adding a feature requires changing existing code
-- When code smells make the area hard to understand
-- When technical debt is budgeted in the sprint
-- NEVER as a separate "refactoring sprint" (integrate into daily work)
+- Durante o passo REFACTOR do TDD (em todo ciclo)
+- Quando adicionar uma feature exige mudar código existente
+- Quando code smells tornam a área difícil de entender
+- Quando o technical debt está orçado no sprint
+- NUNCA como um "sprint de refactoring" separado (integre no trabalho diário)
 
 ### Patterns
 
 #### 4.1 Strangler Fig Pattern
 
-**When:** Replace a large legacy system/component incrementally.
+**Quando:** Substituir um sistema/componente legado grande de forma incremental.
 
 ```
 1. IDENTIFY the component to replace
@@ -415,13 +415,13 @@ Always refactor with safety nets (tests). Never refactor without tests.
 5. REMOVE the old implementation once the new one is proven
 ```
 
-**Benefits:** Zero big-bang risk, rollback always possible, production validation at each step
+**Benefícios:** Zero risco de big-bang, rollback sempre possível, validação em produção a cada passo
 
-**Anti-patterns:** Trying to replace everything at once, leaving the old code forever
+**Anti-patterns:** Tentar substituir tudo de uma vez, deixar o código antigo para sempre
 
 #### 4.2 Branch by Abstraction
 
-**When:** Refactoring components deep in the stack with upstream dependencies.
+**Quando:** Refatorar componentes no fundo da stack com dependências upstream.
 
 ```
 1. IDENTIFY the component to refactor and its callers
@@ -432,11 +432,11 @@ Always refactor with safety nets (tests). Never refactor without tests.
 6. REMOVE the old implementation
 ```
 
-**Benefits:** All changes happen on trunk (no long-lived branches), callers decoupled
+**Benefícios:** Todas as mudanças acontecem no trunk (sem branches de longa duração), callers desacoplados
 
 #### 4.3 Parallel Change (Expand-Migrate-Contract)
 
-**When:** Changing an interface/API that has multiple consumers.
+**Quando:** Mudar uma interface/API que tem múltiplos consumers.
 
 ```
 1. EXPAND  — Add the new interface alongside the old one
@@ -462,7 +462,7 @@ class UserService:
 
 #### 4.4 Mikado Method
 
-**When:** Large refactoring with unknown dependencies.
+**Quando:** Refactoring grande com dependências desconhecidas.
 
 ```
 1. SET a refactoring goal
@@ -474,18 +474,18 @@ class UserService:
 7. REPEAT until the goal succeeds
 ```
 
-Produces a dependency graph (Mikado Graph) of required changes.
+Produz um grafo de dependências (Mikado Graph) das mudanças necessárias.
 
 ---
 
-## 5. Feature Decomposition
+## 5. Decomposição de Features
 
 ### Vertical Slicing
 
-**Central principle:** Each slice cuts through ALL layers (UI, API, business logic, data)
-and delivers visible user value.
+**Princípio central:** Cada slice atravessa TODAS as camadas (UI, API, business logic, dados)
+e entrega valor visível ao usuário.
 
-**Horizontal slice (WRONG):**
+**Horizontal slice (ERRADO):**
 ```
 Sprint 1: Build database schema
 Sprint 2: Build API endpoints
@@ -494,36 +494,36 @@ Sprint 4: Integration testing
 Sprint 5: Finally works end-to-end
 ```
 
-**Vertical slice (RIGHT):**
+**Vertical slice (CERTO):**
 ```
 Slice 1: User can create an account (simple form, one API, one table)
 Slice 2: User can log in (auth flow end-to-end)
 Slice 3: User can update profile (edit form, API, validation)
 ```
 
-### Slicing Heuristics
+### Heurísticas de Slicing
 
-| Technique | Description | Example |
+| Técnica | Descrição | Exemplo |
 |-----------|-------------|---------|
-| **By workflow step** | Each step in a process becomes a slice | Checkout: add to cart, enter address, pay |
-| **By business rule** | Each rule becomes a slice | Pricing: base price, bulk discount, loyalty |
-| **By data variation** | Each data type becomes a slice | Import: CSV first, then Excel, then API |
-| **By operation** | CRUD operations as separate slices | Users: create first, then read, update, delete |
-| **By persona** | Different user types as slices | Admin dashboard, then user dashboard |
+| **Por workflow step** | Cada passo de um processo vira uma slice | Checkout: add to cart, enter address, pay |
+| **Por business rule** | Cada regra vira uma slice | Pricing: base price, bulk discount, loyalty |
+| **Por variação de dados** | Cada tipo de dado vira uma slice | Import: CSV primeiro, depois Excel, depois API |
+| **Por operação** | Operações CRUD como slices separadas | Users: create primeiro, depois read, update, delete |
+| **Por persona** | Diferentes tipos de usuário como slices | Admin dashboard, depois user dashboard |
 
 ### Walking Skeleton
 
-**Definition:** The thinnest possible slice of real functionality that can be built,
-deployed, and tested end-to-end.
+**Definição:** A menor slice possível de funcionalidade real que pode ser construída,
+deployada e testada end-to-end.
 
-**Characteristics:**
-- Cuts through ALL layers (UI to database)
-- Deployable to production (even with feature flag)
-- Has automated tests
-- Has CI/CD configured
-- Takes at most 1-4 days
+**Características:**
+- Atravessa TODAS as camadas (da UI ao database)
+- Deployável para produção (mesmo com feature flag)
+- Tem testes automatizados
+- Tem CI/CD configurado
+- Leva no máximo 1-4 dias
 
-**Example — e-commerce walking skeleton:**
+**Exemplo — walking skeleton de e-commerce:**
 ```
 UI:       Single page with a "Buy" button and a product name
 API:      POST /orders with hardcoded product
@@ -533,9 +533,9 @@ Deploy:   Docker + CI + staging environment
 Test:     E2E test: click Buy -> order created
 ```
 
-Then increment: add product catalog, cart, payment, etc.
+Depois incremente: adicione product catalog, cart, payment, etc.
 
-### Feature Decomposition Template
+### Template de Decomposição de Feature
 
 ```markdown
 ## Feature: {name}
@@ -558,108 +558,108 @@ Then increment: add product catalog, cart, payment, etc.
 
 ---
 
-## 6. Self-Check Before Review
+## 6. Self-Check Antes do Review
 
-Run this checklist BEFORE submitting code for review.
+Rode este checklist ANTES de submeter o código para review.
 
-### Correctness
-- [ ] Code does what the ticket/issue asks
-- [ ] All acceptance criteria met
-- [ ] Edge cases handled
-- [ ] Error cases handled with appropriate messages
-- [ ] No off-by-one errors
-- [ ] No null/undefined access without guards
+### Corretude
+- [ ] O código faz o que o ticket/issue pede
+- [ ] Todos os acceptance criteria atendidos
+- [ ] Edge cases tratados
+- [ ] Error cases tratados com mensagens apropriadas
+- [ ] Nenhum erro de off-by-one
+- [ ] Nenhum acesso null/undefined sem guards
 
-### Tests
-- [ ] All new code has tests
-- [ ] Tests are meaningful (not just coverage padding)
-- [ ] Tests cover happy path, edge cases, error cases
-- [ ] Test names describe behavior
-- [ ] All tests pass locally
-- [ ] No flaky tests introduced
+### Testes
+- [ ] Todo código novo tem testes
+- [ ] Os testes são significativos (não apenas enchimento de coverage)
+- [ ] Testes cobrem happy path, edge cases, error cases
+- [ ] Nomes de teste descrevem o comportamento
+- [ ] Todos os testes passam localmente
+- [ ] Nenhum teste flaky introduzido
 
-### Code Quality
-- [ ] No `TODO` or `FIXME` without a linked issue
-- [ ] No commented-out code
-- [ ] No debug print/log statements left
-- [ ] Variable/function names are descriptive
-- [ ] Functions are small and focused (single responsibility)
-- [ ] No code duplication
-- [ ] Full type hints (Python) or strict types (TypeScript)
+### Qualidade de Código
+- [ ] Nenhum `TODO` ou `FIXME` sem uma issue vinculada
+- [ ] Nenhum código comentado
+- [ ] Nenhum print/log de debug deixado para trás
+- [ ] Nomes de variáveis/funções são descritivos
+- [ ] Funções são pequenas e focadas (single responsibility)
+- [ ] Nenhuma duplicação de código
+- [ ] Type hints completos (Python) ou strict types (TypeScript)
 
-### Security
-- [ ] No secrets or credentials in code
-- [ ] User input validated and sanitized
-- [ ] SQL injection prevented (parameterized queries)
-- [ ] No sensitive data in logs
-- [ ] Authentication/authorization checks implemented
+### Segurança
+- [ ] Nenhum secret ou credencial no código
+- [ ] Input do usuário validado e sanitizado
+- [ ] SQL injection prevenido (parameterized queries)
+- [ ] Nenhum dado sensível em logs
+- [ ] Checagens de authentication/authorization implementadas
 
 ### Performance
-- [ ] No N+1 queries
-- [ ] No unnecessary API calls in loops
-- [ ] Resources properly managed (connections, files, locks)
-- [ ] Appropriate caching considered
+- [ ] Nenhuma query N+1
+- [ ] Nenhuma chamada de API desnecessária em loops
+- [ ] Recursos gerenciados corretamente (connections, files, locks)
+- [ ] Caching apropriado considerado
 
-### Documentation
-- [ ] CHANGELOG.md updated
-- [ ] README.md updated (if user-facing changes)
-- [ ] API documentation updated (if endpoints changed)
-- [ ] Comments in code for non-obvious logic
-- [ ] Docstrings on public functions/classes
+### Documentação
+- [ ] CHANGELOG.md atualizado
+- [ ] README.md atualizado (se houver mudanças voltadas ao usuário)
+- [ ] Documentação de API atualizada (se endpoints mudaram)
+- [ ] Comentários no código para lógica não óbvia
+- [ ] Docstrings em funções/classes públicas
 
-### Git Hygiene
-- [ ] Commits are atomic and well-described
-- [ ] No merge commits (rebased on base branch)
-- [ ] No unrelated changes mixed in
-- [ ] Branch name follows convention
+### Higiene de Git
+- [ ] Commits são atômicos e bem descritos
+- [ ] Nenhum merge commit (rebaseado na branch base)
+- [ ] Nenhuma mudança não relacionada misturada
+- [ ] Nome da branch segue a convenção
 
 ---
 
 ## 7. Definition of Done
 
-A piece of work is DONE when ALL of these are true:
+Um trabalho está DONE quando TODOS estes forem verdadeiros:
 
-### Code
-- [ ] Implementation complete and matches acceptance criteria
-- [ ] Code follows project style and conventions
-- [ ] No TODOs that weren't in the original scope
-- [ ] All linters pass (ruff, mypy, biome — zero warnings)
+### Código
+- [ ] Implementação completa e correspondente aos acceptance criteria
+- [ ] Código segue o estilo e as convenções do projeto
+- [ ] Nenhum TODO que não estava no escopo original
+- [ ] Todos os linters passam (ruff, mypy, biome — zero warnings)
 
-### Tests
-- [ ] Unit tests written and passing
-- [ ] Integration tests written and passing (if applicable)
-- [ ] E2E tests written and passing (if applicable)
-- [ ] Test coverage meets project threshold
-- [ ] No flaky tests
+### Testes
+- [ ] Unit tests escritos e passando
+- [ ] Integration tests escritos e passando (se aplicável)
+- [ ] E2E tests escritos e passando (se aplicável)
+- [ ] Coverage de testes atinge o threshold do projeto
+- [ ] Nenhum teste flaky
 
 ### Review
-- [ ] Self-check checklist passed
-- [ ] Code reviewed by at least one other person
-- [ ] All review comments resolved or explicitly deferred with rationale
-- [ ] Reviewer approved (no BLOCKERs remaining)
+- [ ] Checklist de self-check aprovado
+- [ ] Código revisado por pelo menos uma outra pessoa
+- [ ] Todos os comentários de review resolvidos ou explicitamente adiados com justificativa
+- [ ] Reviewer aprovou (nenhum BLOCKER restante)
 
-### Integration
-- [ ] All CI checks passing
-- [ ] No merge conflicts
-- [ ] Branch up to date with base branch
-- [ ] Successfully merged to base branch
+### Integração
+- [ ] Todos os checks de CI passando
+- [ ] Nenhum merge conflict
+- [ ] Branch atualizada com a branch base
+- [ ] Merge bem-sucedido na branch base
 
-### Documentation
-- [ ] CHANGELOG.md updated
-- [ ] README.md updated if user-facing features changed
-- [ ] API documentation updated if contracts changed
+### Documentação
+- [ ] CHANGELOG.md atualizado
+- [ ] README.md atualizado se features voltadas ao usuário mudaram
+- [ ] Documentação de API atualizada se contratos mudaram
 
 ### Deployment
-- [ ] Successfully deployed to staging
-- [ ] Smoke tests passing in staging
-- [ ] No monitoring alerts triggered after deployment
-- [ ] Rollback plan known
+- [ ] Deploy bem-sucedido em staging
+- [ ] Smoke tests passando em staging
+- [ ] Nenhum alerta de monitoring disparado após o deployment
+- [ ] Plano de rollback conhecido
 
 ---
 
-## 8. Technical Debt Management
+## 8. Gestão de Technical Debt
 
-### The Quadrant Model
+### O Modelo de Quadrantes
 
 ```
               RECKLESS                    PRUDENT
@@ -670,29 +670,29 @@ INADVERTENT   "What's layering?"          "Now we know how we should
                                            have done it"
 ```
 
-**Reckless + deliberate:** Never acceptable. This is cutting corners knowingly.
-**Prudent + deliberate:** Acceptable with explicit decision and scheduled payback.
-**Inadvertent:** Discovered through code review and retrospectives — refactor when found.
+**Reckless + deliberate:** Nunca aceitável. É cortar caminho de forma consciente.
+**Prudent + deliberate:** Aceitável com decisão explícita e pagamento agendado.
+**Inadvertent:** Descoberto via code review e retrospectivas — refatore quando encontrar.
 
-### Managing Debt
+### Gerenciando o Débito
 
-1. **Make it visible** — log debt items in your issue tracker
-2. **Classify it** — Reckless/Prudent, Deliberate/Inadvertent
-3. **Budget for it** — reserve 20% of each sprint for tech debt
-4. **Pay it incrementally** — Boy Scout Rule: leave code better than you found it
-5. **Never let it accumulate silently** — discuss debt in retrospectives
+1. **Torne-o visível** — registre os itens de débito no seu issue tracker
+2. **Classifique-o** — Reckless/Prudent, Deliberate/Inadvertent
+3. **Orce para ele** — reserve 20% de cada sprint para tech debt
+4. **Pague-o incrementalmente** — Boy Scout Rule: deixe o código melhor do que encontrou
+5. **Nunca deixe acumular silenciosamente** — discuta o débito nas retrospectivas
 
 ---
 
 ## 9. CI Discipline
 
-### Small Commits
+### Commits Pequenos
 
-- Each commit is atomic, focused, and buildable
-- CI must pass on every commit — no exceptions
-- Broken builds are the team's top priority
+- Cada commit é atômico, focado e buildável
+- O CI deve passar em todo commit — sem exceções
+- Builds quebrados são a prioridade máxima do time
 
-### Commit Message Format
+### Formato da Mensagem de Commit
 
 ```
 <type>(<scope>): <description>
@@ -704,7 +704,7 @@ INADVERTENT   "What's layering?"          "Now we know how we should
 
 **Types:** feat, fix, refactor, test, docs, chore, perf
 
-**Examples:**
+**Exemplos:**
 ```
 feat(auth): add JWT refresh token rotation
 fix(orders): prevent N+1 query on order list
@@ -712,12 +712,12 @@ refactor(users): extract user validation to service layer
 test(payments): add integration tests for webhook handling
 ```
 
-### Branch Strategy
+### Estratégia de Branch
 
 - Feature branches: `feat/issue-{N}-{description}`
 - Bug fixes: `fix/issue-{N}-{description}`
 - Refactoring: `refactor/{description}`
-- Never commit directly to `main` or `develop`
+- Nunca faça commit direto em `main` ou `develop`
 
 ---
 
@@ -725,7 +725,7 @@ test(payments): add integration tests for webhook handling
 
 - [references/ci-discipline.md](references/ci-discipline.md) — CI Discipline
 - [references/code-craft.md](references/code-craft.md) — Code craft — padrões invioláveis
-- [references/code-review-self-check.md](references/code-review-self-check.md) — Pre-Submission Self-Check
+- [references/code-review-self-check.md](references/code-review-self-check.md) — Self-Check Pré-Submissão
 - [references/feature-breakdown-vertical-slicing.md](references/feature-breakdown-vertical-slicing.md) — Vertical Slicing & Walking Skeleton
 - [references/pipeline-stages.md](references/pipeline-stages.md) — Pipeline — Definição dos 9 Estágios
 - [references/pipeline-transitions.md](references/pipeline-transitions.md) — Pipeline — Critérios de Transição entre Estágios
@@ -738,12 +738,12 @@ test(payments): add integration tests for webhook handling
 - [references/templates-review-summary.md](references/templates-review-summary.md) — Template — Review Summary
 - [references/testing-atdd.md](references/testing-atdd.md) — ATDD — Acceptance Test-Driven Development
 - [references/testing-bdd.md](references/testing-bdd.md) — BDD — Behavior-Driven Development
-- [references/testing-tdd.md](references/testing-tdd.md) — TDD Deep Dive
-- [references/testing-test-first.md](references/testing-test-first.md) — Test-First Principles
-- [references/workflow-bug-fix.md](references/workflow-bug-fix.md) — Bug Fix Systematic Process
-- [references/workflow-design.md](references/workflow-design.md) — Design Documentation
-- [references/workflow-implementation.md](references/workflow-implementation.md) — Implementation Discipline
-- [references/workflow-pairing.md](references/workflow-pairing.md) — Pair and Mob Programming
-- [references/workflow-questioning.md](references/workflow-questioning.md) — Questioning Techniques
-- [references/workflow-research.md](references/workflow-research.md) — Research Methodology
-- [references/workflow-validation.md](references/workflow-validation.md) — Validation Checklist
+- [references/testing-tdd.md](references/testing-tdd.md) — TDD — Aprofundamento
+- [references/testing-test-first.md](references/testing-test-first.md) — Princípios de Test-First
+- [references/workflow-bug-fix.md](references/workflow-bug-fix.md) — Processo Sistemático de Bug Fix
+- [references/workflow-design.md](references/workflow-design.md) — Documentação de Design
+- [references/workflow-implementation.md](references/workflow-implementation.md) — Disciplina de Implementação
+- [references/workflow-pairing.md](references/workflow-pairing.md) — Pair e Mob Programming
+- [references/workflow-questioning.md](references/workflow-questioning.md) — Técnicas de Questionamento
+- [references/workflow-research.md](references/workflow-research.md) — Metodologia de Research
+- [references/workflow-validation.md](references/workflow-validation.md) — Checklist de Validação

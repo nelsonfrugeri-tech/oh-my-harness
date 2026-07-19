@@ -1,10 +1,10 @@
-# ADR Templates
+# Templates de ADR
 
 ## MADR (Markdown Any Decision Record) v3.0
 
-The recommended template for this ecosystem. Based on https://adr.github.io/madr/
+O template recomendado para este ecossistema. Baseado em https://adr.github.io/madr/
 
-### Full Template
+### Template Completo
 
 ```markdown
 # ADR-{NNN}: {Title}
@@ -70,9 +70,9 @@ review, test, architecture fitness function, or manual inspection. Not every ADR
 {Links to related ADRs, external references, meeting notes, etc.}
 ```
 
-### Lightweight Template (Y-Statement)
+### Template Leve (Y-Statement)
 
-For smaller decisions that don't need full analysis:
+Para decisões menores que não precisam de análise completa:
 
 ```markdown
 # ADR-{NNN}: {Title}
@@ -87,9 +87,9 @@ to achieve {quality / goal},
 accepting {downside / trade-off}.
 ```
 
-### Nygardian Template (Original)
+### Template Nygardiano (Original)
 
-The simplest format, by Michael Nygard:
+O formato mais simples, de Michael Nygard:
 
 ```markdown
 # {NUMBER}. {TITLE}
@@ -113,7 +113,7 @@ Date: {YYYY-MM-DD}
 {What becomes easier or more difficult to do because of this change?}
 ```
 
-## Naming Convention
+## Convenção de Nomenclatura
 
 ```
 docs/adr/
@@ -123,7 +123,7 @@ docs/adr/
   README.md  (index of all ADRs)
 ```
 
-## ADR Index Template (README.md)
+## Template de Índice de ADRs (README.md)
 
 ```markdown
 # Architecture Decision Records
@@ -135,13 +135,13 @@ docs/adr/
 | 3 | [Choose gRPC for internal comms](0003-grpc-internal.md) | Superseded by #5 | 2026-02-15 |
 ```
 
-## CLI Tools
+## Ferramentas de CLI
 
-- **adr-tools** (bash): `adr new "Use PostgreSQL"` — auto-numbers, creates from template
-- **log4brains** (node): generates searchable ADR website from markdown
-- **adr-manager** (VS Code extension): visual ADR management
+- **adr-tools** (bash): `adr new "Use PostgreSQL"` — numera automaticamente, cria a partir do template
+- **log4brains** (node): gera um site de ADRs pesquisável a partir de markdown
+- **adr-manager** (extensão do VS Code): gerenciamento visual de ADRs
 
-## Sources
+## Fontes
 
 - https://adr.github.io/
 - https://adr.github.io/madr/

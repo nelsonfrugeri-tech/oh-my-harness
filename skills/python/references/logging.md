@@ -57,7 +57,7 @@ logger.error("payment_failed", user_id=456, amount=99.99, reason="insufficient_f
 # {"event": "payment_failed", "user_id": 456, "amount": 99.99, "reason": "insufficient_funds", "level": "error", "timestamp": "2026-02-11T10:31:12.789012Z"}
 ```
 
-### Log Levels
+### Níveis de Log
 ```python
 import structlog
 
@@ -221,7 +221,7 @@ async def get_user(user_id: int, request: Request):
 
 ## contextvars - Thread-Safe Context
 
-### Using contextvars
+### Usando contextvars
 ```python
 import structlog
 from contextvars import ContextVar
@@ -409,7 +409,7 @@ logger.info("service_started")
 # }
 ```
 
-### Filtering Sensitive Data
+### Filtrando Dados Sensíveis
 ```python
 import structlog
 from typing import Any
@@ -524,7 +524,7 @@ async def divide(a: int, b: int):
 
 ---
 
-## Performance Metrics
+## Métricas de Performance
 
 ### Timing Operations
 ```python
@@ -625,7 +625,7 @@ app.add_middleware(PerformanceLoggingMiddleware)
 
 ---
 
-## Integration com logging padrão
+## Integração com logging padrão
 
 ### Usando Standard Library
 ```python
@@ -663,9 +663,9 @@ struct_logger.info("message from structlog")
 
 ---
 
-## Testing com Logging
+## Testes com Logging
 
-### Capturing Logs em Tests
+### Capturando Logs em Testes
 ```python
 import structlog
 import pytest
@@ -707,7 +707,7 @@ def test_user_creation(captured_logs):
 
 ## Casos de Uso Estabelecidos
 
-### Web Applications (FastAPI, Flask)
+### Aplicações Web (FastAPI, Flask)
 ```python
 logger.info("request_completed", status_code=200, duration_ms=42.5)
 ```
@@ -717,34 +717,34 @@ logger.info("request_completed", status_code=200, duration_ms=42.5)
 logger.info("task_started", task_id="abc123", queue="high-priority")
 ```
 
-### Database Operations
+### Operações de Banco de Dados
 ```python
 logger.info("query_executed", table="users", duration_ms=15.2, rows=42)
 ```
 
-### External API Calls
+### Chamadas de API Externas
 ```python
 logger.info("api_call", provider="stripe", endpoint="/charges", status_code=200)
 ```
 
-### Error Tracking
+### Rastreamento de Erros
 ```python
 logger.error("payment_failed", user_id=123, amount=99.99, exc_info=True)
 ```
 
-### Audit Trail
+### Trilha de Auditoria
 ```python
 logger.info("user_action", user_id=456, action="delete_account", resource="user-789")
 ```
 
-### Performance Monitoring
+### Monitoramento de Performance
 ```python
 logger.info("cache_hit", key="user:123", hit_rate=0.95)
 ```
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Use structured logging sempre**
 ```python
@@ -814,9 +814,9 @@ logger.debug("processing", result=expensive_calculation())
 
 ---
 
-## Configuration por Environment
+## Configuração por Ambiente
 
-### Development vs Production
+### Desenvolvimento vs Produção
 ```python
 import structlog
 import os

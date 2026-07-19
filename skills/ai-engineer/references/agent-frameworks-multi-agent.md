@@ -1449,7 +1449,7 @@ async def process(self, message: AgentMessage) -> None:
 ### Internal (ai-engineer skill)
 - [LangChain](./langchain.md) - Framework para LLM applications
 - [LangGraph](./langgraph.md) - State machines para agents
-- [Custom Agents](./custom-agents.md) - Build your own agent loop
+- [Custom Agents](./custom-agents.md) - Construa seu próprio agent loop
 - [Tool Integration](./tool-integration.md) - Tool calling, API integration
 
 ### Internal (arch-py skill)

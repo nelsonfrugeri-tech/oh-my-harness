@@ -1,6 +1,6 @@
 # BDD — Behavior-Driven Development
 
-## Given-When-Then Format
+## Formato Given-When-Then
 
 ```gherkin
 Feature: Shopping cart discount
@@ -20,29 +20,29 @@ Feature: Shopping cart discount
 
 ## BDD vs TDD
 
-| Aspect | TDD | BDD |
+| Aspecto | TDD | BDD |
 |--------|-----|-----|
-| Audience | Developers | Developers + Product + QA |
-| Language | Code | Natural language (Gherkin) |
-| Scope | Unit | Feature/behavior |
-| Focus | Implementation correctness | Business value delivery |
-| Artifacts | Unit tests | Executable specifications |
+| Público | Developers | Developers + Product + QA |
+| Linguagem | Código | Linguagem natural (Gherkin) |
+| Escopo | Unidade | Feature/comportamento |
+| Foco | Correção da implementação | Entrega de valor de negócio |
+| Artefatos | Testes unitários | Especificações executáveis |
 
-## When to Use BDD
+## Quando Usar BDD
 
-- User-facing features with clear acceptance criteria
-- Features that need stakeholder validation
-- API contracts that multiple teams consume
-- Onboarding: BDD specs serve as living documentation
+- Features voltadas ao usuário com critérios de aceitação claros
+- Features que precisam de validação de stakeholders
+- Contratos de API consumidos por múltiplos times
+- Onboarding: specs BDD servem como documentação viva
 
-## When NOT to Use BDD
+## Quando NÃO Usar BDD
 
-- Internal implementation details
-- Utility functions
-- Performance optimizations
-- Infrastructure code
+- Detalhes internos de implementação
+- Funções utilitárias
+- Otimizações de performance
+- Código de infraestrutura
 
-## BDD Implementation
+## Implementação de BDD
 
 ### Python (pytest-bdd)
 ```python
@@ -82,11 +82,11 @@ Then("the cart total should be ${int}", function (expected: number) {
 });
 ```
 
-## Writing Good Scenarios
+## Escrevendo Bons Cenários
 
-**Rules:**
-- One scenario = one behavior
-- Use business language, not technical terms
-- Avoid implementation details in scenarios
-- Keep scenarios short (3-7 steps)
-- Use Background for shared Given steps
+**Regras:**
+- Um cenário = um comportamento
+- Use linguagem de negócio, não termos técnicos
+- Evite detalhes de implementação nos cenários
+- Mantenha os cenários curtos (3-7 passos)
+- Use Background para passos Given compartilhados

@@ -1,28 +1,28 @@
-# Testing Strategy by Architectural Layer
+# Estratégia de Testes por Camada Arquitetural
 
-## Test Pyramid per Layer
+## Pirâmide de Testes por Camada
 ```
           /  E2E  \           ← Few: critical user journeys
          / Integration \      ← Medium: service boundaries, DB
         /    Unit Tests   \   ← Many: domain logic, pure functions
 ```
 
-| Layer | Test Type | What | Tools |
+| Camada | Tipo de Teste | O quê | Ferramentas |
 |-------|-----------|------|-------|
-| Domain/Core | Unit | Business rules, value objects | pytest, jest |
-| Application | Unit + Integration | Use cases, orchestration | pytest + test DB |
-| Infrastructure | Integration | Repository, API client | testcontainers |
-| API | Contract + Integration | Endpoints, serialization | Pact, pytest |
-| E2E | E2E | Critical flows | Playwright, pytest |
+| Domain/Core | Unit | Regras de negócio, value objects | pytest, jest |
+| Application | Unit + Integration | Casos de uso, orquestração | pytest + banco de teste |
+| Infrastructure | Integration | Repository, cliente de API | testcontainers |
+| API | Contract + Integration | Endpoints, serialização | Pact, pytest |
+| E2E | E2E | Fluxos críticos | Playwright, pytest |
 
-## Testing Rules per Layer
-- **Domain**: 100% unit tested, no mocks (pure logic)
-- **Application**: test with real domain, mock infrastructure
-- **Infrastructure**: test with real dependencies (testcontainers)
-- **API**: contract tests for public APIs, integration for internal
+## Regras de Teste por Camada
+- **Domain**: 100% coberto por testes unitários, sem mocks (lógica pura)
+- **Application**: teste com domínio real, mocke a infraestrutura
+- **Infrastructure**: teste com dependências reais (testcontainers)
+- **API**: testes de contrato para APIs públicas, integração para as internas
 
-## Anti-patterns
-- Testing implementation details instead of behavior
-- Mocking everything (tests pass, production fails)
-- E2E tests for edge cases (slow, flaky)
-- No tests for error paths
+## Anti-padrões
+- Testar detalhes de implementação em vez de comportamento
+- Mockar tudo (os testes passam, a produção falha)
+- Testes E2E para edge cases (lentos, flaky)
+- Não ter testes para caminhos de erro

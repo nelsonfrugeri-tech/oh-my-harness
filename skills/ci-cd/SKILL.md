@@ -2,46 +2,46 @@
 version: 1.0.0
 name: ci-cd
 description: |
-  CI/CD pipeline knowledge base (2026). Covers pipeline design principles (fail fast, trunk-based
-  development), GitHub Actions workflow patterns (reusable workflows, matrix builds, environments),
-  automated quality gates (SAST, dependency scanning, coverage thresholds, contract tests),
-  deployment strategies (blue/green, canary, feature flags, rolling), rollback procedures,
-  artifact management (Docker image tagging, registry hygiene), environment promotion (dev →
-  staging → production), release management (semantic versioning, conventional commits, changelog
-  generation), and CI discipline (commit standards, branch protection, merge strategies).
-  Use when: (1) Designing CI/CD pipelines, (2) Writing GitHub Actions workflows, (3) Choosing
-  deployment strategies, (4) Setting up quality gates, (5) Implementing release automation.
-  Triggers: /ci-cd, /ci, /cd, GitHub Actions, pipeline, deployment, release, blue/green, canary.
+  Base de conhecimento de pipelines CI/CD (2026). Cobre princípios de design de pipeline (fail fast, trunk-based
+  development), padrões de workflow do GitHub Actions (reusable workflows, matrix builds, environments),
+  quality gates automatizados (SAST, varredura de dependências, limiares de cobertura, contract tests),
+  estratégias de deployment (blue/green, canary, feature flags, rolling), procedimentos de rollback,
+  gestão de artefatos (tagueamento de imagens Docker, higiene de registry), promoção de ambientes (dev →
+  staging → produção), gestão de releases (versionamento semântico, conventional commits, geração de
+  changelog) e disciplina de CI (padrões de commit, branch protection, estratégias de merge).
+  Use quando: (1) Projetar pipelines CI/CD, (2) Escrever workflows do GitHub Actions, (3) Escolher
+  estratégias de deployment, (4) Configurar quality gates, (5) Implementar automação de releases.
+  Gatilhos: /ci-cd, /ci, /cd, GitHub Actions, pipeline, deployment, release, blue/green, canary.
 type: knowledge
 ---
 
-# CI/CD — Knowledge Base
+# CI/CD — Base de Conhecimento
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for CI/CD pipeline design (2026).
-It covers pipeline architecture, quality gates, deployment strategies, and release automation.
+Esta skill é a base de conhecimento para design de pipelines CI/CD (2026).
+Cobre arquitetura de pipeline, quality gates, estratégias de deployment e automação de releases.
 
-**What this skill contains:**
-- Pipeline design principles (fail fast, parallelism, caching)
-- GitHub Actions patterns (reusable workflows, matrix, environments, OIDC)
-- Quality gates (SAST, dependency scan, coverage, contract tests)
-- Deployment strategies (blue/green, canary, rolling, feature flags)
-- Rollback procedures
-- Artifact management (Docker images, versioning, registry)
-- Environment promotion (dev → staging → production)
-- Release management (semantic versioning, changelog, GitHub releases)
-- CI discipline (commit standards, branch protection)
+**O que esta skill contém:**
+- Princípios de design de pipeline (fail fast, paralelismo, caching)
+- Padrões do GitHub Actions (reusable workflows, matrix, environments, OIDC)
+- Quality gates (SAST, varredura de dependências, cobertura, contract tests)
+- Estratégias de deployment (blue/green, canary, rolling, feature flags)
+- Procedimentos de rollback
+- Gestão de artefatos (imagens Docker, versionamento, registry)
+- Promoção de ambientes (dev → staging → produção)
+- Gestão de releases (versionamento semântico, changelog, GitHub releases)
+- Disciplina de CI (padrões de commit, branch protection)
 
 ---
 
-## Philosophy
+## Filosofia
 
-### The Three Laws of CI/CD
+### As Três Leis do CI/CD
 
-1. **The build is always green** — a failing build blocks everyone; fix it immediately
-2. **Fast feedback wins** — developers should know if their change is broken in < 5 minutes
-3. **Automation over ceremony** — if a human does it manually on every merge, automate it
+1. **O build está sempre verde** — um build quebrado bloqueia todos; corrija-o imediatamente
+2. **Feedback rápido vence** — desenvolvedores devem saber se sua mudança quebrou algo em < 5 minutos
+3. **Automação em vez de cerimônia** — se um humano faz manualmente a cada merge, automatize
 
 ### Trunk-Based Development
 
@@ -56,9 +56,9 @@ Feature flags for in-progress work that's merged but not released.
 
 ---
 
-## 1. Pipeline Design Principles
+## 1. Princípios de Design de Pipeline
 
-### Stage Ordering (Fail Fast)
+### Ordenação de Estágios (Fail Fast)
 
 ```
 1. Lint + Format check     (30s)    — fail immediately on style violations
@@ -75,7 +75,7 @@ Feature flags for in-progress work that's merged but not released.
 12. Smoke tests production (1-2m)   — verify production health
 ```
 
-### Parallelism
+### Paralelismo
 
 ```yaml
 # Run independent jobs in parallel to reduce total pipeline time
@@ -91,9 +91,9 @@ jobs:
 
 ---
 
-## 2. GitHub Actions Patterns
+## 2. Padrões do GitHub Actions
 
-### Base Python CI Workflow
+### Workflow Base de CI para Python
 
 ```yaml
 # .github/workflows/ci.yml
@@ -163,7 +163,7 @@ jobs:
           config: "p/python p/owasp-top-ten"
 ```
 
-### TypeScript CI Workflow
+### Workflow de CI para TypeScript
 
 ```yaml
 # .github/workflows/ci-ts.yml
@@ -203,7 +203,7 @@ jobs:
           files: coverage/lcov.info
 ```
 
-### Reusable Workflows
+### Reusable Workflows (Workflows Reutilizáveis)
 
 ```yaml
 # .github/workflows/deploy.yml (reusable)
@@ -245,7 +245,7 @@ jobs:
       DEPLOY_TOKEN: ${{ secrets.STAGING_DEPLOY_TOKEN }}
 ```
 
-### OIDC Authentication (No Long-Lived Secrets)
+### Autenticação OIDC (Sem Segredos de Longa Duração)
 
 ```yaml
 jobs:
@@ -263,13 +263,12 @@ jobs:
           # No AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY needed
 ```
 
-**Reference:** [references/github-actions.md](references/github-actions.md)
 
 ---
 
 ## 3. Quality Gates
 
-### Coverage Thresholds
+### Limiares de Cobertura
 
 ```yaml
 # pytest — fail if coverage drops below threshold
@@ -289,7 +288,7 @@ jobs:
       --coverage.thresholds.branches=80
 ```
 
-### Contract Testing in CI
+### Contract Testing no CI
 
 ```yaml
 - name: Run Pact contract tests
@@ -307,7 +306,7 @@ jobs:
     poetry run pytest tests/provider -v
 ```
 
-### Branch Protection Rules
+### Regras de Branch Protection
 
 ```yaml
 # Repository settings (via GitHub UI or terraform)
@@ -326,9 +325,9 @@ Branch protection for main:
 
 ---
 
-## 4. Docker Build and Registry
+## 4. Build Docker e Registry
 
-### Multi-Stage Build in CI
+### Build Multi-Stage no CI
 
 ```yaml
 - name: Build Docker image
@@ -361,7 +360,7 @@ Branch protection for main:
     docker push "$REGISTRY/$SERVICE_NAME:latest"
 ```
 
-### Image Tagging Strategy
+### Estratégia de Tagueamento de Imagens
 
 ```
 Development:   registry/service:sha-abc1234
@@ -376,9 +375,9 @@ Use SHA tags for auditability and rollback.
 
 ---
 
-## 5. Deployment Strategies
+## 5. Estratégias de Deployment
 
-### Blue/Green Deployment
+### Deployment Blue/Green
 
 ```yaml
 # Blue/Green: two identical environments, traffic switch
@@ -409,7 +408,7 @@ deploy-blue-green:
         fi
 ```
 
-### Canary Deployment
+### Deployment Canary
 
 ```yaml
 # Canary: gradual traffic shift
@@ -455,23 +454,22 @@ if feature_flags.is_enabled("new_checkout_flow", request.user.id):
 return legacy_checkout(cart)
 ```
 
-**Reference:** [references/deployment-strategies.md](references/deployment-strategies.md)
 
 ---
 
-## 6. Rollback Procedures
+## 6. Procedimentos de Rollback
 
-### Rollback Decision Matrix
+### Matriz de Decisão de Rollback
 
-| Scenario | Rollback Method | Time |
+| Cenário | Método de Rollback | Tempo |
 |----------|----------------|------|
-| Code bug (no DB migration) | Redeploy previous image | < 5 min |
-| Code bug (reversible migration) | Redeploy + run down migration | 5-15 min |
-| Data corruption | Database restore from backup | 15-60 min |
-| External service failure | Feature flag disable | < 2 min |
-| Blue/green active | Traffic switch back to blue | < 1 min |
+| Bug de código (sem migração de BD) | Reimplantar imagem anterior | < 5 min |
+| Bug de código (migração reversível) | Reimplantar + rodar migração de reversão | 5-15 min |
+| Corrupção de dados | Restaurar banco a partir de backup | 15-60 min |
+| Falha de serviço externo | Desabilitar feature flag | < 2 min |
+| Blue/green ativo | Voltar tráfego para o blue | < 1 min |
 
-### Automated Rollback Triggers
+### Gatilhos de Rollback Automatizado
 
 ```yaml
 - name: Post-deploy health check
@@ -492,7 +490,7 @@ return legacy_checkout(cart)
 
 ---
 
-## 7. Release Management
+## 7. Gestão de Releases
 
 ### Conventional Commits
 
@@ -516,7 +514,7 @@ Examples:
   chore(ci): upgrade Actions runners to ubuntu-24.04
 ```
 
-### Automated Release Workflow
+### Workflow de Release Automatizado
 
 ```yaml
 # .github/workflows/release.yml
@@ -555,7 +553,7 @@ jobs:
           docker push "$REGISTRY/$SERVICE:latest"
 ```
 
-### Semantic Versioning
+### Versionamento Semântico
 
 ```
 MAJOR.MINOR.PATCH
@@ -576,9 +574,9 @@ Rules:
 
 ---
 
-## 8. CI Discipline
+## 8. Disciplina de CI
 
-### Commit Standards
+### Padrões de Commit
 
 ```
 Rules:
@@ -596,7 +594,7 @@ Pre-commit hooks (pre-commit framework):
   - Conventional commit message format
 ```
 
-### Branch Strategy
+### Estratégia de Branches
 
 ```
 main          ← always deployable, always green
@@ -613,11 +611,3 @@ Rules:
 
 ---
 
-## Reference Files
-
-- [references/github-actions.md](references/github-actions.md) — Actions patterns, OIDC, reusable workflows
-- [references/deployment-strategies.md](references/deployment-strategies.md) — Blue/green, canary, rolling, feature flags
-- [references/quality-gates.md](references/quality-gates.md) — Coverage, SAST, contract tests, thresholds
-- [references/docker-registry.md](references/docker-registry.md) — Image tagging, multi-stage builds, scanning
-- [references/release-management.md](references/release-management.md) — Semantic versioning, conventional commits, changelog
-- [references/rollback.md](references/rollback.md) — Rollback procedures, automated triggers, decision matrix

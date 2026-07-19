@@ -1,14 +1,14 @@
 # Test-First Principles
 
-## Why Write Tests First
+## Por Que Escrever Testes Primeiro
 
-1. **Design feedback** — Tests force you to design testable interfaces
-2. **Scope control** — You only implement what the tests require
-3. **Living documentation** — Tests describe behavior, always up-to-date
-4. **Confidence** — Refactor without fear
-5. **Fewer defects** — IBM/Microsoft report up to 90% fewer defects
+1. **Feedback de design** — Testes forçam você a projetar interfaces testáveis
+2. **Controle de escopo** — Você só implementa o que os testes exigem
+3. **Documentação viva** — Testes descrevem o comportamento, sempre atualizados
+4. **Confiança** — Refatore sem medo
+5. **Menos defeitos** — IBM/Microsoft reportam até 90% menos defeitos
 
-## The Test-First Mindset
+## A Mentalidade Test-First
 
 ```
 BEFORE: "I wrote code, now I need to test it"
@@ -18,13 +18,13 @@ AFTER:  "I wrote tests, now I need to make them pass"
  (tests drive design, encode behavior, catch regressions)
 ```
 
-## Test Naming Convention
+## Convenção de Nomenclatura de Testes
 
 ```
 test_<behavior>_when_<condition>_then_<expected>
 ```
 
-Good names:
+Bons nomes:
 ```python
 test_create_user_when_valid_email_then_returns_user
 test_create_user_when_duplicate_email_then_raises_conflict
@@ -32,7 +32,7 @@ test_calculate_discount_when_premium_user_then_applies_10_percent
 test_login_when_wrong_password_then_returns_401
 ```
 
-Bad names:
+Nomes ruins:
 ```python
 test_create_user           # too vague
 test_create_user_1         # meaningless
@@ -40,7 +40,7 @@ test_happy_path            # no specificity
 test_exception             # which exception?
 ```
 
-## Test Structure: Arrange-Act-Assert
+## Estrutura do Teste: Arrange-Act-Assert
 
 ```python
 def test_apply_discount_when_valid_code_then_reduces_total():
@@ -55,22 +55,22 @@ def test_apply_discount_when_valid_code_then_reduces_total():
     assert cart.total == 90.0
 ```
 
-One test, one behavior. If you need multiple asserts, they should all verify the same behavior.
+Um teste, um comportamento. Se você precisa de múltiplos asserts, todos devem verificar o mesmo comportamento.
 
-## What to Test
+## O Que Testar
 
-| Category | Test | Priority |
+| Categoria | Teste | Prioridade |
 |----------|------|----------|
-| Happy path | Normal use case works | P0 |
-| Edge cases | Boundary conditions | P0 |
-| Error cases | Invalid input, failures | P0 |
-| Integration | Components work together | P1 |
-| Performance | Meets latency requirements | P2 |
-| Security | Auth, injection, access | P0 |
+| Happy path | O caso de uso normal funciona | P0 |
+| Edge cases | Condições de borda | P0 |
+| Casos de erro | Entrada inválida, falhas | P0 |
+| Integração | Os componentes funcionam juntos | P1 |
+| Performance | Atende aos requisitos de latência | P2 |
+| Segurança | Auth, injection, acesso | P0 |
 
-## What NOT to Test
+## O Que NÃO Testar
 
-- Private implementation details
-- Framework/library internals
-- Trivial getters/setters with no logic
-- Third-party code (mock it instead)
+- Detalhes internos de implementação
+- Internals de framework/biblioteca
+- Getters/setters triviais sem lógica
+- Código de terceiros (faça mock em vez disso)

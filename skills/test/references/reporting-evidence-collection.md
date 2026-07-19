@@ -1,6 +1,6 @@
-# Test Reporting & Evidence Collection
+# Relatórios de Teste e Coleta de Evidências
 
-## CI Test Reports
+## Relatórios de Teste em CI
 ```yaml
 # GitHub Actions
 - name: Run tests
@@ -19,17 +19,17 @@
     path: htmlcov/
 ```
 
-## Evidence Artifacts
-| Type | Format | Tool |
+## Artefatos de Evidência
+| Tipo | Formato | Ferramenta |
 |------|--------|------|
-| Test results | JUnit XML | pytest, jest |
-| Coverage | HTML, Cobertura XML | coverage.py, istanbul |
+| Resultados de teste | JUnit XML | pytest, jest |
+| Cobertura | HTML, Cobertura XML | coverage.py, istanbul |
 | Screenshots | PNG | Playwright |
 | Performance | JSON, HTML | k6, Locust |
-| Accessibility | JSON | axe-core |
-| API contracts | JSON | Pact |
+| Acessibilidade | JSON | axe-core |
+| Contratos de API | JSON | Pact |
 
-## Coverage Thresholds
+## Limiares de Cobertura
 ```toml
 # pyproject.toml
 [tool.coverage.report]
@@ -39,14 +39,14 @@ fail_under = 80
 branch = true
 ```
 
-## PR Comment Pattern
-Auto-comment on PRs with:
-- Test pass/fail summary
-- Coverage delta (increased/decreased)
-- Performance regression flags
-- Screenshot diff links (if visual tests)
+## Padrão de Comentário em PR
+Comentar automaticamente em PRs com:
+- Resumo de aprovação/falha dos testes
+- Delta de cobertura (aumentou/diminuiu)
+- Sinalizações de regressão de performance
+- Links de diff de screenshots (se houver testes visuais)
 
-## Anti-patterns
-- Coverage as the only quality metric
-- Storing test artifacts forever (retain 30 days)
-- Ignoring flaky test reports
+## Anti-padrões
+- Cobertura como única métrica de qualidade
+- Armazenar artefatos de teste para sempre (retenha por 30 dias)
+- Ignorar relatórios de testes flaky

@@ -1,8 +1,8 @@
-# Validation Checklist
+# Checklist de Validação
 
-## Automated Validation
+## Validação Automatizada
 
-### Python Projects
+### Projetos Python
 ```bash
 # 1. Lint
 ruff check . --fix
@@ -23,7 +23,7 @@ pytest tests/integration/ -v
 pytest --cov=src --cov-report=term-missing
 ```
 
-### TypeScript Projects
+### Projetos TypeScript
 ```bash
 # 1. Lint + Format
 biome check --write .
@@ -41,11 +41,11 @@ playwright test
 vitest run --coverage
 ```
 
-## Manual Validation
+## Validação Manual
 
-When automated tests are not sufficient:
+Quando os testes automatizados não são suficientes:
 
-### API Endpoints
+### Endpoints de API
 ```bash
 # Test the endpoint manually
 curl -X POST http://localhost:8000/api/users \
@@ -56,16 +56,16 @@ curl -X POST http://localhost:8000/api/users \
 # Test error cases: invalid input, duplicate, unauthorized
 ```
 
-### UI Changes
-- Verify in at least 2 browsers
-- Test responsive breakpoints (mobile, tablet, desktop)
-- Test keyboard navigation
-- Test with screen reader (if accessibility-relevant)
-- Check dark mode (if applicable)
+### Mudanças de UI
+- Verifique em pelo menos 2 navegadores
+- Teste os breakpoints responsivos (mobile, tablet, desktop)
+- Teste a navegação por teclado
+- Teste com leitor de tela (se relevante para acessibilidade)
+- Verifique o dark mode (se aplicável)
 
-## Regression Check
+## Verificação de Regressão
 
-After validation, always ask:
-- Did I break any existing functionality?
-- Did I change any shared code that other features use?
-- Are there integration points that need testing?
+Após a validação, sempre pergunte:
+- Quebrei alguma funcionalidade existente?
+- Alterei algum código compartilhado que outras funcionalidades usam?
+- Há pontos de integração que precisam de teste?

@@ -1,16 +1,16 @@
-# Environment Setup and Teardown
+# Configuração e Teardown de Ambiente
 
-## Lifecycle
+## Ciclo de Vida
 
 ```
 PROVISION -> CONFIGURE -> SEED -> TEST -> TEARDOWN -> VERIFY CLEAN
 ```
 
-## Docker Compose Patterns
+## Padrões de Docker Compose
 
-### Test-Specific Compose File
+### Arquivo Compose Específico de Teste
 
-Always use a separate `docker-compose.test.yml` -- never share with development.
+Sempre use um `docker-compose.test.yml` separado -- nunca compartilhe com o de desenvolvimento.
 
 ```yaml
 services:
@@ -40,7 +40,7 @@ services:
       DEFAULT_REGION: us-east-1
 ```
 
-### Startup Script
+### Script de Inicialização
 
 ```bash
 #!/usr/bin/env bash
@@ -61,7 +61,7 @@ docker compose -f docker-compose.test.yml down -v --remove-orphans
 
 ## Testcontainers (Python)
 
-### Session-Scoped Containers
+### Containers com Escopo de Sessão
 
 ```python
 import pytest
@@ -88,7 +88,7 @@ def mongo_url():
         yield m.get_connection_url()
 ```
 
-### Per-Test Isolation via Transactions
+### Isolamento por Teste via Transações
 
 ```python
 from sqlalchemy import create_engine
@@ -114,9 +114,9 @@ def db(engine):
     conn.close()
 ```
 
-## Teardown Patterns
+## Padrões de Teardown
 
-### Transaction Rollback (preferred for speed)
+### Rollback de Transação (preferido por velocidade)
 
 ```python
 @pytest.fixture(autouse=True)
@@ -125,7 +125,7 @@ def rollback(db_session):
     db_session.rollback()
 ```
 
-### Table Truncation (when rollback is not possible)
+### Truncamento de Tabelas (quando o rollback não é possível)
 
 ```python
 @pytest.fixture(autouse=True)
@@ -137,7 +137,7 @@ def truncate_tables(db_engine):
         conn.commit()
 ```
 
-### Redis Flush
+### Flush do Redis
 
 ```python
 @pytest.fixture(autouse=True)
@@ -146,7 +146,7 @@ def flush_redis(redis_client):
     redis_client.flushdb()
 ```
 
-### Temporary Files
+### Arquivos Temporários
 
 ```python
 import tempfile
@@ -159,7 +159,7 @@ def tmp_dir():
     # automatically cleaned up
 ```
 
-## Environment Variables
+## Variáveis de Ambiente
 
 ```python
 @pytest.fixture(autouse=True)
@@ -170,9 +170,9 @@ def clean_env(monkeypatch):
     monkeypatch.setenv("ENV", "test")
 ```
 
-## Verification
+## Verificação
 
-After teardown, verify clean state:
+Após o teardown, verifique o estado limpo:
 
 ```python
 def test_no_leaked_data(db_session):

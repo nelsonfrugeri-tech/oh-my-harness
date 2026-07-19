@@ -1,11 +1,11 @@
 # ATAM — Architecture Tradeoff Analysis Method
 
 ## Processo
-1. **Present architecture** — stakeholders understand the system
-2. **Identify quality attributes** — performance, security, modifiability, availability
-3. **Build utility tree** — prioritize scenarios by importance and difficulty
-4. **Analyze scenarios** — find sensitivity points and tradeoff points
-5. **Document risks** — unmitigated risks become ADRs or action items
+1. **Apresentar a arquitetura** — os stakeholders entendem o sistema
+2. **Identificar os quality attributes** — performance, segurança, modificabilidade, disponibilidade
+3. **Construir a utility tree** — priorizar cenários por importância e dificuldade
+4. **Analisar os cenários** — encontrar sensitivity points e tradeoff points
+5. **Documentar os riscos** — riscos não mitigados viram ADRs ou action items
 
 ## Utility Tree
 ```
@@ -15,14 +15,14 @@ Security → Auth → Support MFA for all user accounts → (H, M)
 Modifiability → Extensibility → Add new payment provider in < 1 sprint → (M, H)
 ```
 
-## Key Concepts
-- **Sensitivity point**: architectural decision that affects ONE quality attribute
-- **Tradeoff point**: decision that affects MULTIPLE quality attributes (e.g., caching improves performance but complicates consistency)
-- **Risk**: unmitigated sensitivity or tradeoff point
+## Conceitos-Chave
+- **Sensitivity point**: decisão arquitetural que afeta UM quality attribute
+- **Tradeoff point**: decisão que afeta MÚLTIPLOS quality attributes (ex.: caching melhora a performance mas complica a consistência)
+- **Risco**: sensitivity ou tradeoff point não mitigado
 
-## Lightweight ATAM
-For smaller teams, run in 2-4 hours:
-1. List top 5 quality attributes
-2. Identify 3 architectural decisions per attribute
-3. Find tradeoff points (decisions that affect multiple attributes)
-4. Document as ADRs
+## ATAM Leve
+Para times menores, execute em 2-4 horas:
+1. Liste os 5 principais quality attributes
+2. Identifique 3 decisões arquiteturais por atributo
+3. Encontre os tradeoff points (decisões que afetam múltiplos atributos)
+4. Documente como ADRs

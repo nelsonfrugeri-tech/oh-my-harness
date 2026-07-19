@@ -1,6 +1,6 @@
-# Automated Accessibility Testing
+# Testes Automatizados de Acessibilidade
 
-## axe-core Integration
+## Integração com axe-core
 ```javascript
 // Playwright + axe-core
 import { test, expect } from '@playwright/test';
@@ -34,17 +34,17 @@ module.exports = {
 };
 ```
 
-## WCAG 2.2 Key Checks (Automated)
-- Images have alt text
-- Form inputs have labels
-- Color contrast ratios (4.5:1 normal, 3:1 large text)
-- Focus order is logical
-- ARIA attributes are valid
-- Heading hierarchy is correct (h1 → h2 → h3)
+## Verificações-Chave do WCAG 2.2 (Automatizadas)
+- Imagens têm texto alternativo (alt)
+- Inputs de formulário têm labels
+- Razões de contraste de cor (4.5:1 texto normal, 3:1 texto grande)
+- A ordem de foco é lógica
+- Atributos ARIA são válidos
+- A hierarquia de cabeçalhos está correta (h1 → h2 → h3)
 
-## What Automation Misses (Manual Required)
-- Keyboard navigation flow
-- Screen reader experience
-- Meaningful alt text (not just present)
-- Focus management in SPAs
-- Dynamic content announcements
+## O que a Automação Não Detecta (Requer Manual)
+- Fluxo de navegação por teclado
+- Experiência com leitor de tela
+- Texto alternativo (alt) significativo (não apenas presente)
+- Gerenciamento de foco em SPAs
+- Anúncios de conteúdo dinâmico

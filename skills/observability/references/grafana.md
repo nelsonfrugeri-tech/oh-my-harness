@@ -1,24 +1,24 @@
 # Grafana
 
-## Dashboard Best Practices
+## Boas Práticas de Dashboard
 
-### Variables
+### Variáveis
 ```
 $namespace = label_values(kube_namespace_created, namespace)
 $service = label_values(up{namespace="$namespace"}, job)
 ```
 
-### Panel Types by Use Case
-| Data | Panel |
+### Tipos de Painel por Caso de Uso
+| Dados | Painel |
 |------|-------|
-| Time series trends | Time series |
-| Current value | Stat / Gauge |
-| Comparisons | Bar chart |
-| Status overview | State timeline |
+| Tendências de séries temporais | Time series |
+| Valor atual | Stat / Gauge |
+| Comparações | Bar chart |
+| Visão geral de status | State timeline |
 | Logs | Logs panel (Loki datasource) |
 
-### Annotations
-- Auto-annotate deploys: ArgoCD webhook → Grafana annotation API
-- Incident markers: PagerDuty integration
+### Anotações
+- Auto-anotar deploys: webhook do ArgoCD → API de anotações do Grafana
+- Marcadores de incidente: integração com PagerDuty
 
-### Version: Grafana 11.x (2026 stable)
+### Versão: Grafana 11.x (estável em 2026)

@@ -1,19 +1,19 @@
-# Integration Testing Patterns
+# Padrões de Teste de Integração
 
-## Real Dependencies vs Mocks -- Decision Matrix
+## Dependências Reais vs Mocks -- Matriz de Decisão
 
-| Dependency | Real | Mock | Rationale |
+| Dependência | Real | Mock | Justificativa |
 |------------|------|------|-----------|
-| PostgreSQL | testcontainers | -- | Query behavior differs between real DB and mock |
-| Redis | testcontainers | -- | TTL, pub/sub behavior needs real Redis |
-| MongoDB | testcontainers | -- | Aggregation pipeline needs real engine |
-| RabbitMQ/Kafka | testcontainers | -- | Message ordering, ack behavior |
-| Stripe/PayPal | -- | respx/httpx mock | Rate limits, cost, determinism |
-| Email (SMTP) | -- | mock | No real email in tests |
-| S3 | localstack | -- | File operations need real-ish storage |
-| External REST APIs | -- | respx/wiremock | You do not control them |
+| PostgreSQL | testcontainers | -- | O comportamento de queries difere entre o DB real e o mock |
+| Redis | testcontainers | -- | Comportamento de TTL e pub/sub precisa do Redis real |
+| MongoDB | testcontainers | -- | O pipeline de agregação precisa do engine real |
+| RabbitMQ/Kafka | testcontainers | -- | Ordenação de mensagens e comportamento de ack |
+| Stripe/PayPal | -- | respx/httpx mock | Rate limits, custo, determinismo |
+| Email (SMTP) | -- | mock | Sem e-mail real nos testes |
+| S3 | localstack | -- | Operações de arquivo precisam de armazenamento próximo do real |
+| APIs REST externas | -- | respx/wiremock | Você não as controla |
 
-## Testcontainers Patterns
+## Padrões do Testcontainers
 
 ### PostgreSQL
 
@@ -49,7 +49,7 @@ def redis_client(redis):
     client.flushdb()
 ```
 
-## HTTP Mocking with respx
+## Mocking HTTP com respx
 
 ```python
 import httpx
@@ -73,7 +73,7 @@ async def test_payment_success(client, mock_stripe, sample_order):
     assert response.json()["payment_status"] == "succeeded"
 ```
 
-## FastAPI Integration Testing
+## Testes de Integração com FastAPI
 
 ```python
 import pytest
@@ -105,9 +105,9 @@ async def test_create_user_duplicate_email(client, existing_user):
     assert response.status_code == 409
 ```
 
-## Scope Rules
+## Regras de Escopo
 
-Each integration test validates **one integration point**:
+Cada teste de integração valida **um ponto de integração**:
 
 ```
 GOOD: API endpoint + database
@@ -118,7 +118,7 @@ GOOD: Service + external API (mocked)
 BAD:  API + database + cache + queue + external API  (that is E2E)
 ```
 
-## Assertions
+## Asserções
 
 ```python
 # Assert on HTTP response

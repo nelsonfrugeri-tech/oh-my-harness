@@ -1,6 +1,6 @@
-# Playwright E2E Testing Patterns
+# Padrões de Testes E2E com Playwright
 
-## Setup
+## Configuração
 
 ### Python
 ```bash
@@ -71,9 +71,9 @@ export class LoginPage {
 }
 ```
 
-## Locator Best Practices
+## Boas Práticas de Locators
 
-### Priority Order (most resilient first)
+### Ordem de Prioridade (do mais resiliente primeiro)
 
 ```python
 # 1. Role-based (best -- semantic, accessible)
@@ -96,7 +96,7 @@ page.get_by_placeholder("Search...")
 page.get_by_test_id("checkout-button")
 ```
 
-### Never Use
+### Nunca Use
 ```python
 # BAD: CSS class (breaks on styling changes)
 page.locator(".btn-primary")
@@ -108,9 +108,9 @@ page.locator("//div[@class='container']/button[2]")
 page.locator("button:nth-child(3)")
 ```
 
-## Waiting and Assertions
+## Espera e Asserções
 
-### Auto-Waiting (Playwright default)
+### Auto-Waiting (padrão do Playwright)
 
 ```python
 # Playwright auto-waits for elements to be actionable
@@ -118,7 +118,7 @@ await page.get_by_role("button", name="Submit").click()  # waits until clickable
 await page.get_by_label("Email").fill("test@test.com")   # waits until editable
 ```
 
-### Explicit Assertions
+### Asserções Explícitas
 
 ```python
 from playwright.async_api import expect
@@ -140,7 +140,7 @@ await expect(page).to_have_title("My App - Dashboard")
 await expect(page.get_by_role("listitem")).to_have_count(5)
 ```
 
-### Anti-Patterns
+### Anti-Padrões
 
 ```python
 # BAD: arbitrary sleep
@@ -156,7 +156,7 @@ await page.wait_for_load_state("networkidle")
 await expect(page.get_by_text("Loaded")).to_be_visible()
 ```
 
-## Test Isolation
+## Isolamento de Testes
 
 ```python
 @pytest.fixture
@@ -176,7 +176,7 @@ def page(context):
     pg.close()
 ```
 
-## API Testing with Playwright
+## Testes de API com Playwright
 
 ```python
 async def test_api_create_user(request_context):
@@ -190,7 +190,7 @@ async def test_api_create_user(request_context):
     assert body["name"] == "Alice"
 ```
 
-## Network Interception
+## Interceptação de Rede
 
 ```python
 async def test_handles_api_failure(page):
@@ -203,7 +203,7 @@ async def test_handles_api_failure(page):
     await expect(page.get_by_text("Something went wrong")).to_be_visible()
 ```
 
-## Parallel Execution
+## Execução Paralela
 
 ```toml
 # pytest.ini or pyproject.toml
@@ -219,7 +219,7 @@ export default defineConfig({
 });
 ```
 
-## CI Configuration
+## Configuração de CI
 
 ```yaml
 # GitHub Actions

@@ -1,6 +1,6 @@
-# Dockerfile Patterns
+# Padrões de Dockerfile
 
-## Multi-Stage Build: Python (Poetry)
+## Build Multi-Stage: Python (Poetry)
 
 ```dockerfile
 # === Stage 1: Dependencies ===
@@ -36,7 +36,7 @@ EXPOSE 8000
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-## Multi-Stage Build: Node.js (pnpm)
+## Build Multi-Stage: Node.js (pnpm)
 
 ```dockerfile
 # === Stage 1: Dependencies ===
@@ -67,7 +67,7 @@ EXPOSE 3000
 CMD ["node", "dist/server.js"]
 ```
 
-## Multi-Stage Build: Rust
+## Build Multi-Stage: Rust
 
 ```dockerfile
 # === Stage 1: Dependency cache ===
@@ -96,7 +96,7 @@ USER app
 CMD ["myapp"]
 ```
 
-## .dockerignore Template
+## Template de .dockerignore
 
 ```
 .git
@@ -134,15 +134,15 @@ target
 *.swp
 ```
 
-## Security Checklist
+## Checklist de Segurança
 
-1. **Base image**: Use `-slim` variants, never full images
-2. **Non-root**: Always `USER app` (never run as root)
-3. **No secrets in image**: Use build args for build-time, env vars for runtime
-4. **Pin versions**: Base image tags, system packages, language packages
-5. **Minimize layers**: Combine RUN commands with `&&`
-6. **Clean up**: Remove apt lists, pip cache, build tools in same layer
-7. **Read-only root**: Use `--read-only` flag in compose when possible
-8. **No new privileges**: Set `security_opt: [no-new-privileges:true]`
-9. **Drop capabilities**: `cap_drop: [ALL]`, add back only what's needed
-10. **Scan images**: `docker scout cves <image>` or Trivy
+1. **Imagem base**: Use variantes `-slim`, nunca imagens completas
+2. **Non-root**: Sempre `USER app` (nunca execute como root)
+3. **Sem segredos na imagem**: Use build args para build-time, env vars para runtime
+4. **Fixe as versões**: Tags de imagem base, pacotes do sistema, pacotes da linguagem
+5. **Minimize as camadas**: Combine comandos RUN com `&&`
+6. **Faça a limpeza**: Remova as listas do apt, o cache do pip e as ferramentas de build na mesma camada
+7. **Root somente leitura**: Use a flag `--read-only` no compose quando possível
+8. **Sem novos privilégios**: Defina `security_opt: [no-new-privileges:true]`
+9. **Remova as capabilities**: `cap_drop: [ALL]`, adicione de volta apenas o necessário
+10. **Escaneie as imagens**: `docker scout cves <image>` ou Trivy

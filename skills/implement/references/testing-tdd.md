@@ -1,14 +1,14 @@
 # TDD Deep Dive
 
-## The Three Laws of TDD (Robert C. Martin)
+## As Três Leis do TDD (Robert C. Martin)
 
-1. You may not write production code until you have written a failing unit test
-2. You may not write more of a unit test than is sufficient to fail
-3. You may not write more production code than is sufficient to pass the currently failing test
+1. Você não pode escrever código de produção até ter escrito um teste unitário que falha
+2. Você não pode escrever mais de um teste unitário do que o suficiente para falhar
+3. Você não pode escrever mais código de produção do que o suficiente para passar no teste que está falhando
 
-## RED-GREEN-REFACTOR in Detail
+## RED-GREEN-REFACTOR em Detalhe
 
-### RED: Write a Failing Test
+### RED: Escreva um Teste que Falha
 
 ```python
 # Start with the simplest behavior
@@ -17,9 +17,9 @@ def test_new_cart_has_zero_total():
     assert cart.total == 0
 ```
 
-Run it. It fails (Cart doesn't exist yet). Good.
+Execute. Ele falha (`Cart` ainda não existe). Ótimo.
 
-### GREEN: Make It Pass (Simplest Way)
+### GREEN: Faça Passar (do Jeito Mais Simples)
 
 ```python
 class Cart:
@@ -28,13 +28,13 @@ class Cart:
         return 0  # hardcoded — that's fine!
 ```
 
-Yes, hardcoding is OK in the GREEN phase. The next test will force generalization.
+Sim, hardcoding é OK na fase GREEN. O próximo teste vai forçar a generalização.
 
-### REFACTOR: Clean Up
+### REFACTOR: Limpe
 
-Is there anything to clean? Not yet. Move to the next test.
+Há algo para limpar? Ainda não. Passe para o próximo teste.
 
-### Next cycle: Force generalization
+### Próximo ciclo: Force a generalização
 
 ```python
 def test_cart_with_one_item_has_item_price_as_total():
@@ -43,7 +43,7 @@ def test_cart_with_one_item_has_item_price_as_total():
     assert cart.total == 42.0
 ```
 
-Now the hardcoded `return 0` fails. Implement for real:
+Agora o `return 0` hardcoded falha. Implemente de verdade:
 
 ```python
 class Cart:
@@ -58,7 +58,7 @@ class Cart:
         return sum(item.price for item in self._items)
 ```
 
-## TDD Rhythm
+## Ritmo do TDD
 
 ```
 Test 1: Degenerate case (empty, zero, null)
@@ -68,9 +68,9 @@ Test 4: Edge case or error case
 Test 5+: Additional behaviors
 ```
 
-## Common Mistakes
+## Erros Comuns
 
-### Testes implementation, not behavior
+### Testa a implementação, não o comportamento
 ```python
 # BAD: tests the internal structure
 def test_cart_stores_items_in_list():
@@ -85,16 +85,16 @@ def test_cart_with_one_item_reports_correct_count():
     assert cart.item_count == 1
 ```
 
-### Too many tests at once
-Write ONE test, make it pass, refactor. Then the next. Never batch.
+### Testes demais de uma vez
+Escreva UM teste, faça passar, refatore. Depois o próximo. Nunca em lote.
 
-### Skipping the refactor step
-The refactor step is where design emerges. Skipping it leads to messy code
-that happens to pass tests.
+### Pular a etapa de refactor
+A etapa de refactor é onde o design emerge. Pulá-la leva a código bagunçado
+que apenas por acaso passa nos testes.
 
-## When TDD is Hard
+## Quando TDD é Difícil
 
-- **UI code:** Use BDD/integration tests instead of unit TDD
-- **Third-party integrations:** Mock the boundary, TDD the logic
-- **Exploratory/spike work:** Skip TDD, but write tests before merging
-- **Legacy code without tests:** Add characterization tests first, then TDD new changes
+- **Código de UI:** Use testes de BDD/integração em vez de TDD unitário
+- **Integrações com terceiros:** Faça mock da fronteira, aplique TDD na lógica
+- **Trabalho exploratório/spike:** Pule o TDD, mas escreva testes antes do merge
+- **Código legado sem testes:** Adicione characterization tests primeiro, depois aplique TDD nas novas mudanças

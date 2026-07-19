@@ -1,11 +1,11 @@
-# Interaction Patterns — Command Palettes, Toasts, Modals & More
+# Padrões de Interação — Command Palettes, Toasts, Modals e Mais
 
 ## Command Palettes (cmdk)
 
-The command palette pattern (Cmd+K) is now standard in modern apps.
-**cmdk** is the canonical library.
+O padrão de command palette (Cmd+K) já é padrão em apps modernos.
+**cmdk** é a biblioteca canônica.
 
-### Basic Implementation
+### Implementação Básica
 
 ```tsx
 import { Command } from "cmdk";
@@ -113,9 +113,9 @@ function CommandItem({
 
 ## Toast Notifications (Sonner)
 
-**Sonner** is the standard toast library. Beautiful, accessible, minimal API.
+**Sonner** é a biblioteca de toast padrão. Bonita, acessível, API mínima.
 
-### Setup
+### Configuração
 
 ```tsx
 // app/layout.tsx
@@ -138,7 +138,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### Usage Patterns
+### Padrões de Uso
 
 ```tsx
 import { toast } from "sonner";
@@ -182,11 +182,11 @@ toast.custom((id) => (
 
 ---
 
-## Modals & Dialogs
+## Modals e Dialogs
 
-Use **Radix Dialog** for accessible modals. Never build from scratch.
+Use **Radix Dialog** para modals acessíveis. Nunca construa do zero.
 
-### Controlled Dialog
+### Dialog Controlado
 
 ```tsx
 import * as Dialog from "@radix-ui/react-dialog";
@@ -265,7 +265,7 @@ function Modal({
 
 ## Dropdown Menus
 
-Use **Radix DropdownMenu** for proper keyboard navigation and accessibility.
+Use **Radix DropdownMenu** para navegação por teclado e acessibilidade adequadas.
 
 ```tsx
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -315,19 +315,19 @@ function ActionsMenu() {
 
 ---
 
-## Infinite Scroll vs Pagination
+## Infinite Scroll vs Paginação
 
-### When to Use Which
+### Quando Usar Cada Um
 
-| Pattern | Use Case | Pros | Cons |
+| Padrão | Caso de Uso | Prós | Contras |
 |---------|----------|------|------|
-| Infinite scroll | Social feeds, image galleries | Frictionless browsing | No footer access, poor a11y |
-| Pagination | Tables, search results, admin | Predictable, bookmarkable | More clicks |
-| Load more button | Compromise | User-controlled, accessible | Still loses footer |
+| Infinite scroll | Feeds sociais, galerias de imagens | Navegação sem atrito | Sem acesso ao rodapé, a11y ruim |
+| Paginação | Tabelas, resultados de busca, admin | Previsível, permite bookmark | Mais cliques |
+| Botão "load more" | Meio-termo | Controlado pelo usuário, acessível | Ainda perde o rodapé |
 
-### Virtualized List (TanStack Virtual)
+### Lista Virtualizada (TanStack Virtual)
 
-For long lists (1000+ items), virtualize to render only visible items:
+Para listas longas (1000+ itens), virtualize para renderizar apenas os itens visíveis:
 
 ```tsx
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -370,7 +370,7 @@ function VirtualList({ items }: { items: Item[] }) {
 
 ## Error Boundaries
 
-Catch rendering errors gracefully:
+Capture erros de renderização de forma elegante:
 
 ```tsx
 "use client";
@@ -425,11 +425,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
 ---
 
-## Rules
+## Regras
 
-1. **Cmd+K is expected** in modern apps — implement a command palette
-2. **Sonner for toasts** — don't build your own toast system
-3. **Radix for modals/dropdowns** — accessible out of the box
-4. **Virtualize long lists** — TanStack Virtual for 100+ items
-5. **Error boundaries everywhere** — wrap major sections, not just the root
-6. **Keyboard first** — every interactive pattern must work with keyboard only
+1. **Cmd+K é esperado** em apps modernos — implemente um command palette
+2. **Sonner para toasts** — não construa seu próprio sistema de toast
+3. **Radix para modals/dropdowns** — acessíveis de fábrica
+4. **Virtualize listas longas** — TanStack Virtual para 100+ itens
+5. **Error boundaries em todo lugar** — envolva seções principais, não apenas a raiz
+6. **Teclado primeiro** — todo padrão interativo deve funcionar apenas com teclado

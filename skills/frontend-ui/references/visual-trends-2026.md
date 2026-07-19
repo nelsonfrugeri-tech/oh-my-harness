@@ -1,11 +1,11 @@
-# Visual Trends 2026 — Bento, Glass, Grain & Beyond
+# Tendências Visuais 2026 — Bento, Glass, Grain e Além
 
 ## Bento Grids
 
-The dominant layout pattern for feature showcases and landing pages.
-Inspired by Apple's product pages and Japanese bento lunch boxes.
+O padrão de layout dominante para vitrines de features e landing pages.
+Inspirado nas páginas de produto da Apple e nas marmitas bento japonesas.
 
-### Basic Implementation
+### Implementação Básica
 
 ```css
 .bento {
@@ -37,7 +37,7 @@ Inspired by Apple's product pages and Japanese bento lunch boxes.
 .bento-small-3  { grid-area: small-3; }
 ```
 
-### Bento Item Styling
+### Estilização do Bento Item
 
 ```css
 .bento-item {
@@ -64,7 +64,7 @@ Inspired by Apple's product pages and Japanese bento lunch boxes.
 }
 ```
 
-### React Component
+### Componente React
 
 ```tsx
 interface BentoGridProps {
@@ -122,7 +122,7 @@ function BentoItem({ children, className, colSpan = 1, rowSpan = 1 }: BentoItemP
 </BentoGrid>
 ```
 
-### Responsive Bento
+### Bento Responsivo
 
 ```css
 .bento {
@@ -146,12 +146,12 @@ function BentoItem({ children, className, colSpan = 1, rowSpan = 1 }: BentoItemP
 
 ---
 
-## Glassmorphism — Done Right
+## Glassmorphism — Feito do Jeito Certo
 
-Glassmorphism is the frosted glass effect. After years of overuse, the 2026
-approach is **subtle and purposeful**.
+Glassmorphism é o efeito de vidro fosco. Depois de anos de uso exagerado, a abordagem
+de 2026 é **sutil e proposital**.
 
-### The Tasteful Approach
+### A Abordagem com Bom Gosto
 
 ```css
 .glass {
@@ -176,22 +176,22 @@ approach is **subtle and purposeful**.
 }
 ```
 
-### When to Use Glassmorphism
+### Quando Usar Glassmorphism
 
-| Good For | Avoid For |
+| Bom Para | Evite Para |
 |----------|-----------|
-| Navigation bars over hero images | Every card on the page |
-| Floating action panels | Body content areas |
-| Modal overlays | Data tables |
-| Notification toasts | Form inputs |
+| Barras de navegação sobre imagens de hero | Todo card da página |
+| Painéis de ação flutuantes | Áreas de conteúdo principal |
+| Overlays de modal | Tabelas de dados |
+| Toasts de notificação | Inputs de formulário |
 
-### Apple Liquid Glass Influence (2025-2026)
+### Influência do Apple Liquid Glass (2025-2026)
 
-Apple's visionOS and iOS introduced "Liquid Glass" — a more dynamic, depth-aware
-glass effect. Key characteristics:
-- Tint that adapts to background content
-- Specular highlights that respond to "light source"
-- Deeper blur with visible refraction
+O visionOS e o iOS da Apple introduziram o "Liquid Glass" — um efeito de vidro mais dinâmico
+e ciente de profundidade. Características principais:
+- Tint que se adapta ao conteúdo de fundo
+- Realces especulares que respondem à "fonte de luz"
+- Blur mais profundo com refração visível
 
 ```css
 /* Approximating Liquid Glass with CSS */
@@ -211,7 +211,7 @@ glass effect. Key characteristics:
 
 ## Neubrutalism
 
-Bold, raw, unapologetic design. Visible borders, solid shadows, bright colors.
+Design ousado, cru e sem pedir desculpas. Bordas visíveis, sombras sólidas, cores vibrantes.
 
 ```css
 .neubrutalist-card {
@@ -245,15 +245,15 @@ Bold, raw, unapologetic design. Visible borders, solid shadows, bright colors.
 }
 ```
 
-Use sparingly. Works for: portfolio sites, creative agencies, dev tools with personality.
+Use com moderação. Funciona para: sites de portfólio, agências criativas, dev tools com personalidade.
 
 ---
 
-## Grain Textures
+## Texturas de Grain
 
-Subtle noise adds depth and texture, especially on gradients and solid backgrounds.
+Um ruído sutil adiciona profundidade e textura, especialmente em gradientes e fundos sólidos.
 
-### SVG Filter Approach (Performant)
+### Abordagem com Filtro SVG (Performática)
 
 ```css
 .grain {
@@ -300,7 +300,7 @@ Subtle noise adds depth and texture, especially on gradients and solid backgroun
 
 ---
 
-## Gradient Techniques
+## Técnicas de Gradiente
 
 ### Mesh Gradients
 
@@ -314,7 +314,7 @@ Subtle noise adds depth and texture, especially on gradients and solid backgroun
 }
 ```
 
-### Animated Gradient Border
+### Borda com Gradiente Animado
 
 ```css
 .gradient-border {
@@ -355,9 +355,9 @@ Subtle noise adds depth and texture, especially on gradients and solid backgroun
 
 ---
 
-## Variable Font Animation
+## Animação com Variable Fonts
 
-Using variable fonts for interactive text effects:
+Usando variable fonts para efeitos de texto interativos:
 
 ```css
 /* Weight animation on scroll/hover */
@@ -398,9 +398,9 @@ Using variable fonts for interactive text effects:
 
 ---
 
-## Dark Mode as Default
+## Dark Mode como Padrão
 
-2026 trend: dark mode is the PRIMARY design, light mode is the adaptation.
+Tendência 2026: o dark mode é o design PRINCIPAL, o light mode é a adaptação.
 
 ```css
 /* Design tokens: dark-first */
@@ -432,11 +432,11 @@ Using variable fonts for interactive text effects:
 
 ---
 
-## Rules for Visual Trends
+## Regras para Tendências Visuais
 
-1. **Trends are tools, not goals** — use them when they serve the design
-2. **Subtlety wins** — a hint of glass > full frost on everything
-3. **Performance matters** — backdrop-filter is expensive, use sparingly
-4. **Accessibility first** — grain must not reduce text contrast
-5. **Dark mode first** — design for dark, adapt for light
-6. **Test on real devices** — effects look different on cheap monitors
+1. **Tendências são ferramentas, não objetivos** — use-as quando servirem ao design
+2. **Sutileza vence** — um toque de glass > fosco total em tudo
+3. **Performance importa** — backdrop-filter é caro, use com moderação
+4. **Acessibilidade primeiro** — o grain não pode reduzir o contraste do texto
+5. **Dark mode primeiro** — projete para o escuro, adapte para o claro
+6. **Teste em dispositivos reais** — efeitos parecem diferentes em monitores baratos

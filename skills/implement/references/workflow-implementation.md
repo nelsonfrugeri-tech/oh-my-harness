@@ -1,8 +1,8 @@
-# Implementation Discipline
+# Disciplina de Implementação
 
-## The RED-GREEN-REFACTOR Cycle in Practice
+## O Ciclo RED-GREEN-REFACTOR na Prática
 
-### RED Phase
+### Fase RED
 ```python
 # Write a test that captures the desired behavior
 def test_calculate_total_with_discount():
@@ -11,9 +11,9 @@ def test_calculate_total_with_discount():
     assert order.total == 135.0  # (100 + 50) * 0.9
 ```
 
-Run it. It fails. Good.
+Execute. Falha. Bom.
 
-### GREEN Phase
+### Fase GREEN
 ```python
 # Write the SIMPLEST code that passes
 class Order:
@@ -30,17 +30,17 @@ class Order:
         return subtotal * (1 - self._discount / 100)
 ```
 
-Run it. It passes. Good.
+Execute. Passa. Bom.
 
-### REFACTOR Phase
-- Is the code clean?
-- Are names descriptive?
-- Is there duplication?
-- Can we simplify?
+### Fase REFACTOR
+- O código está limpo?
+- Os nomes são descritivos?
+- Há duplicação?
+- Podemos simplificar?
 
-Only refactor when ALL tests are green.
+Só refatore quando TODOS os testes estiverem verdes.
 
-## Commit Rhythm
+## Ritmo de Commits
 
 ```
 Write test (RED)     → don't commit yet
@@ -49,20 +49,20 @@ Refactor             → COMMIT: "refactor: extract subtotal method"
 Next test (RED)      → repeat cycle
 ```
 
-## Implementation Anti-Patterns
+## Anti-Padrões de Implementação
 
 ### The Big Bang
-Writing all code first, then running tests.
-Fix: one test at a time, run after each change.
+Escrever todo o código primeiro e só depois rodar os testes.
+Correção: um teste por vez, rode após cada mudança.
 
 ### Gold Plating
-Adding features not in the requirements.
-Fix: only implement what the tests require.
+Adicionar funcionalidades que não estão nos requisitos.
+Correção: implemente apenas o que os testes exigem.
 
 ### Premature Optimization
-Optimizing before measuring.
-Fix: make it work, make it right, make it fast (in that order).
+Otimizar antes de medir.
+Correção: faça funcionar, faça certo, faça rápido (nessa ordem).
 
 ### Shotgun Surgery
-Changing many files for one feature.
-Fix: design better abstractions, reduce coupling.
+Alterar muitos arquivos para uma única funcionalidade.
+Correção: projete abstrações melhores, reduza o acoplamento.

@@ -1,8 +1,8 @@
-# Root Cause Analysis Techniques
+# Técnicas de Análise de Causa Raiz
 
-## 1. Five Whys
+## 1. Cinco Porquês
 
-Iteratively ask "why" to peel back layers from symptom to root cause.
+Pergunte "por quê" iterativamente para descascar as camadas do sintoma até a causa raiz.
 
 ```
 Problem: Users getting 500 errors on checkout
@@ -14,15 +14,15 @@ Why 5: The query lacks an index on the orders.user_id column
 Root cause: Missing database index causing slow queries under load
 ```
 
-**Tips:**
-- Don't stop at the first "human error" -- ask why the system allowed it
-- Multiple branches are normal (not always linear)
-- 5 is a guideline, not a rule -- stop when you reach actionable systemic cause
-- Avoid "why didn't someone..." -- focus on system gaps
+**Dicas:**
+- Não pare no primeiro "erro humano" -- pergunte por que o sistema permitiu isso
+- Múltiplas ramificações são normais (nem sempre linear)
+- 5 é uma diretriz, não uma regra -- pare quando alcançar uma causa sistêmica acionável
+- Evite "por que alguém não..." -- foque nas lacunas do sistema
 
-## 2. Fault Tree Analysis (FTA)
+## 2. Análise de Árvore de Falhas (FTA)
 
-Top-down deductive analysis using AND/OR gates.
+Análise dedutiva top-down usando gates AND/OR.
 
 ```
                     [Service Outage]
@@ -36,12 +36,12 @@ Top-down deductive analysis using AND/OR gates.
 [Disk full] [OOM]   [Switch down] [No failover]
 ```
 
-**When to use:** Complex incidents with multiple potential causes.
-Useful for identifying single points of failure.
+**Quando usar:** Incidentes complexos com múltiplas causas potenciais.
+Útil para identificar pontos únicos de falha.
 
-## 3. Ishikawa (Fishbone) Diagram
+## 3. Diagrama de Ishikawa (Espinha de Peixe)
 
-Categorize contributing factors along six branches:
+Categorize os fatores contribuintes ao longo de seis ramos:
 
 ```
 People --------+
@@ -52,45 +52,45 @@ Measurements --+
 Environment ---+
 ```
 
-**SRE-adapted categories:**
+**Categorias adaptadas para SRE:**
 
-| Category | Examples |
+| Categoria | Exemplos |
 |----------|---------|
-| **People** | Training gaps, handoff failures, fatigue |
-| **Process** | Missing runbook, no change review, no rollback plan |
-| **Technology** | Single point of failure, missing monitoring, bad defaults |
-| **Environment** | Cloud provider issue, network, DNS |
-| **Data** | Corrupt data, schema mismatch, missing validation |
-| **Dependencies** | Third-party outage, API change, certificate expiry |
+| **People** | Lacunas de treinamento, falhas de handoff, fadiga |
+| **Process** | Runbook ausente, sem revisão de mudança, sem plano de rollback |
+| **Technology** | Ponto único de falha, monitoramento ausente, defaults ruins |
+| **Environment** | Problema no cloud provider, rede, DNS |
+| **Data** | Dados corrompidos, incompatibilidade de schema, validação ausente |
+| **Dependencies** | Indisponibilidade de terceiros, mudança de API, expiração de certificado |
 
-## 4. Timeline Analysis
+## 4. Análise de Linha do Tempo
 
-Plot every event on a timeline to identify:
-- **Gaps:** Long periods with no action (detection delay?)
-- **Cascades:** Event A caused B caused C
-- **Red herrings:** Time spent investigating wrong cause
-- **Decision points:** Where different choices would change outcome
+Plote cada evento em uma linha do tempo para identificar:
+- **Lacunas:** Longos períodos sem ação (atraso de detecção?)
+- **Cascatas:** Evento A causou B causou C
+- **Pistas falsas:** Tempo gasto investigando a causa errada
+- **Pontos de decisão:** Onde escolhas diferentes mudariam o resultado
 
-## 5. Change Analysis
+## 5. Análise de Mudanças
 
-Compare the state before and after the incident:
-- What changed in the last 24h? (deploys, configs, infra)
-- What didn't change that should have? (stale certs, unpatched)
-- Use `git log`, deploy logs, config management history
+Compare o estado antes e depois do incidente:
+- O que mudou nas últimas 24h? (deploys, configs, infra)
+- O que não mudou mas deveria ter mudado? (certificados vencidos, sem patch)
+- Use `git log`, logs de deploy, histórico de gerenciamento de configuração
 
-## Choosing a Technique
+## Escolhendo uma Técnica
 
-| Technique | Best For | Complexity |
+| Técnica | Melhor Para | Complexidade |
 |-----------|----------|-----------|
-| 5 Whys | Simple, single-cause incidents | Low |
-| Fault Tree | Complex, multiple potential causes | Medium |
-| Ishikawa | Broad exploration, many contributing factors | Medium |
-| Timeline | Understanding sequence and delays | Low |
-| Change | Incidents correlated with recent changes | Low |
+| 5 Porquês | Incidentes simples, de causa única | Baixa |
+| Árvore de Falhas | Complexo, múltiplas causas potenciais | Média |
+| Ishikawa | Exploração ampla, muitos fatores contribuintes | Média |
+| Linha do Tempo | Entender sequência e atrasos | Baixa |
+| Mudanças | Incidentes correlacionados a mudanças recentes | Baixa |
 
-## Anti-Patterns
+## Anti-Padrões
 
-- Stopping at "human error" -- always ask what system gap allowed it
-- Single root cause bias -- most incidents have multiple contributing factors
-- Confirmation bias -- don't just validate your first theory
-- Blame framing -- "who" is never the root cause
+- Parar no "erro humano" -- sempre pergunte que lacuna do sistema permitiu isso
+- Viés de causa raiz única -- a maioria dos incidentes tem múltiplos fatores contribuintes
+- Viés de confirmação -- não apenas valide sua primeira teoria
+- Enquadramento de culpa -- "quem" nunca é a causa raiz

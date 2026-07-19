@@ -1,24 +1,24 @@
-# C4 Model Guide
+# Guia do Modelo C4
 
-## Overview
+## Visão Geral
 
-The C4 model (Context, Containers, Components, Code) by Simon Brown provides a hierarchical
-set of software architecture diagrams. Think of it as Google Maps for software — zoom in
-and out at different levels of detail.
+O modelo C4 (Context, Containers, Components, Code) de Simon Brown fornece um conjunto
+hierárquico de diagramas de arquitetura de software. Pense nele como o Google Maps para
+software — dá para aproximar e afastar em diferentes níveis de detalhe.
 
-## Level 1: System Context Diagram
+## Nível 1: Diagrama de Contexto do Sistema
 
-**Purpose:** Show how the system fits into the world around it.
+**Objetivo:** mostrar como o sistema se encaixa no mundo ao seu redor.
 
-**Elements:**
-- Your software system (center)
-- Users/personas (who uses it)
-- External systems (what it integrates with)
+**Elementos:**
+- Seu sistema de software (centro)
+- Usuários/personas (quem o utiliza)
+- Sistemas externos (com o que ele se integra)
 
-**Rules:**
-- Max 10-15 elements
-- No technical details (no databases, queues)
-- Label relationships with what they do, not how
+**Regras:**
+- No máximo 10-15 elementos
+- Sem detalhes técnicos (nada de bancos de dados, filas)
+- Rotule os relacionamentos com o que fazem, não como fazem
 
 **Structurizr DSL:**
 ```
@@ -52,19 +52,19 @@ workspace {
 }
 ```
 
-## Level 2: Container Diagram
+## Nível 2: Diagrama de Containers
 
-**Purpose:** Show the high-level technology choices and how containers communicate.
+**Objetivo:** mostrar as escolhas de tecnologia em alto nível e como os containers se comunicam.
 
-**Elements:**
-- Containers: web apps, APIs, databases, message queues, file systems
-- External systems (from Level 1)
-- Users (from Level 1)
+**Elementos:**
+- Containers: aplicações web, APIs, bancos de dados, filas de mensagens, sistemas de arquivos
+- Sistemas externos (do Nível 1)
+- Usuários (do Nível 1)
 
-**Rules:**
-- A container = a separately deployable/runnable unit
-- Include technology choices (e.g., "React SPA", "Python/FastAPI", "PostgreSQL")
-- Show communication protocols on arrows (HTTPS, gRPC, SQL, AMQP)
+**Regras:**
+- Um container = uma unidade que pode ser implantada/executada separadamente
+- Inclua as escolhas de tecnologia (ex.: "React SPA", "Python/FastAPI", "PostgreSQL")
+- Mostre os protocolos de comunicação nas setas (HTTPS, gRPC, SQL, AMQP)
 
 **Structurizr DSL:**
 ```
@@ -101,40 +101,40 @@ workspace {
 }
 ```
 
-## Level 3: Component Diagram
+## Nível 3: Diagrama de Componentes
 
-**Purpose:** Show the internal structure of a single container.
+**Objetivo:** mostrar a estrutura interna de um único container.
 
-**Elements:**
-- Components: logical groupings (controllers, services, repositories)
-- Other containers they interact with
+**Elementos:**
+- Componentes: agrupamentos lógicos (controllers, services, repositories)
+- Outros containers com os quais interagem
 
-**Rules:**
-- Only create for complex containers
-- Components = logical, not physical (a component may span multiple files)
-- Show which component talks to which external dependency
+**Regras:**
+- Crie apenas para containers complexos
+- Componentes = lógicos, não físicos (um componente pode abranger vários arquivos)
+- Mostre qual componente conversa com qual dependência externa
 
-**When to create:** Only when a container is complex enough that its internal structure
-needs documentation. Skip for simple containers (e.g., a Redis cache).
+**Quando criar:** apenas quando um container é complexo o suficiente para que sua estrutura
+interna precise de documentação. Pule para containers simples (ex.: um cache Redis).
 
-## Level 4: Code Diagram
+## Nível 4: Diagrama de Código
 
-**Purpose:** Class/function level detail.
+**Objetivo:** detalhe em nível de classe/função.
 
-**Rules:** Almost never worth maintaining manually. Use IDE navigation instead.
-Only useful for complex algorithms or data structures that need visual explanation.
+**Regras:** quase nunca vale a pena manter manualmente. Use a navegação da IDE no lugar.
+Útil apenas para algoritmos ou estruturas de dados complexas que precisem de explicação visual.
 
-## Supplementary Diagrams
+## Diagramas Complementares
 
-Beyond C4's core levels, these diagrams add context:
+Além dos níveis centrais do C4, estes diagramas acrescentam contexto:
 
-| Diagram | Purpose | When |
+| Diagrama | Objetivo | Quando |
 |---------|---------|------|
-| **Deployment** | Which containers run where (cloud, k8s, VMs) | For ops and infra |
-| **Dynamic** | Sequence of interactions for a specific use case | Complex flows |
-| **System Landscape** | All systems in the organization | Enterprise context |
+| **Deployment** | Onde cada container roda (cloud, k8s, VMs) | Para operações e infraestrutura |
+| **Dynamic** | Sequência de interações para um caso de uso específico | Fluxos complexos |
+| **System Landscape** | Todos os sistemas da organização | Contexto corporativo |
 
-## Structurizr DSL Tips
+## Dicas de Structurizr DSL
 
 ```
 # Tags for styling
@@ -163,15 +163,15 @@ deploymentEnvironment "Production" {
 }
 ```
 
-## Anti-patterns
+## Anti-padrões
 
-1. **Too many levels** — most projects need only Level 1 + Level 2
-2. **Too much detail** — if a diagram has 30+ elements, split it
-3. **Missing protocols** — always label arrows with protocol/format
-4. **Mixing levels** — don't show databases in a System Context diagram
-5. **Stale diagrams** — treat diagrams as code, update with the codebase
+1. **Níveis demais** — a maioria dos projetos precisa apenas do Nível 1 + Nível 2
+2. **Detalhe demais** — se um diagrama tem 30+ elementos, divida-o
+3. **Protocolos ausentes** — sempre rotule as setas com protocolo/formato
+4. **Mistura de níveis** — não mostre bancos de dados em um diagrama de Contexto do Sistema
+5. **Diagramas desatualizados** — trate diagramas como código, atualize junto com a base de código
 
-## Sources
+## Fontes
 
 - https://c4model.com/
 - https://structurizr.com/

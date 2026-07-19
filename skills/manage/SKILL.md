@@ -2,59 +2,59 @@
 version: 1.0.0
 name: manage
 description: |
-  Technical Product/Platform Management knowledge base. Covers INVEST user stories,
-  acceptance criteria (Given/When/Then), prioritization frameworks (RICE, MoSCoW,
-  effort-impact matrix), roadmap planning (Now/Next/Later/Won't), PRD template
-  (Problem/Context/Solution/Stories/SLIs/Scope/Risks), AARRR metrics, stakeholder
-  communication by audience, and the Discovery-Definition-Delivery-Iteration workflow.
-  Use when: (1) Defining and prioritizing backlog, (2) Writing user stories with
-  acceptance criteria, (3) Planning roadmaps and releases, (4) Communicating product
-  decisions to the team, (5) Writing PRDs.
-  Triggers: /manage, /pm, product management, backlog, user stories, roadmap, prioritization, PRD.
+  Base de conhecimento de Technical Product/Platform Management. Cobre user stories INVEST,
+  critérios de aceite (Given/When/Then), frameworks de priorização (RICE, MoSCoW,
+  matriz esforço-impacto), planejamento de roadmap (Now/Next/Later/Won't), template de PRD
+  (Problem/Context/Solution/Stories/SLIs/Scope/Risks), métricas AARRR, comunicação com
+  stakeholders por público e o fluxo Discovery-Definition-Delivery-Iteration.
+  Use quando: (1) Definir e priorizar backlog, (2) Escrever user stories com
+  critérios de aceite, (3) Planejar roadmaps e releases, (4) Comunicar decisões de produto
+  ao time, (5) Escrever PRDs.
+  Gatilhos: /manage, /pm, product management, backlog, user stories, roadmap, priorização, PRD.
 type: capability
 ---
 
 # Manage — Technical Product Management
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for Technical Product/Platform Management.
-It focuses on managing technical products — bridging business needs and engineering reality.
+Esta skill é a base de conhecimento para Technical Product/Platform Management.
+Ela foca em gerenciar produtos técnicos — conectando necessidades de negócio e a realidade de engenharia.
 
-**What this skill contains:**
-- User stories (INVEST criteria, acceptance criteria format)
-- Prioritization frameworks (RICE, MoSCoW, effort-impact)
-- Roadmap planning (Now/Next/Later/Won't)
-- Sprint/iteration planning template
-- PRD (Product Requirements Document) template
-- Product metrics (AARRR framework)
-- Discovery → Definition → Delivery → Iteration workflow
-- Communication formats by audience
-- Technical debt management from product perspective
+**O que esta skill contém:**
+- User stories (critérios INVEST, formato de critérios de aceite)
+- Frameworks de priorização (RICE, MoSCoW, esforço-impacto)
+- Planejamento de roadmap (Now/Next/Later/Won't)
+- Template de planejamento de sprint/iteração
+- Template de PRD (Product Requirements Document)
+- Métricas de produto (framework AARRR)
+- Fluxo Discovery → Definition → Delivery → Iteration
+- Formatos de comunicação por público
+- Gestão de dívida técnica sob a perspectiva de produto
 
 ---
 
-## Philosophy
+## Filosofia
 
-### Product is About Value, Not Features
+### Produto é Sobre Valor, Não Features
 
-**Every feature must have a clear "why" connected to business value.**
-Metrics of success are defined BEFORE starting development.
-Decisions are data-driven when data is available, hypothesis-driven when not.
+**Toda feature deve ter um "porquê" claro conectado ao valor de negócio.**
+As métricas de sucesso são definidas ANTES de iniciar o desenvolvimento.
+As decisões são orientadas por dados quando há dados disponíveis, e por hipóteses quando não há.
 
-### Principles
+### Princípios
 
-1. **Focus on the user's problem, not the technical solution**
-2. **Measurable acceptance criteria** — "done" is not subjective
-3. **Say "no" with data** — scope reduction is a feature, not a failure
-4. **Roadmaps are commitments to problems, not solutions**
-5. **Protect the team from scope creep while keeping stakeholders informed**
+1. **Foque no problema do usuário, não na solução técnica**
+2. **Critérios de aceite mensuráveis** — "pronto" não é subjetivo
+3. **Diga "não" com dados** — reduzir escopo é uma feature, não um fracasso
+4. **Roadmaps são compromissos com problemas, não com soluções**
+5. **Proteja o time do scope creep enquanto mantém os stakeholders informados**
 
 ---
 
 ## 1. User Stories
 
-### Format
+### Formato
 
 ```markdown
 **As** [persona/user type],
@@ -79,28 +79,28 @@ Decisions are data-driven when data is available, hypothesis-driven when not.
 - [ ] Acceptance criteria verified
 ```
 
-### INVEST Criteria
+### Critérios INVEST
 
-| Letter | Criterion | Meaning |
+| Letra | Critério | Significado |
 |--------|-----------|---------|
-| **I** | Independent | Can be developed in isolation |
-| **N** | Negotiable | Not a contract, it's a conversation |
-| **V** | Valuable | Delivers value to the user |
-| **E** | Estimable | Team can estimate effort |
-| **S** | Small | Fits in one sprint/iteration |
-| **T** | Testable | Acceptance criteria are verifiable |
+| **I** | Independent | Pode ser desenvolvida isoladamente |
+| **N** | Negotiable | Não é um contrato, é uma conversa |
+| **V** | Valuable | Entrega valor ao usuário |
+| **E** | Estimable | O time consegue estimar o esforço |
+| **S** | Small | Cabe em um sprint/iteração |
+| **T** | Testable | Critérios de aceite são verificáveis |
 
-### Common Anti-patterns
+### Anti-padrões Comuns
 
-- Stories that depend on each other (violates I)
-- "As a system, I want to..." — not a user story
-- "User can create, read, update, and delete" — too big, split it
-- No acceptance criteria — "done" becomes subjective
-- Technical specs disguised as user stories
+- Stories que dependem umas das outras (viola I)
+- "Como um sistema, eu quero..." — não é uma user story
+- "Usuário pode criar, ler, atualizar e deletar" — grande demais, divida
+- Sem critérios de aceite — "pronto" se torna subjetivo
+- Especificações técnicas disfarçadas de user stories
 
 ---
 
-## 2. Prioritization Frameworks
+## 2. Frameworks de Priorização
 
 ### RICE Score
 
@@ -112,10 +112,10 @@ Decisions are data-driven when data is available, hypothesis-driven when not.
 Score = (Reach × Impact × Confidence) / Effort
 ```
 
-- **Reach:** How many users impacted (1-10)
-- **Impact:** How much impact per user (1=minimal, 3=massive)
-- **Confidence:** Certainty about estimates (0.5=low, 0.75=medium, 1.0=high)
-- **Effort:** Effort in person-days
+- **Reach:** Quantos usuários impactados (1-10)
+- **Impact:** Quanto impacto por usuário (1=mínimo, 3=massivo)
+- **Confidence:** Certeza sobre as estimativas (0.5=baixa, 0.75=média, 1.0=alta)
+- **Effort:** Esforço em pessoa-dias
 
 ### MoSCoW
 
@@ -133,7 +133,7 @@ Score = (Reach × Impact × Confidence) / Effort
 - {feature} — {reason for deferral}
 ```
 
-### Effort × Impact Matrix
+### Matriz Esforço × Impacto
 
 ```
 |              | Low Effort | High Effort |
@@ -142,16 +142,16 @@ Score = (Reach × Impact × Confidence) / Effort
 | Low Impact  | Fill-ins   | Money Pits  |
 ```
 
-**Quick Wins:** Do first — high value, low cost
-**Big Bets:** Evaluate carefully — high value, high investment
-**Fill-ins:** Do if time allows — low value, low cost
-**Money Pits:** Avoid — low value, high cost
+**Quick Wins:** Faça primeiro — alto valor, baixo custo
+**Big Bets:** Avalie com cuidado — alto valor, alto investimento
+**Fill-ins:** Faça se houver tempo — baixo valor, baixo custo
+**Money Pits:** Evite — baixo valor, alto custo
 
 ---
 
 ## 3. Roadmap
 
-### Now / Next / Later / Won't Format
+### Formato Now / Next / Later / Won't
 
 ```markdown
 ## Roadmap — {Product}
@@ -177,16 +177,16 @@ Score = (Reach × Impact × Confidence) / Effort
 | {item} | {justification} |
 ```
 
-### Roadmap Rules
+### Regras do Roadmap
 
-1. **Problems not solutions** — roadmaps commit to solving problems, not implementing specific solutions
-2. **Timeframes not dates** — "Next quarter" is more honest than "March 15th"
-3. **Explicit Won't Do** — what you're NOT building is as important as what you are
-4. **Review monthly** — roadmaps are living documents, not contracts
+1. **Problemas, não soluções** — roadmaps se comprometem a resolver problemas, não a implementar soluções específicas
+2. **Períodos, não datas** — "Próximo trimestre" é mais honesto que "15 de março"
+3. **Won't Do explícito** — o que você NÃO vai construir é tão importante quanto o que vai
+4. **Revise mensalmente** — roadmaps são documentos vivos, não contratos
 
 ---
 
-## 4. Sprint/Iteration Planning
+## 4. Planejamento de Sprint/Iteração
 
 ```markdown
 ## Sprint {N} — {Theme/Goal}
@@ -213,7 +213,7 @@ Score = (Reach × Impact × Confidence) / Effort
 
 ---
 
-## 5. PRD Template
+## 5. Template de PRD
 
 ```markdown
 # PRD: {Feature Name}
@@ -263,7 +263,7 @@ Score = (Reach × Impact × Confidence) / Effort
 
 ---
 
-## 6. Product Metrics (AARRR)
+## 6. Métricas de Produto (AARRR)
 
 ```markdown
 ### Acquisition — How users arrive
@@ -282,17 +282,17 @@ Score = (Reach × Impact × Confidence) / Effort
 - {metric}: {definition and target}
 ```
 
-### Metrics Best Practices
+### Boas Práticas de Métricas
 
-1. **Define metrics BEFORE building** — not after to justify the decision
-2. **Leading indicators over lagging** — detect problems early
-3. **One north star metric** — what matters most?
-4. **Avoid vanity metrics** — page views without context mean nothing
-5. **Instrument from day one** — retrofitting analytics is painful
+1. **Defina as métricas ANTES de construir** — não depois, para justificar a decisão
+2. **Indicadores leading em vez de lagging** — detecte problemas cedo
+3. **Uma única north star metric** — o que mais importa?
+4. **Evite vanity metrics** — page views sem contexto não significam nada
+5. **Instrumente desde o primeiro dia** — adicionar analytics depois é doloroso
 
 ---
 
-## 7. Product Workflow
+## 7. Fluxo de Produto
 
 ### Discovery → Definition → Delivery → Iteration
 
@@ -327,42 +327,42 @@ Score = (Reach × Impact × Confidence) / Effort
 
 ---
 
-## 8. Communication by Audience
+## 8. Comunicação por Público
 
-### For Developers
+### Para Desenvolvedores
 
-- Detailed user stories with acceptance criteria
-- Relevant technical and business context
-- Documented trade-off decisions
-- Availability for questions and refinement
-- Clear definition of "done"
+- User stories detalhadas com critérios de aceite
+- Contexto técnico e de negócio relevante
+- Decisões de trade-off documentadas
+- Disponibilidade para dúvidas e refinamento
+- Definição clara de "pronto"
 
-### For Stakeholders
+### Para Stakeholders
 
-- Executive-format status (summary, risks, next steps)
-- Metrics and progress vs goals
-- Pending decisions with options and recommendation
-- Timeline and roadmap impacts
+- Status em formato executivo (resumo, riscos, próximos passos)
+- Métricas e progresso vs metas
+- Decisões pendentes com opções e recomendação
+- Impactos na timeline e no roadmap
 
-### For Design
+### Para Design
 
-- User problems and context (not solution prescriptions)
-- Relevant technical constraints
-- User flows and functional requirements
-- UX acceptance criteria
+- Problemas e contexto do usuário (não prescrições de solução)
+- Restrições técnicas relevantes
+- Fluxos de usuário e requisitos funcionais
+- Critérios de aceite de UX
 
 ---
 
-## 9. Technical Debt from Product Perspective
+## 9. Dívida Técnica sob a Perspectiva de Produto
 
-### When to Prioritize Tech Debt
+### Quando Priorizar Dívida Técnica
 
-- When it's slowing down feature delivery (velocity is dropping)
-- When it's causing production incidents (reliability suffering)
-- When it's creating security risk
-- When it's blocking key hires (engineers won't work in the codebase)
+- Quando está desacelerando a entrega de features (a velocity está caindo)
+- Quando está causando incidentes em produção (a confiabilidade está sofrendo)
+- Quando está criando risco de segurança
+- Quando está bloqueando contratações-chave (engenheiros não querem trabalhar na base de código)
 
-### How to Frame Tech Debt to Stakeholders
+### Como Apresentar Dívida Técnica aos Stakeholders
 
 ```
 BAD: "We need to refactor the authentication module."
@@ -372,17 +372,11 @@ GOOD: "The authentication code causes ~30% of our incidents.
        and let us ship new auth features 3x faster. Investment: 2 sprints."
 ```
 
-### Tech Debt Budget
+### Orçamento de Dívida Técnica
 
-- Reserve 20% of each sprint for technical debt
-- Track tech debt items with the same rigor as features
-- Include velocity impact when making the business case
+- Reserve 20% de cada sprint para dívida técnica
+- Acompanhe itens de dívida técnica com o mesmo rigor das features
+- Inclua o impacto na velocity ao construir o business case
 
 ---
 
-## Reference Files
-
-- [references/story-templates.md](references/story-templates.md) — User story examples by type
-- [references/prioritization.md](references/prioritization.md) — RICE calculation examples, MoSCoW examples
-- [references/metrics.md](references/metrics.md) — AARRR framework, leading/lagging indicators
-- [references/stakeholder-communication.md](references/stakeholder-communication.md) — Status report templates

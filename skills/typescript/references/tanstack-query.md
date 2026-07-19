@@ -84,7 +84,7 @@ function UserProfile({ userId }: { userId: string }) {
 }
 ```
 
-### Query Key Conventions
+### Convenções de Query Key
 
 ```typescript
 // Hierarchical keys for cache management
@@ -317,7 +317,7 @@ async function UsersPage() {
 
 ---
 
-## Error & Loading States
+## Estados de Erro e Loading
 
 ```typescript
 // Centralized error handling
@@ -367,7 +367,7 @@ function App() {
 
 ---
 
-## Testing
+## Testes
 
 ```typescript
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

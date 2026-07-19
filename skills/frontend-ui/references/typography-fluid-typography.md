@@ -1,16 +1,16 @@
-# Fluid Typography — clamp() In Depth
+# Tipografia Fluida — clamp() em detalhes
 
-## Overview
+## Visão geral
 
-Fluid typography uses CSS `clamp()` to smoothly scale font sizes between a minimum
-and maximum, based on viewport width. No breakpoints needed.
+A tipografia fluida usa o `clamp()` do CSS para escalar suavemente o tamanho da fonte entre um mínimo
+e um máximo, com base na largura da viewport. Sem necessidade de breakpoints.
 
 ```css
 /* clamp(minimum, preferred, maximum) */
 font-size: clamp(1rem, 0.925rem + 0.375vw, 1.125rem);
 ```
 
-This single line replaces:
+Esta única linha substitui:
 ```css
 /* Old approach: multiple breakpoints */
 font-size: 1rem;
@@ -20,9 +20,9 @@ font-size: 1rem;
 
 ---
 
-## The Math
+## A matemática
 
-### Formula
+### Fórmula
 
 ```
 preferred = min + (max - min) * (100vw - minViewport) / (maxViewport - minViewport)
@@ -37,13 +37,13 @@ Offset = 1 - 0.0446 * (320 / 16) = 0.1071rem
 Result: clamp(1rem, 0.107rem + 0.0446vw, 1.5rem)
 ```
 
-In practice, **use a calculator** (see Tools below).
+Na prática, **use uma calculadora** (veja Ferramentas abaixo).
 
 ---
 
-## Complete Type Scale
+## Escala tipográfica completa
 
-A production-ready fluid type scale using rem:
+Uma escala tipográfica fluida pronta para produção usando rem:
 
 ```css
 :root {
@@ -118,24 +118,24 @@ small, .text-sm {
 
 ---
 
-## Scale Ratios
+## Proporções de escala
 
-Choose a scale ratio that matches your design personality:
+Escolha uma proporção de escala que combine com a personalidade do seu design:
 
-| Ratio | Name | Personality | Best For |
+| Proporção | Nome | Personalidade | Melhor para |
 |-------|------|-------------|----------|
-| 1.125 | Major Second | Subtle, dense | Data dashboards, admin |
-| 1.200 | Minor Third | Balanced | SaaS, apps |
-| 1.250 | Major Third | Clear hierarchy | Marketing, blogs |
-| 1.333 | Perfect Fourth | Bold hierarchy | Landing pages |
-| 1.414 | Augmented Fourth | Dramatic | Editorial, magazines |
-| 1.500 | Perfect Fifth | Very dramatic | Hero sections |
+| 1.125 | Major Second | Sutil, densa | Dashboards de dados, admin |
+| 1.200 | Minor Third | Equilibrada | SaaS, apps |
+| 1.250 | Major Third | Hierarquia clara | Marketing, blogs |
+| 1.333 | Perfect Fourth | Hierarquia forte | Landing pages |
+| 1.414 | Augmented Fourth | Dramática | Editorial, revistas |
+| 1.500 | Perfect Fifth | Muito dramática | Seções hero |
 
-The scale above uses **Minor Third (1.200)** — good for most apps.
+A escala acima usa **Minor Third (1.200)** — boa para a maioria dos apps.
 
 ---
 
-## Why rem, Not px
+## Por que rem, não px
 
 ```css
 /* BAD: ignores user's font-size preference */
@@ -145,12 +145,12 @@ font-size: clamp(16px, 2vw, 20px);
 font-size: clamp(1rem, 0.925rem + 0.375vw, 1.25rem);
 ```
 
-Users who set their browser to 20px base font will get proportionally larger text
-with rem. With px, their preference is ignored — an accessibility failure.
+Usuários que configuram o navegador com fonte base de 20px terão texto proporcionalmente maior
+com rem. Com px, a preferência deles é ignorada — uma falha de acessibilidade.
 
 ---
 
-## Tailwind v4 Integration
+## Integração com Tailwind v4
 
 ```css
 @import "tailwindcss";
@@ -168,13 +168,13 @@ with rem. With px, their preference is ignored — an accessibility failure.
 }
 ```
 
-Usage: `<h1 className="text-5xl">` automatically uses the fluid value.
+Uso: `<h1 className="text-5xl">` usa automaticamente o valor fluido.
 
 ---
 
-## Responsive Line Length (Measure)
+## Comprimento de linha responsivo (measure)
 
-Fluid type should be paired with a comfortable reading measure:
+A tipografia fluida deve ser combinada com uma medida de leitura confortável:
 
 ```css
 .prose {
@@ -184,26 +184,26 @@ Fluid type should be paired with a comfortable reading measure:
 }
 ```
 
-Optimal line length: **45-75 characters** for body text.
+Comprimento de linha ideal: **45-75 caracteres** para texto de corpo.
 
 ---
 
-## Tools and Resources
+## Ferramentas e recursos
 
-| Tool | URL | Description |
+| Ferramenta | URL | Descrição |
 |------|-----|-------------|
-| **Fluid Type Scale** | https://www.fluid-type-scale.com | Generate complete fluid scales |
-| **Utopia** | https://utopia.fyi/type/calculator | Advanced fluid type + space calculator |
-| **Type Scale** | https://typescale.com | Visual type scale with ratios |
-| **Modern Fluid Typography** | https://modern-fluid-typography.vercel.app | Interactive clamp() generator |
-| **Every Layout** | https://every-layout.dev | Layout + typography patterns |
+| **Fluid Type Scale** | https://www.fluid-type-scale.com | Gera escalas fluidas completas |
+| **Utopia** | https://utopia.fyi/type/calculator | Calculadora avançada de tipografia fluida + espaçamento |
+| **Type Scale** | https://typescale.com | Escala tipográfica visual com proporções |
+| **Modern Fluid Typography** | https://modern-fluid-typography.vercel.app | Gerador interativo de clamp() |
+| **Every Layout** | https://every-layout.dev | Padrões de layout + tipografia |
 
 ---
 
-## Common Mistakes
+## Erros comuns
 
-1. **Using px in clamp()** — breaks user font-size preferences
-2. **Too wide range** — `clamp(0.5rem, ..., 4rem)` creates jarring size jumps
-3. **Forgetting line-height** — headings need tighter line-height than body
-4. **No letter-spacing** — large headings need negative letter-spacing (-0.02em to -0.04em)
-5. **Ignoring vertical rhythm** — spacing between elements should follow the type scale
+1. **Usar px em clamp()** — quebra as preferências de tamanho de fonte do usuário
+2. **Intervalo muito amplo** — `clamp(0.5rem, ..., 4rem)` cria saltos de tamanho bruscos
+3. **Esquecer o line-height** — títulos precisam de line-height mais apertado que o corpo
+4. **Sem letter-spacing** — títulos grandes precisam de letter-spacing negativo (-0.02em a -0.04em)
+5. **Ignorar o ritmo vertical** — o espaçamento entre elementos deve seguir a escala tipográfica

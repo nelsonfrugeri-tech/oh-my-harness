@@ -1,6 +1,6 @@
-# Refactoring Patterns
+# Padrões de Refactoring
 
-## Decision Tree
+## Árvore de Decisão
 
 ```
 What are you refactoring?
@@ -18,11 +18,11 @@ What are you refactoring?
 
 ## 1. Strangler Fig Pattern
 
-**Named after:** Martin Fowler, 2004. Inspired by strangler fig trees that grow around a host tree.
+**Nomeado a partir de:** Martin Fowler, 2004. Inspirado nas figueiras-estranguladoras que crescem em volta de uma árvore hospedeira.
 
-**When:** Replacing a large legacy system or component incrementally.
+**Quando:** Substituir um grande sistema ou componente legado de forma incremental.
 
-**Steps:**
+**Passos:**
 ```
 1. IDENTIFY   — Choose one feature/route/API to migrate
 2. BUILD      — Create new implementation alongside old
@@ -32,9 +32,9 @@ What are you refactoring?
 6. REMOVE     — Delete old code when fully migrated
 ```
 
-**Implementation patterns:**
+**Padrões de implementação:**
 
-### Facade/Router approach
+### Abordagem Facade/Router
 ```python
 class OrderRouter:
     """Routes to old or new implementation based on feature flag."""
@@ -49,7 +49,7 @@ class OrderRouter:
         return await self._legacy.create_order(request)
 ```
 
-### Gradual traffic shifting
+### Deslocamento gradual de tráfego
 ```
 Week 1: 1% traffic to new system (canary)
 Week 2: 10% traffic (validate metrics)
@@ -58,19 +58,19 @@ Week 4: 100% traffic (full migration)
 Week 5: Remove old code
 ```
 
-**Key rules:**
-- Always have a rollback mechanism (feature flag, reverse proxy)
-- Monitor both implementations side-by-side
-- Complete the migration — do not leave two implementations forever
-- Each migration step must be independently deployable
+**Regras-chave:**
+- Sempre tenha um mecanismo de rollback (feature flag, reverse proxy)
+- Monitore ambas as implementações lado a lado
+- Complete a migração — não deixe duas implementações para sempre
+- Cada passo da migração deve ser deployável de forma independente
 
 ---
 
 ## 2. Branch by Abstraction
 
-**When:** Refactoring a component deep in the stack that has many upstream callers.
+**Quando:** Refatorar um componente fundo na stack que tem muitos callers upstream.
 
-**Steps:**
+**Passos:**
 ```
 1. ABSTRACT  — Create an interface/protocol for the component
 2. ADAPT     — Make the old component implement the interface
@@ -80,7 +80,7 @@ Week 5: Remove old code
 6. CLEAN     — Remove the old component and the abstraction (if no longer needed)
 ```
 
-**Example:**
+**Exemplo:**
 
 ```python
 # Step 1: Create abstraction
@@ -108,20 +108,20 @@ class SlackNotifier:
 # Step 6: Remove EmailNotifier
 ```
 
-**Key difference from Strangler Fig:**
-- Strangler Fig works at the **perimeter** (API routes, endpoints)
-- Branch by Abstraction works **deep in the stack** (internal components)
+**Diferença-chave em relação ao Strangler Fig:**
+- Strangler Fig atua no **perímetro** (rotas de API, endpoints)
+- Branch by Abstraction atua **fundo na stack** (componentes internos)
 
 ---
 
 ## 3. Parallel Change (Expand-Migrate-Contract)
 
-**When:** Changing a public API or interface that has multiple consumers.
+**Quando:** Mudar uma API ou interface pública que tem múltiplos consumidores.
 
-**The three phases:**
+**As três fases:**
 
-### Phase 1: EXPAND
-Add the new interface alongside the old one. Both work. Nothing breaks.
+### Fase 1: EXPAND
+Adicione a nova interface ao lado da antiga. Ambas funcionam. Nada quebra.
 
 ```python
 class UserService:
@@ -136,8 +136,8 @@ class UserService:
         return UserResponse(id=user.uuid, name=user.name)
 ```
 
-### Phase 2: MIGRATE
-Move consumers one by one to the new interface.
+### Fase 2: MIGRATE
+Mova os consumidores um a um para a nova interface.
 
 ```python
 # Before: consumer uses old API
@@ -147,8 +147,8 @@ user_data = user_service.get_user(42)
 user = user_service.get_user_v2("uuid-123")
 ```
 
-### Phase 3: CONTRACT
-Once all consumers migrated, remove the old interface.
+### Fase 3: CONTRACT
+Uma vez que todos os consumidores tenham migrado, remova a interface antiga.
 
 ```python
 class UserService:
@@ -158,15 +158,15 @@ class UserService:
         return UserResponse(id=user.uuid, name=user.name)
 ```
 
-**Key rule:** Each phase is a separate, deployable commit/PR.
+**Regra-chave:** Cada fase é um commit/PR separado e deployável.
 
 ---
 
 ## 4. Mikado Method
 
-**When:** Large refactoring where dependencies are unclear.
+**Quando:** Refactoring grande onde as dependências não estão claras.
 
-**The algorithm:**
+**O algoritmo:**
 ```
 1. Set the goal (e.g., "replace ORM X with ORM Y")
 2. Try to implement the goal directly
@@ -181,7 +181,7 @@ class UserService:
 6. Work back up the graph until the root goal succeeds
 ```
 
-**Mikado Graph example:**
+**Exemplo de Mikado Graph:**
 ```
 Replace ORM X with ORM Y (ROOT GOAL)
   |
@@ -198,18 +198,18 @@ Replace ORM X with ORM Y (ROOT GOAL)
   +-- Remove ORM X dependency from requirements.txt
 ```
 
-**Key benefits:**
-- Discovers the true dependency graph through experimentation
-- Each commit is small and safe (one leaf at a time)
-- Natural ordering — you always fix prerequisites before the goal
-- Revert-first culture — never leave the codebase broken
+**Benefícios-chave:**
+- Descobre o verdadeiro grafo de dependências por experimentação
+- Cada commit é pequeno e seguro (uma folha por vez)
+- Ordenação natural — você sempre corrige os pré-requisitos antes do objetivo
+- Cultura de reverter primeiro — nunca deixe o codebase quebrado
 
 ---
 
-## Safety Rules for All Refactoring
+## Regras de Segurança para Todo Refactoring
 
-1. **Tests first** — Never refactor without tests. If tests don't exist, add characterization tests first.
-2. **Small steps** — Each step is independently deployable and testable.
-3. **One thing at a time** — Never mix refactoring with feature work in the same commit.
-4. **Verify at each step** — Run the full test suite after every change.
-5. **Rollback plan** — Always know how to revert if something goes wrong.
+1. **Testes primeiro** — Nunca refatore sem testes. Se não existirem testes, adicione characterization tests primeiro.
+2. **Passos pequenos** — Cada passo é deployável e testável de forma independente.
+3. **Uma coisa por vez** — Nunca misture refactoring com trabalho de feature no mesmo commit.
+4. **Verifique a cada passo** — Rode a suíte de testes completa após cada mudança.
+5. **Plano de rollback** — Sempre saiba como reverter se algo der errado.

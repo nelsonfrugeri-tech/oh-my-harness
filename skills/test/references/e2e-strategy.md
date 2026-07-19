@@ -1,8 +1,8 @@
-# Test Strategy -- Pyramid vs Trophy
+# Estratégia de Testes -- Pyramid vs Trophy
 
-## The Testing Pyramid
+## A Pirâmide de Testes
 
-Originally proposed by Mike Cohn, popularized by Martin Fowler.
+Originalmente proposta por Mike Cohn, popularizada por Martin Fowler.
 
 ```
         /  E2E  \          5-10% of tests
@@ -13,21 +13,21 @@ Originally proposed by Mike Cohn, popularized by Martin Fowler.
    /____________________\
 ```
 
-### Rationale
-- Unit tests are fast, cheap, and isolated
-- Integration tests are moderate cost
-- E2E tests are slow, expensive, and brittle
-- More tests at the base = faster feedback
+### Justificativa
+- Testes unitários são rápidos, baratos e isolados
+- Testes de integração têm custo moderado
+- Testes E2E são lentos, caros e frágeis
+- Mais testes na base = feedback mais rápido
 
-### Best For
-- Libraries with pure functions
-- Backend services with complex business logic
-- Data processing pipelines
-- Algorithms and mathematical computations
+### Melhor Para
+- Bibliotecas com funções puras
+- Serviços de backend com lógica de negócio complexa
+- Pipelines de processamento de dados
+- Algoritmos e computações matemáticas
 
-## The Testing Trophy
+## O Troféu de Testes
 
-Proposed by Kent C. Dodds as a modern alternative.
+Proposto por Kent C. Dodds como uma alternativa moderna.
 
 ```
         ___E2E___          10% of tests
@@ -40,21 +40,21 @@ Proposed by Kent C. Dodds as a modern alternative.
        |__________|
 ```
 
-### Rationale
-- Integration tests give the highest confidence-per-test
-- Modern tooling makes integration tests fast enough
-- Unit tests on trivial code add maintenance without confidence
-- Static analysis catches entire categories of bugs for free
+### Justificativa
+- Testes de integração dão a maior confiança por teste
+- O ferramental moderno torna os testes de integração rápidos o suficiente
+- Testes unitários em código trivial adicionam manutenção sem confiança
+- A análise estática captura categorias inteiras de bugs de graça
 
-### Best For
-- Frontend applications (React, Vue, Angular)
-- REST/GraphQL APIs
-- Microservices with many integration points
-- Full-stack applications
+### Melhor Para
+- Aplicações frontend (React, Vue, Angular)
+- APIs REST/GraphQL
+- Microsserviços com muitos pontos de integração
+- Aplicações full-stack
 
-## The Testing Diamond (Hybrid)
+## O Diamante de Testes (Híbrido)
 
-For teams that need both:
+Para times que precisam de ambos:
 
 ```
         /  E2E  \          Critical paths only
@@ -67,41 +67,41 @@ For teams that need both:
         \_______/
 ```
 
-## What to Test Where
+## O que Testar Onde
 
-### Static Analysis
+### Análise Estática
 ```
 mypy / TypeScript strict     -> type errors
 ruff / Biome                 -> code smells, unused imports
 bandit / semgrep             -> security vulnerabilities
 ```
 
-### Unit Tests
-- Pure functions (no I/O, no side effects)
-- Validation logic
-- Data transformations
-- Business rule calculations
-- Error message formatting
-- Utility functions
+### Testes Unitários
+- Funções puras (sem I/O, sem efeitos colaterais)
+- Lógica de validação
+- Transformações de dados
+- Cálculos de regras de negócio
+- Formatação de mensagens de erro
+- Funções utilitárias
 
-### Integration Tests
-- HTTP endpoint request/response cycle
-- Database CRUD operations
-- Cache read/write behavior
-- Queue message produce/consume
-- Authentication flow
-- Authorization checks
-- File upload/download
+### Testes de Integração
+- Ciclo de request/response de endpoint HTTP
+- Operações CRUD de banco de dados
+- Comportamento de leitura/escrita de cache
+- Produção/consumo de mensagens de fila
+- Fluxo de autenticação
+- Verificações de autorização
+- Upload/download de arquivos
 
-### E2E Tests
-- User signup -> login -> use feature -> logout
-- Purchase flow (add to cart -> checkout -> payment -> confirmation)
-- Admin operations (create user -> assign role -> verify access)
-- Error recovery (network failure -> retry -> success)
+### Testes E2E
+- Signup do usuário -> login -> usar funcionalidade -> logout
+- Fluxo de compra (adicionar ao carrinho -> checkout -> pagamento -> confirmação)
+- Operações de admin (criar usuário -> atribuir papel -> verificar acesso)
+- Recuperação de erro (falha de rede -> retry -> sucesso)
 
-## Anti-Patterns
+## Anti-Padrões
 
-### Testing Ice Cream Cone (inverted pyramid)
+### Cone de Sorvete de Testes (pirâmide invertida)
 ```
    /________________________\
   /       E2E Tests          \    <- too many, slow, flaky
@@ -112,9 +112,9 @@ bandit / semgrep             -> security vulnerabilities
    \________________/
 ```
 
-**Problem:** Slow CI, flaky tests, low developer confidence.
+**Problema:** CI lento, testes flaky, baixa confiança dos desenvolvedores.
 
-### Testing Hourglass
+### Ampulheta de Testes
 ```
         /  E2E  \              <- many
        /----------\
@@ -126,4 +126,4 @@ bandit / semgrep             -> security vulnerabilities
    /____________________\
 ```
 
-**Problem:** Unit + E2E without integration = gaps in the middle where most bugs live.
+**Problema:** Unit + E2E sem integração = lacunas no meio onde a maioria dos bugs vive.

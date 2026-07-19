@@ -2,71 +2,71 @@
 version: 1.0.0
 name: operate
 description: |
-  SRE and modern observability knowledge base (2026). Covers the three observability pillars
-  (logs, metrics, traces) with OpenTelemetry as the standard, SLI/SLO definition and error
-  budget management, incident response workflow (DETECT-TRIAGE-MITIGATE-RESOLVE-POSTMORTEM),
-  symptom-based alerting (multi-window multi-burn-rate), dashboard patterns (USE, RED, Four
-  Golden Signals), cost optimization, root cause analysis, runbook templates, and on-call
-  best practices. Tools: Prometheus, Grafana, Jaeger, OpenTelemetry.
-  Use when: (1) Instrumenting applications, (2) Defining SLOs and error budgets,
-  (3) Configuring alerting and dashboards, (4) Responding to incidents, (5) Writing runbooks,
-  (6) On-call setup.
+  Base de conhecimento de SRE e observabilidade moderna (2026). Cobre os três pilares de
+  observabilidade (logs, métricas, traces) com OpenTelemetry como padrão, definição de SLI/SLO
+  e gestão de error budget, fluxo de resposta a incidentes (DETECT-TRIAGE-MITIGATE-RESOLVE-POSTMORTEM),
+  alerting baseado em sintomas (multi-window multi-burn-rate), padrões de dashboard (USE, RED, Four
+  Golden Signals), otimização de custo, análise de causa raiz, templates de runbook e boas práticas
+  de on-call. Ferramentas: Prometheus, Grafana, Jaeger, OpenTelemetry.
+  Use quando: (1) Instrumentar aplicações, (2) Definir SLOs e error budgets,
+  (3) Configurar alerting e dashboards, (4) Responder a incidentes, (5) Escrever runbooks,
+  (6) Configurar on-call.
   Triggers: /operate, /sre, /observability, SRE, observability, monitoring, alerting, SLO, SLI,
   incident response, postmortem, on-call, dashboards, OpenTelemetry.
 type: capability
 ---
 
-# Operate — SRE and Observability
+# Operate — SRE e Observabilidade
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for SRE and modern observability (2026).
+Esta skill é a base de conhecimento para SRE e observabilidade moderna (2026).
 
-**What this skill contains:**
-- Observability pillars (logs, metrics, traces) with OpenTelemetry
-- SLO/SLI definition and error budget management
-- Incident response workflow (DETECT → TRIAGE → MITIGATE → RESOLVE → POSTMORTEM)
-- Alerting strategies (symptom-based)
-- Dashboard patterns (USE, RED, Four Golden Signals)
-- Cost optimization for observability
-- Root cause analysis (5 Whys, fault trees)
-- Runbook templates
-- On-call best practices
-
----
-
-## Philosophy
-
-### Observability != Monitoring
-
-**Monitoring** tells you WHEN something is wrong.
-**Observability** tells you WHY something is wrong.
-
-A system is observable when you can understand its internal state from external signals
-— without deploying new code to debug.
-
-### Fundamental Principles
-
-1. **OpenTelemetry is the standard** — vendor-neutral, one SDK for everything
-2. **SLOs drive decisions** — error budgets quantify "how much can I fail"
-3. **Symptom-based alerting** — alert on user impact, not internal causes
-4. **Blameless culture** — incidents are learning opportunities, not blame assignments
-5. **Cost-aware** — telemetry has cost, optimize signal-to-noise ratio
+**O que esta skill contém:**
+- Pilares de observabilidade (logs, métricas, traces) com OpenTelemetry
+- Definição de SLO/SLI e gestão de error budget
+- Fluxo de resposta a incidentes (DETECT → TRIAGE → MITIGATE → RESOLVE → POSTMORTEM)
+- Estratégias de alerting (baseadas em sintomas)
+- Padrões de dashboard (USE, RED, Four Golden Signals)
+- Otimização de custo para observabilidade
+- Análise de causa raiz (5 Whys, fault trees)
+- Templates de runbook
+- Boas práticas de on-call
 
 ---
 
-## 1. Observability Pillars
+## Filosofia
 
-### The Three Pillars + Events
+### Observabilidade != Monitoramento
 
-| Pillar | What | When | Tool |
+**Monitoramento** diz QUANDO algo está errado.
+**Observabilidade** diz POR QUE algo está errado.
+
+Um sistema é observável quando você consegue entender seu estado interno a partir de sinais externos
+— sem precisar fazer deploy de código novo para depurar.
+
+### Princípios Fundamentais
+
+1. **OpenTelemetry é o padrão** — vendor-neutral, um único SDK para tudo
+2. **SLOs guiam decisões** — error budgets quantificam "quanto posso falhar"
+3. **Alerting baseado em sintomas** — alerte sobre impacto no usuário, não sobre causas internas
+4. **Cultura blameless** — incidentes são oportunidades de aprendizado, não atribuição de culpa
+5. **Consciente de custo** — telemetria tem custo, otimize a relação sinal-ruído
+
+---
+
+## 1. Pilares de Observabilidade
+
+### Os Três Pilares + Eventos
+
+| Pilar | O que | Quando | Ferramenta |
 |--------|------|------|------|
-| **Logs** | Discrete events with context | Debug, audit trail, compliance | OpenTelemetry Logs, structlog |
-| **Metrics** | Numeric values over time | Trends, alerting, capacity planning | Prometheus, OpenTelemetry Metrics |
-| **Traces** | Request path across services | Latency analysis, dependency mapping | Jaeger, OpenTelemetry Traces |
-| **Events** | Significant state changes | Deployments, config changes, incidents | Custom events, annotations |
+| **Logs** | Eventos discretos com contexto | Debug, trilha de auditoria, compliance | OpenTelemetry Logs, structlog |
+| **Métricas** | Valores numéricos ao longo do tempo | Tendências, alerting, planejamento de capacidade | Prometheus, OpenTelemetry Metrics |
+| **Traces** | Caminho da requisição entre serviços | Análise de latência, mapeamento de dependências | Jaeger, OpenTelemetry Traces |
+| **Eventos** | Mudanças de estado significativas | Deployments, mudanças de config, incidentes | Eventos customizados, anotações |
 
-### OpenTelemetry Setup (Python)
+### Setup do OpenTelemetry (Python)
 
 ```python
 # opentelemetry-sdk==1.40.0
@@ -105,7 +105,7 @@ with tracer.start_as_current_span("process_order") as span:
         raise
 ```
 
-### Structured Logging with OTel Context
+### Logging Estruturado com Contexto OTel
 
 ```python
 import structlog
@@ -136,18 +136,18 @@ logger.info("order_created", order_id="abc-123", total=99.99)
 
 ---
 
-## 2. SLI/SLO Management
+## 2. Gestão de SLI/SLO
 
-### Definitions
+### Definições
 
-| Concept | What | Example |
+| Conceito | O que | Exemplo |
 |---------|------|---------|
-| **SLI** | Quantitative metric of service aspect | 99.2% of requests < 200ms |
-| **SLO** | Target for an SLI | 99.5% of requests must be < 200ms |
-| **SLA** | Contract with consequences | 99.9% uptime or credits |
-| **Error Budget** | 100% - SLO | 0.5% = budget to experiment/fail |
+| **SLI** | Métrica quantitativa de um aspecto do serviço | 99.2% das requisições < 200ms |
+| **SLO** | Alvo para um SLI | 99.5% das requisições devem ser < 200ms |
+| **SLA** | Contrato com consequências | 99.9% de uptime ou créditos |
+| **Error Budget** | 100% - SLO | 0.5% = orçamento para experimentar/falhar |
 
-### SLI Formula
+### Fórmula do SLI
 
 ```
 SLI = (good events / total events) * 100
@@ -159,12 +159,12 @@ availability = (successful_requests / total_requests) * 100
 latency = (requests_under_threshold / total_requests) * 100
 ```
 
-### Choosing SLIs by Service Type
+### Escolhendo SLIs por Tipo de Serviço
 
-| Service Type | Primary SLIs |
+| Tipo de Serviço | SLIs Primários |
 |-------------|-------------|
 | **API** | Availability, Latency (p50, p95, p99), Error rate |
-| **Pipeline** | Freshness (data age), Correctness, Throughput |
+| **Pipeline** | Freshness (idade dos dados), Correctness, Throughput |
 | **Storage** | Availability, Latency, Durability |
 | **Frontend** | LCP, FID, CLS (Core Web Vitals) |
 | **AI/LLM** | Latency, Correctness (eval score), Token cost, Error rate |
@@ -197,56 +197,56 @@ latency = (requests_under_threshold / total_requests) * 100
 
 ---
 
-## 3. Incident Response Workflow
+## 3. Fluxo de Resposta a Incidentes
 
 ```
 DETECT -> TRIAGE -> MITIGATE -> RESOLVE -> POSTMORTEM -> IMPROVE
 ```
 
-### Phase 1: Detect
+### Fase 1: Detect
 
-**Sources:** Automated alerts, customer reports, synthetic monitoring, anomaly detection
+**Fontes:** Alertas automatizados, reports de clientes, monitoramento sintético, detecção de anomalias
 
-**Rules:**
-- Time-to-detect (TTD) is the most critical metric
-- Alert on symptoms, not causes
-- Every alert must be actionable
+**Regras:**
+- Time-to-detect (TTD) é a métrica mais crítica
+- Alerte sobre sintomas, não sobre causas
+- Todo alerta deve ser acionável
 
-### Phase 2: Triage
+### Fase 2: Triage
 
-**Severity classification:**
+**Classificação de severidade:**
 
-| Severity | Impact | Response Time | Examples |
+| Severidade | Impacto | Tempo de Resposta | Exemplos |
 |----------|--------|---------------|---------|
-| **SEV-0** | Total outage, data loss | Immediate (all hands) | Database corruption, security breach |
-| **SEV-1** | Major feature broken | < 15 min | Payment down, auth failure |
-| **SEV-2** | Degraded service | < 30 min | Elevated latency, partial errors |
-| **SEV-3** | Minor issue | < 4 hours | Non-critical feature degraded |
+| **SEV-0** | Outage total, perda de dados | Imediato (all hands) | Corrupção de banco, brecha de segurança |
+| **SEV-1** | Feature principal quebrada | < 15 min | Pagamento fora do ar, falha de auth |
+| **SEV-2** | Serviço degradado | < 30 min | Latência elevada, erros parciais |
+| **SEV-3** | Problema menor | < 4 horas | Feature não crítica degradada |
 
-**Roles:**
-- **Incident Commander (IC)** — coordinates response, makes decisions
-- **Communications Lead (CL)** — updates stakeholders, status page
-- **Operations Lead (OL)** — hands-on debugging and mitigation
+**Papéis:**
+- **Incident Commander (IC)** — coordena a resposta, toma decisões
+- **Communications Lead (CL)** — atualiza stakeholders, status page
+- **Operations Lead (OL)** — debugging e mitigação hands-on
 
-### Phase 3: Mitigate
+### Fase 3: Mitigate
 
-**Priority order:**
-1. **Rollback** — revert to last known good state
-2. **Drain** — remove affected instance from rotation
-3. **Scale** — add capacity if resource-bound
-4. **Feature flag** — disable problematic feature
-5. **Hotfix** — only if above options don't work
+**Ordem de prioridade:**
+1. **Rollback** — voltar ao último estado bom conhecido
+2. **Drain** — remover a instância afetada da rotação
+3. **Scale** — adicionar capacidade se limitado por recursos
+4. **Feature flag** — desabilitar a feature problemática
+5. **Hotfix** — apenas se as opções acima não funcionarem
 
-**Rule:** Mitigate first, debug later. Restore service ASAP.
+**Regra:** Mitigue primeiro, depure depois. Restaure o serviço o quanto antes.
 
-### Phase 4: Resolve
+### Fase 4: Resolve
 
-- Confirm service is fully recovered
-- Verify SLI metrics are back to normal
-- Monitor for regression (30+ minutes)
-- Close incident channel
+- Confirme que o serviço se recuperou totalmente
+- Verifique se as métricas de SLI voltaram ao normal
+- Monitore por regressão (30+ minutos)
+- Feche o canal do incidente
 
-### Phase 5: Blameless Postmortem
+### Fase 5: Postmortem Blameless
 
 ```markdown
 ## Postmortem: [Incident Title]
@@ -294,18 +294,18 @@ DETECT -> TRIAGE -> MITIGATE -> RESOLVE -> POSTMORTEM -> IMPROVE
 - [key takeaway]
 ```
 
-### Phase 6: Improve
+### Fase 6: Improve
 
-- Track action items to completion
-- Update runbooks with what was learned
-- Improve alerts based on detection gaps
-- Add automated tests for the failure mode
+- Acompanhe os action items até a conclusão
+- Atualize os runbooks com o que foi aprendido
+- Melhore os alertas com base nas lacunas de detecção
+- Adicione testes automatizados para o modo de falha
 
 ---
 
-## 4. Alerting Strategy
+## 4. Estratégia de Alerting
 
-### Symptom-Based Alerting
+### Alerting Baseado em Sintomas
 
 ```
 BAD:  Alert on CPU > 80%         (cause — may have no user impact)
@@ -315,7 +315,7 @@ BAD:  Alert on disk > 90%        (cause — might be fine for weeks)
 GOOD: Alert on write failures > 0 (symptom — data loss happening)
 ```
 
-### Multi-Window Multi-Burn-Rate Alerts
+### Alertas Multi-Window Multi-Burn-Rate
 
 ```yaml
 # Prometheus alerting rules
@@ -349,7 +349,7 @@ groups:
           summary: "Slow error budget burn ({{ $value | humanizePercentage }})"
 ```
 
-### Alert Quality Checklist
+### Checklist de Qualidade de Alertas
 
 ```markdown
 For every alert:
@@ -364,32 +364,32 @@ For every alert:
 
 ---
 
-## 5. Dashboard Patterns
+## 5. Padrões de Dashboard
 
-### RED Method (for request-driven services)
+### Método RED (para serviços orientados a requisições)
 
-| Metric | What | SLO Example |
+| Métrica | O que | Exemplo de SLO |
 |--------|------|-------------|
-| **R**ate | Requests per second | Sustain 5K rps |
-| **E**rrors | Error rate percentage | < 0.1% 5xx |
-| **D**uration | Latency distribution | p99 < 200ms |
+| **R**ate | Requisições por segundo | Sustentar 5K rps |
+| **E**rrors | Percentual de taxa de erro | < 0.1% 5xx |
+| **D**uration | Distribuição de latência | p99 < 200ms |
 
-### USE Method (for resources)
+### Método USE (para recursos)
 
-| Metric | What |
+| Métrica | O que |
 |--------|------|
-| **U**tilization | % time resource is busy (CPU, memory) |
-| **S**aturation | How much work is queued (waiting) |
-| **E**rrors | Error count per resource |
+| **U**tilization | % do tempo em que o recurso está ocupado (CPU, memória) |
+| **S**aturation | Quanto trabalho está enfileirado (aguardando) |
+| **E**rrors | Contagem de erros por recurso |
 
 ### Four Golden Signals (Google SRE)
 
-1. **Latency** — time to service a request
-2. **Traffic** — demand on the system
-3. **Errors** — rate of failed requests
-4. **Saturation** — how "full" the service is
+1. **Latency** — tempo para atender uma requisição
+2. **Traffic** — demanda sobre o sistema
+3. **Errors** — taxa de requisições que falham
+4. **Saturation** — quão "cheio" o serviço está
 
-### Service Overview Dashboard Structure
+### Estrutura do Dashboard de Visão Geral do Serviço
 
 ```
 Row 1: SLO Status
@@ -415,7 +415,7 @@ Row 4: Dependencies
 
 ---
 
-## 6. Runbook Template
+## 6. Template de Runbook
 
 ```markdown
 # Runbook: [Service/Component Name]
@@ -477,26 +477,26 @@ Row 4: Dependencies
 
 ---
 
-## 7. On-Call Best Practices
+## 7. Boas Práticas de On-Call
 
-### Healthy On-Call Culture
+### Cultura de On-Call Saudável
 
-1. **Sustainable rotations** — no hero culture, distribute load
-2. **Blameless postmortems** — systems fail, not people
-3. **Alert hygiene** — reduce noise, every alert actionable
-4. **Runbooks always current** — update after every incident
-5. **On-call handoffs** — written summary of active issues
+1. **Rotações sustentáveis** — sem cultura de herói, distribua a carga
+2. **Postmortems blameless** — sistemas falham, não pessoas
+3. **Higiene de alertas** — reduza ruído, todo alerta acionável
+4. **Runbooks sempre atualizados** — atualize após cada incidente
+5. **Handoffs de on-call** — resumo escrito das questões ativas
 
-### On-Call Metrics to Track
+### Métricas de On-Call a Acompanhar
 
-| Metric | Target | Why |
+| Métrica | Alvo | Por quê |
 |--------|--------|-----|
-| MTTA (Mean Time to Acknowledge) | < 5 min | Detect gaps in coverage |
-| MTTM (Mean Time to Mitigate) | < 1 hour for SEV-1 | Measure response effectiveness |
-| Alerts per on-call week | < 5 actionable | Measure alert quality |
-| Pages outside business hours | < 2/week | Measure sustainability |
+| MTTA (Mean Time to Acknowledge) | < 5 min | Detectar lacunas na cobertura |
+| MTTM (Mean Time to Mitigate) | < 1 hora para SEV-1 | Medir a eficácia da resposta |
+| Alertas por semana de on-call | < 5 acionáveis | Medir a qualidade dos alertas |
+| Pages fora do horário comercial | < 2/semana | Medir a sustentabilidade |
 
-### On-Call Shift Handoff
+### Handoff de Turno de On-Call
 
 ```markdown
 ## On-Call Handoff: [date]
@@ -521,19 +521,19 @@ Row 4: Dependencies
 
 ## Reference Files
 
-- [references/alerting-burn-rate.md](references/alerting-burn-rate.md) — Multi-Window Burn Rate Alerting
-- [references/alerting-symptom-based.md](references/alerting-symptom-based.md) — Symptom-Based Alerting
-- [references/dashboards-patterns.md](references/dashboards-patterns.md) — Dashboard Patterns
-- [references/incident-response-on-call.md](references/incident-response-on-call.md) — On-Call Best Practices
-- [references/incident-response-postmortem-template.md](references/incident-response-postmortem-template.md) — Blameless Postmortem Template
-- [references/incident-response-root-cause-analysis.md](references/incident-response-root-cause-analysis.md) — Root Cause Analysis Techniques
-- [references/incident-response-runbook-template.md](references/incident-response-runbook-template.md) — Runbook Template
-- [references/incident-response-workflow.md](references/incident-response-workflow.md) — Incident Response Workflow
-- [references/opentelemetry-instrumentation.md](references/opentelemetry-instrumentation.md) — OpenTelemetry SDK Instrumentation
-- [references/opentelemetry-setup.md](references/opentelemetry-setup.md) — OpenTelemetry Python Setup
-- [references/slo-management-defining-slos.md](references/slo-management-defining-slos.md) — Defining SLOs
+- [references/alerting-burn-rate.md](references/alerting-burn-rate.md) — Alerting Multi-Window por Burn Rate
+- [references/alerting-symptom-based.md](references/alerting-symptom-based.md) — Alerting Baseado em Sintomas
+- [references/dashboards-patterns.md](references/dashboards-patterns.md) — Padrões de Dashboard
+- [references/incident-response-on-call.md](references/incident-response-on-call.md) — Boas Práticas de On-Call
+- [references/incident-response-postmortem-template.md](references/incident-response-postmortem-template.md) — Template de Postmortem Blameless
+- [references/incident-response-root-cause-analysis.md](references/incident-response-root-cause-analysis.md) — Técnicas de Análise de Causa Raiz
+- [references/incident-response-runbook-template.md](references/incident-response-runbook-template.md) — Template de Runbook
+- [references/incident-response-workflow.md](references/incident-response-workflow.md) — Fluxo de Resposta a Incidentes
+- [references/opentelemetry-instrumentation.md](references/opentelemetry-instrumentation.md) — Instrumentação do SDK OpenTelemetry
+- [references/opentelemetry-setup.md](references/opentelemetry-setup.md) — Setup do OpenTelemetry em Python
+- [references/slo-management-defining-slos.md](references/slo-management-defining-slos.md) — Definindo SLOs
 - [references/slo-management-error-budgets.md](references/slo-management-error-budgets.md) — Error Budgets
-- [references/tools-cost-optimization.md](references/tools-cost-optimization.md) — Cost Optimization
+- [references/tools-cost-optimization.md](references/tools-cost-optimization.md) — Otimização de Custo
 - [references/tools-grafana.md](references/tools-grafana.md) — Grafana
 - [references/tools-jaeger.md](references/tools-jaeger.md) — Jaeger
 - [references/tools-langfuse.md](references/tools-langfuse.md) — Langfuse

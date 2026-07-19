@@ -191,7 +191,7 @@ result = await chain.ainvoke({
 print(result.content)
 ```
 
-**LCEL (LangChain Expression Language) - Preferred:**
+**LCEL (LangChain Expression Language) - Preferível:**
 
 ```python
 from langchain_core.output_parsers import StrOutputParser
@@ -677,19 +677,19 @@ response = await claude.ainvoke(
 
 ### 1. Não usar Async
 
-**Problem:** Sync calls bloqueiam event loop
-**Solution:** Use `ainvoke()`, `astream()`, etc.
+**Problema:** Chamadas sync bloqueiam o event loop
+**Solução:** Use `ainvoke()`, `astream()`, etc.
 
 ### 2. Memory leak em loops
 
-**Problem:** Memory acumula infinitamente
+**Problema:** Memory acumula infinitamente
 ```python
 # ❌ Memory cresce sem limite
 for query in queries:
     await chain.ainvoke({"input": query})
 ```
 
-**Solution:** Clear memory periodicamente
+**Solução:** Clear memory periodicamente
 ```python
 # ✅ Clear memory
 for i, query in enumerate(queries):
@@ -700,8 +700,8 @@ for i, query in enumerate(queries):
 
 ### 3. Não tratar rate limits
 
-**Problem:** Falha em API calls sem retry
-**Solution:** Configure `max_retries`
+**Problema:** Falha em API calls sem retry
+**Solução:** Configure `max_retries`
 ```python
 claude = ChatAnthropic(
     max_retries=3,
@@ -711,7 +711,7 @@ claude = ChatAnthropic(
 
 ### 4. Tool descriptions ruins
 
-**Problem:** Agent não sabe quando usar tool
+**Problema:** Agent não sabe quando usar tool
 ```python
 # ❌ Descrição vaga
 @tool
@@ -739,8 +739,8 @@ def search(query: str) -> str:
 
 ### 5. Chains muito complexas
 
-**Problem:** Hard to debug, slow
-**Solution:** Break into smaller chains
+**Problema:** Difícil de debugar, lento
+**Solução:** Quebre em chains menores
 ```python
 # ❌ Monolithic chain
 mega_chain = step1 | step2 | step3 | step4 | step5
@@ -757,9 +757,9 @@ result = await chain_b.ainvoke(await chain_a.ainvoke(input))
 
 ### Error: "Too many tokens"
 
-**Causa:** Context window exceeded
+**Causa:** Context window excedida
 
-**Solution:**
+**Solução:**
 ```python
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -773,9 +773,9 @@ chunks = splitter.split_text(long_text)
 
 ### Error: "Rate limit exceeded"
 
-**Causa:** Too many requests
+**Causa:** Requests em excesso
 
-**Solution:**
+**Solução:**
 ```python
 # Add retry com backoff
 claude = ChatAnthropic(
@@ -788,9 +788,9 @@ claude = ChatAnthropic(
 
 **Causa:** Tool description não é clara
 
-**Solution:**
+**Solução:**
 - Melhore description da tool
-- Adicione examples no system prompt
+- Adicione exemplos no system prompt
 - Use `verbose=True` para debug
 ```python
 agent_executor = AgentExecutor(
@@ -800,7 +800,7 @@ agent_executor = AgentExecutor(
 )
 ```
 
-### Debugging chains
+### Debugando chains
 
 **Use `verbose=True` e callbacks:**
 ```python

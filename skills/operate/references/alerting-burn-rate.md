@@ -1,18 +1,18 @@
-# Multi-Window Burn Rate Alerting
+# Alertas de Burn Rate Multi-Janela
 
 ## Conceito
-Instead of static thresholds, alert based on how fast the error budget is being consumed.
+Em vez de thresholds estáticos, alerte com base na rapidez com que o error budget está sendo consumido.
 
-## Formula
+## Fórmula
 ```
 burn_rate = (error_rate_observed / error_rate_allowed)
 error_rate_allowed = (1 - SLO_target) / window_days
 ```
 
-## Multi-Window Strategy (Google SRE)
-Two windows per alert to balance speed vs noise:
-- **Long window**: detects sustained issues
-- **Short window**: confirms issue is still happening (avoids alert on resolved spike)
+## Estratégia Multi-Janela (Google SRE)
+Duas janelas por alerta para equilibrar velocidade vs ruído:
+- **Janela longa**: detecta problemas sustentados
+- **Janela curta**: confirma que o problema ainda está ocorrendo (evita alerta em spike já resolvido)
 
 ```promql
 # P1: 2% budget in 1 hour (burn rate 14.4x)
@@ -38,7 +38,7 @@ labels:
   severity: warning
 ```
 
-## Tuning
-- Start with Google's recommended windows, adjust based on team's response time
-- Too sensitive → alert fatigue; too loose → miss real issues
-- Always pair with error budget dashboard for context
+## Ajuste
+- Comece com as janelas recomendadas pelo Google e ajuste com base no tempo de resposta da equipe
+- Sensível demais → fadiga de alertas; frouxo demais → perde problemas reais
+- Sempre combine com um dashboard de error budget para dar contexto

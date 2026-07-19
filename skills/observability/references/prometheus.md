@@ -1,19 +1,19 @@
 # Prometheus
 
-## PromQL Essential Patterns
+## Padrões Essenciais de PromQL
 
-### Rate and increase
-- `rate(metric[5m])` — per-second rate over 5 minutes (for counters)
-- `increase(metric[1h])` — total increase over 1 hour
-- Always use `rate()` before `sum()`: `sum(rate(metric[5m]))` not `rate(sum(metric))`
+### Rate e increase
+- `rate(metric[5m])` — taxa por segundo ao longo de 5 minutos (para counters)
+- `increase(metric[1h])` — aumento total ao longo de 1 hora
+- Sempre use `rate()` antes de `sum()`: `sum(rate(metric[5m]))` e não `rate(sum(metric))`
 
-### Percentiles
+### Percentis
 ```promql
 histogram_quantile(0.99, sum(rate(http_duration_seconds_bucket[5m])) by (le))
 ```
 
 ### Recording Rules
-Pre-compute expensive queries:
+Pré-compute queries custosas:
 ```yaml
 groups:
   - name: slo
@@ -24,6 +24,6 @@ groups:
 ```
 
 ### Federation
-- Use for aggregating across clusters
-- Remote write to long-term storage (Thanos, Cortex, Mimir)
-- Version: Prometheus 2.53+ (2026 stable)
+- Use para agregar dados entre clusters
+- Remote write para armazenamento de longo prazo (Thanos, Cortex, Mimir)
+- Versão: Prometheus 2.53+ (estável em 2026)

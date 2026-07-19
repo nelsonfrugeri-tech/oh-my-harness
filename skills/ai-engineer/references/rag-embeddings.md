@@ -648,7 +648,7 @@ async def hybrid_embedding(text: str) -> dict[str, list[float]]:
 
 ## Troubleshooting
 
-### Problema: Low Retrieval Quality
+### Problema: Baixa Qualidade de Retrieval
 
 **Diagnóstico:**
 1. Embedding model inadequado para domínio
@@ -671,7 +671,7 @@ for size in [256, 512, 1024]:
 transformed_queries = await transform_query(query)
 ```
 
-### Problema: High Latency
+### Problema: Latência Alta
 
 **Diagnóstico:**
 - Embedding API calls síncronos
@@ -690,7 +690,7 @@ embeddings = await cache.get_or_embed(text, embed_fn)
 # Embed todos documents antecipadamente
 ```
 
-### Problema: High Cost
+### Problema: Custo Alto
 
 **Diagnóstico:**
 - Re-embedding documentos

@@ -1,9 +1,9 @@
-# Variable Fonts — Axes, Performance & Animation
+# Variable fonts — eixos, performance e animação
 
-## What Are Variable Fonts?
+## O que são variable fonts?
 
-A variable font is a single font file that contains the entire range of variations
-(weight, width, slant, etc.) instead of separate files for each style.
+Uma variable font é um único arquivo de fonte que contém toda a gama de variações
+(peso, largura, inclinação etc.) em vez de arquivos separados para cada estilo.
 
 ```
 Traditional:                    Variable:
@@ -15,28 +15,28 @@ Inter-ExtraBold.woff2  (30KB)
 ...10 files = 300KB+           Actually SMALLER for 3+ styles
 ```
 
-### Performance Benefits
+### Benefícios de performance
 
-- **Fewer HTTP requests** — 1 file vs 10+
-- **Smaller total size** — when using 3+ weights (very common)
-- **Smooth animations** — interpolate between any weight value
-- **No FOUT between weights** — no flash when switching styles
+- **Menos requisições HTTP** — 1 arquivo vs 10+
+- **Tamanho total menor** — ao usar 3+ pesos (muito comum)
+- **Animações suaves** — interpola entre qualquer valor de peso
+- **Sem FOUT entre pesos** — sem flash ao trocar de estilo
 
 ---
 
-## Variation Axes
+## Eixos de variação
 
-### Standard Axes (registered)
+### Eixos padrão (registrados)
 
-| Axis | Tag | Range | Description |
+| Eixo | Tag | Intervalo | Descrição |
 |------|-----|-------|-------------|
-| Weight | `wght` | 100-900 | Thin to Black |
-| Width | `wdth` | 75-125 | Condensed to Expanded |
-| Slant | `slnt` | -90-90 | Oblique angle |
-| Italic | `ital` | 0-1 | Roman to Italic |
-| Optical Size | `opsz` | 8-144 | Optimized for display size |
+| Weight | `wght` | 100-900 | de Thin a Black |
+| Width | `wdth` | 75-125 | de Condensed a Expanded |
+| Slant | `slnt` | -90-90 | Ângulo oblíquo |
+| Italic | `ital` | 0-1 | de Roman a Italic |
+| Optical Size | `opsz` | 8-144 | Otimizado para tamanho de exibição |
 
-### Using Axes
+### Usando eixos
 
 ```css
 @font-face {
@@ -68,9 +68,9 @@ Inter-ExtraBold.woff2  (30KB)
 
 ---
 
-## Animation with Variable Fonts
+## Animação com variable fonts
 
-Variable fonts enable smooth weight/width transitions:
+Variable fonts permitem transições suaves de peso/largura:
 
 ```css
 /* Smooth weight transition on hover */
@@ -111,41 +111,41 @@ Variable fonts enable smooth weight/width transitions:
 
 ---
 
-## Recommended Variable Fonts (2026)
+## Variable fonts recomendadas (2026)
 
-### Sans-Serif
+### Sans-serif
 
-| Font | Axes | Vibe | Source |
+| Fonte | Eixos | Vibe | Origem |
 |------|------|------|--------|
-| **Inter Variable** | wght 100-900 | Clean, neutral, SaaS | Google Fonts / fontsource |
-| **Geist Sans** | wght 100-900 | Modern, developer | Vercel / fontsource |
-| **DM Sans** | wght 100-1000, ital, opsz | Geometric, friendly | Google Fonts |
-| **Space Grotesk** | wght 300-700 | Tech, modern | Google Fonts |
-| **Plus Jakarta Sans** | wght 200-800 | Geometric, warm | Google Fonts |
-| **Outfit** | wght 100-900 | Geometric, clean | Google Fonts |
+| **Inter Variable** | wght 100-900 | Limpa, neutra, SaaS | Google Fonts / fontsource |
+| **Geist Sans** | wght 100-900 | Moderna, para devs | Vercel / fontsource |
+| **DM Sans** | wght 100-1000, ital, opsz | Geométrica, amigável | Google Fonts |
+| **Space Grotesk** | wght 300-700 | Tech, moderna | Google Fonts |
+| **Plus Jakarta Sans** | wght 200-800 | Geométrica, calorosa | Google Fonts |
+| **Outfit** | wght 100-900 | Geométrica, limpa | Google Fonts |
 
 ### Serif
 
-| Font | Axes | Vibe | Source |
+| Fonte | Eixos | Vibe | Origem |
 |------|------|------|--------|
-| **Instrument Serif** | (static only) | Editorial, elegant | Google Fonts |
-| **Fraunces** | wght, opsz, SOFT, WONK | Warm, old-style | Google Fonts |
-| **Lora** | wght 400-700, ital | Classic, readable | Google Fonts |
-| **Source Serif 4** | wght 200-900, opsz, ital | Versatile, professional | Google Fonts |
+| **Instrument Serif** | (apenas estática) | Editorial, elegante | Google Fonts |
+| **Fraunces** | wght, opsz, SOFT, WONK | Calorosa, old-style | Google Fonts |
+| **Lora** | wght 400-700, ital | Clássica, legível | Google Fonts |
+| **Source Serif 4** | wght 200-900, opsz, ital | Versátil, profissional | Google Fonts |
 
 ### Monospace
 
-| Font | Axes | Vibe | Source |
+| Fonte | Eixos | Vibe | Origem |
 |------|------|------|--------|
-| **JetBrains Mono** | wght 100-800 | Developer-focused | fontsource |
-| **Geist Mono** | wght 100-900 | Modern, Vercel | fontsource |
-| **Fira Code** | wght 300-700 | Ligatures, popular | Google Fonts |
+| **JetBrains Mono** | wght 100-800 | Focada em devs | fontsource |
+| **Geist Mono** | wght 100-900 | Moderna, Vercel | fontsource |
+| **Fira Code** | wght 300-700 | Ligaturas, popular | Google Fonts |
 
 ---
 
-## Self-Hosting with fontsource
+## Self-hosting com fontsource
 
-fontsource provides npm packages for self-hosting fonts with optimal loading:
+O fontsource fornece pacotes npm para self-host de fontes com carregamento otimizado:
 
 ```bash
 npm install @fontsource-variable/inter
@@ -165,22 +165,22 @@ import "@fontsource-variable/jetbrains-mono";
 }
 ```
 
-Benefits over Google Fonts CDN:
-- No third-party requests (privacy, GDPR)
-- No DNS lookup latency
-- Full control over font-display
-- Works offline
+Benefícios em relação ao CDN do Google Fonts:
+- Sem requisições de terceiros (privacidade, GDPR)
+- Sem latência de lookup de DNS
+- Controle total sobre font-display
+- Funciona offline
 
 ---
 
-## font-display Strategies
+## Estratégias de font-display
 
-| Strategy | Behavior | When to use |
+| Estratégia | Comportamento | Quando usar |
 |----------|----------|-------------|
-| `swap` | Show fallback immediately, swap when loaded | Body text (default choice) |
-| `optional` | Show fallback, swap only if loaded very fast | Performance-critical pages |
-| `block` | Hide text briefly, then show with font | Icons, decorative text only |
-| `fallback` | Brief block, then fallback, swap if fast | Compromise between swap/optional |
+| `swap` | Mostra o fallback imediatamente, troca ao carregar | Texto de corpo (escolha padrão) |
+| `optional` | Mostra o fallback, troca só se carregar muito rápido | Páginas críticas em performance |
+| `block` | Esconde o texto brevemente, depois mostra com a fonte | Apenas ícones e texto decorativo |
+| `fallback` | Bloqueio breve, depois fallback, troca se for rápido | Meio-termo entre swap/optional |
 
 ```css
 @font-face {
@@ -193,7 +193,7 @@ Benefits over Google Fonts CDN:
 
 ---
 
-## Loading Optimization
+## Otimização de carregamento
 
 ```html
 <!-- Preload the primary font (in <head>) -->
@@ -212,7 +212,7 @@ Benefits over Google Fonts CDN:
 
 ### Subsetting
 
-For fonts with large character sets, subset to reduce file size:
+Para fontes com grandes conjuntos de caracteres, faça subset para reduzir o tamanho do arquivo:
 
 ```bash
 # Using pyftsubset (fonttools)
@@ -223,13 +223,13 @@ pyftsubset InterVariable.woff2 \
   --unicodes="U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
 ```
 
-fontsource packages are already subsetted by default.
+Os pacotes fontsource já vêm com subset por padrão.
 
 ---
 
-## System Font Stacks
+## Stacks de fontes do sistema
 
-When custom fonts are not needed, system stacks are instant:
+Quando fontes customizadas não são necessárias, as stacks do sistema são instantâneas:
 
 ```css
 /* System sans-serif stack */
@@ -254,5 +254,5 @@ When custom fonts are not needed, system stacks are instant:
   monospace;
 ```
 
-Use system fonts for: admin panels, internal tools, performance-critical apps.
-Use custom fonts for: brand identity, marketing, editorial, premium feel.
+Use fontes do sistema para: painéis administrativos, ferramentas internas, apps críticos em performance.
+Use fontes customizadas para: identidade de marca, marketing, editorial, sensação premium.

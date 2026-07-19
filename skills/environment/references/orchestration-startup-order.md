@@ -1,6 +1,6 @@
-# Service Startup Order
+# Ordem de Inicialização dos Serviços
 
-## Docker Compose depends_on with Healthcheck
+## depends_on do Docker Compose com Healthcheck
 ```yaml
 services:
   postgres:
@@ -27,13 +27,13 @@ services:
         condition: service_healthy
 ```
 
-## Application-Level Readiness
-- Don't rely solely on container health — check actual connectivity
-- Retry with exponential backoff on startup
-- Readiness probe vs liveness probe: readiness = "ready to serve", liveness = "not crashed"
+## Readiness em Nível de Aplicação
+- Não dependa apenas do health do container — verifique a conectividade real
+- Faça retry com exponential backoff na inicialização
+- Readiness probe vs liveness probe: readiness = "pronto para servir", liveness = "não travou"
 
-## Common Patterns
-| Service | Health Check |
+## Padrões Comuns
+| Serviço | Health Check |
 |---------|-------------|
 | PostgreSQL | `pg_isready` |
 | MongoDB | `mongosh --eval "db.runCommand('ping')"` |

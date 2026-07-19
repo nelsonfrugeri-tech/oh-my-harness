@@ -2,43 +2,43 @@
 version: 1.0.0
 name: observability
 description: |
-  Observability tooling knowledge base (2026). Covers OpenTelemetry SDK configuration (Python and
-  TypeScript), span management and context propagation, auto-instrumentation, Prometheus recording
-  rules and SLO alerting, Grafana dashboard templates (RED, USE, Four Golden Signals), Jaeger trace
-  analysis, structlog + OTel context correlation, Langfuse for LLM observability (traces, scores,
-  cost tracking), alerting strategies (multi-window multi-burn-rate), and cost optimization for
-  telemetry pipelines.
-  Use when: (1) Instrumenting applications with OpenTelemetry, (2) Setting up Prometheus/Grafana,
-  (3) Analyzing traces in Jaeger, (4) Monitoring LLM costs with Langfuse, (5) Writing alert rules.
+  Base de conhecimento de ferramentas de observabilidade (2026). Cobre a configuração do SDK do
+  OpenTelemetry (Python e TypeScript), gestão de spans e propagação de contexto, auto-instrumentação,
+  recording rules do Prometheus e alerting de SLO, templates de dashboard do Grafana (RED, USE, Four
+  Golden Signals), análise de traces no Jaeger, correlação de contexto structlog + OTel, Langfuse para
+  observabilidade de LLM (traces, scores, rastreamento de custo), estratégias de alerting (multi-window
+  multi-burn-rate) e otimização de custo para pipelines de telemetria.
+  Use quando: (1) Instrumentar aplicações com OpenTelemetry, (2) Configurar Prometheus/Grafana,
+  (3) Analisar traces no Jaeger, (4) Monitorar custos de LLM com Langfuse, (5) Escrever regras de alerta.
   Triggers: /observability, OpenTelemetry, Prometheus, Grafana, Jaeger, Langfuse, tracing, metrics.
 type: knowledge
 ---
 
-# Observability — Knowledge Base
+# Observability — Base de Conhecimento
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for observability tooling (2026).
-It covers the instrumentation layer: how to configure OpenTelemetry, write Prometheus rules,
-build Grafana dashboards, trace with Jaeger, and monitor LLM applications with Langfuse.
+Esta skill é a base de conhecimento para ferramentas de observabilidade (2026).
+Ela cobre a camada de instrumentação: como configurar o OpenTelemetry, escrever regras do Prometheus,
+construir dashboards no Grafana, fazer tracing com Jaeger e monitorar aplicações de LLM com Langfuse.
 
-**What this skill contains:**
-- OpenTelemetry SDK setup (Python and TypeScript)
-- Span management, context propagation, sampling
-- Auto-instrumentation (FastAPI, httpx, sqlalchemy, Next.js)
-- Prometheus recording rules and alert rules
-- SLO-based alerting (multi-window multi-burn-rate)
-- Grafana dashboard patterns (RED, USE, Four Golden Signals)
-- Jaeger trace analysis
-- structlog + OTel context correlation
-- Langfuse for LLM observability
-- Cost optimization for observability pipelines
+**O que esta skill contém:**
+- Setup do SDK OpenTelemetry (Python e TypeScript)
+- Gestão de spans, propagação de contexto, sampling
+- Auto-instrumentação (FastAPI, httpx, sqlalchemy, Next.js)
+- Recording rules e alert rules do Prometheus
+- Alerting baseado em SLO (multi-window multi-burn-rate)
+- Padrões de dashboard do Grafana (RED, USE, Four Golden Signals)
+- Análise de traces no Jaeger
+- Correlação de contexto structlog + OTel
+- Langfuse para observabilidade de LLM
+- Otimização de custo para pipelines de observabilidade
 
 ---
 
 ## 1. OpenTelemetry — Python
 
-### SDK Setup
+### Setup do SDK
 
 ```python
 # otel_setup.py
@@ -86,7 +86,7 @@ def configure_telemetry(
     metrics.set_meter_provider(meter_provider)
 ```
 
-### Auto-Instrumentation (FastAPI + httpx + SQLAlchemy)
+### Auto-Instrumentação (FastAPI + httpx + SQLAlchemy)
 
 ```python
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
@@ -105,7 +105,7 @@ def instrument_app(app: FastAPI, engine: Engine) -> None:
     RedisInstrumentor().instrument()
 ```
 
-### Manual Instrumentation
+### Instrumentação Manual
 
 ```python
 tracer = trace.get_tracer(__name__)
@@ -135,7 +135,7 @@ async def process_order(order_id: str, user_id: str) -> OrderResult:
             raise
 ```
 
-### Context Propagation Across Services
+### Propagação de Contexto Entre Serviços
 
 ```python
 import httpx
@@ -163,7 +163,7 @@ def extract_context_from_request(request: Request) -> context.Context:
 
 ## 2. OpenTelemetry — TypeScript/Node.js
 
-### SDK Setup
+### Setup do SDK
 
 ```typescript
 // otel.ts — must be imported BEFORE all other modules
@@ -201,7 +201,7 @@ sdk.start();
 process.on("SIGTERM", () => sdk.shutdown());
 ```
 
-### Manual Spans (TypeScript)
+### Spans Manuais (TypeScript)
 
 ```typescript
 import { trace, SpanStatusCode } from "@opentelemetry/api";
@@ -235,7 +235,7 @@ async function processCheckout(cartId: string, userId: string): Promise<Checkout
 
 ---
 
-## 3. structlog + OTel Context Correlation
+## 3. Correlação de Contexto structlog + OTel
 
 ```python
 import structlog
@@ -274,7 +274,7 @@ logger.info("order_created", order_id="ord_123", total=99.99)
 
 ## 4. Prometheus
 
-### Recording Rules (pre-compute expensive queries)
+### Recording Rules (pré-computa queries caras)
 
 ```yaml
 # prometheus/rules/recording-rules.yaml
@@ -308,7 +308,7 @@ groups:
           sum(rate(http_requests_total[1h])) by (job)
 ```
 
-### Instrumentation in Python (prometheus-client)
+### Instrumentação em Python (prometheus-client)
 
 ```python
 from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
@@ -353,9 +353,9 @@ async def prometheus_middleware(request: Request, call_next: Callable) -> Respon
 
 ---
 
-## 5. Grafana Dashboards
+## 5. Dashboards do Grafana
 
-### Service Overview Dashboard Structure
+### Estrutura do Dashboard de Visão Geral do Serviço
 
 ```
 Row 1: SLO Status
@@ -379,7 +379,7 @@ Row 4: Dependencies
   Panel: External API error rate (graph)
 ```
 
-### Recommended PromQL for Dashboards
+### PromQL Recomendado para Dashboards
 
 ```
 # Request rate (per second, 5m window)
@@ -403,9 +403,9 @@ histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by 
 
 ---
 
-## 6. Jaeger — Trace Analysis
+## 6. Jaeger — Análise de Traces
 
-### What to Look For in Traces
+### O Que Procurar nos Traces
 
 ```
 1. LATENCY HOTSPOTS
@@ -431,7 +431,7 @@ Tags to always add to spans:
   user.id (non-PII), request.id
 ```
 
-### Tail-Based Sampling Configuration
+### Configuração de Tail-Based Sampling
 
 ```yaml
 # otel-collector.yaml — route errors and slow traces to storage
@@ -454,7 +454,7 @@ processors:
 
 ---
 
-## 7. Langfuse — LLM Observability
+## 7. Langfuse — Observabilidade de LLM
 
 ### Setup (Python)
 
@@ -498,7 +498,7 @@ async def rag_query(question: str, user_id: str) -> str:
         return response.content[0].text
 ```
 
-### Evaluation Scores
+### Scores de Avaliação
 
 ```python
 # Submit quality scores after evaluation
@@ -524,7 +524,7 @@ langfuse.score(
 )
 ```
 
-### What to Track
+### O Que Rastrear
 
 ```
 Per trace:
@@ -545,9 +545,9 @@ Aggregated:
 
 ---
 
-## 8. Cost Optimization
+## 8. Otimização de Custo
 
-### Telemetry Cost Reduction
+### Redução de Custo de Telemetria
 
 ```
 SAMPLING STRATEGY
@@ -578,6 +578,6 @@ STORAGE
 - [references/grafana.md](references/grafana.md) — Grafana
 - [references/jaeger.md](references/jaeger.md) — Jaeger
 - [references/langfuse.md](references/langfuse.md) — Langfuse
-- [references/opentelemetry-instrumentation.md](references/opentelemetry-instrumentation.md) — OpenTelemetry SDK Instrumentation
-- [references/opentelemetry-setup.md](references/opentelemetry-setup.md) — OpenTelemetry Python Setup
+- [references/opentelemetry-instrumentation.md](references/opentelemetry-instrumentation.md) — Instrumentação do SDK OpenTelemetry
+- [references/opentelemetry-setup.md](references/opentelemetry-setup.md) — Setup do OpenTelemetry em Python
 - [references/prometheus.md](references/prometheus.md) — Prometheus

@@ -4,9 +4,9 @@ Zustand e a biblioteca recomendada para client state global em aplicacoes React.
 
 ---
 
-## Store Creation
+## Criação de Store
 
-### Basic Store
+### Store Básica
 
 ```typescript
 import { create } from "zustand";
@@ -39,7 +39,7 @@ function Counter() {
 }
 ```
 
-### Complex Store
+### Store Complexa
 
 ```typescript
 interface CartItem {
@@ -105,7 +105,7 @@ const useCartStore = create<CartStore>((set, get) => ({
 
 ## Selectors
 
-Selectors prevent unnecessary re-renders — component only re-renders when selected value changes:
+Selectors previnem re-renders desnecessários — o componente só re-renderiza quando o valor selecionado muda:
 
 ```typescript
 // GOOD — fine-grained selector
@@ -143,7 +143,7 @@ function CartSummary() {
 
 ## Middleware
 
-### persist — save to localStorage
+### persist — salvar no localStorage
 
 ```typescript
 import { create } from "zustand";
@@ -168,7 +168,7 @@ const useSettingsStore = create<SettingsStore>()(
 );
 ```
 
-### devtools — Redux DevTools integration
+### devtools — integração com Redux DevTools
 
 ```typescript
 import { devtools } from "zustand/middleware";
@@ -183,7 +183,7 @@ const useStore = create<MyStore>()(
 );
 ```
 
-### immer — immutable updates with mutable syntax
+### immer — updates imutáveis com sintaxe mutável
 
 ```typescript
 import { immer } from "zustand/middleware/immer";
@@ -214,7 +214,7 @@ const useTodoStore = create<TodoStore>()(
 );
 ```
 
-### Combining middleware
+### Combinando middleware
 
 ```typescript
 const useStore = create<MyStore>()(
@@ -288,7 +288,7 @@ const useUserStore = create<UserStore>((set, get) => ({
 
 ## Store Slicing
 
-Split large stores into slices:
+Divida stores grandes em slices:
 
 ```typescript
 interface AuthSlice {
@@ -331,7 +331,7 @@ const useAppStore = create<AppStore>()((...args) => ({
 
 ---
 
-## Testing Stores
+## Testando Stores
 
 ```typescript
 import { describe, it, expect, beforeEach } from "vitest";

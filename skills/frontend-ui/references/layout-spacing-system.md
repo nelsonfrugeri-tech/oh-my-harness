@@ -1,22 +1,22 @@
-# Spacing System — 8px Grid & Token Architecture
+# Sistema de Espaçamento — Grade de 8px e Arquitetura de Tokens
 
-## The 8px Grid
+## A Grade de 8px
 
-The 8px grid is the industry standard spacing system. All spacing values are
-multiples of 8px (with 4px for micro-adjustments).
+A grade de 8px é o sistema de espaçamento padrão do mercado. Todos os valores de
+espaçamento são múltiplos de 8px (com 4px para microajustes).
 
-### Why 8?
+### Por Que 8?
 
-- Divides cleanly: 8 / 2 = 4, 8 / 4 = 2
-- Scales cleanly: 8, 16, 24, 32, 40, 48, 56, 64
-- Works with common screen resolutions (divisible into most pixel grids)
-- Adopted by Material Design, Apple HIG, most design systems
+- Divide de forma limpa: 8 / 2 = 4, 8 / 4 = 2
+- Escala de forma limpa: 8, 16, 24, 32, 40, 48, 56, 64
+- Funciona com resoluções de tela comuns (divisível na maioria das grades de pixel)
+- Adotada pelo Material Design, Apple HIG e pela maioria dos design systems
 
 ---
 
-## Spacing Scale
+## Escala de Espaçamento
 
-### Complete Token System
+### Sistema de Tokens Completo
 
 ```css
 :root {
@@ -48,40 +48,40 @@ multiples of 8px (with 4px for micro-adjustments).
 }
 ```
 
-### Tailwind Mapping
+### Mapeamento do Tailwind
 
-Tailwind's spacing scale maps directly to this system:
+A escala de espaçamento do Tailwind mapeia diretamente para este sistema:
 
-| Tailwind | Value | Pixels | Use Case |
+| Tailwind | Valor | Pixels | Caso de Uso |
 |----------|-------|--------|----------|
-| `p-0.5` | 0.125rem | 2px | Micro: badge padding |
-| `p-1` | 0.25rem | 4px | Micro: icon gap, inline spacing |
-| `p-2` | 0.5rem | 8px | Small: tight padding |
-| `p-3` | 0.75rem | 12px | Small: compact components |
-| `p-4` | 1rem | 16px | Standard: component padding |
-| `p-5` | 1.25rem | 20px | Medium: comfortable padding |
-| `p-6` | 1.5rem | 24px | Medium: card padding |
-| `p-8` | 2rem | 32px | Large: section inner padding |
-| `p-10` | 2.5rem | 40px | Large: generous padding |
-| `p-12` | 3rem | 48px | XL: section padding |
-| `p-16` | 4rem | 64px | XXL: hero padding |
-| `p-20` | 5rem | 80px | Page-level spacing |
-| `p-24` | 6rem | 96px | Major section breaks |
+| `p-0.5` | 0.125rem | 2px | Micro: padding de badge |
+| `p-1` | 0.25rem | 4px | Micro: espaço entre ícones, espaçamento inline |
+| `p-2` | 0.5rem | 8px | Pequeno: padding compacto |
+| `p-3` | 0.75rem | 12px | Pequeno: componentes compactos |
+| `p-4` | 1rem | 16px | Padrão: padding de componente |
+| `p-5` | 1.25rem | 20px | Médio: padding confortável |
+| `p-6` | 1.5rem | 24px | Médio: padding de card |
+| `p-8` | 2rem | 32px | Grande: padding interno de seção |
+| `p-10` | 2.5rem | 40px | Grande: padding generoso |
+| `p-12` | 3rem | 48px | XL: padding de seção |
+| `p-16` | 4rem | 64px | XXL: padding de hero |
+| `p-20` | 5rem | 80px | Espaçamento em nível de página |
+| `p-24` | 6rem | 96px | Grandes quebras de seção |
 
 ---
 
-## Naming Conventions
+## Convenções de Nomenclatura
 
-### Numeric (Tailwind style)
+### Numérica (estilo Tailwind)
 
 ```css
 --space-1, --space-2, --space-4, --space-8, --space-16
 ```
 
-**Pros:** Direct mapping to pixel values, familiar to Tailwind users.
-**Cons:** Not semantic, hard to know when to use which.
+**Prós:** Mapeamento direto para valores em pixel, familiar para usuários do Tailwind.
+**Contras:** Não é semântico, difícil saber quando usar cada um.
 
-### T-Shirt Sizing
+### Tamanhos de Camiseta (T-Shirt Sizing)
 
 ```css
 --space-xs:  0.25rem;  /* 4px */
@@ -93,10 +93,10 @@ Tailwind's spacing scale maps directly to this system:
 --space-3xl: 4rem;     /* 64px */
 ```
 
-**Pros:** Easy to remember, semantic intent.
-**Cons:** Limited granularity, can't express 12px vs 16px.
+**Prós:** Fácil de lembrar, intenção semântica.
+**Contras:** Granularidade limitada, não consegue expressar 12px vs 16px.
 
-### Semantic (Recommended for design systems)
+### Semântica (Recomendada para design systems)
 
 ```css
 /* Component-level tokens */
@@ -125,9 +125,9 @@ Tailwind's spacing scale maps directly to this system:
 
 ---
 
-## Vertical Rhythm
+## Ritmo Vertical
 
-Vertical rhythm means consistent spacing between elements to create visual harmony.
+Ritmo vertical significa espaçamento consistente entre elementos para criar harmonia visual.
 
 ```css
 /* Base line height determines the rhythm unit */
@@ -145,7 +145,7 @@ ul { margin-bottom: var(--rhythm); }               /* 24px */
 section + section { margin-top: calc(var(--rhythm) * 3); } /* 72px */
 ```
 
-### Prose Spacing with Tailwind
+### Espaçamento de Prosa com Tailwind
 
 ```tsx
 <article className="prose prose-lg">
@@ -159,9 +159,9 @@ section + section { margin-top: calc(var(--rhythm) * 3); } /* 72px */
 
 ---
 
-## Consistent Component Spacing
+## Espaçamento Consistente de Componentes
 
-### Card Component Example
+### Exemplo de Componente Card
 
 ```tsx
 function Card({ title, description, children }: CardProps) {
@@ -184,7 +184,7 @@ function Card({ title, description, children }: CardProps) {
 }
 ```
 
-### Spacing Patterns
+### Padrões de Espaçamento
 
 ```
 COMPONENT ANATOMY:
@@ -206,15 +206,15 @@ COMPONENT ANATOMY:
 
 ---
 
-## Rules
+## Regras
 
-1. **Never use arbitrary values** — always use the spacing scale
-2. **4px for micro** — icon padding, inline gaps, badge spacing
-3. **8px increments for everything else** — 8, 16, 24, 32, 48, 64
-4. **Padding > margin** — prefer padding inside containers over margin outside
-5. **`gap` > `margin`** — use CSS gap for consistent spacing in flex/grid
-6. **Consistent within components** — a card always uses the same padding
-7. **Scale up for larger screens** — use responsive spacing with container queries
+1. **Nunca use valores arbitrários** — sempre use a escala de espaçamento
+2. **4px para micro** — padding de ícone, espaços inline, espaçamento de badge
+3. **Incrementos de 8px para todo o resto** — 8, 16, 24, 32, 48, 64
+4. **Padding > margin** — prefira padding dentro dos contêineres a margin por fora
+5. **`gap` > `margin`** — use o gap do CSS para espaçamento consistente em flex/grid
+6. **Consistente dentro dos componentes** — um card sempre usa o mesmo padding
+7. **Escale para telas maiores** — use espaçamento responsivo com container queries
 
 ```css
 /* Using gap instead of margin (cleaner, no collapsing issues) */

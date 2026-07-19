@@ -1,12 +1,12 @@
-# OKLCH Color Space — In Depth
+# Espaço de Cores OKLCH — Em Profundidade
 
-## What is OKLCH?
+## O que é OKLCH?
 
-OKLCH (Oklab Lightness Chroma Hue) is a perceptually uniform color space designed by
-Bjorn Ottosson in 2020. It fixes the fundamental problems of HSL/HSV and has been adopted
-as the default color model in Tailwind CSS v4.
+OKLCH (Oklab Lightness Chroma Hue) é um espaço de cores perceptualmente uniforme projetado por
+Bjorn Ottosson em 2020. Ele corrige os problemas fundamentais do HSL/HSV e foi adotado
+como o modelo de cores padrão no Tailwind CSS v4.
 
-### Syntax
+### Sintaxe
 
 ```css
 /* oklch(Lightness Chroma Hue / Alpha) */
@@ -14,21 +14,21 @@ color: oklch(0.65 0.25 264);
 color: oklch(0.65 0.25 264 / 0.5); /* 50% opacity */
 ```
 
-### Parameters
+### Parâmetros
 
-| Parameter | Range | Description |
+| Parâmetro | Intervalo | Descrição |
 |-----------|-------|-------------|
-| **L** (Lightness) | 0 - 1 | 0 = black, 1 = white. Perceptually linear. |
-| **C** (Chroma) | 0 - ~0.4 | 0 = gray, higher = more vivid. Max depends on gamut. |
-| **H** (Hue) | 0 - 360 | Color wheel angle. 0=pink, 90=yellow, 180=cyan, 264=blue |
+| **L** (Lightness) | 0 - 1 | 0 = preto, 1 = branco. Perceptualmente linear. |
+| **C** (Chroma) | 0 - ~0.4 | 0 = cinza, maior = mais vívido. O máximo depende do gamut. |
+| **H** (Hue) | 0 - 360 | Ângulo da roda de cores. 0=rosa, 90=amarelo, 180=ciano, 264=azul |
 
 ---
 
-## Why OKLCH is Better Than HSL
+## Por que OKLCH é Melhor que HSL
 
-### The Perceptual Uniformity Problem
+### O Problema da Uniformidade Perceptual
 
-HSL claims `lightness: 50%` means "medium brightness" for any hue. This is a lie.
+O HSL afirma que `lightness: 50%` significa "brilho médio" para qualquer matiz. Isso é mentira.
 
 ```css
 /* HSL: these are both "50% lightness" but look completely different */
@@ -40,15 +40,15 @@ HSL claims `lightness: 50%` means "medium brightness" for any hue. This is a lie
 .blue   { color: oklch(0.65 0.25 264); } /* Same medium brightness */
 ```
 
-This matters enormously for:
-- **Generating palettes**: shade scales are visually consistent
-- **Dark mode**: lightness inversion actually works
-- **Accessibility**: contrast calculations are meaningful
+Isso importa enormemente para:
+- **Gerar paletas**: as escalas de tonalidade são visualmente consistentes
+- **Dark mode**: a inversão de lightness realmente funciona
+- **Acessibilidade**: os cálculos de contraste fazem sentido
 
-### P3 Gamut Support
+### Suporte ao Gamut P3
 
-OKLCH can represent colors outside sRGB, in the wider P3 gamut that modern
-Apple displays, newer Android phones, and many monitors support.
+OKLCH consegue representar cores fora do sRGB, no gamut P3 mais amplo que as telas
+Apple modernas, os celulares Android mais recentes e muitos monitores suportam.
 
 ```css
 /* sRGB max blue — this is the most vivid blue HSL can do */
@@ -69,25 +69,25 @@ Apple displays, newer Android phones, and many monitors support.
 }
 ```
 
-### Comparison Table
+### Tabela Comparativa
 
-| Feature | RGB/Hex | HSL | OKLCH |
+| Recurso | RGB/Hex | HSL | OKLCH |
 |---------|---------|-----|-------|
-| Human readable | No | Somewhat | Yes |
-| Perceptually uniform | No | No | Yes |
-| P3 gamut | No | No | Yes |
-| Dark mode friendly | No | No | Yes |
-| Palette generation | Hard | Inconsistent | Consistent |
-| Browser support (2026) | Full | Full | Full (96%+) |
-| Tailwind v4 native | No | Legacy | Default |
+| Legível por humanos | Não | Mais ou menos | Sim |
+| Perceptualmente uniforme | Não | Não | Sim |
+| Gamut P3 | Não | Não | Sim |
+| Amigável a dark mode | Não | Não | Sim |
+| Geração de paletas | Difícil | Inconsistente | Consistente |
+| Suporte de navegadores (2026) | Total | Total | Total (96%+) |
+| Nativo no Tailwind v4 | Não | Legado | Padrão |
 
 ---
 
-## Generating Palettes with OKLCH
+## Gerando Paletas com OKLCH
 
-### The Simple Method: Fix C and H, Vary L
+### O Método Simples: Fixe C e H, Varie L
 
-To create a shade scale (50-950), keep Chroma and Hue constant, vary Lightness:
+Para criar uma escala de tonalidade (50-950), mantenha Chroma e Hue constantes e varie a Lightness:
 
 ```css
 :root {
@@ -106,10 +106,10 @@ To create a shade scale (50-950), keep Chroma and Hue constant, vary Lightness:
 }
 ```
 
-### Advanced: Chroma Curve
+### Avançado: Curva de Chroma
 
-In reality, the most vivid chroma happens at mid-lightness. For a natural-looking
-palette, increase chroma in the middle and decrease at extremes:
+Na prática, o chroma mais vívido acontece na lightness intermediária. Para uma
+paleta de aparência natural, aumente o chroma no meio e diminua nos extremos:
 
 ```css
 :root {
@@ -128,7 +128,7 @@ palette, increase chroma in the middle and decrease at extremes:
 }
 ```
 
-### Complete Brand Palette Template
+### Template Completo de Paleta de Marca
 
 ```css
 :root {
@@ -155,10 +155,10 @@ palette, increase chroma in the middle and decrease at extremes:
 
 ---
 
-## Tailwind v4 OKLCH Integration
+## Integração OKLCH no Tailwind v4
 
-Tailwind v4 uses OKLCH internally for its default palette. Your `@theme` directive
-should use OKLCH for consistency:
+O Tailwind v4 usa OKLCH internamente para sua paleta padrão. Sua diretiva `@theme`
+deve usar OKLCH para manter a consistência:
 
 ```css
 @import "tailwindcss";
@@ -179,7 +179,7 @@ should use OKLCH for consistency:
 }
 ```
 
-In components:
+Nos componentes:
 ```tsx
 <button className="bg-primary text-primary-foreground hover:bg-primary/90">
   Click me
@@ -188,28 +188,28 @@ In components:
 
 ---
 
-## Tools and Resources
+## Ferramentas e Recursos
 
-| Tool | URL | Purpose |
+| Ferramenta | URL | Propósito |
 |------|-----|---------|
-| **OKLCH Color Picker** | https://oklch.com | Interactive OKLCH picker with gamut visualization |
-| **Realtime Colors** | https://www.realtimecolors.com | Full palette generator with dark mode preview |
-| **Radix Colors** | https://www.radix-ui.com/colors | Pre-made OKLCH-compatible palettes |
-| **Huetone** | https://huetone.ardov.me | Design palette scales with perceptual uniformity |
-| **Color.js** | https://colorjs.io | JavaScript library for OKLCH manipulation |
-| **Open Props** | https://open-props.style | CSS custom properties including OKLCH colors |
+| **OKLCH Color Picker** | https://oklch.com | Seletor OKLCH interativo com visualização de gamut |
+| **Realtime Colors** | https://www.realtimecolors.com | Gerador completo de paletas com preview de dark mode |
+| **Radix Colors** | https://www.radix-ui.com/colors | Paletas prontas compatíveis com OKLCH |
+| **Huetone** | https://huetone.ardov.me | Crie escalas de paleta com uniformidade perceptual |
+| **Color.js** | https://colorjs.io | Biblioteca JavaScript para manipulação de OKLCH |
+| **Open Props** | https://open-props.style | Propriedades CSS customizadas, incluindo cores OKLCH |
 
 ---
 
-## Browser Support
+## Suporte de Navegadores
 
-As of 2026, OKLCH has **96%+ global support**:
+Em 2026, OKLCH tem **96%+ de suporte global**:
 - Chrome 111+ (March 2023)
 - Firefox 113+ (May 2023)
 - Safari 15.4+ (March 2022)
 - Edge 111+ (March 2023)
 
-For the rare case you need a fallback:
+Para o caso raro em que você precisa de um fallback:
 ```css
 .element {
   /* Fallback for ancient browsers */
@@ -221,21 +221,21 @@ For the rare case you need a fallback:
 
 ---
 
-## Common Hue Values Reference
+## Referência de Valores Comuns de Hue
 
-| Hue | Color | Common Use |
+| Hue | Cor | Uso Comum |
 |-----|-------|-----------|
-| 0 | Pink/Red | Danger, love |
-| 25 | Red/Orange | Error, destructive |
-| 50 | Orange | Warning |
-| 75 | Amber/Yellow | Caution, highlight |
-| 90 | Yellow | Attention |
-| 120 | Lime | Growth |
-| 150 | Green | Success, positive |
-| 180 | Teal/Cyan | Info, fresh |
-| 210 | Sky Blue | Calm, links |
-| 240 | Blue | Primary, trust |
-| 264 | Indigo/Blue | Primary, brand |
-| 290 | Purple | Creative, premium |
-| 320 | Magenta | Accent |
-| 340 | Pink | Playful, feminine |
+| 0 | Rosa/Vermelho | Perigo, amor |
+| 25 | Vermelho/Laranja | Erro, destrutivo |
+| 50 | Laranja | Aviso |
+| 75 | Âmbar/Amarelo | Cautela, destaque |
+| 90 | Amarelo | Atenção |
+| 120 | Lima | Crescimento |
+| 150 | Verde | Sucesso, positivo |
+| 180 | Verde-azulado/Ciano | Informação, fresco |
+| 210 | Azul-céu | Calma, links |
+| 240 | Azul | Primário, confiança |
+| 264 | Índigo/Azul | Primário, marca |
+| 290 | Roxo | Criativo, premium |
+| 320 | Magenta | Destaque |
+| 340 | Rosa | Divertido, feminino |

@@ -142,7 +142,7 @@ type AdminRole = Extract<User["role"], "admin">; // "admin"
 type NonAdminRole = Exclude<User["role"], "admin">; // "user"
 ```
 
-### Composing Utility Types
+### Compondo Utility Types
 
 ```typescript
 // Create a type for API response that makes 'id' required but everything else partial
@@ -156,7 +156,7 @@ type UserUpdate = ApiUpdate<User>;
 
 ## Discriminated Unions
 
-Discriminated unions use a shared literal property to distinguish between variants:
+Discriminated unions usam uma propriedade literal compartilhada para distinguir entre variantes:
 
 ```typescript
 // Event system with discriminated unions
@@ -188,7 +188,7 @@ function handleEvent(event: AppEvent): void {
 }
 ```
 
-### Pattern: Result Type
+### Padrão: Result Type
 
 ```typescript
 type Result<T, E = string> =
@@ -249,7 +249,7 @@ interface DivProps {
 
 ## satisfies Operator
 
-`satisfies` validates a type WITHOUT widening it — you keep the narrow literal type:
+`satisfies` valida um tipo SEM alargá-lo — você mantém o literal type estreito:
 
 ```typescript
 // Without satisfies — type is widened
@@ -282,7 +282,7 @@ const config = {
 
 ## const Assertions
 
-`as const` makes values deeply readonly and preserves literal types:
+`as const` torna valores profundamente readonly e preserva literal types:
 
 ```typescript
 // Without as const
@@ -317,7 +317,7 @@ type Direction = (typeof Direction)[keyof typeof Direction];
 
 ## Branded Types
 
-Branded types prevent accidental mixing of structurally identical types:
+Branded types previnem a mistura acidental de tipos estruturalmente idênticos:
 
 ```typescript
 // Declare brand symbols

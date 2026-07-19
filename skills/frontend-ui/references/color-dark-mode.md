@@ -1,18 +1,18 @@
-# Dark Mode — Design-First Approach
+# Dark Mode — Abordagem Design-First
 
-## Philosophy: Dark-First
+## Filosofia: Dark-First
 
-Design for dark mode FIRST, then adapt to light. Why?
-- Dark is harder to get right (contrast, readability, eye strain)
-- If it looks great in dark, adapting to light is straightforward
-- Most developer tools, creative apps, and modern SaaS default to dark
-- OKLCH makes the adaptation trivial via L-axis inversion
+Projete para dark mode PRIMEIRO e só então adapte para o modo claro. Por quê?
+- Dark mode é mais difícil de acertar (contraste, legibilidade, cansaço visual)
+- Se fica ótimo no escuro, adaptar para o claro é simples
+- A maioria das ferramentas de desenvolvimento, apps criativos e SaaS modernos tem dark mode como padrão
+- OKLCH torna a adaptação trivial via inversão do eixo L
 
 ---
 
-## OKLCH Lightness Inversion
+## Inversão de Lightness em OKLCH
 
-The core technique: in dark mode, invert the L (lightness) axis of your tokens.
+A técnica central: no dark mode, inverta o eixo L (lightness) dos seus tokens.
 
 ```
 Light mode: L = 0.95 (light bg)    -> Dark mode: L = 0.13 (dark bg)
@@ -20,7 +20,7 @@ Light mode: L = 0.15 (dark text)   -> Dark mode: L = 0.93 (light text)
 Light mode: L = 0.65 (primary)     -> Dark mode: L = 0.70 (slightly brighter primary)
 ```
 
-### Implementation
+### Implementação
 
 ```css
 :root {
@@ -52,9 +52,9 @@ Light mode: L = 0.65 (primary)     -> Dark mode: L = 0.70 (slightly brighter pri
 
 ---
 
-## Tailwind dark: Variant
+## Variante dark: do Tailwind
 
-Tailwind provides the `dark:` variant. Combine with CSS custom properties:
+O Tailwind oferece a variante `dark:`. Combine-a com CSS custom properties:
 
 ```css
 /* app.css */
@@ -77,7 +77,7 @@ Tailwind provides the `dark:` variant. Combine with CSS custom properties:
 </div>
 ```
 
-### Theme Toggle Implementation
+### Implementação do Theme Toggle
 
 ```tsx
 "use client";
@@ -147,9 +147,9 @@ export function ThemeToggle() {
 
 ---
 
-## Common Dark Mode Mistakes
+## Erros Comuns em Dark Mode
 
-### 1. Pure Black Background
+### 1. Fundo Preto Puro
 
 ```css
 /* BAD: pure black is harsh and unnatural */
@@ -163,7 +163,7 @@ export function ThemeToggle() {
 }
 ```
 
-### 2. Too Much Contrast
+### 2. Contraste Excessivo
 
 ```css
 /* BAD: white text on black is fatiguing */
@@ -179,10 +179,10 @@ export function ThemeToggle() {
 }
 ```
 
-### 3. Forgetting Elevation
+### 3. Esquecer da Elevação
 
-In light mode, elevation is shown via shadows. In dark mode, shadows are invisible
-against dark backgrounds. Use lighter surfaces instead:
+No modo claro, a elevação é indicada por sombras. No dark mode, sombras ficam invisíveis
+contra fundos escuros. Use superfícies mais claras no lugar:
 
 ```css
 /* Light mode: elevation via shadow */
@@ -198,7 +198,7 @@ against dark backgrounds. Use lighter surfaces instead:
 }
 ```
 
-### 4. Colored Backgrounds Too Saturated
+### 4. Fundos Coloridos Saturados Demais
 
 ```css
 /* BAD: saturated colors are blinding on dark backgrounds */
@@ -212,12 +212,12 @@ against dark backgrounds. Use lighter surfaces instead:
 }
 ```
 
-### 5. Not Testing Images and Illustrations
+### 5. Não Testar Imagens e Ilustrações
 
-Images designed for light mode can look jarring on dark. Solutions:
-- Add subtle borders around images
-- Reduce brightness of illustrations with a CSS filter
-- Provide dark-mode variants for key illustrations
+Imagens projetadas para o modo claro podem destoar no escuro. Soluções:
+- Adicionar bordas sutis ao redor das imagens
+- Reduzir o brilho das ilustrações com um filtro CSS
+- Fornecer variantes em dark mode para ilustrações importantes
 
 ```css
 [data-theme="dark"] img:not([data-theme-aware]) {
@@ -227,17 +227,17 @@ Images designed for light mode can look jarring on dark. Solutions:
 
 ---
 
-## Contrast in Dark Mode
+## Contraste no Dark Mode
 
 ### APCA (Advanced Perceptual Contrast Algorithm)
 
-APCA is replacing WCAG 2 contrast ratios. Key differences:
-- Polarity-aware: light-on-dark has different thresholds than dark-on-light
-- More accurate for real-world perception
-- Recommended minimums:
-  - Body text: Lc 60 (light-on-dark) or Lc -60 (dark-on-light)
-  - Large text: Lc 45
-  - Non-text UI: Lc 30
+O APCA está substituindo as razões de contraste do WCAG 2. Principais diferenças:
+- Sensível à polaridade: claro-sobre-escuro tem limiares diferentes de escuro-sobre-claro
+- Mais preciso para a percepção no mundo real
+- Mínimos recomendados:
+  - Texto de corpo: Lc 60 (claro-sobre-escuro) ou Lc -60 (escuro-sobre-claro)
+  - Texto grande: Lc 45
+  - UI não textual: Lc 30
 
 ```css
 /* Test your dark mode tokens */
@@ -253,9 +253,9 @@ APCA is replacing WCAG 2 contrast ratios. Key differences:
 
 ---
 
-## Flash Prevention (SSR)
+## Prevenção de Flash (SSR)
 
-Prevent the "flash of wrong theme" on page load:
+Evite o "flash de tema errado" no carregamento da página:
 
 ```html
 <!-- In <head>, BEFORE any CSS loads -->
@@ -271,11 +271,11 @@ Prevent the "flash of wrong theme" on page load:
 </script>
 ```
 
-For Next.js, use the `next-themes` library which handles this automatically.
+Para Next.js, use a biblioteca `next-themes`, que cuida disso automaticamente.
 
 ---
 
-## Complete Light/Dark Token Setup
+## Configuração Completa de Tokens Light/Dark
 
-See [semantic-tokens.md](semantic-tokens.md) for the full two-tier token system
-with both light and dark mode definitions.
+Consulte [semantic-tokens.md](semantic-tokens.md) para o sistema completo de tokens em dois níveis,
+com definições tanto para o modo claro quanto para o dark mode.

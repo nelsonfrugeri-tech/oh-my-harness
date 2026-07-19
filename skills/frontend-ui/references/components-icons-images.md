@@ -1,11 +1,11 @@
-# Icons & Images — Lucide, Optimization & Best Practices
+# Ícones e Imagens — Lucide, Otimização e Boas Práticas
 
-## Icon Libraries
+## Bibliotecas de Ícones
 
-### Lucide (Default Choice)
+### Lucide (Escolha Padrão)
 
-Lucide is the community fork of Feather Icons with 1500+ icons, consistent
-stroke-based design, and excellent React/Vue/Svelte integrations.
+O Lucide é o fork comunitário do Feather Icons, com mais de 1500 ícones, design
+baseado em traço (stroke) consistente e excelentes integrações com React/Vue/Svelte.
 
 ```tsx
 import { Search, Menu, X, ChevronRight, Star, Heart } from "lucide-react";
@@ -35,17 +35,17 @@ function Icon({ icon: IconComponent, size = 16, className }: IconProps) {
 <Icon icon={Search} size={20} className="text-muted-foreground" />
 ```
 
-### Size Guidelines
+### Diretrizes de Tamanho
 
-| Context | Size | Tailwind | strokeWidth |
+| Contexto | Tamanho | Tailwind | strokeWidth |
 |---------|------|----------|-------------|
-| Inline with text | 16px | `size-4` | 1.5-2 |
-| Button icon | 16-18px | `size-4` | 1.5 |
-| Navigation | 20px | `size-5` | 1.5 |
-| Feature card | 24px | `size-6` | 1.5 |
-| Hero/empty state | 32-48px | `size-8` to `size-12` | 1-1.5 |
+| Alinhado com o texto | 16px | `size-4` | 1.5-2 |
+| Ícone de botão | 16-18px | `size-4` | 1.5 |
+| Navegação | 20px | `size-5` | 1.5 |
+| Card de destaque | 24px | `size-6` | 1.5 |
+| Hero/estado vazio | 32-48px | `size-8` a `size-12` | 1-1.5 |
 
-### Icon + Text Alignment
+### Alinhamento de Ícone + Texto
 
 ```tsx
 // Always use flex + gap for icon-text alignment
@@ -61,16 +61,16 @@ function Icon({ icon: IconComponent, size = 16, className }: IconProps) {
 </button>
 ```
 
-### Alternative Icon Sets
+### Conjuntos de Ícones Alternativos
 
-| Library | Icons | Style | When to Use |
+| Biblioteca | Ícones | Estilo | Quando Usar |
 |---------|-------|-------|-------------|
-| **Lucide** | 1500+ | Stroke, consistent | Default for most projects |
-| **Phosphor** | 9000+ | Multiple weights (thin/light/regular/bold/fill/duotone) | When you need the most flexibility |
-| **Heroicons** | 300+ | Outline + Solid | Tailwind ecosystem, minimal set |
-| **Tabler Icons** | 5000+ | Stroke | Large set, open source |
+| **Lucide** | 1500+ | Traço, consistente | Padrão para a maioria dos projetos |
+| **Phosphor** | 9000+ | Múltiplos pesos (thin/light/regular/bold/fill/duotone) | Quando você precisa de máxima flexibilidade |
+| **Heroicons** | 300+ | Outline + Solid | Ecossistema Tailwind, conjunto minimalista |
+| **Tabler Icons** | 5000+ | Traço | Conjunto grande, open source |
 
-### Phosphor Example (When Lucide is Not Enough)
+### Exemplo com Phosphor (Quando o Lucide Não Basta)
 
 ```tsx
 import { MagnifyingGlass, House, Gear } from "@phosphor-icons/react";
@@ -83,9 +83,9 @@ import { MagnifyingGlass, House, Gear } from "@phosphor-icons/react";
 
 ---
 
-## Inline SVG Pattern
+## Padrão de SVG Inline
 
-For custom icons not in any library, use inline SVG components:
+Para ícones personalizados que não existem em nenhuma biblioteca, use componentes SVG inline:
 
 ```tsx
 interface SvgIconProps extends React.SVGProps<SVGSVGElement> {
@@ -115,18 +115,18 @@ function CustomLogo({ size = 24, ...props }: SvgIconProps) {
 
 ---
 
-## Image Optimization
+## Otimização de Imagens
 
-### Format Priority: AVIF > WebP > JPEG
+### Prioridade de Formato: AVIF > WebP > JPEG
 
-| Format | Size vs JPEG | Quality | Browser Support (2026) |
+| Formato | Tamanho vs JPEG | Qualidade | Suporte dos Navegadores (2026) |
 |--------|-------------|---------|----------------------|
-| **AVIF** | 50-60% smaller | Excellent | 95%+ |
-| **WebP** | 25-35% smaller | Excellent | 98%+ |
-| **JPEG** | Baseline | Good | 100% |
-| **PNG** | Larger | Lossless | 100% (use for transparency if no WebP/AVIF) |
+| **AVIF** | 50-60% menor | Excelente | 95%+ |
+| **WebP** | 25-35% menor | Excelente | 98%+ |
+| **JPEG** | Referência (baseline) | Bom | 100% |
+| **PNG** | Maior | Sem perdas (lossless) | 100% (use para transparência quando não houver WebP/AVIF) |
 
-### picture Element Pattern
+### Padrão do Elemento picture
 
 ```tsx
 <picture>
@@ -144,7 +144,7 @@ function CustomLogo({ size = 24, ...props }: SvgIconProps) {
 </picture>
 ```
 
-### Responsive Images with srcset
+### Imagens Responsivas com srcset
 
 ```tsx
 <picture>
@@ -185,7 +185,7 @@ function CustomLogo({ size = 24, ...props }: SvgIconProps) {
 </picture>
 ```
 
-### Next.js Image Optimization
+### Otimização de Imagens no Next.js
 
 ```tsx
 import Image from "next/image";
@@ -251,7 +251,7 @@ function LazyImage({ src, alt, ...props }: ImageProps) {
 }
 ```
 
-### Image Build Pipeline with sharp
+### Pipeline de Build de Imagens com sharp
 
 ```ts
 // scripts/optimize-images.ts
@@ -283,14 +283,14 @@ for (const img of images) {
 
 ---
 
-## Alt Text Guidelines
+## Diretrizes de Texto Alternativo (Alt)
 
-| Image Type | Alt Text |
+| Tipo de Imagem | Texto Alternativo |
 |-----------|----------|
-| Informative (chart, photo) | Describe what it shows: `"Revenue chart showing 40% growth in Q3"` |
-| Decorative (background, separator) | Empty: `alt=""` |
-| Functional (icon button) | Describe action: `"Close dialog"` (via aria-label on button) |
-| Complex (infographic) | Brief alt + detailed description elsewhere |
+| Informativa (gráfico, foto) | Descreva o que ela mostra: `"Revenue chart showing 40% growth in Q3"` |
+| Decorativa (fundo, separador) | Vazio: `alt=""` |
+| Funcional (botão com ícone) | Descreva a ação: `"Close dialog"` (via aria-label no botão) |
+| Complexa (infográfico) | Alt breve + descrição detalhada em outro lugar |
 
 ```tsx
 // Informative image
@@ -307,12 +307,12 @@ for (const img of images) {
 
 ---
 
-## Rules
+## Regras
 
-1. **Lucide as default** — consistent, lightweight, well-maintained
-2. **AVIF first, WebP fallback, JPEG safety net** — use picture element
-3. **Always set width/height** — prevent layout shift (CLS)
-4. **loading="lazy" for below-fold** — priority for above-fold only
-5. **Meaningful alt text** — describe what the image communicates, not what it looks like
-6. **aria-hidden="true" on decorative icons** — screen readers skip them
-7. **strokeWidth={1.5}** as default for Lucide — cleaner than the default 2
+1. **Lucide como padrão** — consistente, leve, bem mantido
+2. **AVIF primeiro, WebP como fallback, JPEG como rede de segurança** — use o elemento picture
+3. **Sempre defina width/height** — evita layout shift (CLS)
+4. **loading="lazy" para conteúdo abaixo da dobra** — prioridade apenas para o que está acima da dobra
+5. **Texto alt significativo** — descreva o que a imagem comunica, não como ela se parece
+6. **aria-hidden="true" em ícones decorativos** — leitores de tela os ignoram
+7. **strokeWidth={1.5}** como padrão no Lucide — mais limpo que o valor padrão 2

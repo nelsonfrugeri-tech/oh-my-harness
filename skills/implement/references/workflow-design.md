@@ -1,14 +1,14 @@
-# Design Documentation
+# Documentação de Design
 
-## Scale to Task Size
+## Ajuste ao Tamanho da Tarefa
 
-### Trivial (< 1 hour)
-No artifact needed. Mental model is sufficient.
-Examples: rename variable, fix typo, update config value.
+### Trivial (< 1 hora)
+Nenhum artefato necessário. O modelo mental é suficiente.
+Exemplos: renomear variável, corrigir erro de digitação, atualizar valor de config.
 
-### Small (1-4 hours)
-Comment in the issue or a brief note.
-Examples: add a new endpoint, fix a bug, add validation.
+### Pequena (1-4 horas)
+Comentário na issue ou uma breve nota.
+Exemplos: adicionar um novo endpoint, corrigir um bug, adicionar validação.
 
 ```markdown
 ## Approach
@@ -18,9 +18,9 @@ Examples: add a new endpoint, fix a bug, add validation.
 - Return 204 on success
 ```
 
-### Medium (1-3 days)
-Brief design note with bullet points.
-Examples: new feature, significant refactor, new integration.
+### Média (1-3 dias)
+Breve nota de design com tópicos.
+Exemplos: nova funcionalidade, refatoração significativa, nova integração.
 
 ```markdown
 ## Design: {Feature Name}
@@ -44,20 +44,20 @@ Examples: new feature, significant refactor, new integration.
 {anything unresolved}
 ```
 
-### Large (1+ week)
-Full design document with diagrams.
-Examples: new service, architecture change, major feature.
+### Grande (1+ semana)
+Documento de design completo com diagramas.
+Exemplos: novo serviço, mudança de arquitetura, funcionalidade grande.
 
-Include everything from Medium plus:
-- Architecture diagram
-- Sequence diagrams for key flows
-- Migration plan (if changing existing systems)
-- Rollout plan (feature flags, gradual rollout)
-- Monitoring and alerting plan
+Inclua tudo da Média mais:
+- Diagrama de arquitetura
+- Diagramas de sequência para os fluxos principais
+- Plano de migração (se alterar sistemas existentes)
+- Plano de rollout (feature flags, rollout gradual)
+- Plano de monitoramento e alertas
 
-## Interface-First Design
+## Design Interface-First
 
-Always define the public interface before implementation:
+Sempre defina a interface pública antes da implementação:
 
 ```python
 # Define the contract first
@@ -76,4 +76,4 @@ interface OrderService {
 }
 ```
 
-This forces you to think about consumers before implementation.
+Isso força você a pensar nos consumidores antes da implementação.

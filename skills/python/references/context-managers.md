@@ -854,7 +854,7 @@ with cd("/tmp"):
 
 ---
 
-## Best Practices
+## Boas Práticas
 
 ✅ **Sempre use context managers para resources**
 ```python

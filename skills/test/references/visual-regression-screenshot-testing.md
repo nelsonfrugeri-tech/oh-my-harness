@@ -1,6 +1,6 @@
-# Visual Regression Testing
+# Teste de Regressão Visual
 
-## Playwright Screenshots
+## Screenshots com Playwright
 ```javascript
 test('homepage visual', async ({ page }) => {
   await page.goto('/');
@@ -19,22 +19,22 @@ test('button states', async ({ page }) => {
 });
 ```
 
-## Update Baselines
+## Atualizar Baselines
 ```bash
 npx playwright test --update-snapshots
 ```
 
-## Tools Comparison
-| Tool | Type | Best for |
+## Comparação de Ferramentas
+| Ferramenta | Tipo | Melhor para |
 |------|------|----------|
-| Playwright screenshots | Built-in | Simple, no extra infra |
-| Percy (BrowserStack) | Cloud SaaS | Cross-browser, team review UI |
-| Chromatic (Storybook) | Cloud SaaS | Component libraries |
-| reg-suit | Self-hosted | Open-source, CI integration |
+| Playwright screenshots | Built-in | Simples, sem infra adicional |
+| Percy (BrowserStack) | Cloud SaaS | Cross-browser, UI de revisão em equipe |
+| Chromatic (Storybook) | Cloud SaaS | Bibliotecas de componentes |
+| reg-suit | Self-hosted | Open-source, integração com CI |
 
-## Best Practices
-- Test at component level (less flaky than full pages)
-- Consistent viewport size and fonts
-- Hide dynamic content (timestamps, ads)
-- Review diffs in CI before merging
-- Don't screenshot everything — focus on critical UI
+## Boas Práticas
+- Teste no nível de componente (menos flaky que páginas inteiras)
+- Tamanho de viewport e fontes consistentes
+- Oculte conteúdo dinâmico (timestamps, anúncios)
+- Revise os diffs no CI antes de fazer merge
+- Não tire screenshot de tudo — foque na UI crítica

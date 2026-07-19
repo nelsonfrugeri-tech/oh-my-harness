@@ -6,9 +6,9 @@ Patterns para hooks customizados em React 19+.
 
 ## Rules of Hooks
 
-1. Only call hooks at the top level (not inside loops, conditions, or nested functions)
-2. Only call hooks from React components or custom hooks
-3. Custom hooks must start with `use`
+1. Só chame hooks no top level (não dentro de loops, condições ou funções aninhadas)
+2. Só chame hooks de componentes React ou custom hooks
+3. Custom hooks devem começar com `use`
 
 ---
 
@@ -196,7 +196,7 @@ function Dropdown() {
 
 ## useEffect Cleanup
 
-Always clean up subscriptions, timers, and listeners:
+Sempre limpe subscriptions, timers e listeners:
 
 ```typescript
 function useWebSocket(url: string) {
@@ -259,7 +259,7 @@ function usePrevious<T>(value: T): T | undefined {
 
 ---
 
-## useReducer for Complex State
+## useReducer para Estado Complexo
 
 ```typescript
 interface FormState {
@@ -329,9 +329,9 @@ function useForm(initialValues: Record<string, string>) {
 
 ---
 
-## Hook Composition
+## Composição de Hooks
 
-Compose small hooks into larger ones:
+Componha hooks pequenos em outros maiores:
 
 ```typescript
 function useSearch<T>(
@@ -371,7 +371,7 @@ function useSearch<T>(
 
 ---
 
-## Testing Hooks
+## Testando Hooks
 
 ```typescript
 import { renderHook, act } from "@testing-library/react";

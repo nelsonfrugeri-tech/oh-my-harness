@@ -1,8 +1,8 @@
-# Database Setup Patterns
+# Padrões de Configuração de Banco de Dados
 
 ## PostgreSQL 18.4
 
-### Compose service
+### Serviço no Compose
 
 ```yaml
 postgres:
@@ -24,10 +24,10 @@ postgres:
     start_period: 10s
 ```
 
-### Init scripts
+### Scripts de inicialização
 
-Files in `/docker-entrypoint-initdb.d/` execute on first run only (alphabetical order).
-Supported formats: `.sql`, `.sql.gz`, `.sh`
+Os arquivos em `/docker-entrypoint-initdb.d/` são executados apenas na primeira execução (em ordem alfabética).
+Formatos suportados: `.sql`, `.sql.gz`, `.sh`
 
 ```sql
 -- 01-extensions.sql
@@ -50,7 +50,7 @@ CREATE INDEX idx_users_email ON users USING btree(email);
 CREATE INDEX idx_users_name_trgm ON users USING gin(name gin_trgm_ops);
 ```
 
-### Migrations (Alembic)
+### Migrações (Alembic)
 
 ```bash
 # Setup
@@ -71,13 +71,13 @@ alembic current
 alembic history
 ```
 
-### Connection string
+### String de conexão
 
 ```
 postgresql://user:password@host:5432/dbname
 ```
 
-### Useful psql commands
+### Comandos úteis do psql
 
 ```bash
 docker compose exec postgres psql -U ${DB_USER} -d ${DB_NAME}
@@ -93,7 +93,7 @@ docker compose exec postgres psql -U ${DB_USER} -d ${DB_NAME}
 
 ## MongoDB 8.2.3
 
-### Compose service
+### Serviço no Compose
 
 ```yaml
 mongo:
@@ -114,7 +114,7 @@ mongo:
     retries: 5
 ```
 
-### Init scripts
+### Scripts de inicialização
 
 ```javascript
 // 01-init.js
@@ -147,13 +147,13 @@ db.users.insertMany([
 ]);
 ```
 
-### Connection string
+### String de conexão
 
 ```
 mongodb://user:password@host:27017/dbname?authSource=admin
 ```
 
-### Useful mongosh commands
+### Comandos úteis do mongosh
 
 ```bash
 docker compose exec mongo mongosh -u ${MONGO_USER} -p ${MONGO_PASSWORD}
@@ -170,7 +170,7 @@ db.users.getIndexes()
 
 ## Redis 8.4.2
 
-### Compose service
+### Serviço no Compose
 
 ```yaml
 redis:
@@ -192,23 +192,23 @@ redis:
     retries: 5
 ```
 
-### Configuration options
+### Opções de configuração
 
-| Option | Value | Purpose |
+| Opção | Valor | Propósito |
 |--------|-------|---------|
-| `--appendonly yes` | AOF persistence | Durability (write log) |
-| `--maxmemory 256mb` | Memory limit | Prevent OOM |
-| `--maxmemory-policy allkeys-lru` | Eviction policy | Remove least recently used |
-| `--requirepass` | Password | Basic auth |
-| `--save 60 1000` | RDB snapshots | Snapshot every 60s if 1000+ writes |
+| `--appendonly yes` | Persistência AOF | Durabilidade (log de escrita) |
+| `--maxmemory 256mb` | Limite de memória | Evita OOM |
+| `--maxmemory-policy allkeys-lru` | Política de despejo | Remove os itens menos usados recentemente |
+| `--requirepass` | Senha | Autenticação básica |
+| `--save 60 1000` | Snapshots RDB | Snapshot a cada 60s se houver 1000+ escritas |
 
-### Connection string
+### String de conexão
 
 ```
 redis://:password@host:6379/0
 ```
 
-### Useful redis-cli commands
+### Comandos úteis do redis-cli
 
 ```bash
 docker compose exec redis redis-cli -a ${REDIS_PASSWORD}
@@ -224,7 +224,7 @@ MONITOR                 # real-time command stream
 
 ---
 
-## Reset Database Data
+## Resetar os Dados do Banco
 
 ```bash
 # Stop services

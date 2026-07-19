@@ -1,12 +1,12 @@
-# CI Discipline
+# Disciplina de CI
 
-## Core Rules
-1. **Main is always green** — broken main blocks everyone
-2. **Small commits** — each commit is a logical unit, independently reviewable
-3. **Fast feedback** — CI runs in < 10 minutes (optimize: parallelize, cache, split)
-4. **Fix broken builds immediately** — top priority, no new work until fixed
+## Regras Fundamentais
+1. **Main sempre verde** — main quebrada bloqueia todo mundo
+2. **Commits pequenos** — cada commit é uma unidade lógica, revisável de forma independente
+3. **Feedback rápido** — CI roda em < 10 minutos (otimize: paralelize, use cache, divida)
+4. **Corrija builds quebrados imediatamente** — prioridade máxima, nenhum trabalho novo até corrigir
 
-## Commit Hygiene
+## Higiene de Commits
 ```
 feat: add user registration endpoint     ← new feature
 fix: handle null email in validation      ← bug fix  
@@ -17,12 +17,12 @@ chore: upgrade dependencies               ← maintenance
 ```
 
 ## Trunk-Based Development
-- Short-lived branches (< 2 days)
-- Small PRs (< 400 lines diff)
-- Feature flags for incomplete features
-- Merge to main frequently
+- Branches de vida curta (< 2 dias)
+- PRs pequenos (< 400 linhas de diff)
+- Feature flags para features incompletas
+- Merge para main com frequência
 
-## CI Pipeline Stages
+## Estágios do Pipeline de CI
 ```
 1. Lint + Format check (< 30s)
 2. Unit tests (< 2min)
@@ -32,8 +32,8 @@ chore: upgrade dependencies               ← maintenance
 6. E2E smoke tests (< 5min)
 ```
 
-## Anti-patterns
-- "I'll fix it later" commits to main
-- Large PRs that sit in review for days
-- Skipping CI with [skip ci] to "save time"
-- Running only unit tests (no integration)
+## Anti-padrões
+- Commits de "conserto depois" na main
+- PRs grandes que ficam dias parados em review
+- Pular a CI com [skip ci] para "economizar tempo"
+- Rodar apenas testes unitários (sem integração)

@@ -1,9 +1,9 @@
-# shadcn/ui Ecosystem — The Headless + Copy-Paste Architecture
+# Ecossistema shadcn/ui — A Arquitetura Headless + Copy-Paste
 
-## Philosophy
+## Filosofia
 
-shadcn/ui is NOT a component library you install as a dependency.
-It is a **collection of re-usable components** you copy into your project.
+O shadcn/ui NÃO é uma biblioteca de componentes que você instala como dependência.
+É uma **coleção de componentes reutilizáveis** que você copia para o seu projeto.
 
 ```
 Architecture:
@@ -19,32 +19,32 @@ Architecture:
   shadcn/ui components      (copied into YOUR code)
 ```
 
-### Why This Architecture Wins
+### Por Que Essa Arquitetura Vence
 
-| Traditional Library | shadcn/ui Approach |
+| Biblioteca Tradicional | Abordagem shadcn/ui |
 |--------------------|-------------------|
 | `npm install component-lib` | `npx shadcn@latest add button` |
-| Black box — can't modify internals | Full source code in your project |
-| Version conflicts, breaking upgrades | You own the code, update when you want |
-| Global styles, CSS conflicts | Tailwind utilities, zero global CSS |
-| Opinionated design | YOUR design tokens |
+| Caixa-preta — não dá para modificar o interior | Código-fonte completo no seu projeto |
+| Conflitos de versão, upgrades que quebram | Você é dono do código, atualiza quando quiser |
+| Estilos globais, conflitos de CSS | Utilitários do Tailwind, zero CSS global |
+| Design opinativo | SEUS design tokens |
 
 ---
 
-## Setup Guide
+## Guia de Configuração
 
-### 1. Initialize in an Existing Project
+### 1. Inicializar em um Projeto Existente
 
 ```bash
 npx shadcn@latest init
 ```
 
-This creates:
-- `components/ui/` — where components live
-- `lib/utils.ts` — the `cn()` utility
-- Updates `tailwind.config` (or `app.css` for Tailwind v4)
+Isso cria:
+- `components/ui/` — onde os componentes ficam
+- `lib/utils.ts` — o utilitário `cn()`
+- Atualiza `tailwind.config` (ou `app.css` no Tailwind v4)
 
-### 2. The cn() Utility
+### 2. O Utilitário cn()
 
 ```ts
 // lib/utils.ts
@@ -56,12 +56,12 @@ export function cn(...inputs: ClassValue[]): string {
 }
 ```
 
-**Why both clsx AND twMerge?**
-- `clsx` handles conditional classes: `clsx("base", isActive && "active")`
-- `twMerge` resolves Tailwind conflicts: `twMerge("px-2 px-4")` → `"px-4"`
-- Together: safe, conflict-free class composition
+**Por que clsx E twMerge juntos?**
+- `clsx` cuida das classes condicionais: `clsx("base", isActive && "active")`
+- `twMerge` resolve conflitos do Tailwind: `twMerge("px-2 px-4")` → `"px-4"`
+- Juntos: composição de classes segura e livre de conflitos
 
-### 3. Add Components
+### 3. Adicionar Componentes
 
 ```bash
 # Add individual components
@@ -78,15 +78,15 @@ npx shadcn@latest add toast
 npx shadcn@latest add tooltip
 ```
 
-Each command copies the component source into `components/ui/`.
+Cada comando copia o código-fonte do componente para `components/ui/`.
 
 ---
 
-## Customization Patterns
+## Padrões de Customização
 
-### Modifying Variants
+### Modificando Variantes
 
-shadcn/ui uses `class-variance-authority` (cva) for variants:
+O shadcn/ui usa `class-variance-authority` (cva) para variantes:
 
 ```tsx
 // components/ui/button.tsx (YOUR code, fully customizable)
@@ -124,7 +124,7 @@ const buttonVariants = cva(
 );
 ```
 
-### Extending with Composition
+### Estendendo com Composição
 
 ```tsx
 // Compose shadcn primitives into domain-specific components
@@ -147,9 +147,9 @@ export function LoadingButton({ loading, children, disabled, ...props }: Loading
 
 ---
 
-## Color Theme System
+## Sistema de Temas de Cores
 
-shadcn/ui uses CSS custom properties for theming:
+O shadcn/ui usa CSS custom properties para temas:
 
 ```css
 /* Tailwind v4: @theme directive */
@@ -182,13 +182,13 @@ shadcn/ui uses CSS custom properties for theming:
 
 ---
 
-## Animation Layers
+## Camadas de Animação
 
-Build on top of shadcn/ui with animated component libraries:
+Construa sobre o shadcn/ui com bibliotecas de componentes animados:
 
 ### Aceternity UI
 
-Hero sections, landing page effects, complex animations:
+Seções hero, efeitos de landing page, animações complexas:
 
 ```tsx
 // Aceternity-style spotlight card
@@ -220,7 +220,7 @@ function SpotlightCard({ children }: { children: React.ReactNode }) {
 
 ### Magic UI
 
-Micro-interactions, buttons, cards with subtle animation:
+Microinterações, botões, cards com animação sutil:
 
 ```tsx
 // Shimmer button
@@ -239,48 +239,48 @@ function ShimmerButton({ children }: { children: React.ReactNode }) {
 
 ---
 
-## When to Use Mantine Instead
+## Quando Usar o Mantine
 
-shadcn/ui is best for custom design systems. But **Mantine** is better when:
+O shadcn/ui é ideal para design systems personalizados. Mas o **Mantine** é melhor quando:
 
-| Scenario | Use shadcn/ui | Use Mantine |
+| Cenário | Usar shadcn/ui | Usar Mantine |
 |----------|-------------|-------------|
-| Custom brand design | Yes | Maybe |
-| Speed of development | Moderate | Fast |
-| Rich data components (tables, charts) | Limited | Extensive |
-| Full design system | Build your own | Built-in |
-| Control over every detail | Full control | Library controls |
-| Admin dashboards | Works | Better suited |
+| Design de marca personalizado | Sim | Talvez |
+| Velocidade de desenvolvimento | Moderada | Rápida |
+| Componentes de dados ricos (tabelas, gráficos) | Limitado | Extenso |
+| Design system completo | Construa o seu | Nativo |
+| Controle sobre cada detalhe | Controle total | A biblioteca controla |
+| Dashboards administrativos | Funciona | Mais adequado |
 
-Mantine provides: DatePicker, RichTextEditor, Notifications, Spotlight,
-Charts, and many components shadcn/ui doesn't have.
+O Mantine oferece: DatePicker, RichTextEditor, Notifications, Spotlight,
+Charts e muitos componentes que o shadcn/ui não tem.
 
 ---
 
-## Essential Plugins
+## Plugins Essenciais
 
-| Package | Purpose |
+| Pacote | Finalidade |
 |---------|---------|
-| `@radix-ui/react-*` | Underlying accessible primitives |
-| `class-variance-authority` | Variant management for components |
-| `clsx` | Conditional class joining |
-| `tailwind-merge` | Tailwind class conflict resolution |
-| `cmdk` | Command palette |
-| `sonner` | Toast notifications |
-| `@tanstack/react-table` | Data tables |
-| `@tanstack/react-virtual` | List virtualization |
-| `recharts` | Charts |
-| `date-fns` | Date utilities |
-| `react-day-picker` | Date picker |
-| `vaul` | Drawer component |
+| `@radix-ui/react-*` | Primitivos acessíveis de base |
+| `class-variance-authority` | Gerenciamento de variantes para componentes |
+| `clsx` | Junção condicional de classes |
+| `tailwind-merge` | Resolução de conflitos de classes do Tailwind |
+| `cmdk` | Paleta de comandos |
+| `sonner` | Notificações toast |
+| `@tanstack/react-table` | Tabelas de dados |
+| `@tanstack/react-virtual` | Virtualização de listas |
+| `recharts` | Gráficos |
+| `date-fns` | Utilitários de data |
+| `react-day-picker` | Seletor de data |
+| `vaul` | Componente drawer |
 
 ---
 
-## Rules
+## Regras
 
-1. **Copy, don't install** — shadcn/ui components live in YOUR project
-2. **cn() everywhere** — use for all class composition
-3. **Customize via tokens** — change CSS custom properties, not component code
-4. **Add variants, don't fork** — extend cva variants instead of duplicating
-5. **Radix for behavior** — let Radix handle a11y, keyboard, focus
-6. **Tailwind for styling** — utility classes, no custom CSS files
+1. **Copie, não instale** — os componentes do shadcn/ui vivem no SEU projeto
+2. **cn() em todo lugar** — use para toda composição de classes
+3. **Customize via tokens** — altere as CSS custom properties, não o código do componente
+4. **Adicione variantes, não faça fork** — estenda as variantes do cva em vez de duplicar
+5. **Radix para comportamento** — deixe o Radix cuidar de a11y, teclado, foco
+6. **Tailwind para estilização** — classes utilitárias, sem arquivos CSS personalizados

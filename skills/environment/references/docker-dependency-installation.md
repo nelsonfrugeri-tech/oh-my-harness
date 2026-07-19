@@ -1,8 +1,8 @@
-# Dependency Installation by Ecosystem
+# Instalação de Dependências por Ecossistema
 
 ## Python
 
-### Poetry (recommended)
+### Poetry (recomendado)
 
 ```dockerfile
 FROM python:3.14.3-slim AS builder
@@ -13,10 +13,10 @@ RUN poetry config virtualenvs.in-project true && \
     poetry install --only=main --no-interaction --no-ansi
 ```
 
-Key flags:
-- `virtualenvs.in-project true` -- creates .venv inside /app (easy to COPY)
-- `--only=main` -- skip dev dependencies
-- `--no-interaction --no-ansi` -- CI/Docker friendly
+Flags importantes:
+- `virtualenvs.in-project true` -- cria o .venv dentro de /app (fácil de fazer COPY)
+- `--only=main` -- ignora as dependências de desenvolvimento
+- `--no-interaction --no-ansi` -- adequado para CI/Docker
 
 ### pip + requirements.txt
 
@@ -26,7 +26,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 ```
 
-### uv (fast alternative)
+### uv (alternativa rápida)
 
 ```dockerfile
 FROM python:3.14.3-slim
@@ -37,7 +37,7 @@ RUN uv sync --frozen --no-dev
 
 ## Node.js
 
-### pnpm (recommended)
+### pnpm (recomendado)
 
 ```dockerfile
 FROM node:24.14.0-slim
@@ -58,7 +58,7 @@ RUN npm ci
 
 ## Rust
 
-### Cargo (with dependency caching trick)
+### Cargo (com truque de cache de dependências)
 
 ```dockerfile
 FROM rust:1.94.1-slim AS builder
@@ -75,7 +75,7 @@ COPY src/ ./src/
 RUN touch src/main.rs && cargo build --release
 ```
 
-## Common Patterns
+## Padrões Comuns
 
 ### Cache mounts (BuildKit)
 
@@ -95,7 +95,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo build --release
 ```
 
-### Bind mounts for lockfiles
+### Bind mounts para lockfiles
 
 ```dockerfile
 # syntax=docker/dockerfile:1

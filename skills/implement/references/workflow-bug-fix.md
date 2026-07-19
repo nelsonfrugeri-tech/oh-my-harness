@@ -1,12 +1,12 @@
-# Bug Fix Systematic Process
+# Processo Sistemático de Correção de Bugs
 
-## REPRODUCE > ISOLATE > WRITE TEST > FIX > VALIDATE > PREVENT
+## REPRODUZIR > ISOLAR > ESCREVER TESTE > CORRIGIR > VALIDAR > PREVENIR
 
-### Step 1: REPRODUCE
+### Passo 1: REPRODUZIR
 
-**Goal:** Reliably trigger the bug.
+**Objetivo:** Disparar o bug de forma confiável.
 
-Document:
+Documente:
 ```markdown
 ## Bug Reproduction
 
@@ -30,18 +30,18 @@ Document:
 {always / intermittent / specific conditions}
 ```
 
-**If you cannot reproduce:**
-- Check logs for the error
-- Check if it is environment-specific
-- Check if data-dependent
-- Ask for more details from the reporter
-- Do NOT guess-fix without reproduction
+**Se você não conseguir reproduzir:**
+- Verifique os logs em busca do erro
+- Verifique se é específico do ambiente
+- Verifique se depende dos dados
+- Peça mais detalhes a quem reportou
+- NÃO corrija por adivinhação sem reprodução
 
-### Step 2: ISOLATE
+### Passo 2: ISOLAR
 
-**Techniques:**
+**Técnicas:**
 
-**Binary search in code:**
+**Busca binária no código:**
 ```python
 # Comment out half the code path
 # Does the bug still happen?
@@ -70,7 +70,7 @@ logger.debug("checkpoint_1", data=data)
 logger.debug("checkpoint_2", result=result)
 ```
 
-### Step 3: WRITE TEST
+### Passo 3: ESCREVER TESTE
 
 ```python
 def test_order_total_does_not_overflow_with_large_quantities():
@@ -80,14 +80,14 @@ def test_order_total_does_not_overflow_with_large_quantities():
     assert order.total == Decimal("9999800001")
 ```
 
-### Step 4: FIX
+### Passo 4: CORRIGIR
 
-- Fix the ROOT CAUSE, not the symptom
-- Minimum change required
-- Do NOT mix with refactoring or features
-- If the fix is complex, add a code comment explaining why
+- Corrija a CAUSA RAIZ, não o sintoma
+- Faça a mudança mínima necessária
+- NÃO misture com refatoração ou novas funcionalidades
+- Se a correção for complexa, adicione um comentário no código explicando o porquê
 
-### Step 5: VALIDATE
+### Passo 5: VALIDAR
 
 ```bash
 # 1. Run the regression test
@@ -99,9 +99,9 @@ pytest
 # 3. Test the original reproduction case manually
 ```
 
-### Step 6: PREVENT
+### Passo 6: PREVENIR
 
-- Is this a class of bug that can be caught by a linter rule?
-- Should we add a type constraint to prevent this?
-- Are there similar patterns elsewhere that need the same fix?
-- Should we add monitoring/alerting for this condition?
+- Esse é um tipo de bug que pode ser detectado por uma regra de linter?
+- Devemos adicionar uma restrição de tipo para evitar isso?
+- Existem padrões semelhantes em outros lugares que precisam da mesma correção?
+- Devemos adicionar monitoramento/alertas para essa condição?

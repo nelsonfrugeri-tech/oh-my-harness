@@ -2,52 +2,52 @@
 version: 1.0.0
 name: security
 description: |
-  Application security knowledge base (2026). Covers OWASP Top 10 (2021) with mitigations,
-  zero trust architecture principles, STRIDE threat modeling, input validation and output encoding,
-  authentication patterns (JWT, OAuth2, OIDC, MFA), authorization (RBAC, ABAC, ReBAC),
-  secrets management (vault, rotation, never-hardcoded), cryptography standards (TLS 1.3,
-  AES-256-GCM, Argon2), dependency and supply chain security, security testing (SAST, DAST,
-  dependency scanning), and incident response basics.
-  Use when: (1) Reviewing code for security issues, (2) Designing authentication/authorization,
-  (3) Setting up secrets management, (4) Running threat modeling, (5) Responding to vulnerabilities.
-  Triggers: /security, OWASP, authentication, authorization, STRIDE, secrets, CVE, vulnerability.
+  Base de conhecimento de segurança de aplicações (2026). Cobre OWASP Top 10 (2021) com mitigações,
+  princípios de arquitetura zero trust, modelagem de ameaças STRIDE, validação de entrada e codificação de saída,
+  padrões de autenticação (JWT, OAuth2, OIDC, MFA), autorização (RBAC, ABAC, ReBAC),
+  gestão de segredos (vault, rotação, nunca hardcoded), padrões de criptografia (TLS 1.3,
+  AES-256-GCM, Argon2), segurança de dependências e cadeia de suprimentos, testes de segurança (SAST, DAST,
+  varredura de dependências) e fundamentos de resposta a incidentes.
+  Use quando: (1) Revisar código em busca de problemas de segurança, (2) Projetar autenticação/autorização,
+  (3) Configurar gestão de segredos, (4) Executar modelagem de ameaças, (5) Responder a vulnerabilidades.
+  Gatilhos: /security, OWASP, authentication, authorization, STRIDE, secrets, CVE, vulnerability.
 type: knowledge
 ---
 
-# Security — Knowledge Base
+# Security — Base de Conhecimento
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for application security (2026).
-It covers the threat landscape, authentication, authorization, secrets, cryptography,
-and testing patterns needed to build secure systems.
+Esta skill é a base de conhecimento para segurança de aplicações (2026).
+Cobre o cenário de ameaças, autenticação, autorização, segredos, criptografia
+e padrões de teste necessários para construir sistemas seguros.
 
-**What this skill contains:**
-- OWASP Top 10 (2021) with concrete mitigations
-- Zero trust architecture principles
-- STRIDE threat modeling
-- Input validation and output encoding
-- Authentication (JWT, OAuth2/OIDC, MFA, session management)
-- Authorization (RBAC, ABAC, ReBAC)
-- Secrets management (vault, rotation policy)
-- Cryptography standards (what to use, what to avoid)
-- Dependency and supply chain security
-- Security testing (SAST, DAST, dependency scanning)
-- Security review checklist
+**O que esta skill contém:**
+- OWASP Top 10 (2021) com mitigações concretas
+- Princípios de arquitetura zero trust
+- Modelagem de ameaças STRIDE
+- Validação de entrada e codificação de saída
+- Autenticação (JWT, OAuth2/OIDC, MFA, gerenciamento de sessão)
+- Autorização (RBAC, ABAC, ReBAC)
+- Gestão de segredos (vault, política de rotação)
+- Padrões de criptografia (o que usar, o que evitar)
+- Segurança de dependências e cadeia de suprimentos
+- Testes de segurança (SAST, DAST, varredura de dependências)
+- Checklist de revisão de segurança
 
 ---
 
-## Philosophy
+## Filosofia
 
-### Security is a Design Constraint, Not an Afterthought
+### Segurança é uma Restrição de Design, Não uma Reflexão Tardia
 
-Security bugs are the most expensive to fix after deployment. Design principles:
+Bugs de segurança são os mais caros de corrigir após o deploy. Princípios de design:
 
-1. **Defense in depth** — multiple independent layers; one failure doesn't compromise the system
-2. **Least privilege** — every component has only the permissions it needs
-3. **Assume breach** — design for containment, not just prevention
-4. **Fail secure** — when a security check fails, deny access (never default-allow)
-5. **Security by default** — insecure configurations require explicit opt-in, not vice versa
+1. **Defesa em profundidade** — múltiplas camadas independentes; uma falha não compromete o sistema
+2. **Menor privilégio** — cada componente tem apenas as permissões de que precisa
+3. **Assuma a violação** — projete para contenção, não apenas prevenção
+4. **Falhe de forma segura** — quando uma verificação de segurança falha, negue o acesso (nunca permita por padrão)
+5. **Seguro por padrão** — configurações inseguras exigem opt-in explícito, não o contrário
 
 ---
 
@@ -55,7 +55,7 @@ Security bugs are the most expensive to fix after deployment. Design principles:
 
 ### A01 — Broken Access Control
 
-**Risk:** Users accessing resources they should not.
+**Risco:** Usuários acessando recursos aos quais não deveriam ter acesso.
 
 ```python
 # GOOD: verify ownership at every data access
@@ -71,23 +71,23 @@ async def get_order(order_id: str, current_user: User) -> Order:
 # order = await order_repo.get_by_user(request.body.user_id, order_id)
 ```
 
-**Mitigations:**
-- Enforce authorization at the data layer, not just the route layer
-- Never trust client-provided identity claims (user_id in body/query)
-- Use parameterized queries — never raw SQL with user input
-- Log all access control failures
+**Mitigações:**
+- Aplique autorização na camada de dados, não apenas na camada de rotas
+- Nunca confie em claims de identidade fornecidos pelo cliente (`user_id` no body/query)
+- Use queries parametrizadas — nunca SQL cru com entrada do usuário
+- Registre todas as falhas de controle de acesso
 
 ### A02 — Cryptographic Failures
 
-**Risk:** Sensitive data exposed due to weak or missing encryption.
+**Risco:** Dados sensíveis expostos devido a criptografia fraca ou ausente.
 
-| Use | Do NOT Use |
+| Use | NÃO use |
 |-----|-----------|
-| AES-256-GCM for symmetric encryption | AES-ECB (deterministic, reveals patterns) |
-| Argon2id for passwords | MD5, SHA-1 for passwords |
-| TLS 1.3 for transport | TLS 1.0/1.1, SSL |
-| ECDSA / RSA-2048 for signatures | RSA-512 |
-| HKDF / PBKDF2 for key derivation | Direct hash for key derivation |
+| AES-256-GCM para criptografia simétrica | AES-ECB (determinístico, revela padrões) |
+| Argon2id para senhas | MD5, SHA-1 para senhas |
+| TLS 1.3 para transporte | TLS 1.0/1.1, SSL |
+| ECDSA / RSA-2048 para assinaturas | RSA-512 |
+| HKDF / PBKDF2 para derivação de chaves | Hash direto para derivação de chaves |
 
 ```python
 from argon2 import PasswordHasher
@@ -113,7 +113,7 @@ except VerifyMismatchError:
 
 ### A03 — Injection
 
-**Risk:** Attacker-controlled data interpreted as code (SQL, OS commands, LDAP, etc.).
+**Risco:** Dados controlados pelo atacante interpretados como código (SQL, comandos de SO, LDAP, etc.).
 
 ```python
 # GOOD: parameterized queries
@@ -141,11 +141,11 @@ result = subprocess.run(
 
 ### A04 — Insecure Design
 
-**Mitigations:**
-- Threat model every new feature (see STRIDE section)
-- Define security requirements before implementation
-- Use proven design patterns (do not invent custom crypto)
-- Include security acceptance criteria in user stories
+**Mitigações:**
+- Faça modelagem de ameaças de toda nova funcionalidade (veja a seção STRIDE)
+- Defina requisitos de segurança antes da implementação
+- Use padrões de design comprovados (não invente criptografia própria)
+- Inclua critérios de aceitação de segurança nas user stories
 
 ### A05 — Security Misconfiguration
 
@@ -171,11 +171,11 @@ async def generic_error_handler(request: Request, exc: Exception):
 
 ### A06 — Vulnerable and Outdated Components
 
-See [Dependency Security](#6-dependency-and-supply-chain-security) section.
+Veja a seção [Dependency Security](#6-dependency-and-supply-chain-security).
 
 ### A07 — Identification and Authentication Failures
 
-See [Authentication](#3-authentication) section.
+Veja a seção [Authentication](#3-authentication).
 
 ### A08 — Software and Data Integrity Failures
 
@@ -247,20 +247,20 @@ def validate_external_url(url: str) -> str:
 
 ---
 
-## 2. STRIDE Threat Modeling
+## 2. Modelagem de Ameaças STRIDE
 
-### STRIDE Categories
+### Categorias STRIDE
 
-| Threat | Description | Mitigation |
+| Ameaça | Descrição | Mitigação |
 |--------|-------------|-----------|
-| **S**poofing | Impersonating another user or system | Authentication, MFA, signed tokens |
-| **T**ampering | Modifying data in transit or at rest | HMAC signatures, TLS, integrity checks |
-| **R**epudiation | Denying an action occurred | Audit logging, digital signatures |
-| **I**nformation Disclosure | Leaking sensitive data | Encryption, access control, data masking |
-| **D**enial of Service | Exhausting resources | Rate limiting, circuit breakers, CDN |
-| **E**levation of Privilege | Gaining unauthorized permissions | Least privilege, RBAC, input validation |
+| **S**poofing | Personificar outro usuário ou sistema | Autenticação, MFA, tokens assinados |
+| **T**ampering | Modificar dados em trânsito ou em repouso | Assinaturas HMAC, TLS, verificações de integridade |
+| **R**epudiation | Negar que uma ação ocorreu | Log de auditoria, assinaturas digitais |
+| **I**nformation Disclosure | Vazar dados sensíveis | Criptografia, controle de acesso, mascaramento de dados |
+| **D**enial of Service | Esgotar recursos | Rate limiting, circuit breakers, CDN |
+| **E**levation of Privilege | Obter permissões não autorizadas | Menor privilégio, RBAC, validação de entrada |
 
-### Threat Modeling Process
+### Processo de Modelagem de Ameaças
 
 ```
 1. IDENTIFY ASSETS
@@ -290,7 +290,7 @@ def validate_external_url(url: str) -> str:
 
 ## 3. Authentication
 
-### JWT Best Practices
+### Boas Práticas de JWT
 
 ```python
 from datetime import datetime, timedelta, timezone
@@ -343,7 +343,7 @@ Scopes to request:
   Never store access tokens longer than needed
 ```
 
-### MFA Requirements
+### Requisitos de MFA
 
 ```
 When MFA is required:
@@ -361,9 +361,9 @@ Accepted MFA methods (order of strength):
 
 ---
 
-## 4. Authorization
+## 4. Autorização
 
-### RBAC (Role-Based Access Control)
+### RBAC (Controle de Acesso Baseado em Papéis)
 
 ```python
 from enum import Enum
@@ -389,7 +389,7 @@ def has_permission(user: User, permission: Permission) -> bool:
     return permission in user_permissions or Permission.ADMIN in user_permissions
 ```
 
-### Authorization Rules
+### Regras de Autorização
 
 ```
 1. Authorization checks at every layer — route handler AND data access layer
@@ -401,9 +401,9 @@ def has_permission(user: User, permission: Permission) -> bool:
 
 ---
 
-## 5. Secrets Management
+## 5. Gestão de Segredos
 
-### Rules (Non-Negotiable)
+### Regras (Não Negociáveis)
 
 ```
 1. NEVER hardcode secrets in code
@@ -413,16 +413,16 @@ def has_permission(user: User, permission: Permission) -> bool:
 5. NEVER store secrets in client-side code (JavaScript bundle, mobile app)
 ```
 
-### Secret Storage Hierarchy
+### Hierarquia de Armazenamento de Segredos
 
-| Environment | Store | Access Pattern |
+| Ambiente | Armazenamento | Padrão de Acesso |
 |-------------|-------|---------------|
-| Local dev | `.env` (gitignored) + `.env.example` | Direct env vars |
-| CI/CD | Platform secrets (GitHub Actions secrets) | Injected as env vars |
-| Production | HashiCorp Vault / AWS Secrets Manager | SDK with short-lived tokens |
-| Database passwords | Vault dynamic secrets | Rotated automatically |
+| Dev local | `.env` (no gitignore) + `.env.example` | Variáveis de ambiente diretas |
+| CI/CD | Segredos da plataforma (GitHub Actions secrets) | Injetados como variáveis de ambiente |
+| Produção | HashiCorp Vault / AWS Secrets Manager | SDK com tokens de curta duração |
+| Senhas de banco de dados | Segredos dinâmicos do Vault | Rotacionadas automaticamente |
 
-### Rotation Policy
+### Política de Rotação
 
 ```
 API keys: rotate every 90 days
@@ -432,7 +432,7 @@ TLS certificates: auto-rotate via cert-manager / Let's Encrypt
 After any suspected exposure: rotate immediately
 ```
 
-### Python: pydantic-settings for Secrets
+### Python: pydantic-settings para Segredos
 
 ```python
 from pydantic import Field, SecretStr
@@ -453,7 +453,7 @@ class Settings(BaseSettings):
 
 ## 6. Dependency and Supply Chain Security
 
-### Automated Scanning
+### Varredura Automatizada
 
 ```yaml
 # .github/workflows/security.yml
@@ -489,7 +489,7 @@ jobs:
           config: auto
 ```
 
-### Dependency Rules
+### Regras de Dependências
 
 ```
 1. Pin exact versions — never >=, ~=, or ^
@@ -502,9 +502,9 @@ jobs:
 
 ---
 
-## 7. Security Testing
+## 7. Testes de Segurança
 
-### SAST (Static Analysis)
+### SAST (Análise Estática)
 
 ```bash
 # Python
@@ -518,7 +518,7 @@ eslint --plugin security src/
 semgrep --config=p/owasp-top-ten .
 ```
 
-### DAST (Dynamic Analysis)
+### DAST (Análise Dinâmica)
 
 ```bash
 # OWASP ZAP — passive scan against running app
@@ -533,7 +533,7 @@ docker run -t owasp/zap2docker-stable zap-baseline.py \
   --exit-code 2  # fail on MEDIUM+
 ```
 
-### Security Testing Checklist
+### Checklist de Testes de Segurança
 
 ```markdown
 ### Authentication
@@ -562,7 +562,7 @@ docker run -t owasp/zap2docker-stable zap-baseline.py \
 
 ---
 
-## Security Review Checklist
+## Checklist de Revisão de Segurança
 
 ```markdown
 ### Input Validation
@@ -608,12 +608,3 @@ docker run -t owasp/zap2docker-stable zap-baseline.py \
 
 ---
 
-## Reference Files
-
-- [references/owasp-top-10.md](references/owasp-top-10.md) — OWASP Top 10 detailed mitigations
-- [references/authentication.md](references/authentication.md) — JWT, OAuth2/OIDC, session management
-- [references/authorization.md](references/authorization.md) — RBAC, ABAC, ReBAC patterns
-- [references/secrets-management.md](references/secrets-management.md) — Vault patterns, rotation
-- [references/cryptography.md](references/cryptography.md) — Algorithms, key management
-- [references/threat-modeling.md](references/threat-modeling.md) — STRIDE process, templates
-- [references/security-testing.md](references/security-testing.md) — SAST, DAST, penetration testing

@@ -1,4 +1,4 @@
-# React Performance - Core Web Vitals & Optimization
+# React Performance - Core Web Vitals & Otimização
 
 Guia completo de performance para React 19+ e Next.js 15+.
 
@@ -6,17 +6,17 @@ Guia completo de performance para React 19+ e Next.js 15+.
 
 ## Core Web Vitals
 
-| Metric | Target | What it measures |
+| Métrica | Alvo | O que mede |
 |--------|--------|------------------|
-| **LCP** (Largest Contentful Paint) | < 2.5s | When the largest content element becomes visible |
-| **CLS** (Cumulative Layout Shift) | < 0.1 | Visual stability — how much content shifts during load |
-| **INP** (Interaction to Next Paint) | < 200ms | Responsiveness — delay between interaction and visual update |
+| **LCP** (Largest Contentful Paint) | < 2.5s | Quando o maior elemento de conteúdo se torna visível |
+| **CLS** (Cumulative Layout Shift) | < 0.1 | Estabilidade visual — o quanto o conteúdo se desloca durante o carregamento |
+| **INP** (Interaction to Next Paint) | < 200ms | Responsividade — atraso entre a interação e a atualização visual |
 
 ---
 
 ## React.memo
 
-Prevents re-renders when props haven't changed:
+Previne re-renders quando as props não mudaram:
 
 ```typescript
 import { memo } from "react";
@@ -50,9 +50,9 @@ const DataGrid = memo(
 
 ---
 
-## useMemo and useCallback
+## useMemo e useCallback
 
-### When to actually use useMemo
+### Quando realmente usar useMemo
 
 ```typescript
 // GOOD — expensive computation
@@ -74,7 +74,7 @@ function Greeting({ name }: { name: string }) {
 }
 ```
 
-### When to actually use useCallback
+### Quando realmente usar useCallback
 
 ```typescript
 // GOOD — callback passed to memoized child
@@ -98,9 +98,9 @@ function Form() {
 }
 ```
 
-### Rule of thumb
-- **useMemo**: Only for expensive computations or referential equality needed by deps
-- **useCallback**: Only when passing to `memo`-wrapped children or as dependency
+### Regra prática
+- **useMemo**: Apenas para computações custosas ou igualdade referencial necessária pelas deps
+- **useCallback**: Apenas ao passar para filhos envolvidos em `memo` ou como dependência
 
 ---
 
@@ -147,7 +147,7 @@ function DocumentPage() {
 }
 ```
 
-### Named exports with lazy
+### Named exports com lazy
 
 ```typescript
 // utils/lazyNamed.ts
@@ -169,7 +169,7 @@ const UserAvatar = lazyNamed(
 
 ---
 
-## Image Optimization
+## Otimização de Imagens
 
 ### Next.js Image
 
@@ -206,15 +206,15 @@ function ProductImage({ src, name }: { src: string; name: string }) {
 }
 ```
 
-### Rules
-- **LCP images**: Always add `priority`
-- **Below fold**: Use `loading="lazy"` (default)
-- **Always set sizes**: Prevents layout shift
-- **Use responsive sizes**: `(max-width: 768px) 100vw, 50vw`
+### Regras
+- **Imagens LCP**: Sempre adicione `priority`
+- **Abaixo da dobra**: Use `loading="lazy"` (padrão)
+- **Sempre defina sizes**: Previne layout shift
+- **Use sizes responsivos**: `(max-width: 768px) 100vw, 50vw`
 
 ---
 
-## Font Optimization
+## Otimização de Fontes
 
 ```typescript
 // app/layout.tsx
@@ -241,7 +241,7 @@ export default function RootLayout({
 
 ---
 
-## Bundle Analysis
+## Análise de Bundle
 
 ### Vite
 
@@ -291,9 +291,9 @@ export default withBundleAnalyzer({
 
 ---
 
-## Virtualization
+## Virtualização
 
-For long lists, only render visible items:
+Para listas longas, renderize apenas os itens visíveis:
 
 ```typescript
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -341,35 +341,35 @@ function VirtualList({ items }: { items: Item[] }) {
 
 ## React DevTools Profiler
 
-### How to profile
+### Como fazer profiling
 
-1. Open React DevTools > Profiler tab
-2. Click Record, interact with the app, click Stop
-3. Analyze:
-   - **Flamegraph**: Shows component render tree with timing
-   - **Ranked**: Components sorted by render time
-   - **Why did this render?**: Enable in settings
+1. Abra a aba React DevTools > Profiler
+2. Clique em Record, interaja com a app, clique em Stop
+3. Analise:
+   - **Flamegraph**: Mostra a árvore de render dos componentes com timing
+   - **Ranked**: Componentes ordenados por tempo de render
+   - **Why did this render?**: Habilite nas configurações
 
-### Common findings
-- Component re-renders with same props → add `memo`
-- Parent re-render cascading to children → push state down
-- Context change re-renders everything → split contexts
-- Expensive render on every frame → add `useMemo`
+### Achados comuns
+- Componente re-renderiza com as mesmas props → adicione `memo`
+- Re-render do pai em cascata para os filhos → mova o estado para baixo
+- Mudança de Context re-renderiza tudo → divida os contexts
+- Render custoso a cada frame → adicione `useMemo`
 
 ---
 
-## Performance Checklist
+## Checklist de Performance
 
-- [ ] LCP image has `priority` attribute
-- [ ] Images have explicit `width`/`height` or `sizes`
-- [ ] Fonts use `display: "swap"`
-- [ ] Heavy components are code-split with `lazy`
-- [ ] Long lists use virtualization
-- [ ] `React.memo` on expensive, frequently re-rendered components
-- [ ] Bundle analyzed — no unnecessary large dependencies
-- [ ] Server Components used where possible (zero client JS)
-- [ ] Parallel data fetching with `Promise.all`
-- [ ] No layout shift (CLS) from dynamic content
+- [ ] Imagem LCP tem o atributo `priority`
+- [ ] Imagens têm `width`/`height` ou `sizes` explícitos
+- [ ] Fontes usam `display: "swap"`
+- [ ] Componentes pesados são code-split com `lazy`
+- [ ] Listas longas usam virtualização
+- [ ] `React.memo` em componentes custosos e re-renderizados com frequência
+- [ ] Bundle analisado — sem dependências grandes desnecessárias
+- [ ] Server Components usados onde possível (zero JS no cliente)
+- [ ] Data fetching paralelo com `Promise.all`
+- [ ] Sem layout shift (CLS) por conteúdo dinâmico
 
 ---
 

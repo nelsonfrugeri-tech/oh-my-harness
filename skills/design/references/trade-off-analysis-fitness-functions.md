@@ -1,19 +1,19 @@
 # Architecture Fitness Functions
 
 ## Conceito
-Automated checks that verify architecture decisions are maintained over time.
+Verificações automatizadas que garantem que as decisões de arquitetura sejam mantidas ao longo do tempo.
 
-## Types
-| Type | Tool | Example |
+## Tipos
+| Tipo | Ferramenta | Exemplo |
 |------|------|---------|
-| Dependency rules | ArchUnit (Java), Dependency Cruiser (JS), import-linter (Python) | "domain layer must not import from infrastructure" |
-| Coupling metrics | Code analysis | "No module has afferent coupling > 10" |
-| Build time | CI metric | "Build completes in < 5 minutes" |
-| Test coverage | Coverage tools | "Core domain has > 90% coverage" |
-| API compatibility | OpenAPI diff | "No breaking changes in public API" |
-| Performance | Benchmark suite | "P99 latency < 200ms in load test" |
+| Regras de dependência | ArchUnit (Java), Dependency Cruiser (JS), import-linter (Python) | "a camada de domínio não deve importar da infraestrutura" |
+| Métricas de acoplamento | Análise de código | "Nenhum módulo tem afferent coupling > 10" |
+| Tempo de build | Métrica de CI | "O build completa em < 5 minutos" |
+| Cobertura de testes | Ferramentas de cobertura | "O domínio core tem > 90% de cobertura" |
+| Compatibilidade de API | OpenAPI diff | "Nenhum breaking change na API pública" |
+| Performance | Suíte de benchmark | "Latência P99 < 200ms no teste de carga" |
 
-## Python Example (import-linter)
+## Exemplo em Python (import-linter)
 ```toml
 # .importlinter
 [importlinter]
@@ -28,7 +28,7 @@ layers =
     myapp.infrastructure
 ```
 
-## CI Integration
-- Run fitness functions on every PR
-- Block merge if architectural constraints violated
-- Dashboard showing fitness function trends over time
+## Integração com CI
+- Execute as fitness functions em todo PR
+- Bloqueie o merge se restrições arquiteturais forem violadas
+- Dashboard mostrando as tendências das fitness functions ao longo do tempo

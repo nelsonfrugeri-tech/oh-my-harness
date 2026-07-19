@@ -4,7 +4,7 @@ Playwright e o framework recomendado para testes end-to-end.
 
 ---
 
-## Setup
+## Configuração
 
 ```typescript
 // playwright.config.ts
@@ -116,7 +116,7 @@ export class DashboardPage {
 
 ## Locators
 
-Use semantic locators (accessibility-first):
+Use locators semânticos (accessibility-first):
 
 ```typescript
 import { test, expect } from "@playwright/test";
@@ -182,7 +182,7 @@ test("assertions", async ({ page }) => {
 
 ---
 
-## Test Examples
+## Exemplos de Teste
 
 ```typescript
 // e2e/auth.spec.ts
@@ -234,14 +234,14 @@ test("homepage visual regression", async ({ page }) => {
 });
 ```
 
-Update snapshots:
+Atualize os snapshots:
 ```bash
 pnpm playwright test --update-snapshots
 ```
 
 ---
 
-## API Testing
+## Testes de API
 
 ```typescript
 import { test, expect } from "@playwright/test";
@@ -274,7 +274,7 @@ test.describe("API", () => {
 
 ---
 
-## Authentication Setup
+## Configuração de Autenticação
 
 ```typescript
 // e2e/auth.setup.ts
@@ -313,7 +313,7 @@ setup("authenticate", async ({ page }) => {
 
 ---
 
-## CI Configuration
+## Configuração de CI
 
 ```yaml
 # .github/workflows/e2e.yml

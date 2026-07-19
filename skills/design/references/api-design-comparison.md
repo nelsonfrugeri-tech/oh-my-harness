@@ -1,8 +1,8 @@
-# API Design — REST vs GraphQL vs gRPC
+# Design de API — REST vs GraphQL vs gRPC
 
-## REST Best Practices
+## Boas Práticas de REST
 
-### URL Design
+### Design de URL
 ```
 GET    /v1/users              # List users
 GET    /v1/users/123          # Get user by ID
@@ -18,14 +18,14 @@ GET    /v1/users/123/orders   # User's orders
 GET    /v1/users?status=active&sort=-created_at&page[cursor]=abc&page[size]=20
 ```
 
-### Pagination: Cursor-based vs Offset
+### Paginação: baseada em cursor vs offset
 
-| Approach | Pros | Cons | Use when |
+| Abordagem | Prós | Contras | Usar quando |
 |----------|------|------|----------|
-| Cursor-based | Stable results, performant at scale | Opaque cursor, no "jump to page" | Large datasets, real-time data |
-| Offset | Simple, "jump to page" | Inconsistent results, slow at high offset | Small datasets, admin UIs |
+| Baseada em cursor | Resultados estáveis, performática em escala | Cursor opaco, sem "pular para página" | Grandes volumes de dados, dados em tempo real |
+| Offset | Simples, permite "pular para página" | Resultados inconsistentes, lenta com offset alto | Pequenos volumes de dados, UIs administrativas |
 
-**Cursor-based response:**
+**Resposta baseada em cursor:**
 ```json
 {
   "data": [...],
@@ -36,7 +36,7 @@ GET    /v1/users?status=active&sort=-created_at&page[cursor]=abc&page[size]=20
 }
 ```
 
-### Error Handling (RFC 9457 — Problem Details)
+### Tratamento de Erros (RFC 9457 — Problem Details)
 
 ```json
 {
@@ -50,7 +50,7 @@ GET    /v1/users?status=active&sort=-created_at&page[cursor]=abc&page[size]=20
 }
 ```
 
-### Idempotency
+### Idempotência
 
 ```
 POST /v1/payments
@@ -61,19 +61,19 @@ Idempotency-Key: unique-client-generated-uuid
 # Key expires after 24h
 ```
 
-### Versioning Strategies
+### Estratégias de Versionamento
 
-| Strategy | Example | Pros | Cons |
+| Estratégia | Exemplo | Prós | Contras |
 |----------|---------|------|------|
-| URL path | `/v1/users` | Simple, explicit | URL changes |
-| Header | `Accept: application/vnd.api.v1+json` | Clean URLs | Less discoverable |
-| Query param | `/users?version=1` | Simple | Pollutes params |
+| Caminho na URL | `/v1/users` | Simples, explícito | Muda a URL |
+| Header | `Accept: application/vnd.api.v1+json` | URLs limpas | Menos descobrível |
+| Parâmetro de query | `/users?version=1` | Simples | Polui os parâmetros |
 
-**Recommendation:** URL path versioning for simplicity. Most APIs only need 2-3 versions.
+**Recomendação:** versionamento pelo caminho na URL pela simplicidade. A maioria das APIs precisa de apenas 2-3 versões.
 
-## GraphQL Best Practices
+## Boas Práticas de GraphQL
 
-### Schema Design
+### Design de Schema
 
 ```graphql
 type Query {
@@ -110,7 +110,7 @@ type CreateUserPayload {
 }
 ```
 
-### N+1 Prevention with DataLoader
+### Prevenção de N+1 com DataLoader
 
 ```python
 # Without DataLoader: N+1 queries
@@ -128,7 +128,7 @@ async def batch_load_orders(user_ids: list[str]) -> list[list[Order]]:
 order_loader = DataLoader(batch_load_orders)
 ```
 
-### Security
+### Segurança
 
 ```
 1. Depth limiting       — max query depth of 10
@@ -138,9 +138,9 @@ order_loader = DataLoader(batch_load_orders)
 5. Introspection         — disable in production
 ```
 
-## gRPC Best Practices
+## Boas Práticas de gRPC
 
-### Proto File Design
+### Design do Arquivo Proto
 
 ```protobuf
 syntax = "proto3";
@@ -175,7 +175,7 @@ message ListOrdersResponse {
 }
 ```
 
-### Backward Compatibility Rules
+### Regras de Compatibilidade Retroativa
 
 ```
 SAFE:
@@ -197,7 +197,7 @@ message Order {
 }
 ```
 
-### Deadlines and Timeouts
+### Deadlines e Timeouts
 
 ```
 Always set deadlines:
@@ -207,7 +207,7 @@ Always set deadlines:
 - Never: infinite timeout (will leak resources)
 ```
 
-## Hybrid Approach (Common in 2026)
+## Abordagem Híbrida (Comum em 2026)
 
 ```
                     Internet
@@ -223,10 +223,10 @@ Always set deadlines:
         Service A   Service B   Service C
 ```
 
-**Pattern:** REST for public simplicity, GraphQL for frontend flexibility,
-gRPC for internal performance.
+**Padrão:** REST para simplicidade pública, GraphQL para flexibilidade no frontend,
+gRPC para performance interna.
 
-## Sources
+## Fontes
 
 - https://dev.to/cryptosandy/api-design-best-practices-in-2025-rest-graphql-and-grpc-234h
 - https://www.designgurus.io/blog/rest-graphql-grpc-system-design

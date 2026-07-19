@@ -1,7 +1,7 @@
-# Consumer-Driven Contract Testing with Pact
+# Testes de Contrato Orientados ao Consumidor com Pact
 
 ## Conceito
-Consumer defines expected interactions → generates contract (pact file) → provider verifies against it.
+O consumer define as interações esperadas → gera o contrato (arquivo pact) → o provider verifica em relação a ele.
 
 ## Fluxo
 ```
@@ -12,7 +12,7 @@ Consumer defines expected interactions → generates contract (pact file) → pr
 5. Can-I-Deploy check before releasing
 ```
 
-## Python Consumer Example
+## Exemplo de Consumer em Python
 ```python
 # consumer_test.py
 from pact import Consumer, Provider
@@ -32,14 +32,14 @@ def test_get_payment():
         assert result["status"] == "completed"
 ```
 
-## When to Use
-- Microservices with REST/GraphQL APIs
-- Multiple teams own different services
-- Need confidence that API changes don't break consumers
+## Quando Usar
+- Microsserviços com APIs REST/GraphQL
+- Múltiplos times são donos de serviços diferentes
+- Necessidade de confiança de que mudanças na API não quebram os consumers
 
-## When NOT to Use
-- Monolith (use integration tests)
-- Single team owns all services
-- Async/event-driven (use schema registry instead)
+## Quando NÃO Usar
+- Monólito (use testes de integração)
+- Um único time é dono de todos os serviços
+- Assíncrono/orientado a eventos (use um schema registry em vez disso)
 
-## Tools: Pact 5.x (2026), Pact Broker, can-i-deploy CLI
+## Ferramentas: Pact 5.x (2026), Pact Broker, can-i-deploy CLI

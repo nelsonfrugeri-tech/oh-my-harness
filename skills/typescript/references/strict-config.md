@@ -4,7 +4,7 @@ Configuracao recomendada para projetos TypeScript modernos (5.7+).
 
 ---
 
-## Recommended tsconfig.json
+## tsconfig.json Recomendado
 
 ```jsonc
 {
@@ -52,26 +52,26 @@ Configuracao recomendada para projetos TypeScript modernos (5.7+).
 
 ---
 
-## Strict Mode Options Explained
+## Opções do Strict Mode Explicadas
 
 ### `strict: true`
 
-Enables all strict flags at once:
+Habilita todas as strict flags de uma vez:
 
-| Flag | What it does |
+| Flag | O que faz |
 |------|--------------|
-| `strictNullChecks` | `null` and `undefined` are distinct types; must handle explicitly |
-| `strictFunctionTypes` | Contravariant function parameter checking |
-| `strictBindCallApply` | Type-check `bind`, `call`, `apply` |
-| `strictPropertyInitialization` | Class properties must be initialized or declared as optional |
-| `noImplicitAny` | Errors on implicit `any` type |
-| `noImplicitThis` | Errors on `this` with implicit `any` type |
-| `alwaysStrict` | Emits `"use strict"` in every file |
-| `useUnknownInCatchVariables` | `catch(e)` gives `unknown` instead of `any` |
+| `strictNullChecks` | `null` e `undefined` são tipos distintos; devem ser tratados explicitamente |
+| `strictFunctionTypes` | Checagem contravariante de parâmetros de função |
+| `strictBindCallApply` | Type-check de `bind`, `call`, `apply` |
+| `strictPropertyInitialization` | Propriedades de classe devem ser inicializadas ou declaradas como opcionais |
+| `noImplicitAny` | Erros em `any` type implícito |
+| `noImplicitThis` | Erros em `this` com `any` type implícito |
+| `alwaysStrict` | Emite `"use strict"` em todos os arquivos |
+| `useUnknownInCatchVariables` | `catch(e)` retorna `unknown` em vez de `any` |
 
 ### `noUncheckedIndexedAccess`
 
-Index access returns `T | undefined` instead of `T`:
+Acesso por índice retorna `T | undefined` em vez de `T`:
 
 ```typescript
 const arr = [1, 2, 3];
@@ -86,11 +86,11 @@ const map: Record<string, number> = { a: 1 };
 const val = map["b"]; // number | undefined (not number)
 ```
 
-**Always enable.** Catches real bugs with array/object index access.
+**Sempre habilite.** Pega bugs reais com acesso por índice a array/objeto.
 
 ### `exactOptionalPropertyTypes`
 
-Distinguishes between "property is missing" and "property is undefined":
+Distingue entre "propriedade ausente" e "propriedade é undefined":
 
 ```typescript
 interface Config {
@@ -104,7 +104,7 @@ const a: Config = { name: "app" }; // OK — timeout missing
 
 ### `verbatimModuleSyntax`
 
-Enforces explicit `type` keyword for type-only imports:
+Força a keyword `type` explícita para imports type-only:
 
 ```typescript
 // Must use 'type' for type-only imports
@@ -115,13 +115,13 @@ import { createUser } from "./users";
 import { createUser, type User } from "./users";
 ```
 
-This ensures bundlers can safely strip type imports without TypeScript analysis.
+Isso garante que bundlers possam remover type imports com segurança sem análise do TypeScript.
 
 ---
 
 ## ESM vs CJS
 
-### Modern recommendation: ESM-first
+### Recomendação moderna: ESM-first
 
 ```jsonc
 // package.json
@@ -140,39 +140,39 @@ This ensures bundlers can safely strip type imports without TypeScript analysis.
 }
 ```
 
-### moduleResolution Options
+### Opções de moduleResolution
 
-| Value | When to use |
+| Value | Quando usar |
 |-------|-------------|
-| `"bundler"` | Frontend projects using Vite, webpack, esbuild. **Default choice.** |
-| `"nodenext"` | Node.js libraries that need to emit ESM/CJS. Strict resolution. |
-| `"node16"` | Same as nodenext but pinned to Node 16 behavior. |
-| `"node"` | Legacy CJS resolution. **Avoid in new projects.** |
+| `"bundler"` | Projetos frontend usando Vite, webpack, esbuild. **Escolha padrão.** |
+| `"nodenext"` | Bibliotecas Node.js que precisam emitir ESM/CJS. Resolução strict. |
+| `"node16"` | Igual ao nodenext mas fixado no comportamento do Node 16. |
+| `"node"` | Resolução CJS legada. **Evite em projetos novos.** |
 
 ### `"bundler"` vs `"nodenext"`
 
-- `bundler`: Relaxed — allows extensionless imports, works with Vite/webpack
-- `nodenext`: Strict — requires `.js` extensions, respects package.json `exports`
+- `bundler`: Relaxado — permite imports sem extensão, funciona com Vite/webpack
+- `nodenext`: Strict — exige extensões `.js`, respeita `exports` do package.json
 
-Use `bundler` for apps, `nodenext` for published libraries.
+Use `bundler` para apps, `nodenext` para bibliotecas publicadas.
 
 ---
 
-## Target and Lib
+## Target e Lib
 
 ### `target`
 
-Which JS version to emit. With `noEmit: true` (bundler handles emit), set to your runtime minimum:
+Qual versão do JS emitir. Com `noEmit: true` (o bundler cuida do emit), defina para o mínimo do seu runtime:
 
-| Runtime | Recommended target |
+| Runtime | Target recomendado |
 |---------|-------------------|
-| Modern browsers | `ES2022` |
+| Browsers modernos | `ES2022` |
 | Node 20+ | `ES2022` |
 | Node 18 | `ES2021` |
 
 ### `lib`
 
-Which type definitions to include:
+Quais definições de tipo incluir:
 
 ```jsonc
 {
@@ -185,14 +185,14 @@ Which type definitions to include:
 ```
 
 - **Frontend:** `["ES2023", "DOM", "DOM.Iterable"]`
-- **Node.js:** `["ES2023"]` (use `@types/node` instead of DOM)
-- **Shared library:** `["ES2023"]` (no runtime-specific types)
+- **Node.js:** `["ES2023"]` (use `@types/node` em vez de DOM)
+- **Biblioteca compartilhada:** `["ES2023"]` (sem tipos específicos de runtime)
 
 ---
 
 ## Project References (Monorepo)
 
-For monorepos, use project references to keep builds fast:
+Para monorepos, use project references para manter os builds rápidos:
 
 ```jsonc
 // tsconfig.json (root)
@@ -234,7 +234,7 @@ For monorepos, use project references to keep builds fast:
 
 ---
 
-## Framework-Specific Configs
+## Configs Específicas por Framework
 
 ### Next.js 15
 

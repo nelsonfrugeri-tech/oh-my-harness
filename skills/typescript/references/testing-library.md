@@ -4,30 +4,30 @@ Testing Library para testes de componentes React focados no usuario.
 
 ---
 
-## Philosophy
+## Filosofia
 
-**Test as users interact, not implementation details.**
+**Teste como os usuários interagem, não detalhes de implementação.**
 
-- Query by role, label, text — not by class name or test ID
-- Interact like a user — click, type, select
-- Assert what users see — not component state or internal methods
+- Query por role, label, text — não por class name ou test ID
+- Interaja como um usuário — click, type, select
+- Verifique o que os usuários veem — não o state do componente ou métodos internos
 
 ---
 
-## Queries Priority
+## Prioridade de Queries
 
-From most preferred to least preferred:
+Do mais preferido ao menos preferido:
 
-| Priority | Query | Use when |
+| Prioridade | Query | Usar quando |
 |----------|-------|----------|
-| 1 | `getByRole` | Any accessible element (buttons, links, headings, inputs) |
-| 2 | `getByLabelText` | Form fields |
-| 3 | `getByPlaceholderText` | Input without visible label |
-| 4 | `getByText` | Non-interactive elements with text |
-| 5 | `getByDisplayValue` | Input with current value |
-| 6 | `getByAltText` | Images |
-| 7 | `getByTitle` | Title attribute |
-| 8 | `getByTestId` | Last resort — no semantic query works |
+| 1 | `getByRole` | Qualquer elemento acessível (buttons, links, headings, inputs) |
+| 2 | `getByLabelText` | Campos de formulário |
+| 3 | `getByPlaceholderText` | Input sem label visível |
+| 4 | `getByText` | Elementos não interativos com texto |
+| 5 | `getByDisplayValue` | Input com valor atual |
+| 6 | `getByAltText` | Imagens |
+| 7 | `getByTitle` | Atributo title |
+| 8 | `getByTestId` | Último recurso — nenhuma query semântica funciona |
 
 ```typescript
 // BEST
@@ -50,7 +50,7 @@ screen.getByTestId("complex-data-grid");
 
 ---
 
-## Render and Screen
+## Render e Screen
 
 ```typescript
 import { render, screen } from "@testing-library/react";
@@ -68,7 +68,7 @@ it("renders component", () => {
 
 ## user-event vs fireEvent
 
-**Always prefer `userEvent` — it simulates real user behavior:**
+**Sempre prefira `userEvent` — ele simula o comportamento real do usuário:**
 
 ```typescript
 import userEvent from "@testing-library/user-event";
@@ -124,7 +124,7 @@ it("clears and types", async () => {
 
 ---
 
-## Testing Async Components
+## Testando Componentes Async
 
 ### waitFor
 
@@ -157,7 +157,7 @@ it("shows user after fetch", async () => {
 });
 ```
 
-### queryBy (assert absence)
+### queryBy (verificar ausência)
 
 ```typescript
 it("does not show admin badge for regular user", () => {
@@ -170,7 +170,7 @@ it("does not show admin badge for regular user", () => {
 
 ---
 
-## Testing with Providers
+## Testando com Providers
 
 ```typescript
 // test/utils.tsx
@@ -211,7 +211,7 @@ export { renderWithProviders as render, screen, waitFor } from "@testing-library
 
 ---
 
-## Accessibility Testing
+## Testes de Acessibilidade
 
 ```typescript
 import { axe, toHaveNoViolations } from "jest-axe";
@@ -227,9 +227,9 @@ it("has no accessibility violations", async () => {
 
 ---
 
-## Common Patterns
+## Padrões Comuns
 
-### Testing forms
+### Testando formulários
 
 ```typescript
 it("submits form with validation", async () => {
@@ -257,7 +257,7 @@ it("submits form with validation", async () => {
 });
 ```
 
-### Testing modals
+### Testando modais
 
 ```typescript
 it("opens and closes modal", async () => {
@@ -281,7 +281,7 @@ it("opens and closes modal", async () => {
 });
 ```
 
-### within() — scope queries
+### within() — escopo de queries
 
 ```typescript
 it("renders items in correct sections", () => {

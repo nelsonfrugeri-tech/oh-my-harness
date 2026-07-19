@@ -2,62 +2,62 @@
 version: 1.0.0
 name: api-design
 description: |
-  API design knowledge base (2026). Covers REST (resource naming, HTTP methods, status codes,
-  pagination, versioning, HATEOAS), GraphQL (schema-first, resolvers, DataLoader, persisted queries),
-  gRPC (Protocol Buffers, streaming, deadline propagation), OpenAPI contract-first workflow,
-  idempotency patterns, error response standards, rate limiting, backward compatibility rules,
-  and API design checklists.
-  Use when: (1) Designing REST, GraphQL, or gRPC APIs, (2) Writing OpenAPI/Protobuf contracts,
-  (3) Evaluating versioning strategy, (4) Defining error response formats, (5) Reviewing API design.
-  Triggers: /api-design, /api, REST, GraphQL, gRPC, OpenAPI, API design, pagination, versioning.
+  Base de conhecimento de design de APIs (2026). Cobre REST (nomeação de recursos, métodos HTTP, status codes,
+  paginação, versionamento, HATEOAS), GraphQL (schema-first, resolvers, DataLoader, persisted queries),
+  gRPC (Protocol Buffers, streaming, propagação de deadline), workflow contract-first com OpenAPI,
+  padrões de idempotência, padrões de resposta de erro, rate limiting, regras de compatibilidade retroativa
+  e checklists de design de API.
+  Use quando: (1) Projetar APIs REST, GraphQL ou gRPC, (2) Escrever contratos OpenAPI/Protobuf,
+  (3) Avaliar estratégia de versionamento, (4) Definir formatos de resposta de erro, (5) Revisar design de API.
+  Gatilhos: /api-design, /api, REST, GraphQL, gRPC, OpenAPI, API design, pagination, versioning.
 type: knowledge
 ---
 
-# API Design — Knowledge Base
+# API Design — Base de Conhecimento
 
-## Purpose
+## Propósito
 
-This skill is the knowledge base for designing APIs (2026).
-It covers REST, GraphQL, gRPC, contract-first workflow, and the patterns that make APIs
-predictable, evolvable, and safe.
+Esta skill é a base de conhecimento para projetar APIs (2026).
+Cobre REST, GraphQL, gRPC, workflow contract-first e os padrões que tornam as APIs
+previsíveis, evoluíveis e seguras.
 
-**What this skill contains:**
-- REST design (resources, HTTP methods, status codes, versioning, pagination)
-- GraphQL (schema-first, N+1 prevention, persisted queries)
-- gRPC (Protocol Buffers, streaming types, deadlines)
-- OpenAPI / Protobuf contract-first workflow
-- Error response standards
-- Idempotency patterns
-- Rate limiting and throttling
-- Backward compatibility rules
-- API design checklist
+**O que esta skill contém:**
+- Design REST (recursos, métodos HTTP, status codes, versionamento, paginação)
+- GraphQL (schema-first, prevenção de N+1, persisted queries)
+- gRPC (Protocol Buffers, tipos de streaming, deadlines)
+- Workflow contract-first com OpenAPI / Protobuf
+- Padrões de resposta de erro
+- Padrões de idempotência
+- Rate limiting e throttling
+- Regras de compatibilidade retroativa
+- Checklist de design de API
 
 ---
 
-## Philosophy
+## Filosofia
 
 ### Contract First
 
-Define the contract before implementation. Code without a contract is an implementation
-detail masquerading as an API.
+Defina o contrato antes da implementação. Código sem um contrato é um detalhe de implementação
+se passando por uma API.
 
-1. Write the OpenAPI spec (or Protobuf / GraphQL schema) first
-2. Generate stubs, mocks, and client SDKs from the contract
-3. Implement against the spec
-4. Validate implementation against the spec in CI
+1. Escreva a spec OpenAPI (ou o schema Protobuf / GraphQL) primeiro
+2. Gere stubs, mocks e SDKs de cliente a partir do contrato
+3. Implemente conforme a spec
+4. Valide a implementação contra a spec no CI
 
-### Least Surprise Principle
+### Princípio da Menor Surpresa
 
-An API is a user interface for developers. Every design decision should minimize surprise:
-- Consistent naming conventions across all endpoints
-- Consistent error formats regardless of what failed
-- Consistent behavior for edge cases (empty lists, null fields, timestamps)
+Uma API é uma interface de usuário para desenvolvedores. Cada decisão de design deve minimizar a surpresa:
+- Convenções de nomeação consistentes em todos os endpoints
+- Formatos de erro consistentes independentemente do que falhou
+- Comportamento consistente para casos extremos (listas vazias, campos nulos, timestamps)
 
 ---
 
-## 1. REST API Design
+## 1. Design de API REST
 
-### Resource Naming
+### Nomeação de Recursos
 
 ```
 # GOOD — nouns, plural, hierarchical
@@ -75,18 +75,18 @@ POST   /createOrder             # no verbs
 POST   /users/{id}/activate     # exception: actions on resources
 ```
 
-### HTTP Methods
+### Métodos HTTP
 
-| Method | Idempotent | Safe | Use Case |
+| Método | Idempotente | Seguro | Caso de Uso |
 |--------|-----------|------|---------|
-| GET | Yes | Yes | Read resource |
-| HEAD | Yes | Yes | Read headers only |
-| POST | No | No | Create resource, non-idempotent actions |
-| PUT | Yes | No | Replace resource entirely |
-| PATCH | No | No | Partial update |
-| DELETE | Yes | No | Remove resource |
+| GET | Sim | Sim | Ler recurso |
+| HEAD | Sim | Sim | Ler apenas os headers |
+| POST | Não | Não | Criar recurso, ações não idempotentes |
+| PUT | Sim | Não | Substituir o recurso por completo |
+| PATCH | Não | Não | Atualização parcial |
+| DELETE | Sim | Não | Remover recurso |
 
-### HTTP Status Codes
+### Códigos de Status HTTP
 
 ```
 2xx — Success
@@ -112,7 +112,7 @@ POST   /users/{id}/activate     # exception: actions on resources
   504 Gateway Timeout Upstream timed out
 ```
 
-### Standard Error Response
+### Resposta de Erro Padrão
 
 ```json
 {
@@ -132,17 +132,17 @@ POST   /users/{id}/activate     # exception: actions on resources
 }
 ```
 
-### Versioning Strategies
+### Estratégias de Versionamento
 
-| Strategy | Example | Pros | Cons |
+| Estratégia | Exemplo | Prós | Contras |
 |----------|---------|------|------|
-| URL path | `/v1/users` | Simple, cacheable, explicit | URL pollution |
-| Header | `Accept: application/vnd.api+json;version=1` | Clean URLs | Less visible |
-| Query param | `/users?version=1` | Easy to test | Cache issues |
+| URL path | `/v1/users` | Simples, cacheável, explícito | Poluição da URL |
+| Header | `Accept: application/vnd.api+json;version=1` | URLs limpas | Menos visível |
+| Query param | `/users?version=1` | Fácil de testar | Problemas de cache |
 
-**Recommendation:** URL path versioning for public APIs. Header versioning for internal APIs.
+**Recomendação:** versionamento por URL path para APIs públicas. Versionamento por header para APIs internas.
 
-### Pagination
+### Paginação
 
 ```
 # Cursor-based (recommended for large datasets)
@@ -170,12 +170,12 @@ Response:
 }
 ```
 
-**Cursor-based pagination rules:**
-- Cursor is opaque (base64-encoded, not guessable)
-- Stable under concurrent writes (no offset drift)
-- Required for infinite scroll, real-time feeds
+**Regras de paginação baseada em cursor:**
+- O cursor é opaco (codificado em base64, não adivinhável)
+- Estável sob escritas concorrentes (sem desvio de offset)
+- Obrigatório para scroll infinito e feeds em tempo real
 
-### Filtering and Sorting
+### Filtragem e Ordenação
 
 ```
 # Filtering
@@ -190,22 +190,21 @@ GET /products?sort=-price          # minus prefix = descending
 GET /users?fields=id,name,email    # return only specified fields
 ```
 
-**Reference:** [references/rest-patterns.md](references/rest-patterns.md)
 
 ---
 
 ## 2. GraphQL
 
-### When to Use GraphQL
+### Quando Usar GraphQL
 
 | Use GraphQL | Use REST |
 |-------------|---------|
-| Data-intensive UI (multiple resources per screen) | Simple CRUD APIs |
-| Clients need flexible field selection | File upload/download |
-| Multiple consumer types (mobile, web, 3rd party) | Simple public APIs |
-| Rapid UI iteration (frontend changes fields freely) | Webhook receivers |
+| UI intensiva em dados (múltiplos recursos por tela) | APIs CRUD simples |
+| Clientes precisam de seleção flexível de campos | Upload/download de arquivos |
+| Múltiplos tipos de consumidores (mobile, web, terceiros) | APIs públicas simples |
+| Iteração rápida de UI (frontend altera campos livremente) | Receptores de webhook |
 
-### Schema-First Workflow
+### Workflow Schema-First
 
 ```graphql
 # schema.graphql — define contract first
@@ -258,7 +257,7 @@ type Mutation {
 }
 ```
 
-### DataLoader — N+1 Prevention
+### DataLoader — Prevenção de N+1
 
 ```typescript
 import DataLoader from "dataloader";
@@ -282,7 +281,7 @@ const orderResolvers = {
 };
 ```
 
-### Persisted Queries (Production)
+### Persisted Queries (Produção)
 
 ```typescript
 // Prevents arbitrary query execution in production
@@ -306,20 +305,19 @@ function persistedQueryPlugin(): ApolloServerPlugin {
 }
 ```
 
-**Reference:** [references/graphql-patterns.md](references/graphql-patterns.md)
 
 ---
 
 ## 3. gRPC
 
-### When to Use gRPC
+### Quando Usar gRPC
 
 | Use gRPC | Use REST/GraphQL |
 |----------|-----------------|
-| Internal service-to-service | External/public API |
-| High-throughput, low-latency | Browser clients (without grpc-web) |
-| Bidirectional streaming | Simple request-response |
-| Strongly typed contracts critical | Flexible schema evolution |
+| Comunicação interna service-to-service | API externa/pública |
+| Alto throughput, baixa latência | Clientes de navegador (sem grpc-web) |
+| Streaming bidirecional | Request-response simples |
+| Contratos fortemente tipados são críticos | Evolução flexível de schema |
 
 ### Protocol Buffers
 
@@ -363,16 +361,16 @@ message ListUsersRequest {
 }
 ```
 
-### Streaming Types
+### Tipos de Streaming
 
-| Type | Pattern | Use Case |
+| Tipo | Padrão | Caso de Uso |
 |------|---------|---------|
-| Unary | 1 req → 1 resp | Standard RPC call |
-| Server streaming | 1 req → many resp | File download, live feed |
-| Client streaming | many req → 1 resp | File upload, batch write |
-| Bidirectional | many req ↔ many resp | Chat, real-time collaboration |
+| Unary | 1 req → 1 resp | Chamada RPC padrão |
+| Server streaming | 1 req → muitas resp | Download de arquivo, feed ao vivo |
+| Client streaming | muitas req → 1 resp | Upload de arquivo, escrita em lote |
+| Bidirectional | muitas req ↔ muitas resp | Chat, colaboração em tempo real |
 
-### Deadline Propagation (Always)
+### Propagação de Deadline (Sempre)
 
 ```python
 import grpc
@@ -394,13 +392,12 @@ except grpc.RpcError as e:
     raise ExternalServiceError("user-service", e)
 ```
 
-**Reference:** [references/grpc-patterns.md](references/grpc-patterns.md)
 
 ---
 
 ## 4. OpenAPI Contract-First
 
-### OpenAPI 3.1 Structure
+### Estrutura do OpenAPI 3.1
 
 ```yaml
 openapi: "3.1.0"
@@ -473,7 +470,7 @@ components:
       bearerFormat: JWT
 ```
 
-### Contract-First CI Validation
+### Validação Contract-First no CI
 
 ```yaml
 # GitHub Actions
@@ -490,11 +487,10 @@ components:
     fail-on-diff: breaking
 ```
 
-**Reference:** [references/openapi-workflow.md](references/openapi-workflow.md)
 
 ---
 
-## 5. Idempotency
+## 5. Idempotência
 
 ```
 Idempotent: calling the same operation multiple times has the same effect as calling it once.
@@ -531,7 +527,7 @@ paths:
 
 ## 6. Rate Limiting
 
-### Response Headers
+### Headers de Resposta
 
 ```
 X-RateLimit-Limit: 1000        # requests allowed per window
@@ -540,37 +536,37 @@ X-RateLimit-Reset: 1701388800  # unix timestamp when window resets
 Retry-After: 30                # seconds to wait after 429
 ```
 
-### Rate Limit Strategies
+### Estratégias de Rate Limit
 
-| Strategy | Pros | Cons | Use Case |
+| Estratégia | Prós | Contras | Caso de Uso |
 |----------|------|------|---------|
-| Fixed window | Simple | Burst at window edge | Internal APIs |
-| Sliding window | Smooth distribution | More complex | Public APIs |
-| Token bucket | Burst-friendly | State per client | CDN, reverse proxy |
-| Leaky bucket | Consistent rate | Queues requests | Payment APIs |
+| Fixed window | Simples | Rajada na borda da janela | APIs internas |
+| Sliding window | Distribuição suave | Mais complexa | APIs públicas |
+| Token bucket | Amigável a rajadas | Estado por cliente | CDN, proxy reverso |
+| Leaky bucket | Taxa consistente | Enfileira requisições | APIs de pagamento |
 
 ---
 
-## 7. Backward Compatibility Rules
+## 7. Regras de Compatibilidade Retroativa
 
-### Non-Breaking Changes (safe to ship)
+### Mudanças Não Quebradas (seguras para publicar)
 
-- Adding optional request fields
-- Adding response fields (clients ignore unknown fields)
-- Adding new endpoints
-- Adding new enum values (if clients handle unknowns)
-- Expanding allowed values for a field
+- Adicionar campos opcionais de requisição
+- Adicionar campos de resposta (clientes ignoram campos desconhecidos)
+- Adicionar novos endpoints
+- Adicionar novos valores de enum (se os clientes lidam com valores desconhecidos)
+- Expandir os valores permitidos de um campo
 
-### Breaking Changes (require new API version)
+### Mudanças Quebradas (exigem nova versão da API)
 
-- Removing or renaming fields
-- Changing field types
-- Adding required request fields
-- Changing endpoint URLs
-- Changing behavior of existing operations
-- Removing enum values
+- Remover ou renomear campos
+- Alterar tipos de campos
+- Adicionar campos obrigatórios de requisição
+- Alterar as URLs dos endpoints
+- Alterar o comportamento de operações existentes
+- Remover valores de enum
 
-### Deprecation Protocol
+### Protocolo de Depreciação
 
 ```
 1. Add Deprecation header to responses:
@@ -585,7 +581,7 @@ Retry-After: 30                # seconds to wait after 429
 
 ---
 
-## API Design Checklist
+## Checklist de Design de API
 
 ```markdown
 ### Contract
@@ -622,11 +618,3 @@ Retry-After: 30                # seconds to wait after 429
 
 ---
 
-## Reference Files
-
-- [references/rest-patterns.md](references/rest-patterns.md) — REST patterns, naming, pagination, filtering
-- [references/graphql-patterns.md](references/graphql-patterns.md) — Schema-first, DataLoader, persisted queries
-- [references/grpc-patterns.md](references/grpc-patterns.md) — Protocol Buffers, streaming, interceptors
-- [references/openapi-workflow.md](references/openapi-workflow.md) — Contract-first, code generation, validation
-- [references/error-standards.md](references/error-standards.md) — Error response formats, problem+json
-- [references/idempotency.md](references/idempotency.md) — Idempotency key pattern, storage, replay

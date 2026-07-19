@@ -636,7 +636,7 @@ async def get_external_data() -> dict:
         )
 ```
 
-**Multiple Operations com Timeout:**
+**Múltiplas Operações com Timeout:**
 ```python
 async def fetch_all_with_timeout(
     urls: list[str],
@@ -935,25 +935,25 @@ async def get_users():
 
 ### Web APIs (FastAPI, aiohttp)
 - Endpoints assíncronos
-- Multiple database queries em paralelo
+- Múltiplas queries de database em paralelo
 - Integração com APIs externas
 
 ### Database Operations (asyncpg, motor)
 - Connection pooling
 - Batch operations
-- Streaming large result sets
+- Streaming de grandes result sets
 
 ### Message Queues (aio-pika, aiokafka)
 - Consumidores assíncronos
-- Processing pipeline
+- Pipeline de processamento
 
 ### WebSockets (FastAPI, websockets)
-- Bidirectional communication
+- Comunicação bidirecional
 - Broadcasting
 
 ### File I/O (aiofiles)
-- Large file processing
-- Concurrent file operations
+- Processamento de arquivos grandes
+- Operações de arquivo concorrentes
 
 ---
 

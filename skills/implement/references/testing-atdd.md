@@ -1,6 +1,6 @@
 # ATDD — Acceptance Test-Driven Development
 
-## The ATDD Workflow
+## O Fluxo de Trabalho ATDD
 
 ```
 1. DISCUSS   — Team discusses the feature (devs + product + QA)
@@ -9,7 +9,7 @@
 4. DEMO      — Show the passing acceptance tests to stakeholders
 ```
 
-## How ATDD Combines BDD + TDD
+## Como o ATDD Combina BDD + TDD
 
 ```
 Acceptance Test (BDD layer — fails)
@@ -21,9 +21,9 @@ Acceptance Test (BDD layer — fails)
 Acceptance Test (now passes — feature done)
 ```
 
-**Example workflow:**
+**Exemplo de fluxo de trabalho:**
 
-1. Write acceptance test:
+1. Escreva o teste de aceitação:
 ```gherkin
 Scenario: User places an order
   Given a logged-in user with items in cart
@@ -32,35 +32,35 @@ Scenario: User places an order
   And the user receives a confirmation email
 ```
 
-2. This fails (no implementation). Now use TDD:
-   - TDD cycle 1: `OrderService.create_order()` — basic creation
-   - TDD cycle 2: `OrderService.create_order()` — sets status "pending"
-   - TDD cycle 3: `EmailService.send_confirmation()` — sends email
-   - TDD cycle 4: Integration — order creation triggers email
+2. Isso falha (sem implementação). Agora use TDD:
+   - Ciclo TDD 1: `OrderService.create_order()` — criação básica
+   - Ciclo TDD 2: `OrderService.create_order()` — define o status "pending"
+   - Ciclo TDD 3: `EmailService.send_confirmation()` — envia o email
+   - Ciclo TDD 4: Integração — a criação do pedido dispara o email
 
-3. Acceptance test passes. Feature done.
+3. O teste de aceitação passa. Feature concluída.
 
-## When to Use ATDD
+## Quando Usar ATDD
 
-- Complex features with multiple components
-- Features crossing service boundaries
-- Features requiring stakeholder sign-off
-- Critical business flows (payments, auth, data processing)
+- Features complexas com múltiplos componentes
+- Features que cruzam fronteiras de serviços
+- Features que exigem aprovação de stakeholders
+- Fluxos de negócio críticos (pagamentos, auth, processamento de dados)
 
-## ATDD vs Pure TDD vs Pure BDD
+## ATDD vs TDD Puro vs BDD Puro
 
-| Approach | Best for |
+| Abordagem | Melhor para |
 |----------|----------|
-| Pure TDD | Libraries, utilities, algorithms |
-| Pure BDD | Simple features, API contracts |
-| ATDD | Complex features, multi-component, stakeholder-visible |
+| TDD Puro | Bibliotecas, utilitários, algoritmos |
+| BDD Puro | Features simples, contratos de API |
+| ATDD | Features complexas, multi-componente, visíveis a stakeholders |
 
 ## The Three Amigos
 
-Before writing acceptance tests, hold a "Three Amigos" session:
-- **Developer:** Technical feasibility, edge cases
-- **Product:** Business value, acceptance criteria
-- **QA:** Test scenarios, error conditions
+Antes de escrever os testes de aceitação, faça uma sessão "Three Amigos":
+- **Developer:** Viabilidade técnica, edge cases
+- **Product:** Valor de negócio, critérios de aceitação
+- **QA:** Cenários de teste, condições de erro
 
-Duration: 15-30 minutes per feature.
-Output: Acceptance criteria in Given/When/Then format.
+Duração: 15-30 minutos por feature.
+Saída: Critérios de aceitação no formato Given/When/Then.
