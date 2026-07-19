@@ -55,6 +55,52 @@ Agents e skills **nunca** citam uma tool concreta (ex.: `mcp__github__create_pul
 
 ---
 
+## Tools Agents (a infraestrutura do harness)
+
+Um **tool agent** é um agent-ferramenta de infraestrutura do harness (tema `agents/tools/`):
+ele não representa um papel de engenharia (como os `engineers/`) nem gerencia a própria
+biblioteca (como o `harness/`) — ele **opera a infraestrutura de conhecimento** que todos os
+outros agents consomem. Assim como a tabela de capabilities pluga tools externas, esta seção
+pluga os tools agents: quem são, o que operam e os fatos de ambiente que eles obedecem.
+
+| Agent | Papel | Skills | Disparo |
+| --- | --- | --- | --- |
+| `context` | Mantém e carrega o contexto vivo do projeto atual (`~/knowledge-base/{project}/context.md`) | `explorer` | Hook `SessionStart` (reminder `# omh-managed: context`) + pedido explícito ("atualize o context") |
+| `knowledge-base` | Gerencia a knowledge base: infra (Qdrant + embedding), escrita de notas (scribe) e recuperação (busca semântica + navegação) | `kb-infra`, `kb-write`, `kb-retrieval` | Pedido do usuário ("registra isso", "o que decidimos sobre X?", "sobe a KB") ou de outro agent |
+
+O roteamento fino (que skill usar em cada intenção) vive nas descriptions dos próprios
+agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
+
+### Fatos de ambiente (vinculantes)
+
+1. **Knowledge base em `~/knowledge-base/{project}/`** — `context.md` (contexto vivo) +
+   `notes/` (notas do scribe). Sempre **fora** do repositório do usuário; `{project}` =
+   basename do cwd em lowercase-kebab.
+2. **Infra da KB** = Qdrant local (docker, container `oh-my-harness-qdrant`, porta `6333`,
+   volume `~/knowledge-base/.qdrant`) + embedding **`BAAI/bge-m3`** via `FlagEmbedding`
+   (**dense 1024-dim + lexical sparse** no mesmo forward pass). Collection `knowledge-base`
+   com named vectors (dense cosine + sparse). **O modelo de embedding é FIXO** — trocá-lo
+   exige decisão explícita do usuário, pois invalida o índice inteiro.
+3. **Lifecycle do context**: primeira vez → `explorer` **FULL** (análise profunda completa);
+   sessões seguintes → carrega o snapshot e só roda `explorer` **DELTA** se houver commits
+   novos desde o `last_hash`; sem commits, apenas carrega (caminho barato). Pedido explícito
+   do usuário força DELTA.
+4. **Formato timeline do `context.md`**: um **snapshot vivo** no topo (reescrito a cada run —
+   é o que os agents downstream leem) + um **log append-only** (`## Timeline`) — cada run
+   apenda uma entrada datada em ISO 8601 UTC; entradas antigas nunca são reescritas.
+
+### Regras (vinculantes)
+
+1. **Tools agents nunca escrevem no repositório do usuário** — toda escrita acontece em
+   `~/knowledge-base/` (e, no caso do sync da biblioteca, em `~/.claude/`).
+2. **Degrade com elegância sem Qdrant** — a escrita de notas em disco continua funcionando
+   (indexação fica pendente, reconciliada pelo reindex de `kb-infra`) e a recuperação cai
+   para navegação estruturada em disco; sempre explicitando o modo degradado.
+3. **Notas são imutáveis** — nunca editar uma nota existente; correção/atualização é uma nota
+   nova com `supersedes` apontando para a anterior (a antiga fica arquivada).
+
+---
+
 ## Padrões de código — ativação obrigatória
 
 **Antes de escrever, modificar ou revisar qualquer linha de código**, siga integralmente os *Padrões de código — invioláveis* da skill `implement` (corpo + `references/code-craft.md`). Não são sugestões. Resumo do que elas impõem: tipagem total, imutabilidade por padrão, funções e arquivos pequenos, guard clauses no lugar de aninhamento, design pattern no lugar de cadeias de `if/elif`, sem retornar `None`, comentário só pro *porquê*, e **quality gate ao final** (format → lint → typecheck → test, com o comando descoberto do projeto, nunca hardcoded).

@@ -8,8 +8,8 @@ Write the config once. Plug the tools per machine. Run it on Claude Code today �
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
-[![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-18-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-22-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -34,6 +34,7 @@ Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` p
   - [Language contract](#language-contract)
 - [Quick start](#quick-start)
 - [What's inside](#whats-inside)
+- [Knowledge base](#knowledge-base)
 - [Portability across harnesses](#portability-across-harnesses)
 - [Extending the library](#extending-the-library)
 - [Why](#why)
@@ -46,30 +47,51 @@ Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` p
 This repository is the **source**. You sync it into your harness's **global state** (`~/.claude`), and agents resolve their tools per machine through a single capability table.
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│  oh-my-harness  ·  SOURCE (this git repo)                  │
-│                                                            │
-│   agents/            skills/            claude-code/       │
-│   expert subagents   knowledge base     CLAUDE.md          │
-│                      (SKILL.md +        SETUP.md           │
-│                       references/)      workflows/         │
-└───────────────────────────┬────────────────────────────────┘
-                            │   "read INSTRUCTIONS.md and sync"
-                            ▼
-┌────────────────────────────────────────────────────────────┐
-│  ~/.claude/  ·  GLOBAL harness state                       │
-│   agents/    skills/    workflows/    CLAUDE.md            │
-└───────────────────────────┬────────────────────────────────┘
-                            │   capability plug (per machine)
-               ┌────────────┴─────────────┐
-               ▼                          ▼
-      code-host → mcp__github__*   code-host → mcp__gitlab__*
-      (personal machine)           (work machine)
+┌───────────────────────────────────────────────────────────────────┐
+│  oh-my-harness · SOURCE (this git repo)                            │
+│                                                                     │
+│  agents/                    skills/                  claude-code/  │
+│  ├── engineers/  (6)        ├── engineers/ (17)       CLAUDE.md     │
+│  ├── harness/    (1)        ├── harness/    (1)       settings.json │
+│  └── tools/      (2)        └── tools/      (4)       workflows/    │
+│      (themed; discovery         (themed source; flattened on       │
+│       is recursive)              install — leaf name only)         │
+└──────────────────────────────┬──────────────────────────────────────┘
+                                │  "ask the harness to sync"
+                                ▼  (agent `claude-code`)
+┌───────────────────────────────────────────────────────────────────┐
+│  ~/.claude/ · GLOBAL harness state                                  │
+│  agents/<theme>/<name>.md   skills/<leaf>/   workflows/   CLAUDE.md │
+└──────────────────────────────┬──────────────────────────────────────┘
+                                │  capability plug (per machine)
+                   ┌────────────┴─────────────┐
+                   ▼                           ▼
+          code-host → mcp__github__*   code-host → mcp__gitlab__*
+          (personal machine)           (work machine)
+
+┌───────────────────────────────────────────────────────────────────┐
+│  ~/knowledge-base/ · outside any repo                               │
+│  {project}/context.md — living context (`context` agent on each     │
+│    session start; `explorer` runs only on FULL/DELTA)               │
+│  {project}/notes/ — immutable notes (`knowledge-base` agent →       │
+│    kb-write/kb-retrieval), indexed in local Qdrant via BGE-M3       │
+└───────────────────────────────────────────────────────────────────┘
 ```
 
-- **agents / skills / workflows** are symlinked into `~/.claude/` — a `git pull` on the source updates them everywhere.
+- **agents** are symlinked mirroring their theme (`agents/<theme>/<name>.md`) — discovery is
+  recursive, so subfolders work natively and a `git pull` on the source updates them everywhere.
+- **skills** are symlinked **flattened** to `~/.claude/skills/<leaf>/` — skill discovery is
+  *not* recursive in `~/.claude/skills/`, so each skill must be a direct child of that folder
+  even though the source keeps them themed.
 - **CLAUDE.md** carries the timeless rules and the per-machine capability table.
-- **SETUP.md** is the runbook the harness executes to sync (see [Quick start](#quick-start)).
+- The agent **`claude-code`** (backed by the `claude-code` skill) is the runbook the harness
+  runs to sync (see [Quick start](#quick-start)).
+- The agent **`context`**, invoked on every `SessionStart`, keeps a living knowledge base of
+  the *current* project at `~/knowledge-base/{project}/context.md` — built and updated by the
+  `explorer` skill, entirely outside the project's own working tree.
+- The agent **`knowledge-base`** manages the persistent knowledge base: infra (local Qdrant +
+  BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`) and retrieval (`kb-retrieval`)
+  — see [Knowledge base](#knowledge-base).
 
 ---
 
@@ -92,7 +114,7 @@ Each skill is a lean `SKILL.md` (overview + when to use) that points to `referen
 
 ### code-craft — inviolable rules
 
-The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
+The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/engineers/implement/references/code-craft.md`](skills/engineers/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
 
 ### Language contract
 
@@ -107,11 +129,18 @@ git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
 cd oh-my-harness
 ```
 
-Then **ask the harness to sync** — it reads [`INSTRUCTIONS.md`](INSTRUCTIONS.md), runs the [`claude-code/SETUP.md`](claude-code/SETUP.md) runbook, and resolves everything interactively (symlink the library, diff the configs, detect local MCPs and wire the capability table, handle orphans):
+Then **ask the harness to sync**. On a brand-new machine the library isn't installed yet, so
+[`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint: it points the harness at the
+agent `claude-code` (`agents/harness/claude-code.md`, backed by the `claude-code` skill), which
+resolves everything interactively — themed symlink for agents, flattened symlink for skills,
+diff of `CLAUDE.md`/`settings.json`, MCP detection and capability wiring, orphan cleanup:
 
 > _"Read INSTRUCTIONS.md and sync this library with my ~/.claude."_
 
-Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug this machine's tools.
+Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug this machine's
+tools. From then on, every session start triggers the `context` agent, which builds (first run)
+or refreshes (later runs) the project's living knowledge base at
+`~/knowledge-base/{project}/context.md`.
 
 ---
 
@@ -119,24 +148,36 @@ Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug th
 
 ### Agents
 
-| Agent         | Role                                             | Model  |
-| ------------- | ------------------------------------------------ | ------ |
-| `architect`   | System design, ADRs, C4, trade-offs, API design  | opus   |
-| `developer`   | Implementation, bug fixes, refactoring, testing  | sonnet |
-| `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation    | sonnet |
-| `qa`          | Test strategy, E2E, performance, accessibility   | sonnet |
-| `sre`         | Observability, SLO/SLI, incident response        | sonnet |
-| `tech-pm`     | User stories, backlog, roadmap, PRDs             | sonnet |
-| `explorer`    | Deep repo analysis → `context.md`                | opus   |
-| `context`     | Loads the project's living context into a session| sonnet |
+Agents are grouped by theme under `agents/<theme>/`. Discovery is recursive — the theme folder
+is only organizational, the agent's real name comes from its frontmatter `name:`.
+
+| Theme       | Agent         | Role                                                | Model  |
+| ----------- | ------------- | ---------------------------------------------------- | ------ |
+| `engineers` | `architect`   | System design, ADRs, C4, trade-offs, API design       | opus   |
+| `engineers` | `developer`   | Implementation, bug fixes, refactoring, testing       | sonnet |
+| `engineers` | `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation         | sonnet |
+| `engineers` | `qa`          | Test strategy, E2E, performance, accessibility        | sonnet |
+| `engineers` | `sre`         | Observability, SLO/SLI, incident response              | sonnet |
+| `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
+| `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
+| `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/{project}/context.md` | sonnet |
+| `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, semantic retrieval | sonnet |
 
 ### Skills
 
-**Knowledge (languages & domains):** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
+Skills are grouped by theme under `skills/<theme>/<name>/`, but the **install step flattens
+them** to `~/.claude/skills/<name>/` — skill discovery is not recursive at the target, so each
+skill must land as a direct child.
 
-**Capability (method & process):** `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
+**Knowledge (languages & domains) — `engineers`:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
-**Command & workflow:** `feature` · `drink-context`
+**Capability (method & process) — `engineers`:** `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
+
+**Command & workflow — `engineers`:** `feature`
+
+**Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
+
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (hybrid semantic search + disk navigation). Invoked by the `context` and `knowledge-base` agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 
@@ -148,9 +189,34 @@ Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with
 
 ---
 
+## Knowledge base
+
+Knowledge lives on disk at `~/knowledge-base/` — outside every repo, portable, readable by any
+Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
+
+```
+~/knowledge-base/
+  {project}/
+    context.md              # living context: snapshot (rewritten) + append-only timeline
+    notes/
+      <date>--<slug>.md     # immutable notes: frontmatter (id, type, summary, ...) + body
+  .qdrant/                  # local Qdrant volume (docker, port 6333)
+  .venv/                    # embedding environment
+```
+
+- **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
+  archived. Types: `decision · event · procedure · reference · conversation`.
+- **Search is hybrid** — the note `summary` is embedded with **`BAAI/bge-m3`** (dense 1024-dim +
+  lexical sparse in one forward pass) and queried in Qdrant with dense+sparse prefetch fused by
+  Reciprocal Rank Fusion. No Qdrant? Retrieval degrades to structured disk navigation.
+- **Infra is one command away** — the `kb-infra` skill ships a pinned `docker-compose.yml`
+  (`qdrant/qdrant:v1.18.0`, container `oh-my-harness-qdrant`) and the embedding setup.
+
+---
+
 ## Portability across harnesses
 
-`agents/` and `skills/` are the reusable base. Everything Claude-Code-specific (`CLAUDE.md`, `settings.json`, `workflows/`, `SETUP.md`) is isolated under `claude-code/` — so adapting to another harness means adding a sibling folder, not rewriting the library.
+`agents/` and `skills/` are the reusable base. Everything Claude-Code-specific (`CLAUDE.md`, `settings.json`, `workflows/`) is isolated under `claude-code/` — so adapting to another harness means adding a sibling folder, not rewriting the library.
 
 | Primitive   | Claude Code | Codex        | Cursor           |
 | ----------- | :---------: | :----------: | :--------------: |
@@ -162,9 +228,9 @@ Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with
 
 ## Extending the library
 
-**Add a skill** → create `skills/<name>/SKILL.md` with `name` + `description` in the frontmatter; put deep content in `references/` and link it from the `## Reference Files` section.
+**Add a skill** → create `skills/<theme>/<name>/SKILL.md` with `name` + `description` in the frontmatter; put deep content in `references/` and link it from the `## Reference Files` section. The install step flattens it to `~/.claude/skills/<name>/`, so `<name>` must stay unique across the whole tree.
 
-**Add an agent** → create `agents/<name>.md` with `name`, `description`, `tools` (least-privilege) and a `skills:` list.
+**Add an agent** → create `agents/<theme>/<name>.md` with `name`, `description`, `tools` (least-privilege) and a `skills:` list. Discovery is recursive, so the theme is purely organizational — `<name>` (frontmatter) must still be unique across the whole tree.
 
 **Add a workflow** → create `claude-code/workflows/<name>.ts` following the Workflow API (`meta`, phases, `agent()` / `parallel()` / `pipeline()`).
 
