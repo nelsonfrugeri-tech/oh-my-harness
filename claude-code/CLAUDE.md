@@ -42,6 +42,7 @@ Agents e skills **nunca** citam uma tool concreta (ex.: `mcp__github__create_pul
 | `ci`         | Pipelines de CI/CD                                | _(preencher — ex.: GitHub Actions via CLI)_ |
 | `memory`     | Notas/contexto persistente do projeto (opcional)  | _(preencher; vazio = default: agent `knowledge-base` sobre a KB local)_ |
 | `web`        | Busca e fetch na web                              | `WebSearch`, `WebFetch`                      |
+| `code-graph` | Query/path/explain sobre um knowledge graph de codebase já construído | `mcp__graphify__*` (server stdio; venv em `~/projects/mcps/graphify/.venv`) |
 
 **Primitivos universais** (sempre disponíveis, não precisam de plugue): `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`.
 
@@ -67,6 +68,7 @@ pluga os tools agents: quem são, o que operam e os fatos de ambiente que eles o
 | --- | --- | --- | --- |
 | `context` | Mantém e carrega o contexto vivo do projeto atual (`~/knowledge-base/{project}/context.md`) | `explorer` | Hook `SessionStart` (reminder `# omh-managed: context`) + pedido explícito ("atualize o context") |
 | `knowledge-base` | Gerencia a knowledge base: infra (Qdrant + embedding), escrita de notas (scribe), recuperação (escada de 3 degraus) e memória de sessão do harness (session records + deep search) | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` | Pedido do usuário ("registra isso", "o que decidimos sobre X?", "sobe a KB", "o que falamos naquela sessão?") ou de outro agent; **de carona**, toda invocação do agent atualiza o session record da sessão corrente |
+| `graphify` | Opera o knowledge graph de codebase/corpus: build/update do grafo em `graphify-out/` e query/path/explain sobre ele (fast path se `graph.json` já existe) | `graphify` | Pedido do usuário ("/graphify", "monta o grafo do projeto", "como X se conecta a Y?", "explica o nó Z") ou de outro agent que navegue o codebase como grafo |
 
 O roteamento fino (que skill usar em cada intenção) vive nas descriptions dos próprios
 agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
@@ -96,6 +98,15 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
    `created_at` (nunca muda) / `updated_at` (ISO 8601 UTC). Indexado no
    Qdrant com `kind: "session"` (notas usam `kind: "note"`), re-upsert no mesmo point —
    detalhes na skill `kb-session`.
+6. **Graphify** — engine `graphifyy` (Python 3.10+) instalada na venv isolada
+   `~/projects/mcps/graphify/.venv`, com o server MCP stdio `graphify-mcp-server` plugado na
+   capability `code-graph`. O grafo de cada projeto vive em `graphify-out/graph.json` **dentro do
+   cwd do projeto analisado** (design da tool) e persiste entre sessões — mas `graphify-out/` deve
+   entrar no `.gitignore` do projeto, nunca ser commitado. Build é AST-first (código não precisa de
+   LLM nem de API key); semantic extraction (docs/papers/imagens) só roda com dispatch de subagents
+   ou backend Gemini opcional. Repos remotos clonados via `graphify clone` vão para
+   `~/.graphify/repos/<owner>/<repo>`, fora do working tree. **O interpretador Python é descoberto e
+   persistido** em `graphify-out/.graphify_python` — nunca hardcode `python3`.
 
 ### Session memory por harness
 
