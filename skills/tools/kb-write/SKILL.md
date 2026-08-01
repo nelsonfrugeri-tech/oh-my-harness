@@ -238,10 +238,10 @@ Três regras de link:
 
 **Limites quantitativos**: no máximo **5 links** por nota (acima disso vira ruído de
 navegação). Na busca híbrida com fusão RRF (ver `kb-retrieval`), descarte candidatos com
-`score < 0.02` — o score RRF com `k=60` e duas listas (dense + sparse) tem teto teórico
-≈ 0.033. Em corpus pequeno (≤ 50 notas) o filtro de score não discrimina — confie
-inteiramente no critério qualitativo. Score alto sem relação semântica real **não** vira
-link.
+`score < 0.4` — o RRF do Qdrant usa `k = 2` e rank base zero, então o teto é **1.0** e
+0.4 é o piso de "aparece bem posicionado nas duas listas". Em corpus pequeno (≤ 50 notas)
+o filtro de score não discrimina — confie inteiramente no critério qualitativo. Score
+alto sem relação semântica real **não** vira link.
 
 > Por que abandonamos `links_out: [uuid]`: uuid no frontmatter só é navegável por quem
 > tem o índice. Link markdown é navegável por qualquer leitor, renderiza no GitHub,

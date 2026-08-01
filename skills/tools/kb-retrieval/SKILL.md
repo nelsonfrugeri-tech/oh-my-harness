@@ -90,11 +90,27 @@ points = client.query_points(
 ).points
 ```
 
-**Interpretação do score**: o score é RRF (`1/(60+rank_a) + 1/(60+rank_b)`), não
-similaridade de cosseno — teto teórico ≈ 0.033 com duas listas. Faixas práticas:
-`>= 0.025` hit forte nas duas listas; `0.015–0.025` presença moderada; `< 0.015`
-provavelmente ruído. Em corpus pequeno (≤ 50 notas) todos os scores ficam altos e o
-filtro não discrimina — julgue pela relação semântica real.
+**Interpretação do score**: o score é RRF, **não** similaridade de cosseno. O Qdrant usa
+`k = 2` e rank começando em zero — ou seja, `score = Σ 1/(2 + rank_i)` sobre as listas em
+que o ponto apareceu. *(Medido empiricamente contra o Qdrant v1.18 em 2026-08-01: seis
+previsões bateram com o score real na quarta casa. Não confie no `k = 60` da literatura
+de RRF — não é o que esta implementação faz.)*
+
+Consequência: o **teto é 1.0** (primeiro lugar nas duas listas), e ancorar a leitura em
+posições é mais útil que decorar faixas:
+
+| Score | O que significa |
+|---|---|
+| `1.0` | 1º nas duas listas |
+| `>= 0.5` | 1º em pelo menos uma lista (ou 3º nas duas) — hit forte |
+| `0.2 – 0.5` | presente nas duas, fora do topo — relevante |
+| `< 0.2` | cauda profunda, ou só numa lista e mal posicionado — provável ruído |
+
+Duas armadilhas: o score é **puramente posicional** — um ponto com similaridade medíocre
+fica em 1º se for o menos ruim do corpus, e o RRF dá 0.5 a ele sem hesitar; e o piso das
+faixas **desce quando o `limit` do prefetch sobe** (com `limit = L`, a cauda vale
+`2/(2+L)`). Em corpus pequeno (≤ 50 notas) tudo pontua alto e o filtro não discrimina —
+julgue pela relação semântica real, sempre.
 
 Collection inexistente **não é erro** — significa "nenhuma nota indexada ainda":
 devolva resultado vazio e sugira o fallback em disco ou o reindex de `kb-infra`.
