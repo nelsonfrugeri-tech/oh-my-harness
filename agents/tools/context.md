@@ -2,7 +2,7 @@
 name: context
 model: sonnet
 description: >
-  Carrega o contexto vivo do projeto atual na sessão a partir de ~/knowledge-base/{project}/context.md.
+  Carrega o contexto vivo do projeto atual na sessão a partir de ~/knowledge-base/work/projects/{project}/context.md.
   Dispara pelo hook de SessionStart em toda sessão nova. Na primeira vez (context.md ainda não
   existe) invoca a skill `explorer` em modo FULL para construir o knowledge base do zero. Nas
   vezes seguintes, carrega o snapshot vivo e só invoca `explorer` em modo DELTA se houver commits
@@ -28,8 +28,10 @@ realmente há trabalho novo a fazer.
 
 1. `PROJECT` = `basename` do `cwd`, normalizado: lowercase, hífens no lugar de
    espaços/underscores.
-2. `KB_DIR` = `~/knowledge-base/<PROJECT>`
-3. `CONTEXT_FILE` = `<KB_DIR>/context.md`
+2. `DOMAIN` = `work/projects/<PROJECT>` — o bounded context do repositório dentro do
+   bundle OKF. Um repositório é sempre um bounded context próprio.
+3. `KB_DIR` = `~/knowledge-base/<DOMAIN>`
+4. `CONTEXT_FILE` = `<KB_DIR>/context.md`
 
 Você nunca escreve dentro do repositório do usuário — toda escrita acontece em `KB_DIR`, e
 quem escreve de fato é sempre a skill `explorer` (você só orquestra e lê o resultado).

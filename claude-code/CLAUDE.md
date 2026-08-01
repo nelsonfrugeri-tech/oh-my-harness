@@ -65,7 +65,7 @@ pluga os tools agents: quem são, o que operam e os fatos de ambiente que eles o
 
 | Agent | Papel | Skills | Disparo |
 | --- | --- | --- | --- |
-| `context` | Mantém e carrega o contexto vivo do projeto atual (`~/knowledge-base/{project}/context.md`) | `explorer` | Hook `SessionStart` (reminder `# omh-managed: context`) + pedido explícito ("atualize o context") |
+| `context` | Mantém e carrega o contexto vivo do projeto atual (`~/knowledge-base/work/projects/{project}/context.md`) | `explorer` | Hook `SessionStart` (reminder `# omh-managed: context`) + pedido explícito ("atualize o context") |
 | `knowledge-base` | Gerencia a knowledge base: infra (Qdrant + embedding), escrita de notas (scribe), recuperação (escada de 3 degraus) e memória de sessão do harness (session records + deep search) | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` | Pedido do usuário ("registra isso", "o que decidimos sobre X?", "sobe a KB", "o que falamos naquela sessão?") ou de outro agent; **de carona**, toda invocação do agent atualiza o session record da sessão corrente |
 
 O roteamento fino (que skill usar em cada intenção) vive nas descriptions dos próprios
@@ -73,25 +73,49 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
 
 ### Fatos de ambiente (vinculantes)
 
-1. **Knowledge base em `~/knowledge-base/{project}/`** — `context.md` (contexto vivo) +
-   `notes/` (notas do scribe) + `sessions/` (session records da `kb-session`). Sempre
-   **fora** do repositório do usuário; `{project}` = basename do cwd em lowercase-kebab.
-2. **Infra da KB** = Qdrant local (docker, container `oh-my-harness-qdrant`, porta `6333`,
-   volume `~/knowledge-base/.qdrant`) + embedding **`BAAI/bge-m3`** via `FlagEmbedding`
+1. **A knowledge base é um bundle OKF v0.2** enraizado em `~/knowledge-base/` — sempre
+   **fora** do repositório do usuário. [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+   é o padrão aberto do Google para conhecimento consumível por agents: markdown com
+   YAML frontmatter, `type` como único campo obrigatório, `index.md`/`log.md` como
+   nomes reservados, e **relacionamentos como links markdown** — nunca como campo
+   estruturado. O spec permite que produtores incluam qualquer chave extra e proíbe
+   consumidores de rejeitar por chave desconhecida — é por isso que nossas extensões
+   (`id`, `knowledge_type`, `domain`, `created_at`, `entities`, `summary`, `supersedes`)
+   convivem legalmente com ele.
+2. **A árvore de diretórios é uma ontologia, não acúmulo** — duas camadas, no espírito
+   do DDD: **bounded context** (`person/`, `work/ifood/`, `work/projects/<repo>/` — a
+   fronteira onde uma palavra tem um significado só; é o valor do campo `domain`) e,
+   dentro dele, **uma pasta por tipo de entidade** no plural (`systems/`, `decisions/`,
+   `people/`), casada com o `type` da nota no singular. Relacionamento **nunca vira
+   pasta**. Duas regras duras contra taxonomia que mata a captura: pasta nasce só na
+   **segunda** nota daquele tipo, e **no máximo 3 níveis** por bounded context.
+3. **Toda nota carrega dois eixos de tipo**: `type` responde *"sobre o que isso é"* (o
+   substantivo do domínio, exigido pelo OKF) e `knowledge_type` responde *"como eu sei
+   disso"* (enum fechado `decision | event | procedure | reference | conversation`).
+   E carrega **proveniência**: `generated: {by, at}` sempre; `verified: [{by: human:…}]`
+   **só** com confirmação real do usuário — falsificar essa marca é a pior coisa que um
+   agent pode fazer com a KB.
+4. **Infra da KB** = Qdrant local (docker, container `oh-my-harness-qdrant`, porta `6333`,
+   volume `~/.local/share/omh-kb/qdrant`) + embedding **`BAAI/bge-m3`** via `FlagEmbedding`
    (**dense 1024-dim + lexical sparse** no mesmo forward pass). Collection `knowledge-base`
    com named vectors (dense cosine + sparse). **O modelo de embedding é FIXO** — trocá-lo
-   exige decisão explícita do usuário, pois invalida o índice inteiro.
-3. **Lifecycle do context**: primeira vez → `explorer` **FULL** (análise profunda completa);
+   exige decisão explícita do usuário, pois invalida o índice inteiro. O runtime (volume
+   do Qdrant + venv) vive em `~/.local/share/omh-kb/`, **fora do bundle**: o bundle é
+   markdown sincronizável entre máquinas e celular; o índice é artefato derivado e
+   binário, reconstruível por reindex. Nunca coloque runtime dentro de
+   `~/knowledge-base/`.
+5. **Lifecycle do context**: primeira vez → `explorer` **FULL** (análise profunda completa);
    sessões seguintes → carrega o snapshot e só roda `explorer` **DELTA** se houver commits
    novos desde o `last_hash`; sem commits, apenas carrega (caminho barato). Pedido explícito
    do usuário força DELTA.
-4. **Formato timeline do `context.md`**: um **snapshot vivo** no topo (reescrito a cada run —
+6. **Formato timeline do `context.md`**: um **snapshot vivo** no topo (reescrito a cada run —
    é o que os agents downstream leem) + um **log append-only** (`## Timeline`) — cada run
    apenda uma entrada datada em ISO 8601 UTC; entradas antigas nunca são reescritas.
-5. **Session record = documento vivo** — um JSON por sessão em
-   `~/knowledge-base/{project}/sessions/<session_id>.json`, **reescrito in-place** a cada
-   atualização (exceção nomeada à imutabilidade das notas). Schema resumido: `harness`,
-   `session_id`, `project`, `name`, `description`, `resume` (núcleo do texto embedado —
+7. **Session record = documento vivo** — um JSON por sessão em
+   `~/knowledge-base/{domain}/sessions/<session_id>.json`, **reescrito in-place** a cada
+   atualização (exceção nomeada à imutabilidade das notas; por ser `.json` e não `.md`,
+   fica fora da conformance do OKF). Schema resumido: `harness`,
+   `session_id`, `domain`, `name`, `description`, `resume` (núcleo do texto embedado —
    o embedding é `name + description + resume`), `transcript_path` (caminho absoluto),
    `created_at` (nunca muda) / `updated_at` (ISO 8601 UTC). Indexado no
    Qdrant com `kind: "session"` (notas usam `kind: "note"`), re-upsert no mesmo point —
