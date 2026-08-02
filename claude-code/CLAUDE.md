@@ -122,7 +122,7 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
    `created_at` (nunca muda) / `updated_at` (ISO 8601 UTC). Indexado no
    Qdrant com `kind: "session"` (notas usam `kind: "note"`), re-upsert no mesmo point —
    detalhes na skill `kb-session`.
-6. **Graphify** — engine `graphifyy` (Python 3.10+) instalada na venv isolada
+8. **Graphify** — engine `graphifyy` (Python 3.10+) instalada na venv isolada
    `~/projects/mcps/graphify/.venv`, com o server MCP stdio `graphify-mcp-server` plugado na
    capability `code-graph`. O grafo de cada projeto vive em `graphify-out/graph.json` **dentro do
    cwd do projeto analisado** (design da tool) e persiste entre sessões — mas `graphify-out/` deve
