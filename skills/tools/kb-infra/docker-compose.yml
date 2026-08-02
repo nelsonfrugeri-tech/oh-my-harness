@@ -6,5 +6,5 @@ services:
       - "6333:6333"  # HTTP / REST
       - "6334:6334"  # gRPC
     volumes:
-      - ~/knowledge-base/.qdrant:/qdrant/storage
+      - ~/.local/share/omh-kb/qdrant:/qdrant/storage
     restart: unless-stopped

@@ -3,7 +3,7 @@ version: 1.0.0
 name: explorer
 description: |
   Metodologia de análise profunda de um repositório para construir e manter um knowledge base
-  vivo em ~/knowledge-base/{project}/context.md (fora do repo do usuário). Invocada PELO agent
+  vivo em ~/knowledge-base/work/projects/{project}/context.md (fora do repo do usuário). Invocada PELO agent
   `context` como o passo de trabalho pesado — não é destinada a invocação direta pelo usuário
   nem a auto-load por matching de prompt solto. Dois modos: FULL (primeira vez, context.md
   ainda não existe — análise longuíssima cobrindo identidade, versões e health check de
@@ -37,7 +37,7 @@ para avaliar o código do projeto.
 ## Missão
 
 Manter um knowledge base vivo, atualizado e analítico do projeto em
-`~/knowledge-base/{project}/context.md` (ver *Resolução de Caminhos*) — **fora** do
+`~/knowledge-base/work/projects/{project}/context.md` (ver *Resolução de Caminhos*) — **fora** do
 working tree do usuário, para nunca poluir o repositório analisado. Este arquivo é a base de
 conhecimento compartilhada para todos os agents downstream e contém:
 
@@ -51,7 +51,7 @@ conhecimento compartilhada para todos os agents downstream e contém:
 - **Guia para review** — onde focar, o que melhorar
 
 Modos de operação:
-- **FULL** — `context.md` não existe em `~/knowledge-base/{project}/` → análise completa e
+- **FULL** — `context.md` não existe em `<KB_DIR>` (ver *Resolução de Caminhos*) → análise completa e
   longuíssima (Fases 0 a Final)
 - **DELTA** — `context.md` já existe → apura e apenda apenas o que mudou desde `last_hash`
 
@@ -63,10 +63,18 @@ Antes de todas as fases, resolva onde o knowledge base vive:
 
 1. `PROJECT` = `basename` do `cwd` do repositório analisado, normalizado: lowercase, hífens
    no lugar de espaços/underscores (ex.: `Meu Projeto` → `meu-projeto`).
-2. `KB_DIR` = `~/knowledge-base/<PROJECT>`
-3. `CONTEXT_FILE` = `<KB_DIR>/context.md`
-4. Se `KB_DIR` não existir, crie-o: `mkdir -p "<KB_DIR>"`. Esta é a ÚNICA escrita permitida
+2. `DOMAIN` = `work/projects/<PROJECT>` — o **bounded context** do repositório dentro do
+   bundle OKF (ver `kb-write`). Um repositório é sempre um bounded context próprio.
+3. `KB_DIR` = `~/knowledge-base/<DOMAIN>`
+4. `CONTEXT_FILE` = `<KB_DIR>/context.md`
+5. Se `KB_DIR` não existir, crie-o: `mkdir -p "<KB_DIR>"`. Esta é a ÚNICA escrita permitida
    fora de `CONTEXT_FILE` em si.
+
+> `context.md` é um **documento vivo**, não uma nota: fica na raiz do bounded context,
+> não numa pasta de tipo de entidade, e é reescrito in-place. Ainda assim carrega
+> `type: context` no frontmatter — o OKF exige `type` não-vazio em todo `.md` que não
+> seja `index.md`/`log.md`, e é isso que mantém o bundle conforme. Ele não é indexado
+> como nota pelo `kb-infra`.
 
 O knowledge base nunca é gravado dentro do repositório analisado — sempre em `~/knowledge-base/`.
 
@@ -604,7 +612,10 @@ O arquivo DEVE começar com frontmatter YAML:
 
 ```markdown
 ---
-project: <PROJECT>
+type: context
+title: <PROJECT>
+description: <uma frase: o que este projeto é>
+domain: <DOMAIN>
 generated_at: <ISO 8601 UTC, ex: 2026-06-14T15:30:00Z>
 last_hash: <hash curto do HEAD nesta análise>
 remote_url: <git remote URL ou null>
@@ -972,14 +983,14 @@ findings resolvidos, mudanças de dependências/infra/environment}
 16. **A Fase Final (memória) é opcional** — execute só se a capability `memory` estiver
     plugada; o arquivo em disco é sempre o entregável
 17. **Frontmatter é OBRIGATÓRIO** — o `context.md` deve sempre começar com o bloco YAML
-    (`project`, `generated_at`, `last_hash`, `remote_url`)
+    (`type`, `title`, `description`, `domain`, `generated_at`, `last_hash`, `remote_url`)
 18. **Nunca cite uma tool concreta** — sempre referencie a capability abstrata (`web`,
     `code-host`, `memory`) e resolva pela tabela `## Ambiente & Tools` do `CLAUDE.md`
 19. **Pense profundamente** — analise com rigor e profundidade, especialmente em modo FULL
 
 ## Output Contract
 
-- **Arquivo produzido**: `<CONTEXT_FILE>` = `~/knowledge-base/<PROJECT>/context.md`
+- **Arquivo produzido**: `<CONTEXT_FILE>` = `<KB_DIR>/context.md`
 - **Pasta criada**: `<KB_DIR>` se não existir
 - **Formato**: Markdown com frontmatter YAML seguindo o template exato acima
 - **Estrutura**: snapshot vivo ("## Current snapshot", reescrito a cada run) + log append-only
@@ -987,8 +998,9 @@ findings resolvidos, mudanças de dependências/infra/environment}
 - **Tamanho alvo do snapshot**: 300-600 linhas (expandido para service interface, infra e
   environment)
 - **Encoding**: UTF-8
-- **Frontmatter obrigatório**: `project`, `generated_at` (ISO 8601 UTC), `last_hash`,
-  `remote_url`
+- **Frontmatter obrigatório**: `type: context` (é o que mantém o bundle conforme ao
+  OKF — todo `.md` não-reservado precisa de um `type` não-vazio), `title`,
+  `description`, `domain`, `generated_at` (ISO 8601 UTC), `last_hash`, `remote_url`
 
 Ao finalizar, responda com:
 

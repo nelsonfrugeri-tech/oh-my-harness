@@ -3,10 +3,10 @@ version: 1.0.0
 name: kb-session
 description: |
   Memória de sessão do harness — mantém um session record VIVO por sessão em
-  ~/knowledge-base/{project}/sessions/<session_id>.json (JSON reescrito in-place —
+  ~/knowledge-base/{domain}/sessions/<session_id>.json (JSON reescrito in-place —
   exceção nomeada à imutabilidade das notas) e executa deep search dentro dos
   transcripts brutos do harness quando os degraus 1–2 do retrieval não respondem.
-  Cobre: o schema do record (harness, session_id, project, name, description, resume
+  Cobre: o schema do record (harness, session_id, domain, name, description, resume
   denso 200-800 chars — núcleo do texto embedado, transcript_path, created_at/updated_at),
   a descoberta da sessão corrente por harness (claude-code: JSONL mais recente em
   ~/.claude/projects/<cwd-munged>/), a atualização de carona em toda invocação do
@@ -38,15 +38,23 @@ A doutrina da knowledge base diz que notas são imutáveis (`kb-write`). O sessi
 ele é um **documento vivo**: um único arquivo por sessão, **reescrito in-place** a cada
 atualização, sem `supersedes`, sem arquivo novo. A sessão evolui; o record evolui junto.
 
-Um JSON por sessão em `~/knowledge-base/{project}/sessions/<session_id>.json`
-(`{project}` = basename do cwd em lowercase-kebab, igual ao resto da KB; `mkdir -p` se
-preciso). Schema:
+Um JSON por sessão em `~/knowledge-base/{domain}/sessions/<session_id>.json`
+(`{domain}` = o bounded context da sessão, relativo à raiz do bundle — para uma sessão
+de código, `work/projects/<basename-do-cwd-em-lowercase-kebab>`, exatamente a mesma
+derivação que o `explorer` usa para o `context.md`, para que sessão e contexto do mesmo
+repositório caiam no mesmo bounded context. `mkdir -p` se preciso).
+
+> Session records são `.json`, não `.md` — ficam **fora** do conjunto de arquivos que a
+> conformance do OKF avalia, e por isso podem seguir sendo documentos vivos em JSON
+> dentro de um bundle conforme.
+
+Schema:
 
 ```json
 {
   "harness": "claude-code",
   "session_id": "55cb8ac6-ffb4-417c-b9af-62e513f14737",
-  "project": "oh-my-harness",
+  "domain": "work/projects/oh-my-harness",
   "name": "Refactor da biblioteca portable",
   "description": "Sessão de refactor dos assets/ para o layout agnóstico de harness, cobrindo a decisão de symlink temado e o achatamento de skills.",
   "resume": "<prosa densa de 200-800 chars — núcleo do texto embedado>",
@@ -60,7 +68,7 @@ preciso). Schema:
 |---|---|
 | `harness` | String aberta identificando o harness da sessão: `"claude-code"`, `"codex"`, `"cursor"`, ... |
 | `session_id` | UUID da sessão no harness — também é o nome do arquivo e o point id no Qdrant. |
-| `project` | Basename do cwd em lowercase-kebab (mesma regra do resto da KB). |
+| `domain` | O bounded context da sessão, relativo à raiz do bundle (mesma regra do resto da KB — ver `kb-write`). |
 | `name` | Assunto curto da sessão, no estilo do auto-naming de sessões do Claude Code (ex.: "Refactor da biblioteca portable"). |
 | `description` | Descrição da sessão **até aquele momento** — o que ela cobre, em 1-2 frases. |
 | `resume` | Resumo denso da sessão até aquele momento — **núcleo do texto embedado** (o embedding é `name + description + resume`, ver seção 5). Aplique a mesma doutrina do summary de `kb-write`: prosa densa, específica e auto-contida de **200-800 chars**, sem bullets, nomeando sistemas, decisões e atores. É aqui que o recall da sessão é ganho ou perdido. |
@@ -162,7 +170,7 @@ O record é indexado na collection `knowledge-base` (desenho em `kb-infra`):
   bge-m3, igual às notas.
 - **Point ID**: o UUID do `session_id`.
 - **Payload**: `kind: "session"` (notas usam `kind: "note"` — ver `kb-infra`),
-  `harness`, `session_id`, `project`, `name`, `created_at`, `updated_at`,
+  `harness`, `session_id`, `domain`, `name`, `created_at`, `updated_at`,
   `transcript_path`.
 - **Re-upsert no mesmo point a cada atualização** — documento vivo → índice vivo. Sem
   `supersedes`, sem `archived`: o point é sempre o estado corrente da sessão.

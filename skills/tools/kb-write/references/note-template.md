@@ -14,12 +14,18 @@ O corpo é markdown puro. Seções marcadas **(required)** devem estar presentes
 
 Um parágrafo curto: *por que esta nota existe?* Que situação, pergunta ou gatilho levou
 a registrar isso? Mantenha enxuto — poucas frases. Se o contexto é longo, provavelmente
-é uma nota separada (e deve ser linkada via `links_out`).
+é uma nota separada — e então vira um link para ela.
 
 ### Referências (opcional)
 
-URLs citadas, nomes de documentos relacionados, ponteiros livres. **Links internos
-entre notas vão em `links_out` (campo estruturado do frontmatter), não aqui.**
+URLs externas citadas, nomes de documentos, ponteiros livres.
+
+> **Links internos entre notas não moram aqui.** Eles moram na frase que explica a
+> relação, dentro da seção onde a relação aparece — porque o OKF não tipa
+> relacionamentos: quem diz que a relação é "substitui", "foi causada por" ou "opera"
+> é a prosa em volta do link. Use caminho absoluto ao bundle:
+> `[rotação de chave KMS](/work/projects/api-gateway/procedures/kms-rotation.md)`.
+> Uma lista de "ver também" no rodapé não carrega informação nenhuma.
 
 ---
 
@@ -59,7 +65,7 @@ positivo (um launch, um marco), o que mudou por causa dele.
 #### Causa raiz (optional)
 
 Se a causa raiz é conhecida. Não especule — na dúvida, omita e linke a nota de
-investigação via `links_out`.
+investigação.
 
 #### Próximos passos (optional)
 
@@ -85,7 +91,7 @@ output prova o sucesso.
 
 #### Reversão (optional, quando aplicável)
 
-Como desfazer, ou ponteiro (em `links_out`) para o procedimento inverso.
+Como desfazer, ou link para o procedimento inverso.
 
 ### `reference`
 
@@ -109,7 +115,7 @@ Sobre o que foi a conversa e quem participou. Passado.
 #### Decisões / próximos passos (required)
 
 O que a conversa produziu. **Se há decisões concretas, escreva notas `decision`
-separadas para cada uma e linke esta conversa via `links_out`.** A nota de conversa é o
+separadas para cada uma, linkando de volta para esta conversa.** A nota de conversa é o
 *rastro*; as notas de decisão são o *resultado*.
 
 ---

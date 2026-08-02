@@ -70,12 +70,12 @@ This repository is the **source**. You sync it into your harness's **global stat
           (personal machine)           (work machine)
 
 ┌───────────────────────────────────────────────────────────────────┐
-│  ~/knowledge-base/ · outside any repo                               │
-│  {project}/context.md — living context (`context` agent on each     │
+│  ~/knowledge-base/ · outside any repo · an OKF v0.2 bundle          │
+│  <domain>/context.md — living context (`context` agent on each      │
 │    session start; `explorer` runs only on FULL/DELTA)               │
-│  {project}/notes/ — immutable notes (`knowledge-base` agent →       │
-│    kb-write/kb-retrieval), indexed in local Qdrant via BGE-M3       │
-│  {project}/sessions/ — living session records (`kb-session`),       │
+│  <domain>/<entity-type>/ — immutable notes (`knowledge-base` agent  │
+│    → kb-write/kb-retrieval), indexed in local Qdrant via BGE-M3     │
+│  <domain>/sessions/ — living session records (`kb-session`),        │
 │    pointing at the harness's raw transcripts for deep search        │
 └───────────────────────────────────────────────────────────────────┘
 ```
@@ -89,7 +89,7 @@ This repository is the **source**. You sync it into your harness's **global stat
 - The agent **`claude-code`** (backed by the `claude-code` skill) is the runbook the harness
   runs to sync (see [Quick start](#quick-start)).
 - The agent **`context`**, invoked on every `SessionStart`, keeps a living knowledge base of
-  the *current* project at `~/knowledge-base/{project}/context.md` — built and updated by the
+  the *current* project at `~/knowledge-base/work/projects/{project}/context.md` — built and updated by the
   `explorer` skill, entirely outside the project's own working tree.
 - The agent **`knowledge-base`** manages the persistent knowledge base: infra (local Qdrant +
   BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`), 3-step retrieval
@@ -143,7 +143,7 @@ diff of `CLAUDE.md`/`settings.json`, MCP detection and capability wiring, orphan
 Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug this machine's
 tools. From then on, every session start triggers the `context` agent, which builds (first run)
 or refreshes (later runs) the project's living knowledge base at
-`~/knowledge-base/{project}/context.md`.
+`~/knowledge-base/work/projects/{project}/context.md`.
 
 ---
 
@@ -163,7 +163,7 @@ is only organizational, the agent's real name comes from its frontmatter `name:`
 | `engineers` | `sre`         | Observability, SLO/SLI, incident response              | sonnet |
 | `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
-| `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/{project}/context.md` | sonnet |
+| `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/work/projects/{project}/context.md` | sonnet |
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
 
 ### Skills
@@ -198,19 +198,38 @@ Knowledge lives on disk at `~/knowledge-base/` — outside every repo, portable,
 Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
 
 ```
-~/knowledge-base/
-  {project}/
-    context.md              # living context: snapshot (rewritten) + append-only timeline
-    notes/
-      <date>--<slug>.md     # immutable notes: frontmatter (id, type, summary, ...) + body
-    sessions/
-      <session_id>.json     # living session records: name, description, resume, transcript_path
-  .qdrant/                  # local Qdrant volume (docker, port 6333)
-  .venv/                    # embedding environment
+~/knowledge-base/           # OKF v0.2 bundle — markdown only, syncable across machines
+  index.md                  # bundle root: declares okf_version, lists bounded contexts
+  person/                   # a bounded context
+    people/  finances/      # one folder per entity type
+  work/
+    ifood/                  # a bounded context
+      systems/  teams/  rituals/
+    projects/
+      <repo>/               # a bounded context
+        context.md          # living context: snapshot (rewritten) + append-only timeline
+        decisions/
+          <date>--<slug>.md # immutable notes: frontmatter (type, knowledge_type, ...) + body
+        sessions/
+          <id>.json         # living session records: name, description, resume, transcript_path
+
+~/.local/share/omh-kb/      # runtime, OUTSIDE the bundle — derived and rebuildable
+  qdrant/                   # local Qdrant volume (docker, port 6333)
+  venv/                     # embedding environment
 ```
 
+The directory tree is a deliberate ontology, not accretion: a **bounded context** (the
+`domain` field) holds **one folder per entity type**, and relationships live as markdown
+links in the body — never as folders. Every note carries two axes: `type` (the domain
+noun, required by OKF) and `knowledge_type` (`decision · event · procedure · reference ·
+conversation`).
+
 - **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
-  archived. Types: `decision · event · procedure · reference · conversation`.
+  archived. The only edit ever allowed on an existing note is flipping its `status` to
+  `deprecated` during a supersede.
+- **Provenance is never faked** — every agent-written note carries `generated: {by, at}`;
+  `verified: [{by: human:…}]` appears only when the user actually confirmed it. Retrieval
+  surfaces the difference instead of hiding it.
 - **Session records are living documents** — one JSON per harness session, rewritten in place
   (a named exception to note immutability), pointing at the harness's raw transcript so
   retrieval can deep-search what was actually said in past sessions.

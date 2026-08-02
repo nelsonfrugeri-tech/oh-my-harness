@@ -4,11 +4,12 @@ name: kb-infra
 description: |
   Sobe, verifica e mantém a infraestrutura da knowledge base: Qdrant local via docker
   (compose embutido nesta skill — container oh-my-harness-qdrant, porta 6333, volume
-  persistente em ~/knowledge-base/.qdrant) e o ambiente de embedding BAAI/bge-m3 via
+  persistente em ~/.local/share/omh-kb/qdrant) e o ambiente de embedding BAAI/bge-m3 via
   FlagEmbedding (python, dense 1024-dim + lexical sparse no mesmo forward pass). Cobre
   criação idempotente da collection com named vectors (dense cosine + sparse) e payload
-  indexes (created_at, project, kind), health checks (docker up? collection existe?
-  modelo responde?), reindex das notas e session records em disco e teardown. Invocada
+  indexes (created_at, domain, kind), health checks (docker up? collection existe?
+  modelo responde?), reindex das notas e session records do bundle OKF em disco e
+  teardown. Invocada
   pelo agent `knowledge-base` quando a intenção é subir/verificar/derrubar infra — não
   destinada a invocação direta pelo usuário.
 type: capability
@@ -42,16 +43,20 @@ qualquer cwd). Definição:
 - Image pinada: `qdrant/qdrant:v1.18.0`
 - Container: `oh-my-harness-qdrant`
 - Ports: `6333` (HTTP/REST) e `6334` (gRPC)
-- Volume persistente: `~/knowledge-base/.qdrant:/qdrant/storage` — o dado do Qdrant
-  vive **junto da knowledge base** (global da máquina), nunca no cwd/repo em que o
-  usuário estiver. Este é o único desvio deliberado do compose original da era
-  oh-my-kb, que montava `./.data/qdrant` relativo ao cwd.
+- Volume persistente: `~/.local/share/omh-kb/qdrant:/qdrant/storage` — **fora** do
+  bundle da knowledge base, e nunca no cwd/repo em que o usuário estiver.
 - `restart: unless-stopped` — sobrevive a reboot da máquina.
+
+> **Por que o runtime mora fora de `~/knowledge-base/`**: o bundle é markdown puro,
+> versionável e sincronizável entre máquinas e celular. O volume do Qdrant e o venv de
+> embedding são **artefatos derivados e binários** — gigabytes que nenhum cliente de
+> sync deveria carregar, e que se reconstroem do disco a qualquer momento via reindex.
+> Índice e conhecimento moram em lugares diferentes por desenho.
 
 ### Subida (up)
 
 ```bash
-mkdir -p ~/knowledge-base/.qdrant
+mkdir -p ~/.local/share/omh-kb/qdrant
 docker compose -f "${CLAUDE_SKILL_DIR}/docker-compose.yml" up -d
 ```
 
@@ -76,7 +81,7 @@ segundos para aceitar conexões). Continuou falhando: `docker logs oh-my-harness
 docker compose -f "${CLAUDE_SKILL_DIR}/docker-compose.yml" down
 ```
 
-O volume em `~/knowledge-base/.qdrant` **não** é apagado — os dados sobrevivem ao
+O volume em `~/.local/share/omh-kb/qdrant` **não** é apagado — os dados sobrevivem ao
 teardown e o próximo `up` volta com o índice intacto. Apagar o volume é ação destrutiva:
 só com confirmação explícita do usuário (e é recuperável via reindex, pois o disco é a
 fonte da verdade).
@@ -86,17 +91,18 @@ fonte da verdade).
 ## 2. Ambiente de embedding — `BAAI/bge-m3` via FlagEmbedding
 
 O embedding roda em python num venv **dedicado à knowledge base**, fora de qualquer
-projeto: `~/knowledge-base/.venv`.
+projeto e fora do bundle: `~/.local/share/omh-kb/venv`.
 
 ### Instalação (idempotente)
 
 ```bash
-cd ~/knowledge-base
-test -d .venv || uv venv .venv
-uv pip install --python .venv/bin/python -U FlagEmbedding qdrant-client
+mkdir -p ~/.local/share/omh-kb
+cd ~/.local/share/omh-kb
+test -d venv || uv venv venv
+uv pip install --python venv/bin/python -U FlagEmbedding qdrant-client
 ```
 
-Sem `uv` na máquina, degrade para `python3 -m venv .venv && .venv/bin/pip install -U FlagEmbedding qdrant-client`.
+Sem `uv` na máquina, degrade para `python3 -m venv venv && venv/bin/pip install -U FlagEmbedding qdrant-client`.
 
 Na primeira execução o modelo (~2 GB) é baixado para o cache do Hugging Face — avise o
 usuário que o primeiro run demora.
@@ -138,7 +144,7 @@ def embed(texts: list[str]) -> list[dict]:
 ```
 
 Scripts que usam esse padrão rodam via heredoc no `Bash`
-(`~/knowledge-base/.venv/bin/python - <<'EOF' ... EOF`) — nunca crie arquivos de script
+(`~/.local/share/omh-kb/venv/bin/python - <<'EOF' ... EOF`) — nunca crie arquivos de script
 dentro do projeto do usuário.
 
 ### Health check do modelo
@@ -152,9 +158,9 @@ está instalado — volte à instalação.
 ## 3. Collection do Qdrant — desenho espelhado da era oh-my-kb
 
 Uma collection única, `knowledge-base`, em layout de hybrid search com **named
-vectors**, com os pontos de todos os projetos separados por payload `project` e dois
-**kinds** de ponto convivendo na mesma collection: notas (`kind: "note"`, escritas por
-`kb-write`) e session records (`kind: "session"`, mantidos por `kb-session`):
+vectors**, com os pontos de todos os bounded contexts separados por payload `domain` e
+dois **kinds** de ponto convivendo na mesma collection: notas (`kind: "note"`, escritas
+por `kb-write`) e session records (`kind: "session"`, mantidos por `kb-session`):
 
 | Item | Valor |
 |---|---|
@@ -162,14 +168,19 @@ vectors**, com os pontos de todos os projetos separados por payload `project` e 
 | Named vector dense | `"dense"` — size 1024, distance **Cosine** (casa com o bge-m3) |
 | Named vector sparse | `"sparse"` — `SparseVectorParams()` |
 | Payload index | `created_at` → `DATETIME` (permite `order_by`/filtros temporais sem full-scan) |
-| Payload index | `project` → `KEYWORD` (acelera filtro por projeto) |
+| Payload index | `domain` → `KEYWORD` (acelera filtro por bounded context) |
 | Payload index | `kind` → `KEYWORD` (separa notas de session records no filtro) |
-| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `project`, `created_at`, `summary`, `path`, `supersedes`, `archived` |
-| Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `project`, `name`, `created_at`, `updated_at`, `transcript_path` |
+| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `created_at`, `summary`, `path`, `supersedes`, `archived` |
+| Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `domain`, `name`, `created_at`, `updated_at`, `transcript_path` |
+
+Note os **dois eixos de tipo** no payload de nota: `type` é o substantivo do domínio
+(exigido pelo OKF — `system`, `person`, `decision`...) e `knowledge_type` é o enum
+epistêmico fechado (`decision | event | procedure | reference | conversation`). Os dois
+são filtráveis; o desenho está em `kb-write`.
 
 O payload de session **intencionalmente não carrega** `description`/`resume` nem `path`:
 o disco é a fonte da verdade — um hit de sessão leva à leitura do JSON em
-`~/knowledge-base/<project>/sessions/<session_id>.json` (path derivável do payload).
+`~/knowledge-base/<domain>/sessions/<session_id>.json` (path derivável do payload).
 
 Criação convergente (idempotente — o `if not exists` protege a collection; os payload
 indexes são reaplicados sempre, pois `create_payload_index` é idempotente no servidor):
@@ -186,7 +197,7 @@ if not client.collection_exists("knowledge-base"):
         sparse_vectors_config={"sparse": SparseVectorParams()},
     )
 client.create_payload_index("knowledge-base", "created_at", field_schema=PayloadSchemaType.DATETIME)
-client.create_payload_index("knowledge-base", "project", field_schema=PayloadSchemaType.KEYWORD)
+client.create_payload_index("knowledge-base", "domain", field_schema=PayloadSchemaType.KEYWORD)
 client.create_payload_index("knowledge-base", "kind", field_schema=PayloadSchemaType.KEYWORD)
 ```
 
@@ -197,11 +208,15 @@ client.create_payload_index("knowledge-base", "kind", field_schema=PayloadSchema
 Quando notas ou session records foram escritos com o Qdrant fora do ar (indexação
 pendente), ou o volume foi perdido, reconstrua o índice a partir do disco:
 
-1. Liste as notas (`~/knowledge-base/*/notes/*.md`) **e** os session records
-   (`~/knowledge-base/*/sessions/*.json`).
-2. Para cada nota, extraia o frontmatter (`id`, `title`, `type`, `project`,
-   `created_at`, `summary`, `supersedes`, `archived`) e embede o **summary**
-   (dense + sparse), com payload `kind: "note"`. Para cada session record, embede
+1. Liste as notas — todo `.md` do bundle **exceto** os arquivos reservados `index.md` e
+   `log.md` e o `context.md` de cada contexto — **e** os session records
+   (`~/knowledge-base/**/sessions/*.json`).
+2. Para cada nota, extraia o frontmatter (`id`, `title`, `type`, `knowledge_type`,
+   `domain`, `created_at`, `summary`, `supersedes`, `status`) e embede o **summary**
+   (dense + sparse), com payload `kind: "note"`. O payload `archived` **é derivado**,
+   não lido: `archived = (status == "deprecated")` — `archived` não existe no
+   frontmatter. Nota sem `type` não é conforme ao OKF — reporte em vez de indexar
+   silenciosamente. Para cada session record, embede
    `name + "\n" + description + "\n" + resume` com payload `kind: "session"` (campos
    em `kb-session`).
 3. Faça upsert no Qdrant usando o UUID como point id (`id` da nota; `session_id` do
