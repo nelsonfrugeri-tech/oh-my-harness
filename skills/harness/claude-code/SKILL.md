@@ -80,9 +80,19 @@ suporte da skill (ex.: o `docker-compose.yml` de `kb-infra`) viajam junto.
 Os nomes-folha já são únicos na fonte, então o achatamento nunca colide. Se um dia colidirem,
 pare e pergunte ao usuário como resolver — nunca sobrescreva silenciosamente.
 
-## Passo 3 — Workflows → symlink direto
+## Passo 3 — Workflows e hooks → symlink direto
 
 - `FONTE/claude-code/workflows/*.ts` → `~/.claude/workflows/<nome>.ts`
+- `FONTE/claude-code/hooks/*.sh` → `~/.claude/hooks/<nome>.sh`
+
+Depois de linkar um hook, garanta o bit de execução na **fonte** (`chmod +x`) — o symlink
+não carrega permissão própria, e um hook sem `+x` falha silenciosamente como "non-blocking
+error", deixando a proteção desligada sem avisar ninguém.
+
+O `quality-gate.sh` só age em repositório **explicitamente confiado** (ver `CLAUDE.md`).
+Ao sincronizar, ofereça criar o marcador de confiança para **este** repositório — e só para
+ele. Nunca confie um repositório em massa: o marcador é o que separa "roda os checks do meu
+projeto" de "executa comandos de qualquer repo que eu clonar".
 
 ## Passo 4 — Órfãos / symlinks quebrados
 

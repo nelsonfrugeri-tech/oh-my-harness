@@ -115,7 +115,22 @@ Quando **você pedir um commit**, antes de `git commit`:
 2. **Em paralelo:** code-review num subagent fixado no modelo **fable** sobre o diff *staged* (skill `review` + code-craft), e a suite de testes do projeto.
 3. **Gate:** só commita se o review não tiver blocker **e** os testes passarem. Senão, corrija e repita.
 
-O comando de teste/lint é **descoberto** (Makefile target → config do projeto → default da linguagem), nunca hardcoded.
+O comando de teste/lint é **descoberto** (config do projeto → target de Makefile → default da linguagem), nunca hardcoded.
+
+O passo 3 é **enforçado por hook** (`PreToolUse` em `git commit`, script `~/.claude/hooks/quality-gate.sh`): redescobre os checks, roda, e bloqueia o commit se algum falhar. Check sem comando descoberto é pulado — repo sem suite nunca fica travado. Passou uma vez para aquele conteúdo, o commit seguinte é instantâneo (cache). Projeto pode declarar comandos próprios em `.claude/quality-gate.json` (`format`/`lint`/`typecheck`/`test` + lista `extra`). Emergência: prefixe `OMH_GATE=off` — permitido, mas o hook declara que o commit não foi verificado.
+
+Três fatos que mudam como você o usa:
+
+- **Ele só age em repo explicitamente confiado.** Tudo que ele roda vem do repositório (target de Makefile, string de config, suite de teste), e `PreToolUse` dispara **antes** do prompt de permissão — então num repo qualquer isso seria execução de código de terceiro sem aprovação humana. Sem o marcador, o hook **defere** e não roda nada. Para confiar o repo do diretório atual (vale para ele e todos os seus `git worktree`, porque a identidade vem do git dir comum):
+
+```bash
+D="${XDG_CACHE_HOME:-$HOME/.cache}/omh-quality-gate/trusted"
+mkdir -p "$D" && touch "$D/$(printf %s "$(git rev-parse --path-format=absolute --git-common-dir)" | shasum -a 256 | cut -c1-12)"
+```
+
+O `printf %s` não é decorativo: sem ele o `shasum` come o newline do `git` e gera outro hash — o marcador fica no lugar errado e o gate defere para sempre, sem avisar.
+- **Ele valida o working tree, não o snapshot staged.** Se houver mudança não-staged, o que passou no gate não é exatamente o que vai ser commitado. É a limitação clássica de pre-commit hook; saiba dela antes de confiar cegamente.
+- **A descoberta olha só a raiz do repo.** Monorepo com subprojeto que tem toolchain própria precisa declarar os comandos em `.claude/quality-gate.json`.
 
 ---
 
