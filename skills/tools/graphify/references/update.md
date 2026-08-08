@@ -1,10 +1,10 @@
-# graphify reference: incremental update e cluster-only
+# graphify reference: incremental update and cluster-only
 
-Carregue isto apenas quando o usuário passou `--update` ou `--cluster-only`. Um first-time full build nunca lê este arquivo.
+Load this only when the user passed `--update` or `--cluster-only`. A first-time full build never reads this file.
 
-## Para --update (incremental re-extraction)
+## For --update (incremental re-extraction)
 
-Use quando você adicionou ou modificou arquivos desde a última run. Só re-extrai arquivos alterados - economiza tokens e tempo.
+Use when you've added or modified files since the last run. Only re-extracts changed files - saves tokens and time.
 
 ```bash
 $(cat graphify-out/.graphify_python) -c "
@@ -27,7 +27,7 @@ if new_total > 0:
 "
 ```
 
-Então popule `.graphify_detect.json` para que os Steps 3A–6 (que o leem incondicionalmente) vejam o estado certo para uma incremental run. `files` carrega o changed subset (dirige o Step 3A AST + Step 3B0 cache check apenas no que mudou); `all_files` carrega o full corpus para qualquer step que precise de corpus-wide context:
+Then populate `.graphify_detect.json` so Steps 3A–6 (which read it unconditionally) see the right state for an incremental run. `files` carries the changed subset (drives Step 3A AST + Step 3B0 cache check on only what changed); `all_files` carries the full corpus for any step that needs corpus-wide context:
 
 ```bash
 $(cat graphify-out/.graphify_python) -c "
@@ -45,7 +45,7 @@ Path('graphify-out/.graphify_detect.json').write_text(json.dumps({
 "
 ```
 
-Se arquivos novos existem, primeiro verifique se todos os changed files são code files:
+If new files exist, first check whether all changed files are code files:
 
 ```bash
 $(cat graphify-out/.graphify_python) -c "
@@ -61,12 +61,12 @@ print('code_only:', code_only)
 "
 ```
 
-Se `code_only` é True: imprima `[graphify update] Code-only changes detected - skipping semantic extraction (no LLM needed)`, rode apenas o Step 3A (AST) nos changed files, pule o Step 3B inteiramente (sem subagents), então vá direto para o merge e Steps 4–8.
+If `code_only` is True: print `[graphify update] Code-only changes detected - skipping semantic extraction (no LLM needed)`, run only Step 3A (AST) on the changed files, skip Step 3B entirely (no subagents), then go straight to merge and Steps 4–8.
 
-Se `code_only` é False (algum changed file é doc/paper/image/video): **primeiro, se algum changed file está em `new_files['video']`, rode `references/transcribe.md` (Step 2.5) nesses arquivos, então reescreva `.graphify_detect.json` para mover os transcript paths resultantes para `files['document']` e drop `files['video']`** — caso contrário raw `.mp4/.mp3` paths são alimentados aos semantic subagents como unreadable media (#1392). Então rode o full Steps 3A–3C pipeline normalmente.
+If `code_only` is False (any changed file is a doc/paper/image/video): **first, if any changed file is in `new_files['video']`, run `references/transcribe.md` (Step 2.5) on those files, then rewrite `.graphify_detect.json` to move the resulting transcript paths into `files['document']` and drop `files['video']`** — otherwise raw `.mp4/.mp3` paths are fed to semantic subagents as unreadable media (#1392). Then run the full Steps 3A–3C pipeline as normal.
 
 
-Se nenhum arquivo novo existe (só deleções), crie uma extração vazia para que o merge step possa prune:
+If no new files exist (only deletions), create an empty extraction so the merge step can prune:
 
 ```bash
 if [ ! -f graphify-out/.graphify_extract.json ]; then
@@ -80,7 +80,7 @@ fi
 ```
 
 
-Então:
+Then:
 
 ```bash
 $(cat graphify-out/.graphify_python) -c "
@@ -165,9 +165,9 @@ print('[graphify update] Manifest saved.')
 "
 ```
 
-Então rode os Steps 4–8 no grafo merged normalmente.
+Then run Steps 4–8 on the merged graph as normal.
 
-Depois do Step 4, mostre o graph diff:
+After Step 4, show the graph diff:
 
 ```bash
 $(cat graphify-out/.graphify_python) -c "
@@ -194,17 +194,17 @@ if old_data:
 "
 ```
 
-Antes do merge step, salve o old graph: `cp graphify-out/graph.json graphify-out/.graphify_old.json`
-Limpe depois: `rm -f graphify-out/.graphify_old.json`
+Before the merge step, save the old graph: `cp graphify-out/graph.json graphify-out/.graphify_old.json`
+Clean up after: `rm -f graphify-out/.graphify_old.json`
 
 ---
 
-## Para --cluster-only
+## For --cluster-only
 
-Pule os Steps 1–3. Re-rode o clustering no grafo existente:
+Skip Steps 1–3. Re-run clustering on the existing graph:
 
 ```bash
 graphify cluster-only .
 ```
 
-`graphify cluster-only .` é **self-contained**: ele re-clusters, nomeia comunidades, e regenera `GRAPH_REPORT.md`, `graph.json`, e `graph.html` a partir do grafo existente. **Não re-rode os Steps 5–9** — eles leem intermediate files (`.graphify_extract.json`, `.graphify_detect.json`, `.graphify_analysis.json`) que o cleanup de um build anterior (Step 9) já deletou, então levantam `FileNotFoundError` (#1392). Quando terminar, apresente o refreshed `GRAPH_REPORT.md` summary como de costume.
+`graphify cluster-only .` is **self-contained**: it re-clusters, names communities, and regenerates `GRAPH_REPORT.md`, `graph.json`, and `graph.html` from the existing graph. **Do not re-run Steps 5–9** — they read intermediate files (`.graphify_extract.json`, `.graphify_detect.json`, `.graphify_analysis.json`) that a prior build's cleanup (Step 9) already deleted, so they raise `FileNotFoundError` (#1392). When it finishes, present the refreshed `GRAPH_REPORT.md` summary as usual.

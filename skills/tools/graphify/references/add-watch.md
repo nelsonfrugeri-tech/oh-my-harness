@@ -1,10 +1,10 @@
-# graphify reference: adicionar uma URL e observar uma pasta
+# graphify reference: add a URL and watch a folder
 
-Carregue isto quando o usuário rodou `/graphify add <url>` ou passou `--watch`. Nenhum dos dois faz parte do build default.
+Load this when the user ran `/graphify add <url>` or passed `--watch`. Neither is part of the default build.
 
-## Para /graphify add
+## For /graphify add
 
-Busque uma URL e adicione-a ao corpus, então atualize o grafo.
+Fetch a URL and add it to the corpus, then update the graph.
 
 ```bash
 $(cat graphify-out/.graphify_python) -c "
@@ -24,33 +24,33 @@ except RuntimeError as e:
 "
 ```
 
-Substitua `URL` pela URL real, `AUTHOR` pelo nome do usuário se fornecido, `CONTRIBUTOR` idem. Se o comando sair com erro, diga ao usuário o que deu errado — não continue silenciosamente. Depois de um save bem-sucedido, rode automaticamente o pipeline `--update` sobre `./raw` para fazer o merge do novo arquivo no grafo existente.
+Replace `URL` with the actual URL, `AUTHOR` with the user's name if provided, `CONTRIBUTOR` likewise. If the command exits with an error, tell the user what went wrong - do not silently continue. After a successful save, automatically run the `--update` pipeline on `./raw` to merge the new file into the existing graph.
 
-Tipos de URL suportados (auto-detectados):
-- YouTube / qualquer video URL → áudio baixado via yt-dlp, transcrito para `.txt` na próxima run (requer `pip install 'graphifyy[video]'`)
-- Twitter/X → buscado via oEmbed, salvo como `.md` com o texto do tweet e autor
-- arXiv → abstract + metadata salvos como `.md`
-- PDF → baixado como `.pdf`
-- Imagens (.png/.jpg/.webp) → baixadas, Claude vision extrai na próxima run
-- Qualquer webpage → convertida para markdown via html2text
+Supported URL types (auto-detected):
+- YouTube / any video URL → audio downloaded via yt-dlp, transcribed to `.txt` on next run (requires `pip install 'graphifyy[video]'`)
+- Twitter/X → fetched via oEmbed, saved as `.md` with tweet text and author
+- arXiv → abstract + metadata saved as `.md`
+- PDF → downloaded as `.pdf`
+- Images (.png/.jpg/.webp) → downloaded, Claude vision extracts on next run
+- Any webpage → converted to markdown via html2text
 
 ---
 
-## Para --watch
+## For --watch
 
-Inicie um background watcher que monitora uma pasta e auto-atualiza o grafo quando arquivos mudam.
+Start a background watcher that monitors a folder and auto-updates the graph when files change.
 
 ```bash
 $(cat graphify-out/.graphify_python) -m graphify.watch INPUT_PATH --debounce 3
 ```
 
-Substitua INPUT_PATH pela pasta a observar. O comportamento depende do que mudou:
+Replace INPUT_PATH with the folder to watch. Behavior depends on what changed:
 
-- **Só arquivos de código (.py, .ts, .go, etc.):** re-roda AST extraction + rebuild + cluster imediatamente, sem LLM necessário. `graph.json` e `GRAPH_REPORT.md` são atualizados automaticamente.
-- **Docs, papers, ou imagens:** escreve uma flag `graphify-out/needs_update` e imprime uma notificação para rodar `/graphify --update` (LLM semantic re-extraction requerida).
+- **Code files only (.py, .ts, .go, etc.):** re-runs AST extraction + rebuild + cluster immediately, no LLM needed. `graph.json` and `GRAPH_REPORT.md` are updated automatically.
+- **Docs, papers, or images:** writes a `graphify-out/needs_update` flag and prints a notification to run `/graphify --update` (LLM semantic re-extraction required).
 
-Debounce (default 3s): espera até a atividade de arquivos parar antes de disparar, para que uma onda de writes paralelos de agents não dispare um rebuild por arquivo.
+Debounce (default 3s): waits until file activity stops before triggering, so a wave of parallel agent writes doesn't trigger a rebuild per file.
 
-Pressione Ctrl+C para parar.
+Press Ctrl+C to stop.
 
-Para workflows agênticos: rode `--watch` num terminal em background. Mudanças de código de ondas de agents são pegas automaticamente entre ondas. Se os agents também estão escrevendo docs ou notas, você vai precisar de um `/graphify --update` manual depois dessas ondas.
+For agentic workflows: run `--watch` in a background terminal. Code changes from agent waves are picked up automatically between waves. If agents are also writing docs or notes, you'll need a manual `/graphify --update` after those waves.

@@ -1,10 +1,10 @@
-# graphify reference: commit hook e integração nativa com CLAUDE.md
+# graphify reference: commit hook and native CLAUDE.md integration
 
-Carregue isto quando o usuário pediu para instalar o post-commit hook ou fazer o wire do graphify no CLAUDE.md de um projeto.
+Load this when the user asked to install the post-commit hook or wire graphify into a project's CLAUDE.md.
 
-## Para git commit hook
+## For git commit hook
 
-Instale um post-commit hook que auto-rebuilds o grafo depois de todo commit. Nenhum processo em background necessário - dispara uma vez por commit, funciona com qualquer editor.
+Install a post-commit hook that auto-rebuilds the graph after every commit. No background process needed - triggers once per commit, works with any editor.
 
 ```bash
 graphify hook install    # install
@@ -12,21 +12,21 @@ graphify hook uninstall  # remove
 graphify hook status     # check
 ```
 
-Depois de todo `git commit`, o hook detecta quais arquivos de código mudaram (via `git diff HEAD~1`), re-roda AST extraction nesses arquivos, e reconstrói `graph.json` e `GRAPH_REPORT.md`. Mudanças de doc/image são ignoradas pelo hook - rode `/graphify --update` manualmente para essas.
+After every `git commit`, the hook detects which code files changed (via `git diff HEAD~1`), re-runs AST extraction on those files, and rebuilds `graph.json` and `GRAPH_REPORT.md`. Doc/image changes are ignored by the hook - run `/graphify --update` manually for those.
 
-Se um post-commit hook já existe, o graphify apenda a ele em vez de substituí-lo.
+If a post-commit hook already exists, graphify appends to it rather than replacing it.
 
 ---
 
-## Para integração nativa com CLAUDE.md
+## For native CLAUDE.md integration
 
-Rode uma vez por projeto para deixar o graphify always-on em sessões do Claude Code:
+Run once per project to make graphify always-on in Claude Code sessions:
 
 ```bash
 graphify claude install
 ```
 
-Isto escreve uma seção `## graphify` no CLAUDE.md local que instrui o Claude a verificar o grafo antes de responder perguntas sobre o codebase e reconstruí-lo depois de mudanças de código. Nenhum `/graphify` manual necessário em sessões futuras.
+This writes a `## graphify` section to the local `CLAUDE.md` that instructs Claude to check the graph before answering codebase questions and rebuild it after code changes. No manual `/graphify` needed in future sessions.
 
 ```bash
 graphify claude uninstall  # remove the section

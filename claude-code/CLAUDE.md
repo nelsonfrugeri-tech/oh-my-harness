@@ -27,6 +27,7 @@ Nunca assuma e nunca deixe lixo no projeto do usuário.
 - **Termos técnicos, jargões e nomes próprios** de engenharia de software → inglês inline (ex.: *guard clause*, *idempotency*, *strangler fig*, RAG, OAuth).
 - **Base de código** — código-fonte, comentários, docstrings e documentação que vive num repositório de software → **inglês**.
 - **Chaves de frontmatter, nomes de skill/agent e triggers** → inglês em kebab-case.
+- **Conteúdo *vendored* de terceiro** (skill/runbook publicado por outro projeto) → fica **no idioma original**. Traduzir cria um fork que dá drift silencioso a cada release upstream. Marque a proveniência com `upstream_version` no frontmatter.
 
 Regra prática: você fala comigo em pt-BR; o que vai pro repositório de software é escrito em inglês.
 
@@ -135,14 +136,11 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
    ou backend Gemini opcional. Repos remotos clonados via `graphify clone` vão para
    `~/.graphify/repos/<owner>/<repo>`, fora do working tree. **O interpretador Python é descoberto e
    persistido** em `graphify-out/.graphify_python` — nunca hardcode `python3`.
-   **A skill `graphify` é conteúdo de terceiro traduzido**, não prosa nossa: é o runbook oficial
-   do graphify em pt-BR, com os code blocks byte-idênticos ao upstream — a chave
-   `upstream_version` no frontmatter diz qual versão ela acompanha. Duas consequências: o
-   instalador do próprio graphify **escreve por cima** de `~/.claude/skills/graphify/`, e como
-   esse caminho é symlink para o repo, um upgrade dele suja o working tree — depois de um
-   `graphify` upgrade, rediffe e re-sincronize em vez de assumir que está tudo certo. A cópia
-   oficial em inglês fica arquivada em `~/.claude/.backups/`, fora de `skills/` para não
-   colidir no discovery por nome.
+   **A skill `graphify` é vendored do upstream, em inglês** — é conteúdo de terceiro, não prosa
+   nossa, e por isso escapa da regra de idioma; `upstream_version` no frontmatter diz qual
+   release ela acompanha. O instalador do graphify escreve por cima de
+   `~/.claude/skills/graphify/`, que é symlink para o repo: depois de um upgrade, rediffe e
+   re-sincronize.
 9. **X (Twitter)** — a biblioteca **não hospeda** um servidor MCP de X: o próprio X publica dois
    servidores hospedados, `https://api.x.com/mcp` (posts, busca full-archive, users, bookmarks,
    news/trends, Articles) e `https://docs.x.com/mcp` (documentação, **sem auth**). O acesso é

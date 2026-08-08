@@ -1,27 +1,27 @@
-# graphify reference: transcrever vídeo e áudio
+# graphify reference: transcribe video and audio
 
-Carregue isto apenas quando `detect` reportou um ou mais arquivos `video`. Um corpus sem vídeo nunca lê isto.
+Load this only when `detect` reported one or more `video` files. A corpus with no video never reads this.
 
-### Step 2.5 - Transcrever arquivos de vídeo / áudio (só se arquivos de vídeo detectados)
+### Step 2.5 - Transcribe video / audio files (only if video files detected)
 
-Pule este passo inteiramente se `detect` retornou zero arquivos `video`.
+Skip this step entirely if `detect` returned zero `video` files.
 
-Arquivos de vídeo e áudio não podem ser lidos diretamente. Transcreva-os para texto primeiro, então trate os transcripts como arquivos doc no Step 3.
+Video and audio files cannot be read directly. Transcribe them to text first, then treat the transcripts as doc files in Step 3.
 
-**Estratégia:** Leia os god nodes de `graphify-out/.graphify_detect.json` (ou o analysis file se ele existir de uma run anterior). Você já é um language model — escreva você mesmo um one-sentence domain hint a partir desses labels. Então passe-o ao Whisper como o initial prompt. Nenhuma API call separada necessária.
+**Strategy:** Read the god nodes from `graphify-out/.graphify_detect.json` (or the analysis file if it exists from a previous run). You are already a language model — write a one-sentence domain hint yourself from those labels. Then pass it to Whisper as the initial prompt. No separate API call needed.
 
-**Contudo**, se o corpus tem *apenas* arquivos de vídeo e nenhum outro doc/código, use o generic fallback prompt: `"Use proper punctuation and paragraph breaks."`
+**However**, if the corpus has *only* video files and no other docs/code, use the generic fallback prompt: `"Use proper punctuation and paragraph breaks."`
 
-**Step 1 - Escreva você mesmo o Whisper prompt.**
+**Step 1 - Write the Whisper prompt yourself.**
 
-Leia os top god node labels do detect output ou analysis, então componha uma short domain hint sentence, por exemplo:
+Read the top god node labels from detect output or analysis, then compose a short domain hint sentence, for example:
 
 - Labels: `transformer, attention, encoder, decoder` → `"Machine learning research on transformer architectures and attention mechanisms. Use proper punctuation and paragraph breaks."`
 - Labels: `kubernetes, deployment, pod, helm` → `"DevOps discussion about Kubernetes deployments and Helm charts. Use proper punctuation and paragraph breaks."`
 
-**Export** it as `GRAPHIFY_WHISPER_PROMPT` (o nome exato que o transcriber lê — e ele deve ser `export`ado para que o child Python process o veja) para o próximo comando.
+**Export** it as `GRAPHIFY_WHISPER_PROMPT` (the exact name the transcriber reads — and it must be `export`ed so the child Python process sees it) for the next command.
 
-**Step 2 - Transcreva:**
+**Step 2 - Transcribe:**
 
 ```bash
 export GRAPHIFY_WHISPER_MODEL=base  # or whatever --whisper-model the user passed (must be exported)
@@ -43,10 +43,10 @@ print(f'Transcribed {len(transcript_paths)} file(s)', file=sys.stderr)
 "
 ```
 
-Depois da transcrição:
-- Leia os transcript paths de `graphify-out/.graphify_transcripts.json`
-- Adicione-os à docs list antes de despachar os semantic subagents no Step 3B
-- Imprima quantos transcripts foram criados: `Transcribed N video file(s) -> treating as docs`
-- Se a transcrição falhar para um arquivo, imprima um warning e continue com o resto
+After transcription:
+- Read the transcript paths from `graphify-out/.graphify_transcripts.json`
+- Add them to the docs list before dispatching semantic subagents in Step 3B
+- Print how many transcripts were created: `Transcribed N video file(s) -> treating as docs`
+- If transcription fails for a file, print a warning and continue with the rest
 
-**Whisper model:** Default é `base`. Se o usuário passou `--whisper-model <name>`, `export GRAPHIFY_WHISPER_MODEL=<name>` (ele deve ser exportado, não apenas atribuído) antes de rodar o comando acima.
+**Whisper model:** Default is `base`. If the user passed `--whisper-model <name>`, `export GRAPHIFY_WHISPER_MODEL=<name>` (it must be exported, not just assigned) before running the command above.
