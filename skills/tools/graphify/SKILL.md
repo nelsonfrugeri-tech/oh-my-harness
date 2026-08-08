@@ -1,6 +1,11 @@
 ---
-version: 1.0.0
+version: 1.0.1
 name: graphify
+# Tradução pt-BR do runbook oficial do graphify. Os code blocks são byte-idênticos ao
+# upstream (verificado: 22 blocos, 0 divergentes) — só a prosa é traduzida. Ao subir a
+# versão do graphify, rediffe contra o SKILL.md que o instalador dele escreve e atualize
+# esta chave; enquanto ela ficar para trás, a tradução está velha.
+upstream_version: 0.9.27
 description: |
   Transforma qualquer input (código, docs, papers, imagens, vídeo) num knowledge graph
   navegável e persistente entre sessões, com god nodes, community detection e ferramentas de
