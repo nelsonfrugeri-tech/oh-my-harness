@@ -73,8 +73,7 @@ Qdrant (indexação, busca semântica), faça o health check rápido descrito em
   (name, description, resume, updated_at — reescrita in-place), **sem perguntar**. É
   manutenção de rotina, não uma tarefa a anunciar — no output, a carona pode aparecer
   como um rodapé de uma linha, nunca como tarefa; se o harness da sessão não estiver
-  mapeado na seção "Session memory — a camada bruta" do `CLAUDE.md`, degrade conforme
-  `kb-session`.
+  mapeado, degrade conforme `kb-session`.
 - **Notas são imutáveis** — nunca edite uma nota existente; correções são notas novas
   com `supersedes` (regra detalhada em `kb-write`). **Session records e o `context.md`
   são a exceção nomeada**: documentos vivos, reescritos in-place, nunca via

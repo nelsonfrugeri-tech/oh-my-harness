@@ -119,10 +119,10 @@ conteúdo (as últimas linhas devem bater com a conversa corrente) antes de assu
 
 ### Outros harnesses
 
-Estrutura análoga a descobrir, guiada pela seção **"Session memory — a camada bruta"** do
-`CLAUDE.md`. Se o harness corrente não estiver mapeado lá, **degrade com elegância**:
-escreva o record sem `transcript_path` e diga explicitamente ao usuário o que ficou
-pendente.
+Estrutura análoga a descobrir: um diretório de sessões por projeto, um arquivo por sessão
+nomeado pelo id. Se você não conseguir determinar o caminho com confiança, **degrade com
+elegância**: escreva o record sem `transcript_path` e diga explicitamente ao usuário o que
+ficou pendente. **Nunca invente um caminho de transcript.**
 
 > O `transcript_path` serve ao **modo degradado** do deep search (seção 4.2) e como
 > ponteiro auditável para a origem bruta da sessão. Ele **não** é pré-requisito do deep
