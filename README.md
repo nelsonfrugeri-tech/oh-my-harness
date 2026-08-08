@@ -8,8 +8,8 @@ Write the config once. Plug the tools per machine. Run it on Claude Code today �
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
-[![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-23-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-11-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-26-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -53,7 +53,7 @@ This repository is the **source**. You sync it into your harness's **global stat
 │  agents/                    skills/                  claude-code/  │
 │  ├── engineers/  (6)        ├── engineers/ (17)       CLAUDE.md     │
 │  ├── harness/    (1)        ├── harness/    (1)       settings.json │
-│  └── tools/      (2)        └── tools/      (5)       workflows/    │
+│  └── tools/      (4)        └── tools/      (8)       workflows/    │
 │      (themed; discovery         (themed source; flattened on       │
 │       is recursive)              install — leaf name only)         │
 └──────────────────────────────┬──────────────────────────────────────┘
@@ -95,6 +95,10 @@ This repository is the **source**. You sync it into your harness's **global stat
   BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`), 3-step retrieval
   (`kb-retrieval`) and the harness's session memory — living session records plus deep search
   inside raw transcripts (`kb-session`) — see [Knowledge base](#knowledge-base).
+- The agent **`x-social`** reads and publishes on X (Twitter) through the `social-x` capability.
+  The library hosts no server and stores no credentials: X publishes its own hosted MCP, and
+  each user's account is resolved at runtime via OAuth — so the same files work on any machine,
+  for any account, on any MCP-speaking harness.
 
 ---
 
@@ -106,10 +110,12 @@ Agents and skills reference **abstract capabilities**, never a concrete tool. A 
 
 | Capability  | Role                                   | Example per machine        |
 | ----------- | -------------------------------------- | -------------------------- |
-| `code-host` | Pull/Merge Requests, issues            | `mcp__github__*` / GitLab  |
-| `ci`        | CI/CD pipelines                        | GitHub Actions / GitLab CI |
-| `memory`    | Persistent project notes (optional)    | any memory MCP             |
-| `web`       | Search and fetch                       | `WebSearch`, `WebFetch`    |
+| `code-host`  | Pull/Merge Requests, issues           | `mcp__github__*` / GitLab  |
+| `ci`         | CI/CD pipelines                       | GitHub Actions / GitLab CI |
+| `memory`     | Persistent project notes (optional)   | any memory MCP             |
+| `web`        | Search and fetch                      | `WebSearch`, `WebFetch`    |
+| `code-graph` | Query a built codebase knowledge graph | `mcp__graphify__*`        |
+| `social-x`   | Read and publish on X (Twitter)       | X's hosted MCP via `xurl`  |
 
 ### Progressive disclosure
 
@@ -165,6 +171,8 @@ is only organizational, the agent's real name comes from its frontmatter `name:`
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
 | `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/work/projects/{project}/context.md` | sonnet |
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
+| `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
+| `tools`     | `x-social`    | Reads and publishes on X (Twitter) — writes require explicit confirmation | sonnet |
 
 ### Skills
 
@@ -180,7 +188,7 @@ skill must land as a direct child.
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside the harness's raw transcripts). Invoked by the `context` and `knowledge-base` agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside the harness's raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `x-setup` (connect an X account: OAuth app, `xurl` bridge, per-harness plug, cost reality) · `x-ops` (X read/publish playbooks: query operators, cost guard, confirmation protocol). Invoked by the `context`, `knowledge-base`, `graphify` and `x-social` agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 

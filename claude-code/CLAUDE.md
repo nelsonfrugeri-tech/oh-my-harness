@@ -43,6 +43,7 @@ Agents e skills **nunca** citam uma tool concreta (ex.: `mcp__github__create_pul
 | `memory`     | Notas/contexto persistente do projeto (opcional)  | _(preencher; vazio = default: agent `knowledge-base` sobre a KB local)_ |
 | `web`        | Busca e fetch na web                              | `WebSearch`, `WebFetch`                      |
 | `code-graph` | Query/path/explain sobre um knowledge graph de codebase já construído | `mcp__graphify__*` (server stdio; venv em `~/projects/mcps/graphify/.venv`) |
+| `social-x`   | Ler e publicar na plataforma X (Twitter)          | _(preencher — ex.: `mcp__xapi__*`, bridge `xurl mcp` → `https://api.x.com/mcp`)_ |
 | `session-memory` | Busca na **memória bruta** de sessões passadas de agent — cross-harness e cross-projeto: recall por tema, digest de sessão, e `blame` por arquivo | `deja` CLI (`deja "<query>"`, `deja ctx`, `deja blame`) — binário Go local, índice em `~/.cache/deja` |
 
 **Primitivos universais** (sempre disponíveis, não precisam de plugue): `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`.
@@ -61,15 +62,17 @@ Agents e skills **nunca** citam uma tool concreta (ex.: `mcp__github__create_pul
 
 Um **tool agent** é um agent-ferramenta de infraestrutura do harness (tema `agents/tools/`):
 ele não representa um papel de engenharia (como os `engineers/`) nem gerencia a própria
-biblioteca (como o `harness/`) — ele **opera a infraestrutura de conhecimento** que todos os
-outros agents consomem. Assim como a tabela de capabilities pluga tools externas, esta seção
-pluga os tools agents: quem são, o que operam e os fatos de ambiente que eles obedecem.
+biblioteca (como o `harness/`) — ele **opera uma infraestrutura** que os outros agents
+consomem: conhecimento, grafo de codebase ou uma plataforma externa. Assim como a tabela de
+capabilities pluga tools externas, esta seção pluga os tools agents: quem são, o que operam e
+os fatos de ambiente que eles obedecem.
 
 | Agent | Papel | Skills | Disparo |
 | --- | --- | --- | --- |
 | `context` | Mantém e carrega o contexto vivo do projeto atual (`~/knowledge-base/work/projects/{project}/context.md`) | `explorer` | Hook `SessionStart` (reminder `# omh-managed: context`) + pedido explícito ("atualize o context") |
 | `knowledge-base` | Gerencia a knowledge base: infra (Qdrant + embedding), escrita de notas (scribe), recuperação (escada de 3 degraus) e memória de sessão do harness (session records + deep search) | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` | Pedido do usuário ("registra isso", "o que decidimos sobre X?", "sobe a KB", "o que falamos naquela sessão?") ou de outro agent; **de carona**, toda invocação do agent atualiza o session record da sessão corrente |
 | `graphify` | Opera o knowledge graph de codebase/corpus: build/update do grafo em `graphify-out/` e query/path/explain sobre ele (fast path se `graph.json` já existe) | `graphify` | Pedido do usuário ("/graphify", "monta o grafo do projeto", "como X se conecta a Y?", "explica o nó Z") ou de outro agent que navegue o codebase como grafo |
+| `x-social` | Opera a plataforma X (Twitter) pela capability `social-x`: leitura (busca, thread, perfil, trends, bookmarks) e publicação sob confirmação explícita | `x-setup`, `x-ops` | Pedido do usuário ("busca no X sobre Y", "lê essa thread", "posta isso no X", "conecta minha conta do X") ou de outro agent que precise ler/publicar na plataforma |
 
 O roteamento fino (que skill usar em cada intenção) vive nas descriptions dos próprios
 agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
@@ -132,6 +135,21 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
    ou backend Gemini opcional. Repos remotos clonados via `graphify clone` vão para
    `~/.graphify/repos/<owner>/<repo>`, fora do working tree. **O interpretador Python é descoberto e
    persistido** em `graphify-out/.graphify_python` — nunca hardcode `python3`.
+9. **X (Twitter)** — a biblioteca **não hospeda** um servidor MCP de X: o próprio X publica dois
+   servidores hospedados, `https://api.x.com/mcp` (posts, busca full-archive, users, bookmarks,
+   news/trends, Articles) e `https://docs.x.com/mcp` (documentação, **sem auth**). O acesso é
+   plugado na capability `social-x` pelo bridge stdio oficial `xurl mcp`, que faz OAuth 2.0 PKCE
+   com o app do **próprio usuário** e cacheia/renova o token em `~/.xurl/auth.yml` (mode 600) —
+   sempre no `$HOME`, **nunca** dentro de um repositório. **A biblioteca é agnóstica a conta**:
+   nenhum `CLIENT_ID`, `CLIENT_SECRET`, token ou handle entra no repo; um agent nunca imprime o
+   valor de um segredo, só o *estado* da auth. As tools do server são geradas do OpenAPI spec da
+   X API no startup — **descubra-as em runtime, nunca hardcode nomes**. Auth **app-only (bearer)**
+   é read-only e sem contexto de usuário: bookmarks e escrita ficam indisponíveis. **Publicar exige
+   confirmação explícita do usuário, por post** — uma autorização nunca vale para a publicação
+   seguinte, e sem humano no loop o agent entrega rascunho em vez de publicar. **Toda chamada
+   custa**: a X API é pay-as-you-go desde fev/2026 ($0.005 por post lido, $0.015 por post criado,
+   $0.20 se contiver link) — leitura em volume é declarada e autorizada antes, e prestada contas
+   depois. Runbook em `x-setup`, playbooks de operação em `x-ops`.
 
 ### Session memory — a camada bruta
 
@@ -154,12 +172,11 @@ Fatos vinculantes da camada bruta **nesta máquina**:
 - **O índice é artefato derivado e descartável**, em `~/.cache/deja` — mesma doutrina do
   volume do Qdrant: fora do bundle, reconstruível por `deja index --rebuild`, nunca
   sincronizado junto com o markdown.
-- **`DEJA_INCLUDE_SUBAGENTS=1` é obrigatório aqui** (exportado em `~/.zshenv`, para valer
-  também em shell não-interativo). Por padrão o deja-vu pula transcripts de subagent;
-  como delegamos trabalho pesado a subagents, o default descarta ~2/3 do corpus
-  recuperável (medido em 2026-08-08: 1196 → 3466 mensagens indexadas). Os transcripts de
-  subagent são dobrados na sessão-mãe, então incluí-los **não** infla a contagem de
-  sessões.
+- **`DEJA_INCLUDE_SUBAGENTS=1` é obrigatório aqui.** Por padrão o deja-vu pula transcripts
+  de subagent; como delegamos trabalho pesado a subagents, o default descarta ~2/3 do
+  corpus recuperável (medido em 2026-08-08: 1196 → 3466 mensagens indexadas). Os
+  transcripts de subagent são dobrados na sessão-mãe, então incluí-los **não** infla a
+  contagem de sessões.
 - **A redaction acontece no index time** — credenciais, JWTs e valores de alta entropia
   viram `[redacted:<kind>]` antes de entrar no índice. Consequência prática: todo trecho
   que volta pela capability já está tarjado, e por isso **a capability é o caminho
@@ -177,8 +194,8 @@ saber onde ele mora:
 
 Nesse modo degradado o alcance cai para as sessões que **têm session record** — as demais
 ficam invisíveis — e os trechos vêm **sem redaction**; declare as duas limitações ao
-usuário. Harness sem mapeamento nem capability: a `kb-session` escreve o record sem
-`transcript_path` e diz o que ficou pendente.
+usuário. Harness sem mapeamento nem capability: a `kb-session` escreve o
+record sem `transcript_path` e diz o que ficou pendente.
 
 ### Regras (vinculantes)
 
