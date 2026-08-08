@@ -184,9 +184,14 @@ Fatos vinculantes da camada bruta **nesta máquina**:
   transcripts de subagent são dobrados na sessão-mãe, então incluí-los **não** infla a
   contagem de sessões.
 - **A redaction acontece no index time** — credenciais, JWTs e valores de alta entropia
-  viram `[redacted:<kind>]` antes de entrar no índice. Consequência prática: todo trecho
-  que volta pela capability já está tarjado, e por isso **a capability é o caminho
-  preferido para tocar transcript** — ler o `.jsonl` cru na mão contorna essa proteção.
+  viram `[redacted:<kind>]` antes de entrar no índice. É **piso, não garantia**: ao exportar
+  para fora da máquina, revise antes. Consequência prática: todo trecho que volta pela
+  capability já está tarjado, e por isso **a capability é o caminho preferido para tocar
+  transcript** — ler o `.jsonl` cru na mão contorna essa proteção.
+- **O wiring é do `deja install --auto`**, não do nosso sync: ele pluga o MCP e os hooks
+  (PreCompact, auto-recall) em cada harness, com paths desta máquina. Ele também instala a
+  skill `deja-history` em `~/.claude/skills/` — ela é **dele, não órfã**: o sync da
+  biblioteca não deve removê-la.
 
 **Fallback degradado** — se a capability `session-memory` estiver vazia (outra máquina,
 deja-vu não instalado), a `kb-session` cai no acesso direto ao transcript, e aí precisa
