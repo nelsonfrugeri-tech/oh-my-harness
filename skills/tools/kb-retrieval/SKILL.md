@@ -1,5 +1,5 @@
 ---
-version: 2.0.0
+version: 2.1.0
 name: kb-retrieval
 description: |
   Recuperação de conhecimento da knowledge base (bundle OKF v0.2 em ~/knowledge-base/)
@@ -12,9 +12,13 @@ description: |
   anteriores não respondem. Cobre também travessia de relacionamentos por links
   markdown, resolução de cadeias supersedes (sempre preferir a nota mais recente da
   cadeia), leitura dos sinais de confiança (generated/verified) e frescor (stale_after),
-  e montagem de resposta com citação das fontes. Invocada pelo agent `knowledge-base`
-  quando a intenção é buscar/recuperar conhecimento — também usada por kb-write para
-  descobrir relacionamentos.
+  e montagem de resposta com citação das fontes. Cobre ainda a **entrada lateral por
+  arquivo**: quando a pergunta é ancorada num path ("quando mexemos nisso?", "por que
+  esta linha ficou assim?"), não sobe a escada — vai direto ao blame por arquivo da
+  capability `session-memory`, complementar ao git log (o git diz o que mudou; a session
+  memory diz o que estava sendo discutido quando mudou). Invocada pelo agent
+  `knowledge-base` quando a intenção é buscar/recuperar conhecimento — também usada por
+  kb-write para descobrir relacionamentos.
 type: capability
 ---
 
@@ -33,6 +37,23 @@ Duas obrigações transversais: **anuncie na resposta qual degrau a respondeu** 
 diferença entre "busca semântica", "grep estrutural" e "trecho do transcript de uma
 sessão" importa para o leitor) e **nunca escale silenciosamente** — a descida de degrau
 é sempre declarada, nunca disfarçada de resultado do degrau anterior.
+
+### Entrada lateral: quando a pergunta é sobre um *arquivo*
+
+A escada acima busca por **tema**. Quando a pergunta é ancorada num **path** — "quando
+mexemos neste arquivo?", "por que esta linha ficou assim?", "que sessão introduziu isso?"
+— não suba a escada: vá direto ao `blame` por arquivo da capability `session-memory`
+(via `kb-session` §4.1), que lista as sessões que tocaram aquele path, da mais recente
+para a mais antiga.
+
+Isso é **complementar ao `git log`**, não redundante: o git diz *o que* mudou e a mensagem
+de commit; a session memory diz **o que estava sendo discutido** quando mudou — a
+intenção que nenhum commit registra. Numa investigação de "por que isso está assim", use
+os dois.
+
+**Sem a capability**, degrade: `git log --follow` no path para a cronologia, mais o deep
+search degradado (`kb-session` §4.2) usando o basename do arquivo como termo de busca.
+Declare a limitação — sem o índice, só enxergam-se as sessões que têm session record.
 
 ---
 
@@ -187,17 +208,20 @@ resposta pode existir apenas na **memória bruta** do harness. O degrau 3 vai at
 
 **Como descer**:
 
-1. Selecione os **session records mais relevantes** para a query — os hits
-   `kind: "session"` do degrau 1, ou os JSONs achados no degrau 2. Poucos candidatos,
-   ordenados por relevância (2–3 costumam bastar). Se o degrau 1 não retornou **nenhum**
-   hit de sessão (ex.: sessions ainda não indexadas), monte os candidatos com a mecânica
-   do degrau 2: liste `sessions/` em disco por `updated_at` e grep nos campos
-   `name`/`description`/`resume` dos JSONs.
-2. Delegue o mergulho ao **playbook de deep search de `kb-session`** (grep dirigido
-   sobre o transcript + leitura por janelas ao redor dos hits — nunca o JSONL inteiro),
-   passando a query e os candidatos.
-3. Incorpore os trechos recuperados à resposta **com a citação de sessão** exigida por
-   `kb-session` (session name + session_id + harness).
+1. Delegue ao **playbook de deep search de `kb-session`** (seção 4), passando a query. Ele
+   busca pela capability `session-memory`, que varre os transcripts de **todos os
+   harnesses e todos os projetos** da máquina.
+2. Incorpore os trechos recuperados à resposta **com a citação de sessão** exigida por
+   `kb-session` (session name + session_id + harness), sinalizando quando o trecho vier
+   de outro projeto/cwd.
+
+> **Session record não é pré-requisito.** Numa versão anterior este degrau exigia
+> selecionar antes os session records candidatos, porque a busca só sabia mergulhar num
+> transcript já apontado por um record. Com a capability isso caiu: a busca alcança
+> sessões que **nunca tiveram record**. Os hits `kind: "session"` do degrau 1 seguem
+> úteis como **pista de ranking** ("o tema apareceu nesta sessão"), mas não são mais o
+> portão de entrada. No modo degradado (sem capability) o pré-requisito volta a valer —
+> ver `kb-session` §4.2.
 
 **Nunca desça silenciosamente**: anuncie que os degraus estruturados não bastaram e que
 o deep search foi acionado — e, se nem ele encontrar, diga que a knowledge base e as
@@ -284,3 +308,5 @@ Fontes:
    ao degrau 2 (bundle em disco) ou 3 (deep search via `kb-session`) é sempre declarada.
 8. **Scripts efêmeros via heredoc** com o venv de `kb-infra` — nunca crie arquivos de
    script no projeto do usuário.
+9. **Pergunta ancorada num arquivo não sobe a escada** — vai direto ao blame por arquivo
+   da capability `session-memory`, e se combina com `git log` quando o "porquê" importa.

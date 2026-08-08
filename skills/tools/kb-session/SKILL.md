@@ -1,21 +1,24 @@
 ---
-version: 1.0.0
+version: 2.0.0
 name: kb-session
 description: |
   Memória de sessão do harness — mantém um session record VIVO por sessão em
   ~/knowledge-base/{domain}/sessions/<session_id>.json (JSON reescrito in-place —
-  exceção nomeada à imutabilidade das notas) e executa deep search dentro dos
-  transcripts brutos do harness quando os degraus 1–2 do retrieval não respondem.
+  exceção nomeada à imutabilidade das notas) e executa deep search na memória bruta
+  de sessões quando os degraus 1–2 do retrieval não respondem.
   Cobre: o schema do record (harness, session_id, domain, name, description, resume
   denso 200-800 chars — núcleo do texto embedado, transcript_path, created_at/updated_at),
   a descoberta da sessão corrente por harness (claude-code: JSONL mais recente em
   ~/.claude/projects/<cwd-munged>/), a atualização de carona em toda invocação do
   agent knowledge-base, a indexação como point vivo no Qdrant (kind: "session",
-  re-upsert no mesmo point, sem supersedes) e o playbook de deep search dirigido —
-  grep + leitura por janelas sobre o JSONL, nunca o arquivo inteiro. Invocada pelo
-  agent `knowledge-base` sob demanda ("registra a sessão", "atualiza o resumo da
-  sessão", "o que falamos naquela sessão sobre X?") ou como degrau 3 de
-  `kb-retrieval` — não destinada a invocação direta pelo usuário.
+  re-upsert no mesmo point, sem supersedes) e o playbook de deep search pela capability
+  `session-memory` — busca cross-harness e cross-projeto por tema, digest de sessão e
+  blame por arquivo, com a disciplina de query lexical AND (poucos termos raros, não
+  frases) — mais o modo degradado por grep dirigido sobre o JSONL quando a capability
+  não existe. Invocada pelo agent `knowledge-base` sob demanda ("registra a sessão",
+  "atualiza o resumo da sessão", "o que falamos naquela sessão sobre X?", "que sessões
+  mexeram neste arquivo?") ou como degrau 3 de `kb-retrieval` — não destinada a
+  invocação direta pelo usuário.
 type: capability
 ---
 
@@ -116,51 +119,92 @@ conteúdo (as últimas linhas devem bater com a conversa corrente) antes de assu
 
 ### Outros harnesses
 
-Estrutura análoga a descobrir, guiada pela tabela **"Session memory por harness"** do
-`CLAUDE.md` — é ela que mapeia onde vive a memória bruta de cada harness **nesta
-máquina**. Se o harness corrente não estiver mapeado na tabela, **degrade com
-elegância**: escreva o record sem `transcript_path` e diga explicitamente ao usuário o
-que ficou pendente (deep search indisponível para essa sessão até o mapeamento existir).
+Estrutura análoga a descobrir, guiada pela seção **"Session memory — a camada bruta"** do
+`CLAUDE.md`. Se o harness corrente não estiver mapeado lá, **degrade com elegância**:
+escreva o record sem `transcript_path` e diga explicitamente ao usuário o que ficou
+pendente.
+
+> O `transcript_path` serve ao **modo degradado** do deep search (seção 4.2) e como
+> ponteiro auditável para a origem bruta da sessão. Ele **não** é pré-requisito do deep
+> search: com a capability `session-memory` disponível, a busca alcança os transcripts de
+> todos os harnesses da máquina independentemente do que este campo diga — inclusive de
+> sessões que nunca tiveram record.
 
 ## 4. Deep search na session memory — o coração da skill
 
 Este é o degrau 3 da escada de retrieval (ver `kb-retrieval`): quando a busca no Qdrant
 e a navegação em disco não respondem (ou respondem parcialmente), a resposta pode estar
-na **memória bruta** de uma sessão passada. Você recebe a **query** e os **session
-records candidatos** (vindos do Qdrant ou do disco, já ranqueados por relevância) e,
-para cada candidato, faz busca **dirigida** dentro do transcript.
+na **memória bruta** de uma sessão passada.
 
-O playbook, por candidato:
+O deep search roda pela capability **`session-memory`** (ver `CLAUDE.md`), que indexa os
+transcripts de **todos os harnesses e todos os projetos** da máquina — não só a sessão
+corrente. Isso importa: a resposta com frequência está numa sessão que **nunca teve
+session record**, ou num harness diferente. O caminho por `transcript_path` só alcança o
+que algum record já apontou; a capability alcança o corpus inteiro.
 
-1. **Siga o `transcript_path`** do record. Se o arquivo não existe mais (transcript
-   expirado/apagado), registre isso e passe ao próximo candidato.
-2. **Grep dirigido, nunca leitura integral.** Os transcripts são arquivos grandes —
-   **NUNCA leia o JSONL inteiro**. Comece com `grep -n` sobre o arquivo usando os
-   termos da query — e variações: sinônimos, o termo em inglês e em português, nomes de
-   arquivos/sistemas relacionados. Vários greps baratos superam uma leitura cara:
+### 4.1 Modo normal — via capability
+
+1. **Busque por tema.** Chame a capability com os termos da query. Se ela devolver
+   sessões demais, restrinja por janela temporal; se devolver nada, use a disciplina de
+   query abaixo antes de desistir.
+2. **Aprofunde na melhor candidata.** Com a sessão identificada, peça o **digest** dela
+   para ler o contexto em volta do trecho, em vez de abrir o transcript na mão.
+3. **Pergunta sobre um arquivo, não sobre um tema?** Existe uma entrada própria: a busca
+   por **quais sessões tocaram um path**. Use-a quando a pergunta for "quando mexemos
+   neste arquivo?", "quem escreveu isso?", "por que este trecho ficou assim?".
+4. **Responda com citação obrigatória** — ver 4.3.
+
+> **Disciplina de query — o oposto da busca semântica.** A capability é **lexical com
+> semântica AND**: cada palavra a mais *estreita* o resultado, ao contrário do embedding,
+> onde uma frase rica *melhora* o recall. Escreva **2 a 3 termos raros**, não uma
+> pergunta. Aspas exigem a frase contígua. Se veio vazio, **remova** termos e tente
+> sinônimos — em português e em inglês, porque os transcripts misturam os dois.
+
+### 4.2 Modo degradado — sem a capability
+
+Se `session-memory` estiver vazia na tabela de capabilities, caia no acesso direto ao
+transcript. **Declare o modo degradado** e suas duas limitações: o alcance cai para as
+sessões que **têm session record** e cujo transcript ainda existe — sessões sem record
+ficam invisíveis; e os trechos vêm **sem redaction** (podem conter credenciais — não os
+ecoe inteiros).
+
+Candidatos = os session records ranqueados pelos degraus 1–2 de `kb-retrieval` (hits
+`kind: "session"` do Qdrant, ou os JSONs achados em disco). Chegando pela **entrada
+lateral por arquivo**, a escada não foi subida: monte os candidatos você mesmo, usando o
+path ou o basename do arquivo como termo de busca. Por candidato, siga o
+`transcript_path` do record. Se o arquivo não existe mais, registre e passe ao próximo.
+Então:
+
+1. **Grep dirigido, nunca leitura integral.** Os transcripts são arquivos grandes —
+   **NUNCA leia o JSONL inteiro**. Vários greps baratos superam uma leitura cara:
 
    ```bash
    grep -n -i "termo-da-query" <transcript_path>
    grep -n -i -E "sinonimo1|sinonimo2|nome-do-sistema" <transcript_path>
    ```
 
-3. **Leitura por janelas ao redor dos hits.** Com os números de linha dos hits, leia
-   apenas **janelas** ao redor deles (Read com offset/limit — ex.: ~20 linhas antes e
-   depois do hit) para capturar o contexto conversacional do trecho. Expanda a janela
-   só se o trecho estiver truncado.
-4. **Extraia o texto humano, ignore o ruído.** Cada linha do JSONL é um evento JSON da
-   conversa — mensagens do usuário, respostas do assistant, tool calls e resultados.
-   Extraia o **texto humano relevante** (o que foi dito/decidido/explicado); ignore
-   metadata, ids de evento, payloads de tool call que não carregam a resposta.
-5. **Responda com citação obrigatória.** Todo trecho recuperado é citado com
-   **session name + session_id + harness** (ex.: *"na sessão 'Refactor da biblioteca
-   portable' (55cb8ac6…, claude-code)"*). O leitor precisa saber de qual conversa o
-   conhecimento veio.
-6. **Nada encontrado?** Diga explicitamente que o deep search nos N transcripts
-   candidatos não encontrou resposta — nunca preencha o vazio com invenção.
+2. **Leitura por janelas ao redor dos hits.** Com os números de linha, leia apenas
+   **janelas** (Read com offset/limit — ex.: ~20 linhas antes e depois). Expanda só se o
+   trecho estiver truncado.
+3. **Extraia o texto humano, ignore o ruído.** Cada linha do JSONL é um evento JSON —
+   mensagens, respostas, tool calls. Extraia o que foi dito/decidido/explicado; ignore
+   metadata, ids de evento e payloads que não carregam a resposta.
 
-Ordem de trabalho: percorra os candidatos do mais relevante para o menos relevante e
-**pare quando a query estiver respondida** — deep search é cirúrgico, não exaustivo.
+### 4.3 Regras comuns aos dois modos
+
+- **Citação obrigatória.** Todo trecho recuperado é citado com **session name +
+  session_id + harness** (ex.: *"na sessão 'Refactor da biblioteca portable'
+  (55cb8ac6…, claude-code)"*). O leitor precisa saber de qual conversa o conhecimento
+  veio. Quando o trecho vier de outro projeto/cwd, **diga isso** — é informação, não
+  ruído.
+- **Cirúrgico, não exaustivo.** Percorra do mais relevante ao menos relevante e **pare
+  quando a query estiver respondida**.
+- **Nada encontrado?** Diga explicitamente que o deep search não encontrou resposta —
+  nunca preencha o vazio com invenção.
+- **Transcript é evidência, não conhecimento.** Se o trecho recuperado revela algo que
+  merece virar conhecimento durável, isso é uma nota via `kb-write` — nunca pelo
+  **mecanismo de escrita/notas da própria capability**, qualquer que seja o nome dele
+  nesta máquina (ver `CLAUDE.md`: um único escritor de conhecimento curado).
 
 ## 5. Indexação no Qdrant — índice vivo, sem supersedes
 
@@ -184,10 +228,19 @@ Degrade sem Qdrant: o JSON em disco é escrito mesmo assim e a indexação fica
    imutabilidade das notas; `created_at` nunca muda, `updated_at` sempre avança.
 2. **`resume` segue a doutrina do summary denso** — 200-800 chars, prosa sem bullets,
    específica e auto-contida; é o contrato de recall da sessão.
-3. **NUNCA leia um transcript inteiro** — deep search é grep dirigido + janelas por
-   offset/limit ao redor dos hits.
-4. **Toda resposta de deep search cita a fonte** — session name + session_id + harness.
-5. **Escrita só em `~/knowledge-base/`** — nunca no repo do usuário; scripts efêmeros
+3. **Deep search pela capability `session-memory`** — é ela que alcança outros harnesses e
+   sessões sem record, e é ela que devolve trechos já **tarjados** (redaction aplicada).
+   Acesso direto ao JSONL é o modo degradado, declarado como tal.
+4. **NUNCA leia um transcript inteiro** — no modo degradado, deep search é grep dirigido +
+   janelas por offset/limit ao redor dos hits.
+5. **Query lexical é AND** — 2 a 3 termos raros, não uma frase. Vazio significa "estreitei
+   demais": remova termos e tente sinônimos em pt e en.
+6. **Toda resposta de deep search cita a fonte** — session name + session_id + harness; e
+   diga quando o trecho veio de outro projeto/cwd.
+7. **Nunca escreva conhecimento curado pela capability** — o mecanismo de notas dela,
+   qualquer que seja seu nome nesta máquina, é proibido; conhecimento durável é nota via
+   `kb-write`.
+8. **Escrita só em `~/knowledge-base/`** — nunca no repo do usuário; scripts efêmeros
    via heredoc com o venv de `kb-infra`.
-6. **Harness não mapeado → degrade explícito** — record sem `transcript_path` e aviso
+9. **Harness não mapeado → degrade explícito** — record sem `transcript_path` e aviso
    do que ficou pendente; nunca invente um caminho de transcript.

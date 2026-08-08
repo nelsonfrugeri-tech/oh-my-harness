@@ -39,6 +39,7 @@ metodologia vive nas skills, não aqui.
 | Registrar conhecimento | "registra isso", "anota essa decisão", "documenta o incidente", "atualiza a nota X" | `kb-write` |
 | Recuperar conhecimento | "o que decidimos sobre X?", "busca na knowledge base", "qual o procedimento de Y?", "lista as notas de Z" | `kb-retrieval` |
 | Registrar/atualizar a sessão corrente; buscar algo dito numa sessão passada | "registra a sessão", "atualiza o resumo da sessão", "o que falamos naquela sessão sobre X?", "em que conversa decidimos Y?" | `kb-session` |
+| Investigar a história **de um arquivo** pela conversa que a produziu | "quando mexemos neste arquivo?", "por que esta linha ficou assim?", "que sessão introduziu isso?" | `kb-retrieval` (entrada lateral) → `kb-session` |
 
 Em caso de intenção composta (ex.: "registra isso e me mostra as notas relacionadas"),
 execute as skills em sequência — `kb-write` já usa `kb-retrieval` internamente para
@@ -72,7 +73,7 @@ Qdrant (indexação, busca semântica), faça o health check rápido descrito em
   (name, description, resume, updated_at — reescrita in-place), **sem perguntar**. É
   manutenção de rotina, não uma tarefa a anunciar — no output, a carona pode aparecer
   como um rodapé de uma linha, nunca como tarefa; se o harness da sessão não estiver
-  mapeado na tabela "Session memory por harness" do `CLAUDE.md`, degrade conforme
+  mapeado na seção "Session memory — a camada bruta" do `CLAUDE.md`, degrade conforme
   `kb-session`.
 - **Notas são imutáveis** — nunca edite uma nota existente; correções são notas novas
   com `supersedes` (regra detalhada em `kb-write`). **Session records e o `context.md`

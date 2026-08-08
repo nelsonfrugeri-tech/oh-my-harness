@@ -43,6 +43,7 @@ Agents e skills **nunca** citam uma tool concreta (ex.: `mcp__github__create_pul
 | `memory`     | Notas/contexto persistente do projeto (opcional)  | _(preencher; vazio = default: agent `knowledge-base` sobre a KB local)_ |
 | `web`        | Busca e fetch na web                              | `WebSearch`, `WebFetch`                      |
 | `code-graph` | Query/path/explain sobre um knowledge graph de codebase já construído | `mcp__graphify__*` (server stdio; venv em `~/projects/mcps/graphify/.venv`) |
+| `session-memory` | Busca na **memória bruta** de sessões passadas de agent — cross-harness e cross-projeto: recall por tema, digest de sessão, e `blame` por arquivo | `deja` CLI (`deja "<query>"`, `deja ctx`, `deja blame`) — binário Go local, índice em `~/.cache/deja` |
 
 **Primitivos universais** (sempre disponíveis, não precisam de plugue): `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`.
 
@@ -132,19 +133,52 @@ agents — aqui ficam os **fatos vinculantes** de ambiente e lifecycle.
    `~/.graphify/repos/<owner>/<repo>`, fora do working tree. **O interpretador Python é descoberto e
    persistido** em `graphify-out/.graphify_python` — nunca hardcode `python3`.
 
-### Session memory por harness
+### Session memory — a camada bruta
 
-Onde vive a **memória bruta de sessão** (transcripts) de cada harness **nesta máquina** —
-é esta tabela que a `kb-session` consulta para achar o transcript da sessão corrente:
+A knowledge base guarda conhecimento **destilado**; a session memory guarda o que foi
+**dito**. São camadas distintas, com escritores distintos, e a fronteira entre elas é
+vinculante:
 
-| Harness | Session memory nesta máquina |
+| Camada | Sistema | Quem escreve | Como se lê |
+| --- | --- | --- | --- |
+| Bruta / episódica | índice do `deja-vu` | ninguém — ingestão automática dos transcripts | capability `session-memory` |
+| Destilada / curada | bundle OKF em `~/knowledge-base/` | **só** a skill `kb-write` | `kb-retrieval` (degraus 1–2) |
+
+**Um único escritor de conhecimento curado.** Os subcomandos `deja remember` e
+`deja promote` criam notas no store do próprio deja-vu, com taxonomia plana — usá-los
+seria abrir um segundo repositório de conhecimento concorrente ao bundle. **São
+proibidos.** Do deja-vu nós só **lemos**.
+
+Fatos vinculantes da camada bruta **nesta máquina**:
+
+- **O índice é artefato derivado e descartável**, em `~/.cache/deja` — mesma doutrina do
+  volume do Qdrant: fora do bundle, reconstruível por `deja index --rebuild`, nunca
+  sincronizado junto com o markdown.
+- **`DEJA_INCLUDE_SUBAGENTS=1` é obrigatório aqui** (exportado em `~/.zshenv`, para valer
+  também em shell não-interativo). Por padrão o deja-vu pula transcripts de subagent;
+  como delegamos trabalho pesado a subagents, o default descarta ~2/3 do corpus
+  recuperável (medido em 2026-08-08: 1196 → 3466 mensagens indexadas). Os transcripts de
+  subagent são dobrados na sessão-mãe, então incluí-los **não** infla a contagem de
+  sessões.
+- **A redaction acontece no index time** — credenciais, JWTs e valores de alta entropia
+  viram `[redacted:<kind>]` antes de entrar no índice. Consequência prática: todo trecho
+  que volta pela capability já está tarjado, e por isso **a capability é o caminho
+  preferido para tocar transcript** — ler o `.jsonl` cru na mão contorna essa proteção.
+
+**Fallback degradado** — se a capability `session-memory` estiver vazia (outra máquina,
+deja-vu não instalado), a `kb-session` cai no acesso direto ao transcript, e aí precisa
+saber onde ele mora:
+
+| Harness | Transcript bruto nesta máquina |
 | --- | --- |
 | `claude-code` | `~/.claude/projects/<cwd-munged>/<session-uuid>.jsonl` — `<cwd-munged>` = caminho absoluto do cwd com `/` e `.` trocados por `-` |
 | `codex` | _(preencher)_ |
 | `cursor` | _(preencher)_ |
 
-Harness sem mapeamento: a `kb-session` degrada — escreve o record sem `transcript_path` e
-declara o que ficou pendente.
+Nesse modo degradado o alcance cai para as sessões que **têm session record** — as demais
+ficam invisíveis — e os trechos vêm **sem redaction**; declare as duas limitações ao
+usuário. Harness sem mapeamento nem capability: a `kb-session` escreve o record sem
+`transcript_path` e diz o que ficou pendente.
 
 ### Regras (vinculantes)
 
