@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.0.1
 name: claude-code
 description: |
   Runbook de sync/instalação da biblioteca oh-my-harness no ~/.claude global. Cobre symlink
@@ -131,10 +131,12 @@ Preencha a tabela `## Ambiente & Tools` do `CLAUDE.md` com os MCPs configurados 
 
 ## Passo 7 — Hook de SessionStart
 
-Confirme que `claude-code/settings.json` (fonte) tem o hook `SessionStart` que dispara o
-fluxo do agent `context` (ver seção correspondente no `CLAUDE.md` deste repositório). Esse
-hook injeta um reminder — ele não executa o agent diretamente; é o loop principal que, ao ver
-o reminder, invoca o agent `context`.
+Confirme que `claude-code/settings.json` aponta `SessionStart` para
+`~/.claude/hooks/context-load.sh`. Esse adapter resolve o loader compartilhado em
+`hooks/context-load.sh`, que deriva o projeto pelo Git root, injeta o snapshot existente e calcula
+o drift desde `last_hash`. Quando o report estiver ausente ou desatualizado, a saída instrui o loop
+principal a invocar o agent `context` em modo FULL ou DELTA. O hook nunca escreve `context.md` e
+continua fail-open; a análise model-backed pertence ao agent, não ao processo de lifecycle.
 
 ---
 
