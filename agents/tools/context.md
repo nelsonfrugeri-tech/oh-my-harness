@@ -26,8 +26,9 @@ realmente há trabalho novo a fazer.
 
 ## Resolução do Projeto
 
-1. `PROJECT` = `basename` do `cwd`, normalizado: lowercase, hífens no lugar de
-   espaços/underscores.
+1. Resolva a raiz Git com `git rev-parse --show-toplevel`. `PROJECT` é o nome-folha dessa raiz,
+   em lowercase, substituindo cada sequência fora de `a-z`, `0-9` e `-` por um hífen e removendo
+   hífens no início e no fim. Esse algoritmo deve permanecer idêntico ao da skill `explorer`.
 2. `DOMAIN` = `work/projects/<PROJECT>` — o bounded context do repositório dentro do
    bundle OKF. Um repositório é sempre um bounded context próprio.
 3. `KB_DIR` = `~/knowledge-base/<DOMAIN>`

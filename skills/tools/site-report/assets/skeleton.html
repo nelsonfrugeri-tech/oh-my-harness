@@ -1,0 +1,313 @@
+<!doctype html>
+<!--
+  SKELETON — analysis site (oh-my-harness standard / site-report skill)
+
+  Copy this file to ~/projects/sites/<project>/<analysis>/index.html and replace its content.
+  DO NOT rewrite <style>: it is the visual contract (references/design-system.md).
+  Every {{...}} marker must be removed from the final file.
+
+  Rules already encoded by this skeleton:
+    · self-contained (zero external requests) · dark · system font
+    · fixed color per entity (--c-* tokens) · status never becomes a series
+    · every table inside .tscroll · scrollspy is the only JavaScript
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{project}} · {{subject}} — análise ({{ref}})</title>
+<style>
+  /* ── canonical frozen dark palette ───────────────────────────────────── */
+  :root{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#212120;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --ring:rgba(255,255,255,.10);
+    /* 8 categorical slots — assign one per entity and NEVER change it */
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+    /* semantic aliases — rename them for the actual domain entities */
+    --c-a:var(--s1); --c-b:var(--s2); --c-c:var(--s3); --c-d:var(--s4);
+    --c-e:var(--s5); --c-f:var(--s7); --c-g:var(--s8);
+    /* status — reserved, never used as a data series */
+    --st-good:#0ca30c; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#d03b3b;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--page);color:var(--ink-2);
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;}
+  h1,h2,h3,h4{color:var(--ink);line-height:1.25;font-weight:650}
+  h1{font-size:30px;margin:0 0 8px}
+  h2{font-size:22px;margin:0 0 6px;scroll-margin-top:76px}
+  h3{font-size:16px;margin:22px 0 8px}
+  p{margin:8px 0}
+  a{color:var(--s1);text-decoration:none} a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:.86em;background:var(--surface-2);
+    border:1px solid var(--ring);border-radius:5px;padding:1px 5px;color:var(--ink-2)}
+  section{max-width:1180px;margin:0 auto;padding:34px 28px 6px}
+  .lead{font-size:16.5px;color:var(--ink-2);max-width:900px}
+  .muted{color:var(--ink-3)} .small{font-size:13px}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:#111110;border-bottom:1px solid var(--grid)}
+  nav .in{max-width:1180px;margin:0 auto;display:flex;gap:4px;align-items:center;
+    padding:10px 28px;overflow-x:auto;white-space:nowrap}
+  nav .brand{color:var(--ink);font-weight:700;margin-right:14px;font-size:14px}
+  nav a{color:var(--ink-3);font-size:13px;padding:5px 9px;border-radius:6px}
+  nav a:hover{color:var(--ink);background:var(--surface);text-decoration:none}
+  nav a.on{color:var(--ink);background:var(--surface)}
+
+  /* cards / grid */
+  .card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:18px 20px;margin:14px 0}
+  .grid{display:grid;gap:14px}
+  .cols-2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .cols-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .cols-4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+
+  /* stat tiles */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin:18px 0}
+  .tile{background:var(--surface);border:1px solid var(--ring);border-radius:10px;padding:12px 14px}
+  .tile b{display:block;font-size:26px;color:var(--ink);font-weight:700}
+  .tile span{font-size:12.5px;color:var(--ink-3)}
+
+  /* chips */
+  .chip{display:inline-block;font-size:12px;border:1px solid var(--ring);border-radius:999px;
+    padding:2px 10px;margin:2px 4px 2px 0;background:var(--surface-2);color:var(--ink-2)}
+  .chip.mono{font-family:var(--mono);font-size:11.5px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:baseline}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  th{color:var(--ink-3);font-weight:600;text-align:left;font-size:12px;
+    text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--baseline);padding:7px 10px}
+  td{border-bottom:1px solid var(--grid);padding:7px 10px;vertical-align:top;color:var(--ink-2)}
+  tr:last-child td{border-bottom:0}
+  td.num,.tnum{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px}
+  .tscroll{overflow-x:auto}
+  .matrix td:not(:first-child),.matrix th:not(:first-child){text-align:center}
+  .cell-off{color:var(--grid)}
+
+  /* component profile */
+  .agent{border-top:3px solid var(--ac,var(--baseline))}
+  .agent h3{margin:2px 0 2px;display:flex;align-items:center;gap:8px;font-size:17px}
+  .agent .role{color:var(--ink-3);font-size:13px;margin-bottom:10px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:13px;margin:10px 0}
+  .kv dt{color:var(--ink-3)} .kv dd{margin:0;color:var(--ink-2)}
+
+  /* progressive disclosure */
+  details{margin:10px 0;border:1px solid var(--grid);border-radius:8px;background:var(--surface-2)}
+  details summary{cursor:pointer;padding:8px 12px;color:var(--ink);font-size:13.5px;font-weight:600}
+  details[open] summary{border-bottom:1px solid var(--grid)}
+  details .body{padding:10px 14px}
+  details ul{margin:4px 0;padding-left:18px} details li{margin:4px 0;font-size:13.5px}
+
+  /* flows */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:12px 0}
+  .flow .step{background:var(--surface-2);border:1px solid var(--ring);border-radius:9px;
+    padding:9px 12px;font-size:13px;min-width:120px;flex:1}
+  .flow .step b{display:block;color:var(--ink);font-size:13px;margin-bottom:2px}
+  .flow .arr{align-self:center;color:var(--ink-3);font-size:16px}
+  .stack{counter-reset:mw;margin:8px 0;padding:0;list-style:none}
+  .stack li{counter-increment:mw;border:1px solid var(--grid);border-radius:8px;
+    background:var(--surface-2);padding:7px 12px 7px 40px;margin:6px 0;position:relative;font-size:13.5px}
+  .stack li::before{content:counter(mw);position:absolute;left:12px;top:7px;color:var(--ink-3);
+    font-family:var(--mono);font-size:12px}
+  .stack li b{color:var(--ink)}
+  .stack li .hook{float:right;color:var(--ink-3);font-family:var(--mono);font-size:11.5px}
+
+  /* timeline */
+  .tl{border-left:2px solid var(--baseline);margin:14px 0 8px 8px;padding-left:22px}
+  .tl .ev{position:relative;margin:0 0 18px}
+  .tl .ev::before{content:"";position:absolute;left:-28px;top:5px;width:10px;height:10px;
+    border-radius:50%;background:var(--ink-3)}
+  .tl .ev.hi::before{background:var(--s1)}
+  .tl .ev b{color:var(--ink)}
+  .tl .date{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+  .legend span{font-size:13px}
+  .divider{border:0;border-top:1px solid var(--grid);max-width:1180px;margin:26px auto}
+  .badge{font-size:11px;border-radius:5px;padding:2px 7px;font-weight:600}
+  .badge.gate{background:rgba(250,178,25,.10);color:var(--st-warn);border:1px solid rgba(250,178,25,.35)}
+  footer{max-width:1180px;margin:30px auto 0;padding:22px 28px 42px;border-top:1px solid var(--grid);
+    color:var(--ink-3);font-size:13px}
+  svg text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+</style>
+</head>
+<body>
+
+<nav><div class="in">
+  <span class="brand">{{project}} · {{subject}}</span>
+  <a href="#visao">Visão geral</a><a href="#componentes">Componentes</a><a href="#fluxo">Fluxo</a>
+  <a href="#matriz">Matriz</a><a href="#achados">Achados</a><a href="#timeline">Timeline</a>
+</div></nav>
+
+<!-- ═══════════════ HERO — lead with the conclusion (BLUF) ═══════════════ -->
+<section id="topo">
+  <div class="kicker">Análise de arquitetura · {{scope}}</div>
+  <h1>{{project}} — {{subject}}</h1>
+  <p class="lead">{{One to three sentences that answer the central question before any detail.
+  If the reader stops here, they have already understood the answer.}}</p>
+  <div style="margin:12px 0">
+    <span class="chip mono">{{branch@commit}}</span>
+    <span class="chip mono">análise {{YYYY-MM-DD}}</span>
+    <span class="chip mono">{{stack}}</span>
+  </div>
+  <div class="tiles">
+    <div class="tile"><b>{{n}}</b><span>{{what was counted}}</span></div>
+    <div class="tile"><b>{{n}}</b><span>{{what was counted}}</span></div>
+    <div class="tile"><b>{{n}}</b><span>{{what was counted}}</span></div>
+    <div class="tile"><b>{{n}}</b><span>{{what was counted}}</span></div>
+  </div>
+  <div class="legend card" style="padding:12px 18px">
+    <span><i class="dot" style="background:var(--c-a)"></i><b style="color:var(--ink)">{{entity A}}</b></span>
+    <span><i class="dot" style="background:var(--c-b)"></i>{{entity B}}</span>
+    <span><i class="dot" style="background:var(--c-c)"></i>{{entity C}}</span>
+    <span class="muted small">— cada entidade mantém a mesma cor em todos os diagramas e tabelas</span>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ 1 · SYSTEM-LEVEL DIAGRAM ═══════════════ -->
+<section id="visao">
+  <h2>1 · A visão macro em um diagrama</h2>
+  <p class="lead">{{Explain what the diagram shows in two sentences so the reader knows what
+  to look for before inspecting it.}}</p>
+
+  <div class="card" style="padding:10px">
+  <!-- Match the viewBox height to the real content: dead space at the bottom appears
+       as an empty band in the card. Check it in the phase 5 screenshot. -->
+  <svg viewBox="0 0 1140 268" role="img" aria-label="{{diagram description}}">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+              orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#898781"/></marker>
+    </defs>
+    <!-- input (neutral box) -->
+    <rect x="40" y="24" width="240" height="46" rx="9" fill="#212120" stroke="rgba(255,255,255,.12)"/>
+    <text x="160" y="46" text-anchor="middle" font-size="13" fill="#fff" font-weight="600">{{input}}</text>
+    <text x="160" y="63" text-anchor="middle" font-size="11.5" fill="#898781">{{input detail}}</text>
+    <line x1="160" y1="70" x2="160" y2="104" stroke="#898781" marker-end="url(#ar)"/>
+    <!-- entity A (hex literal = same value as --c-a) -->
+    <rect x="40" y="108" width="240" height="86" rx="10" fill="#1a1a19" stroke="#3987e5" stroke-width="2"/>
+    <text x="160" y="130" text-anchor="middle" font-size="14" fill="#fff" font-weight="650">{{entity A}}</text>
+    <text x="160" y="149" text-anchor="middle" font-size="11.5" fill="#c3c2b7">{{primary parameter}}</text>
+    <text x="160" y="167" text-anchor="middle" font-size="11.5" fill="#898781">{{secondary parameter}}</text>
+    <!-- cross-cutting plane (secondary relationship = dashed) -->
+    <rect x="640" y="108" width="440" height="140" rx="10" fill="#161615" stroke="rgba(255,255,255,.12)"/>
+    <text x="662" y="134" font-size="13" fill="#fff" font-weight="650">{{cross-cutting plane}}</text>
+    <text x="662" y="160" font-size="12" fill="#c3c2b7">◦ {{item}}</text>
+    <text x="662" y="182" font-size="12" fill="#c3c2b7">◦ {{item}}</text>
+    <text x="662" y="208" font-size="11" fill="#898781">{{boundary or security note}}</text>
+    <line x1="284" y1="150" x2="636" y2="170" stroke="#898781" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+  </svg>
+  </div>
+  <p class="small muted">Fontes: <code>{{path/file.ext:start-end}}</code> · <code>{{path/file.ext}}</code></p>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ 2 · COMPONENT PROFILES ═══════════════ -->
+<section id="componentes">
+  <h2>2 · Os componentes — foto macro de cada um</h2>
+  <p class="lead">{{What each card summarizes and why these parameters matter.}}</p>
+
+  <div class="card agent" style="--ac:var(--c-a)">
+    <h3><span class="dot" style="background:var(--c-a)"></span>{{entity A}} — {{role}}</h3>
+    <div class="role">{{what it does in one sentence}} · <code>{{path/file.ext:69-139}}</code></div>
+    <dl class="kv">
+      <dt>{{parameter}}</dt><dd><span class="chip mono">{{value}}</span> timeout <span class="tnum">{{180s}}</span></dd>
+      <dt>{{parameter}}</dt><dd>{{exact value read from code}}</dd>
+    </dl>
+    <ol class="stack">
+      <li><b>{{layer}}</b> — {{what it does}} <span class="hook">{{file:line}}</span></li>
+      <li><b>{{layer}}</b> — {{what it does}} <span class="hook">{{file:line}}</span></li>
+    </ol>
+    <details><summary>{{specific promise of what is hidden here}}</summary><div class="body"><ul>
+      <li>{{fine detail that does not fit on the surface but cannot be omitted}}</li>
+    </ul></div></details>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ 3 · FLOW ═══════════════ -->
+<section id="fluxo">
+  <h2>3 · {{A request lifecycle}}</h2>
+  <p class="lead">{{What happens in the actual order.}}</p>
+  <div class="card">
+    <div class="flow">
+      <div class="step"><b>{{step}}</b>{{detail}}</div><div class="arr">→</div>
+      <div class="step"><b>{{step}}</b>{{detail}}</div><div class="arr">→</div>
+      <div class="step"><b>{{step}}</b>{{detail}}</div>
+    </div>
+    <ol class="stack">
+      <li><b>{{Stage}}</b> — {{what happens, including exact values}} <span class="hook">{{file:line}}</span></li>
+    </ol>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ 4 · X×Y MATRIX ═══════════════ -->
+<section id="matriz">
+  <h2>4 · {{Who uses what}}</h2>
+  <div class="card"><div class="tscroll">
+  <table class="matrix">
+    <tr><th>{{resource · purpose}}</th>
+      <th title="{{entity A}}"><span class="dot" style="background:var(--c-a)"></span></th>
+      <th title="{{entity B}}"><span class="dot" style="background:var(--c-b)"></span></th>
+      <th title="{{entity C}}"><span class="dot" style="background:var(--c-c)"></span></th></tr>
+    <tr><td><b>{{resource}}</b> — {{purpose in half a line}}</td>
+      <td>●</td><td class="cell-off">—</td><td>●</td></tr>
+  </table></div>
+  <p class="small muted">Fonte: <code>{{file:line}}</code>. {{Brief interpretation of the pattern revealed by the matrix.}}</p></div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ 5 · WHAT THE READER MAY NOT KNOW ═══════════════ -->
+<section id="achados">
+  <h2>5 · O que você talvez não saiba</h2>
+  <p class="lead">Achados do deep dive que não estavam no radar — alguns são decisões
+  elegantes, outros são débitos a observar.</p>
+  <div class="grid cols-2">
+    <div class="card"><h3 style="margin-top:0">{{emoji}} {{finding as a one-sentence title}}</h3>
+      <p class="small">{{Why this matters, including evidence and file:line.}}</p></div>
+    <div class="card"><h3 style="margin-top:0">{{emoji}} {{honest debt}}</h3>
+      <p class="small">{{What is wrong or outdated and its practical consequence.}}</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ 6 · TIMELINE (only when there is relevant history) ═══════════════ -->
+<section id="timeline">
+  <h2>6 · Como chegamos aqui</h2>
+  <div class="card"><div class="tl">
+    <div class="ev"><span class="date">{{dd · mmm}}</span> — <b>{{event}}</b> · {{what changed}}.</div>
+    <div class="ev hi"><span class="date">{{dd · mmm}}</span> — <b>{{decisive event}}</b> · {{how it shaped the current architecture}}.</div>
+  </div></div>
+</section>
+
+<footer>
+  <b style="color:var(--ink-2)">Fontes primárias</b> — <code>{{path}}</code> · <code>{{path}}</code><br><br>
+  Análise gerada em {{YYYY-MM-DD}} sobre <code>{{branch@commit}}</code> · sessão <i>{{name}}</i> ·
+  paleta dark canônica e congelada (CVD ΔE ≥ 8.4 · contraste ≥ 3:1).
+</footer>
+
+<script>
+  // Scrollspy highlights the current section in the navigation.
+  const links=[...document.querySelectorAll('nav a')];
+  const secs=links.map(a=>document.querySelector(a.hash)).filter(Boolean);
+  const spy=()=>{const y=scrollY+90;let cur=secs[0];
+    for(const s of secs){if(s.offsetTop<=y)cur=s}
+    links.forEach(a=>a.classList.toggle('on',a.hash==='#'+cur.id))};
+  addEventListener('scroll',spy,{passive:true});spy();
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ You orchestrate the current project's live context lifecycle. Use the installed 
 
 Resolve the project as follows:
 
-1. `PROJECT` is the current working directory basename, lowercased with spaces and underscores replaced by hyphens.
+1. Resolve the Git root with `git rev-parse --show-toplevel`; `PROJECT` is that root's leaf directory name, lowercased and normalized by replacing every run of characters outside `a-z`, `0-9`, and `-` with one hyphen, then trimming leading and trailing hyphens.
 2. `DOMAIN` is `work/projects/<PROJECT>`.
 3. `KB_DIR` is `~/knowledge-base/<DOMAIN>`.
 4. `CONTEXT_FILE` is `<KB_DIR>/context.md`.

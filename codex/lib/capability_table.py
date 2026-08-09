@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import Final
 
 
-_MACHINE_CAPABILITIES: Final = frozenset({"code-host", "ci", "memory", "social-x"})
+_MACHINE_CAPABILITIES: Final = frozenset(
+    {"code-host", "ci", "memory", "social-x", "tunnel"}
+)
 
 
 def preserve_machine_capabilities(source: str, installed: str) -> str:

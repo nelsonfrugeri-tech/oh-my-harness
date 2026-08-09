@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '# omh-managed: context — run the context agent to load or refresh ~/knowledge-base/work/projects/{project}/context.md'",
-          "timeout": 5
+            "command": "\"{codex_home}/hooks/context-load.sh\" # omh-managed: context",
+            "timeout": 15
           }
         ]
       }

@@ -4,12 +4,14 @@
 
 **A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.**
 
-Write the config once. Plug the tools per machine. Run it on Claude Code today — and on Codex or Cursor tomorrow — without changing a line.
+Share the behavior once. Keep harness-native adapters where representation differs. Run the same
+library on Claude Code and Codex today.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
-[![Agents](https://img.shields.io/badge/agents-11-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-26-DC5F00?style=flat-square)](#whats-inside)
+[![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
+[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -20,7 +22,10 @@ Write the config once. Plug the tools per machine. Run it on Claude Code today �
 
 Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` path there, a reference to a specific service somewhere else. Switch machines — GitHub at home, GitLab at work — or switch assistants, and it breaks. You re-wire the same plumbing on every setup.
 
-**oh-my-harness decouples _what the agent does_ from _which tool it does it with._** The same `developer` opens a Pull Request through GitHub on your personal machine and through GitLab on the company laptop — the files are byte-for-byte identical. Only one small table changes.
+**oh-my-harness decouples _what the agent does_ from _which tool it does it with._** The same
+`developer` responsibility opens a Pull Request through GitHub on your personal machine and through
+GitLab on the company laptop. Harness-native manifests represent that behavior, while only the
+machine capability mapping changes providers.
 
 ---
 
@@ -44,25 +49,26 @@ Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` p
 
 ## How it works
 
-This repository is the **source**. You sync it into your harness's **global state** (`~/.claude`), and agents resolve their tools per machine through a single capability table.
+This repository is the **source**. Shared skills and behavior stay harness-neutral; each sibling
+adapter owns the manifests, hooks, global guidance, and lifecycle integration required by its
+harness. Capabilities are resolved through that harness's machine-local table.
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
 │  oh-my-harness · SOURCE (this git repo)                            │
 │                                                                     │
-│  agents/                    skills/                  claude-code/  │
-│  ├── engineers/  (6)        ├── engineers/ (17)       CLAUDE.md     │
-│  ├── harness/    (1)        ├── harness/    (1)       settings.json │
-│  └── tools/      (4)        └── tools/      (8)       workflows/    │
-│      (themed; discovery         (themed source; flattened on       │
-│       is recursive)              install — leaf name only)         │
+│  shared behavior                 harness adapters                    │
+│  ├── skills/                     ├── claude-code/                    │
+│  ├── hooks/                      │   CLAUDE.md · settings · workflow │
+│  └── agents/ (Claude manifests)  └── codex/                          │
+│                                      AGENTS.md · TOML agents · hooks │
 └──────────────────────────────┬──────────────────────────────────────┘
-                                │  "ask the harness to sync"
-                                ▼  (agent `claude-code`)
-┌───────────────────────────────────────────────────────────────────┐
-│  ~/.claude/ · GLOBAL harness state                                  │
-│  agents/<theme>/<name>.md   skills/<leaf>/   workflows/   CLAUDE.md │
-└──────────────────────────────┬──────────────────────────────────────┘
+                                │ harness-native installer
+             ┌──────────────────┴──────────────────┐
+             ▼                                     ▼
+   ~/.claude/ global state                ~/.codex/ + ~/.agents/
+   Markdown agents · workflows            TOML agents · shared skills
+   CLAUDE.md · settings/hooks              AGENTS.md · hooks · MCPs
                                 │  capability plug (per machine)
                    ┌────────────┴─────────────┐
                    ▼                           ▼
@@ -80,12 +86,12 @@ This repository is the **source**. You sync it into your harness's **global stat
 └───────────────────────────────────────────────────────────────────┘
 ```
 
-- **agents** are symlinked mirroring their theme (`agents/<theme>/<name>.md`) — discovery is
-  recursive, so subfolders work natively and a `git pull` on the source updates them everywhere.
-- **skills** are symlinked **flattened** to `~/.claude/skills/<leaf>/` — skill discovery is
-  *not* recursive in `~/.claude/skills/`, so each skill must be a direct child of that folder
-  even though the source keeps them themed.
-- **CLAUDE.md** carries the timeless rules and the per-machine capability table.
+- **agents** share responsibilities and skill dependencies, while their executable manifests stay
+  harness-native: Claude Markdown under `agents/`, Codex TOML under `codex/agents/`.
+- **skills** are the shared semantic layer and are flattened by each installer to the discovery
+  location required by that harness.
+- **global guidance and capability tables** live in `claude-code/CLAUDE.md` and `codex/AGENTS.md`;
+  their common rules must remain semantically aligned, not byte-identical.
 - The agent **`claude-code`** (backed by the `claude-code` skill) is the runbook the harness
   runs to sync (see [Quick start](#quick-start)).
 - The agent **`context`**, invoked on every `SessionStart`, keeps a living knowledge base of
@@ -99,6 +105,8 @@ This repository is the **source**. You sync it into your harness's **global stat
   The library hosts no server and stores no credentials: X publishes its own hosted MCP, and
   each user's account is resolved at runtime via OAuth — so the same files work on any machine,
   for any account, on any MCP-speaking harness.
+- The agent **`site`** turns cited technical analysis into a self-contained visual report outside
+  the source repository and exposes it only through an explicitly configured `tunnel` capability.
 
 ---
 
@@ -106,7 +114,9 @@ This repository is the **source**. You sync it into your harness's **global stat
 
 ### Capabilities — the tool plug
 
-Agents and skills reference **abstract capabilities**, never a concrete tool. A single table (in `claude-code/CLAUDE.md`) maps each capability to the tool available on _this_ machine. Change environment, change only the table.
+Agents and skills reference **abstract capabilities**, never a concrete tool. Each harness adapter
+owns one machine-local capability table (`claude-code/CLAUDE.md` or `codex/AGENTS.md`). Change the
+environment, change only the active harness's table.
 
 | Capability  | Role                                   | Example per machine        |
 | ----------- | -------------------------------------- | -------------------------- |
@@ -116,6 +126,7 @@ Agents and skills reference **abstract capabilities**, never a concrete tool. A 
 | `web`        | Search and fetch                      | `WebSearch`, `WebFetch`    |
 | `code-graph` | Query a built codebase knowledge graph | `mcp__graphify__*`        |
 | `social-x`   | Read and publish on X (Twitter)       | X's hosted MCP via `xurl`  |
+| `tunnel`     | Temporary authenticated site exposure | cloudflared / ngrok / equivalent |
 
 ### Progressive disclosure
 
@@ -152,9 +163,9 @@ python3 codex/install.py
 python3 codex/install.py --check
 ```
 
-Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug this machine's
-tools. From then on, every session start triggers the `context` agent, which builds (first run)
-or refreshes (later runs) the project's living knowledge base at
+Finally, configure the capability table in the active harness's managed global guidance. From then
+on, every session start loads the project snapshot and requests `context` FULL or DELTA analysis
+when required, maintaining the living knowledge base at
 `~/knowledge-base/work/projects/{project}/context.md`.
 
 ---
@@ -163,8 +174,8 @@ or refreshes (later runs) the project's living knowledge base at
 
 ### Agents
 
-Agents are grouped by theme under `agents/<theme>/`. Discovery is recursive — the theme folder
-is only organizational, the agent's real name comes from its frontmatter `name:`.
+Canonical Claude manifests are grouped under `agents/<theme>/`; Codex-native representations live
+under `codex/agents/`. Both adapters preserve the responsibilities in this catalog.
 
 | Theme       | Agent         | Role                                                | Model  |
 | ----------- | ------------- | ---------------------------------------------------- | ------ |
@@ -179,12 +190,13 @@ is only organizational, the agent's real name comes from its frontmatter `name:`
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
 | `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
 | `tools`     | `x-social`    | Reads and publishes on X (Twitter) — writes require explicit confirmation | sonnet |
+| `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
 
 ### Skills
 
-Skills are grouped by theme under `skills/<theme>/<name>/`, but the **install step flattens
-them** to `~/.claude/skills/<name>/` — skill discovery is not recursive at the target, so each
-skill must land as a direct child.
+Skills are grouped by theme under `skills/<theme>/<name>/`, but each **install step flattens them**
+to the harness's skill root (`~/.claude/skills/` or `~/.agents/skills/`). Each leaf name must
+therefore remain globally unique.
 
 **Knowledge (languages & domains) — `engineers`:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
@@ -194,7 +206,7 @@ skill must land as a direct child.
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside the harness's raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `x-setup` (connect an X account: OAuth app, `xurl` bridge, per-harness plug, cost reality) · `x-ops` (X read/publish playbooks: query operators, cost guard, confirmation protocol). Invoked by the `context`, `knowledge-base`, `graphify` and `x-social` agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 
@@ -202,7 +214,7 @@ Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with
 
 | Workflow         | What it does                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| `create-feature` | End-to-end pipeline: user story → dev → parallel `qa`+`sre` loop → PR via `code-host` |
+| `create-feature` | Shared feature contract with a Claude TypeScript adapter and Codex-native orchestration |
 
 ---
 
@@ -259,7 +271,10 @@ conversation`).
 
 ## Portability across harnesses
 
-`agents/` and `skills/` are the reusable base. Everything Claude-Code-specific (`CLAUDE.md`, `settings.json`, `workflows/`) is isolated under `claude-code/` — so adapting to another harness means adding a sibling folder, not rewriting the library.
+`skills/`, shared hooks, and agent responsibilities form the reusable base. Claude-specific
+representation stays under `agents/` and `claude-code/`; Codex-specific representation stays under
+`codex/`. Supporting another harness means adding an adapter, not forcing foreign syntax into the
+shared layer.
 
 | Primitive | Claude Code | Codex | Cursor |
 | --- | :---: | :---: | :---: |
@@ -277,9 +292,11 @@ overwriting unrelated personal configuration.
 
 ## Extending the library
 
-**Add a skill** → create `skills/<theme>/<name>/SKILL.md` with `name` + `description` in the frontmatter; put deep content in `references/` and link it from the `## Reference Files` section. The install step flattens it to `~/.claude/skills/<name>/`, so `<name>` must stay unique across the whole tree.
+**Add a skill** → create `skills/<theme>/<name>/SKILL.md` with `name` + `description` in the frontmatter; put deep content in `references/` and link it from the `## Reference Files` section. Installers flatten it into their harness-specific skill root, so `<name>` must stay unique across the whole tree.
 
-**Add an agent** → create `agents/<theme>/<name>.md` with `name`, `description`, `tools` (least-privilege) and a `skills:` list. Discovery is recursive, so the theme is purely organizational — `<name>` (frontmatter) must still be unique across the whole tree.
+**Add an agent** → define its shared responsibility and Claude manifest under `agents/<theme>/`,
+then add the equivalent Codex TOML under `codex/agents/`. Keep behavior aligned while preserving
+each harness's native schema and tool-binding rules.
 
 **Add a workflow** → create `claude-code/workflows/<name>.ts` following the Workflow API (`meta`, phases, `agent()` / `parallel()` / `pipeline()`).
 

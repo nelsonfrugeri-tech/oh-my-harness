@@ -39,6 +39,7 @@ Agents e skills **nunca** citam uma tool concreta. Eles referenciam uma **capabi
 | `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` (stdio; venv em `~/projects/mcps/graphify/.venv`) |
 | `social-x`   | Ler e publicar na plataforma X (Twitter)          | `mcp__xapi__*` via bridge `xurl mcp` → `https://api.x.com/mcp` |
 | `session-memory` | Busca na memória bruta de sessões passadas — cross-harness e cross-projeto: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` — índice em `~/.cache/deja` |
+| `tunnel` | Exposição temporária e autenticada de um site local | _(opcional; configurar provider aprovado)_ |
 
 **Primitivos universais** (não precisam de plugue): `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`.
 
@@ -56,6 +57,7 @@ Um **tool agent** opera uma infraestrutura que os outros agents consomem — con
 | `knowledge-base` | Infra (Qdrant + embedding), escrita de notas, recuperação em 3 degraus e memória de sessão | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
 | `graphify` | Knowledge graph de codebase: build/update em `graphify-out/` e query/path/explain | `graphify` |
 | `x-social` | Lê e publica no X; escrita sob confirmação explícita | `x-setup`, `x-ops` |
+| `site` | Gera sites visuais citados e os expõe somente após aprovação | `site-report`, `site-expose` |
 
 O roteamento fino vive nas descriptions dos agents; **a mecânica vive nas skills** — não a duplique aqui.
 

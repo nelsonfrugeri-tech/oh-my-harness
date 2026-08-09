@@ -38,6 +38,10 @@ class InstallLayout:
     def custom_agents(self) -> Path:
         return self.codex_home / "agents"
 
+    @property
+    def installed_hooks(self) -> Path:
+        return self.codex_home / "hooks"
+
     def skill_sources(self) -> tuple[Path, ...]:
         candidates = (
             *self.source_root.glob("skills/**/SKILL.md"),
@@ -53,3 +57,6 @@ class InstallLayout:
 
     def agent_sources(self) -> tuple[Path, ...]:
         return tuple(sorted((self.adapter / "agents").glob("*.toml")))
+
+    def hook_sources(self) -> tuple[Path, ...]:
+        return tuple(sorted(self.source_root.glob("hooks/*.sh")))

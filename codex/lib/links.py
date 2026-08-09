@@ -16,6 +16,10 @@ class ManagedLinks:
     def install(self) -> tuple[str, ...]:
         results = [*self._remove_orphans()]
         results.append(self._link(self._layout.adapter, self._layout.installed_adapter))
+        results.extend(
+            self._link(path, self._layout.installed_hooks / path.name)
+            for path in self._layout.hook_sources()
+        )
         results.extend(self._install_skills())
         results.extend(
             self._link(path, self._layout.custom_agents / path.name)
@@ -26,6 +30,8 @@ class ManagedLinks:
 
     def preflight(self) -> None:
         self._check_available(self._layout.adapter, self._layout.installed_adapter)
+        for source in self._layout.hook_sources():
+            self._check_available(source, self._layout.installed_hooks / source.name)
         for source in self._layout.skill_sources():
             target = self._layout.personal_skills / source.name
             if not self._is_compatible_external_graphify(source, target):
@@ -38,6 +44,10 @@ class ManagedLinks:
         if orphans:
             raise self._conflict(f"stale managed links: {', '.join(map(str, orphans))}")
         results = [self._check_link(self._layout.installed_adapter, self._layout.adapter)]
+        results.extend(
+            self._check_link(self._layout.installed_hooks / path.name, path)
+            for path in self._layout.hook_sources()
+        )
         results.extend(self._check_skill(path) for path in self._layout.skill_sources())
         results.extend(
             self._check_link(self._layout.custom_agents / path.name, path)
@@ -62,6 +72,10 @@ class ManagedLinks:
             for source in self._layout.skill_sources()
         }
         expected.update(
+            self._layout.installed_hooks / source.name
+            for source in self._layout.hook_sources()
+        )
+        expected.update(
             self._layout.custom_agents / source.name
             for source in self._layout.agent_sources()
         )
@@ -70,6 +84,10 @@ class ManagedLinks:
 
     def _current_entries(self) -> tuple[tuple[Path, Path], ...]:
         candidates = ((self._layout.installed_adapter, self._layout.adapter),)
+        hooks = (
+            (self._layout.installed_hooks / source.name, source)
+            for source in self._layout.hook_sources()
+        )
         skills = (
             (self._layout.personal_skills / source.name, source)
             for source in self._layout.skill_sources()
@@ -80,7 +98,7 @@ class ManagedLinks:
         )
         return tuple(
             (target, source)
-            for target, source in (*candidates, *skills, *agents)
+            for target, source in (*candidates, *hooks, *skills, *agents)
             if target.is_symlink() and target.resolve() == source.resolve()
         )
 
@@ -106,10 +124,18 @@ class ManagedLinks:
         return f"linked: {target}"
 
     def _check_available(self, source: Path, target: Path) -> None:
+        self._check_parent_directory(target)
         if target.is_symlink() and target.resolve() == source.resolve():
             return
         if target.exists() or target.is_symlink():
             raise self._conflict(f"refusing to replace existing path: {target}")
+
+    def _check_parent_directory(self, target: Path) -> None:
+        candidate = target.parent
+        while not candidate.exists() and not candidate.is_symlink():
+            candidate = candidate.parent
+        if not candidate.is_dir():
+            raise self._conflict(f"refusing to create inside non-directory path: {candidate}")
 
     def _check_link(self, target: Path, source: Path) -> str:
         if not target.is_symlink() or target.resolve() != source.resolve():

@@ -28,6 +28,7 @@ run the first installation with `--replace-global-agents`. The original file is 
 | `codex/agents/*.toml` | `~/.codex/agents/*.toml` | File symlink |
 | `codex/AGENTS.md` | managed block in `~/.codex/AGENTS.md` | Merge |
 | `codex/hooks.json` | managed entries in `~/.codex/hooks.json` | Merge |
+| shared `hooks/*.sh` | `~/.codex/hooks/<name>.sh` | File symlink |
 | `codex/` | `~/.codex/oh-my-harness` | Directory symlink |
 | generated ownership manifest | `~/.codex/oh-my-harness-links.json` | Atomic rewrite |
 

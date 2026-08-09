@@ -42,6 +42,7 @@ class CodexInstallerTest(unittest.TestCase):
 
         self.assertTrue(self._agents_home.joinpath("skills/example").is_symlink())
         self.assertTrue(self._codex_home.joinpath("agents/developer.toml").is_symlink())
+        self.assertTrue(self._codex_home.joinpath("hooks/context-load.sh").is_symlink())
         agents = self._codex_home.joinpath("AGENTS.md").read_text(encoding="utf-8")
         self.assertIn("Personal rule.", agents)
         self.assertIn("Shared rules.", agents)
@@ -99,7 +100,7 @@ class CodexInstallerTest(unittest.TestCase):
         configured = target.read_text(encoding="utf-8").replace(
             "_(configure during installation)_",
             "GitHub connector",
-        )
+        ).replace("_(optional tunnel)_", "Approved private tunnel")
         target.write_text(configured, encoding="utf-8")
         source = self._source / "codex/AGENTS.md"
         source.write_text(
@@ -111,6 +112,7 @@ class CodexInstallerTest(unittest.TestCase):
 
         merged = target.read_text(encoding="utf-8")
         self.assertIn("GitHub connector", merged)
+        self.assertIn("Approved private tunnel", merged)
         self.assertIn("Updated rules.", merged)
 
     def test_invalid_hook_shape_fails_before_any_write(self) -> None:
@@ -144,6 +146,16 @@ class CodexInstallerTest(unittest.TestCase):
             self._installer.install()
 
         self.assertFalse(self._codex_home.joinpath("oh-my-harness").exists())
+
+    def test_hook_parent_conflict_fails_before_any_write(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        self._codex_home.joinpath("hooks").write_text("user-owned", encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+        self.assertFalse(self._codex_home.joinpath("oh-my-harness").exists())
+        self.assertFalse(self._agents_home.exists())
 
     def test_entrypoint_does_not_run_integrations_after_preflight_conflict(self) -> None:
         conflict = self._codex_home / "oh-my-harness"
@@ -201,15 +213,19 @@ class CodexInstallerTest(unittest.TestCase):
     def _create_source(self) -> None:
         skill = self._source / "skills/engineers/example"
         agent = self._source / "codex/agents"
+        hook = self._source / "hooks"
         skill.mkdir(parents=True)
         agent.mkdir(parents=True)
+        hook.mkdir(parents=True)
         skill.joinpath("SKILL.md").write_text("---\nname: example\n---\n", encoding="utf-8")
         agent.joinpath("developer.toml").write_text('name = "developer"\n', encoding="utf-8")
+        hook.joinpath("context-load.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
         agents_content = """Shared rules.
 
 | Capability | Purpose | Codex provider on this machine |
 | --- | --- | --- |
 | `code-host` | Pull requests | _(configure during installation)_ |
+| `tunnel` | Temporary exposure | _(optional tunnel)_ |
 """
         self._source.joinpath("codex/AGENTS.md").write_text(agents_content, encoding="utf-8")
         hooks = {
