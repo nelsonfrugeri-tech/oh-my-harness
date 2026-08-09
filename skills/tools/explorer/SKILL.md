@@ -61,8 +61,21 @@ Modos de operação:
 
 Antes de todas as fases, resolva onde o knowledge base vive:
 
-1. `PROJECT` = `basename` do `cwd` do repositório analisado, normalizado: lowercase, hífens
-   no lugar de espaços/underscores (ex.: `Meu Projeto` → `meu-projeto`).
+1. `PROJECT` = nome do diretório-raiz do repositório, normalizado. **Use exatamente este
+   comando** — não normalize "a olho":
+
+   ```bash
+   basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]' \
+     | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'
+   ```
+
+   É a **raiz do repo**, não o `cwd` — sessão aberta num subdiretório tem que resolver para
+   o mesmo projeto. Todo caractere fora de `[a-z0-9-]` vira hífen (`My.Project` →
+   `my-project`), hífens repetidos colapsam, e as pontas são aparadas.
+
+   > Esta é a mesma linha que o hook `context-load.sh` executa. Se as duas divergirem, o
+   > hook procura o report num path que a skill nunca escreve — e passa a pedir FULL para
+   > sempre num projeto que já tem context. Ao mudar uma, mude a outra.
 2. `DOMAIN` = `work/projects/<PROJECT>` — o **bounded context** do repositório dentro do
    bundle OKF (ver `kb-write`). Um repositório é sempre um bounded context próprio.
 3. `KB_DIR` = `~/knowledge-base/<DOMAIN>`
