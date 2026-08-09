@@ -58,6 +58,12 @@ If the user invoked `/graphify --help` or `/graphify -h` (with no other argument
 
 If no path was given, use `.` (current directory). Do not ask the user for a path.
 
+**Workspace safety:** `graphify-out/` is created relative to the command working directory, which
+does not have to be the input repository. If applicable instructions prohibit derived artifacts in
+the product tree, create or reuse an external graph workspace, run every step from there, and pass
+the repository as an absolute `INPUT_PATH`. Keep that working directory consistent through build,
+query, update, and export operations.
+
 If the path argument starts with `https://github.com/` or `http://github.com/`, treat it as a GitHub URL - run Step 0 before anything else, then continue with the resolved local path.
 
 Follow these steps in order. Do not skip steps.
@@ -162,7 +168,7 @@ This step has two parts: **structural extraction** (deterministic, free) and **s
 
 Print it once, then continue — do not wait for the user to supply a key. If `GEMINI_API_KEY` or `GOOGLE_API_KEY` IS set, use `graphify.llm.extract_corpus_parallel(files, backend="gemini")` for semantic extraction instead of dispatching subagents. The default Gemini model is `gemini-3-flash-preview`; set `GRAPHIFY_GEMINI_MODEL` or pass `--model` in headless CLI flows to override it.
 
-> **No other API keys are read.** When `GEMINI_API_KEY`/`GOOGLE_API_KEY` are unset, semantic extraction falls to the host agent itself — the running session is the LLM. On a host that dispatches subagents (e.g. Claude Code), dispatch them as written in Part B. On a host that runs the CLI directly in a terminal and cannot dispatch subagents, do not stall: a code-only corpus has no semantic work, so write the empty semantic file (Part B "Fast path") and continue to Part C; for a corpus with docs/papers/images, either set a Gemini key or extract those inline yourself, but in no case prompt for `ANTHROPIC_API_KEY` — that prompt is a misread of this skill.
+> **No other API keys are read.** When `GEMINI_API_KEY`/`GOOGLE_API_KEY` are unset, semantic extraction falls to the host agent itself — the running session is the LLM. On a host that dispatches subagents (for example, Codex or Claude Code), dispatch them as written in Part B. On a host that runs the CLI directly in a terminal and cannot dispatch subagents, do not stall: a code-only corpus has no semantic work, so write the empty semantic file (Part B "Fast path") and continue to Part C; for a corpus with docs/papers/images, either set a Gemini key or extract those inline yourself, but in no case prompt for `ANTHROPIC_API_KEY` — that prompt is a misread of this skill.
 
 **Run Part A (AST) and Part B (semantic) in parallel. Dispatch all semantic subagents AND start AST extraction in the same message. Both can run simultaneously since they operate on different file types. Merge results in Part C as before.**
 
@@ -691,9 +697,9 @@ Neither is part of the default build. When the user runs `/graphify add <url>` t
 
 ---
 
-## For the commit hook and native CLAUDE.md integration
+## For the commit hook and native harness integration
 
-When the user asks to install the post-commit auto-rebuild hook or wire graphify into a project's CLAUDE.md, see `references/hooks.md`.
+When the user asks to install the post-commit auto-rebuild hook or wire graphify into a project's native instruction file, see `references/hooks.md`.
 
 ---
 

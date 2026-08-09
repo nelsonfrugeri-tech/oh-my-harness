@@ -7,8 +7,10 @@ Este repositório é uma **FONTE** de config de harness — não um projeto de d
 Numa máquina nova, o agent `claude-code` e a skill `claude-code` ainda não estão instalados no
 `~/.claude` local, então este arquivo existe só como entrypoint legível para o bootstrap.
 
-**Sua tarefa quando o usuário pedir para instalar ou sincronizar:** rode o agent `claude-code`
-(veja `agents/harness/claude-code.md`), ou, se preferir seguir o runbook diretamente, leia
-`skills/harness/claude-code/SKILL.md` — ele contém o procedimento completo (symlink temado de
-agents, achatamento de skills, workflows, diff de configs, mapeamento de capabilities/MCP e
-tratamento de órfãos).
+**Your task when the user requests installation or synchronization:** select the adapter for the
+active harness. For Claude Code, run the `claude-code` agent or follow
+`skills/harness/claude-code/SKILL.md`. For Codex, run `python3 codex/install.py` and validate with
+`python3 codex/install.py --check`; the full runbook lives in `codex/skills/codex/SKILL.md`.
+
+Never translate one harness adapter into another during machine setup. The versioned adapter is the
+source of truth for its global files, agents, hooks, workflows, and MCP integration behavior.

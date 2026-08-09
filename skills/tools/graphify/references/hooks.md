@@ -1,6 +1,7 @@
-# graphify reference: commit hook and native CLAUDE.md integration
+# graphify reference: commit hook and native harness integration
 
-Load this when the user asked to install the post-commit hook or wire graphify into a project's CLAUDE.md.
+Load this when the user asked to install the post-commit hook or wire graphify into a project's
+native instruction file (`AGENTS.md` for Codex or `CLAUDE.md` for Claude Code).
 
 ## For git commit hook
 
@@ -18,9 +19,9 @@ If a post-commit hook already exists, graphify appends to it rather than replaci
 
 ---
 
-## For native CLAUDE.md integration
+## For native instruction-file integration
 
-Run once per project to make graphify always-on in Claude Code sessions:
+Claude Code has a native installer:
 
 ```bash
 graphify claude install
@@ -31,3 +32,9 @@ This writes a `## graphify` section to the local `CLAUDE.md` that instructs Clau
 ```bash
 graphify claude uninstall  # remove the section
 ```
+
+For Codex, add the equivalent rule to the applicable `AGENTS.md`: check
+`graphify-out/graph.json` before answering codebase questions, query an existing graph first, and
+update it after relevant changes. The global oh-my-harness Codex adapter already provides this
+behavior through its `graphify` custom agent, so project-local duplication is unnecessary unless
+the repository needs stricter rules.

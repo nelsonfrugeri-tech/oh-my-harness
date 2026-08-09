@@ -1,0 +1,58 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+from lib.integrations import CodexIntegrations
+from lib.layout import InstallLayout
+from lib.sync import CodexInstaller, InstallConflict
+
+
+def _arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Install oh-my-harness into Codex global state.")
+    parser.add_argument("--check", action="store_true", help="Validate without changing files.")
+    parser.add_argument("--skip-integrations", action="store_true")
+    parser.add_argument(
+        "--replace-global-agents",
+        action="store_true",
+        help="Replace an unowned legacy global AGENTS.md after creating a backup.",
+    )
+    parser.add_argument("--codex-home", type=Path, default=Path.home() / ".codex")
+    parser.add_argument("--agents-home", type=Path, default=Path.home() / ".agents")
+    return parser.parse_args()
+
+
+def main() -> int:
+    arguments = _arguments()
+    source_root = Path(__file__).resolve().parent.parent
+    layout = InstallLayout(
+        source_root,
+        arguments.codex_home.expanduser(),
+        arguments.agents_home.expanduser(),
+    )
+    installer = CodexInstaller(layout, arguments.replace_global_agents)
+    try:
+        if arguments.check:
+            results = installer.validate()
+        else:
+            installed = installer.install()
+            integrations = () if arguments.skip_integrations else CodexIntegrations().install()
+            results = (*installed, *integrations)
+    except (
+        InstallConflict,
+        OSError,
+        ValueError,
+        json.JSONDecodeError,
+        subprocess.SubprocessError,
+    ) as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
+    print("\n".join(results))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

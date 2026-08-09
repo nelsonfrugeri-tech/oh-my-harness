@@ -138,13 +138,19 @@ git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
 cd oh-my-harness
 ```
 
-Then **ask the harness to sync**. On a brand-new machine the library isn't installed yet, so
-[`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint: it points the harness at the
-agent `claude-code` (`agents/harness/claude-code.md`, backed by the `claude-code` skill), which
-resolves everything interactively — themed symlink for agents, flattened symlink for skills,
-diff of `CLAUDE.md`/`settings.json`, MCP detection and capability wiring, orphan cleanup:
+Then install the adapter for the active harness. On a brand-new machine,
+[`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
+
+For Claude Code, ask it to sync through the `claude-code` agent:
 
 > _"Read INSTRUCTIONS.md and sync this library with my ~/.claude."_
+
+For Codex, use the versioned, non-interactive installer:
+
+```bash
+python3 codex/install.py
+python3 codex/install.py --check
+```
 
 Finally, edit the **Ambiente & Tools** table in `~/.claude/CLAUDE.md` to plug this machine's
 tools. From then on, every session start triggers the `context` agent, which builds (first run)
@@ -255,11 +261,17 @@ conversation`).
 
 `agents/` and `skills/` are the reusable base. Everything Claude-Code-specific (`CLAUDE.md`, `settings.json`, `workflows/`) is isolated under `claude-code/` — so adapting to another harness means adding a sibling folder, not rewriting the library.
 
-| Primitive   | Claude Code | Codex        | Cursor           |
-| ----------- | :---------: | :----------: | :--------------: |
-| agents      | ✅ native   | ⚙️ `AGENTS.md` | ⚙️ rules + AGENTS.md |
-| skills      | ✅ native   | 📄 as docs    | 📄 as docs        |
-| workflows   | ✅ native   | —            | —                |
+| Primitive | Claude Code | Codex | Cursor |
+| --- | :---: | :---: | :---: |
+| agents | ✅ native Markdown | ✅ custom-agent TOML adapter | ⚙️ rules + AGENTS.md |
+| skills | ✅ native | ✅ native shared skills | 📄 as docs |
+| workflows | ✅ Workflow TypeScript | ✅ portable `feature` orchestration | — |
+| hooks | ✅ `settings.json` | ✅ `hooks.json` adapter | — |
+| global rules | ✅ `CLAUDE.md` | ✅ managed global `AGENTS.md` | ⚙️ rules |
+
+Codex installation is defined under [`codex/`](codex/README.md). The adapter installs shared
+skills, Codex-native agents, hooks, managed global guidance, and available MCP integrations without
+overwriting unrelated personal configuration.
 
 ---
 
