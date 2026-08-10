@@ -1,0 +1,7 @@
+interface:
+  display_name: "Create Feature"
+  short_description: "Orchestrate feature delivery workflow"
+  default_prompt: "Use $create-feature to implement this feature from the existing technical refinement."
+
+policy:
+  allow_implicit_invocation: true

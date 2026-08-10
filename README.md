@@ -10,8 +10,8 @@ library on Claude Code and Codex today.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-14-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-43-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -191,6 +191,8 @@ under `codex/agents/`. Both adapters preserve the responsibilities in this catal
 | `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
 | `tools`     | `x-social`    | Reads and publishes on X (Twitter) — writes require explicit confirmation | sonnet |
 | `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
+| `tools`     | `sync`        | Builds private case bundles and verifies cross-machine propagation | opus |
+| `tools`     | `databricks-dashboard` | Creates, validates, and publishes governed portable Lakeview dashboards | sonnet |
 
 ### Skills
 
@@ -202,11 +204,15 @@ therefore remain globally unique.
 
 **Capability (method & process) — `engineers`:** `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
 
-**Command & workflow — `engineers`:** `feature`
+**Command & workflow — `engineers`:** `feature` · `create-feature`
+
+**LangChain and LangGraph — `engineers/langchain`:** `ecosystem-primer` · `langchain-dependencies` · `langchain-fundamentals` · `langchain-rag` · `langgraph-fundamentals` · `langgraph-human-in-the-loop` · `langgraph-persistence` · `deep-agents-core` · `deep-agents-memory` · `deep-agents-orchestration`
+
+**Response style — `style`:** `didactic-visual`
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure) · `sync-bundle` and `sync-transport` (private cross-machine case transport) · `databricks-dashboard` (governed Lakeview lifecycle). Invoked by the corresponding tool agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 

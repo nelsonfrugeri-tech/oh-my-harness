@@ -1,0 +1,4 @@
+interface:
+  display_name: "Databricks Dashboard"
+  short_description: "Build and validate Lakeview dashboards safely"
+  default_prompt: "Use $databricks-dashboard to create or validate a Lakeview dashboard without publishing it."

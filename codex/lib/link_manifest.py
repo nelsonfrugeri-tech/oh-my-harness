@@ -6,12 +6,14 @@ from typing import Type
 
 from lib.atomic_file import atomic_write
 from lib.layout import InstallLayout
+from lib.link_policy import ManagedLinkPolicy
 
 
 class ManagedLinkManifest:
     def __init__(self, layout: InstallLayout, conflict: Type[RuntimeError]) -> None:
         self._path = layout.links_manifest
         self._conflict = conflict
+        self._policy = ManagedLinkPolicy(layout, conflict)
 
     def orphans(self, expected: set[Path]) -> tuple[Path, ...]:
         return tuple(
@@ -29,6 +31,9 @@ class ManagedLinkManifest:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         atomic_write(self._path, content)
         return f"updated: {self._path}"
+
+    def preflight(self, entries: tuple[tuple[Path, Path], ...]) -> None:
+        self._validated(entries)
 
     def validate(self, entries: tuple[tuple[Path, Path], ...]) -> str:
         if not self._path.exists() or self._path.read_text(encoding="utf-8") != self._content(entries):
@@ -51,7 +56,7 @@ class ManagedLinkManifest:
             target, source = entry.get("target"), entry.get("source")
             if not isinstance(target, str) or not isinstance(source, str):
                 raise self._conflict(f"invalid managed links manifest: {self._path}")
-            entries.append((Path(target), Path(source)))
+            entries.append(self._policy.validate(Path(target), Path(source)))
         return tuple(entries)
 
     def _is_recorded_link(self, target: Path, source: Path) -> bool:
@@ -62,5 +67,13 @@ class ManagedLinkManifest:
         return absolute.resolve() == source.resolve()
 
     def _content(self, entries: tuple[tuple[Path, Path], ...]) -> str:
-        links = [{"target": str(target), "source": str(source)} for target, source in entries]
+        links = [
+            {"target": str(target), "source": str(source)}
+            for target, source in self._validated(entries)
+        ]
         return json.dumps({"version": 1, "links": links}, indent=2) + "\n"
+
+    def _validated(
+        self, entries: tuple[tuple[Path, Path], ...]
+    ) -> tuple[tuple[Path, Path], ...]:
+        return tuple(self._policy.validate(target, source) for target, source in entries)

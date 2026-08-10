@@ -19,6 +19,10 @@ class InstallLayout:
         return self.codex_home / "AGENTS.md"
 
     @property
+    def local_agents_file(self) -> Path:
+        return self.codex_home / "AGENTS.local.md"
+
+    @property
     def hooks_file(self) -> Path:
         return self.codex_home / "hooks.json"
 
@@ -42,12 +46,18 @@ class InstallLayout:
     def installed_hooks(self) -> Path:
         return self.codex_home / "hooks"
 
+    @property
+    def installed_rules(self) -> Path:
+        return self.codex_home / "rules"
+
     def skill_sources(self) -> tuple[Path, ...]:
         candidates = (
             *self.source_root.glob("skills/**/SKILL.md"),
             *self.adapter.glob("skills/**/SKILL.md"),
         )
-        skills = sorted(path.parent for path in candidates if path.parent.name != "claude-code")
+        skills = sorted(
+            path.parent for path in candidates if path.parent.name != "claude-code"
+        )
         by_name: dict[str, Path] = {}
         for path in skills:
             if path.name in by_name:
@@ -60,3 +70,6 @@ class InstallLayout:
 
     def hook_sources(self) -> tuple[Path, ...]:
         return tuple(sorted(self.source_root.glob("hooks/*.sh")))
+
+    def rule_sources(self) -> tuple[Path, ...]:
+        return tuple(sorted(self.adapter.glob("rules/*.rules")))

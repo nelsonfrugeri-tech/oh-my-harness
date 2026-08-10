@@ -2,9 +2,20 @@ from __future__ import annotations
 
 from typing import Final
 
-
 _MACHINE_CAPABILITIES: Final = frozenset(
-    {"code-host", "ci", "memory", "social-x", "tunnel"}
+    {
+        "browser",
+        "ci",
+        "code-graph",
+        "code-host",
+        "databricks-lakeview",
+        "databricks-sql",
+        "file-sync",
+        "memory",
+        "session-memory",
+        "social-x",
+        "tunnel",
+    }
 )
 
 

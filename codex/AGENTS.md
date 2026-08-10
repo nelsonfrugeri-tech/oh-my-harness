@@ -8,6 +8,24 @@ Binding rules for this environment. They apply to every Codex session and subage
 
 ---
 
+## Permissions: continuous flow, confirmation before destruction
+
+Proceed without confirmation for normal, reversible work inside the requested scope, including
+reading, searching, creating, editing, installing dependencies, running commands and tests, and
+accessing required services.
+
+Ask for explicit confirmation immediately before any destructive operation: deleting files,
+directories, code, branches, tags, data, resources, or infrastructure; truncating or overwriting
+content that is difficult to recover; destructive Git operations; database `DROP` or `TRUNCATE`;
+or any tool marked destructive. Resolve the exact targets first, explain what will change and how
+it can be recovered, and prefer a recoverable move when practical. Authorization applies only to
+the targets presented; ask again if the scope changes.
+
+The configured sandbox and command rules are defense in depth. This behavioral rule remains
+binding for scripts, indirect mutations, and tools that bypass command-prefix checks.
+
+---
+
 ## Language
 
 - User-facing conversation, instructions, headings, and explanations use Brazilian Portuguese.
@@ -45,8 +63,12 @@ The installer may fill empty entries without changing agents or skills.
 | `memory` | Persistent project and personal context | _(empty means the `knowledge-base` agent)_ |
 | `web` | Web search and page retrieval | Codex web capability |
 | `code-graph` | Query, path, and explain over a code knowledge graph | Graphify MCP with CLI fallback |
+| `databricks-sql` | Governed SQL, schema checks, and bounded smoke tests in Databricks | _(configure a managed SQL MCP; REST or CLI fallback)_ |
+| `databricks-lakeview` | Export, draft creation or update, and publication of AI/BI dashboards | _(configure a Lakeview REST, CLI, or thin MCP provider)_ |
+| `browser` | Visual validation of the final dashboard | Codex browser capability when available |
 | `social-x` | Read and publish on X | _(optional; configure an authenticated provider)_ |
 | `session-memory` | Search past session transcripts by topic or file | Deja CLI or MCP when installed |
+| `file-sync` | Replicate case bundles between machines and verify propagation | _(configure a sync engine and sync root)_ |
 | `tunnel` | Temporarily expose a local site through an authenticated URL | _(optional; configure an approved provider)_ |
 
 Codex built-ins for filesystem access, repository search, shell execution, and patch application do
@@ -66,6 +88,7 @@ A tool agent operates shared infrastructure consumed by other agents.
 | `context` | Maintain the current project's live context in `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
 | `knowledge-base` | Operate Qdrant and embeddings, immutable notes, three-step retrieval, and session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
 | `graphify` | Build or update a code graph outside the product tree, then query, trace, or explain it | `graphify` |
+| `sync` | Build portable case bundles and verify cross-machine propagation | `sync-bundle`, `sync-transport` |
 | `x-social` | Read X and publish only after explicit confirmation | `x-setup`, `x-ops` |
 | `site` | Create cited visual analysis sites and optionally expose them after approval | `site-report`, `site-expose` |
 
@@ -78,8 +101,10 @@ Routing belongs in agent descriptions and mechanics belong in skills. Do not dup
    source of truth and every binary index is rebuildable.
 2. The embedding model is fixed to `BAAI/bge-m3`. Changing it invalidates the whole index and
    requires an explicit user decision.
-3. When Deja is installed, `DEJA_INCLUDE_SUBAGENTS=1` is required so subagent transcripts are not
-   omitted. Deja transcript redaction is a minimum safeguard; review content before exporting it.
+3. Deja transcript indexing is opt-in and requires explicit user authorization. Registering its MCP
+   must not index historical transcripts. After authorization, set `DEJA_INCLUDE_SUBAGENTS=1` so
+   subagent transcripts are not omitted. Redaction is a minimum safeguard; review content before
+   exporting it.
 4. Deja owns its own MCP and hook wiring. Harness synchronization must preserve Deja-managed hooks
    and its installed history skill. Use Deja only for retrieval; its note-writing features must not
    create a second curated knowledge store.
@@ -87,6 +112,10 @@ Routing belongs in agent descriptions and mechanics belong in skills. Do not dup
    Reconcile upstream upgrades before synchronizing the vendored copy again.
 6. The library is account-agnostic. Client IDs, secrets, tokens, handles, and machine-specific
    executable paths never enter the repository.
+7. The default sync root is `~/sync`. Everything inside it is a copy; the source of truth remains
+   in the knowledge base, session memory, or repository. A transfer is complete only after the
+   configured `file-sync` provider proves full propagation, and no secret or `.env` content may
+   enter a case bundle.
 
 ### Two memory layers, two owners
 
@@ -99,9 +128,12 @@ Routing belongs in agent descriptions and mechanics belong in skills. Do not dup
 
 Codex stores active transcripts under
 `$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; the default
-`CODEX_HOME` is `~/.codex`. Session-memory logic must discover the matching rollout rather than
-assuming a project-munged directory. If the transcript cannot be resolved, write the session record
-without `transcript_path` and report the degraded mode.
+`CODEX_HOME` is `~/.codex`. Search `$CODEX_HOME/sessions` first and then the legacy
+`~/.codex/sessions` root without duplicating it when both resolve to the same path. Validate
+`session_meta.payload.cwd`, and use `payload.id` as the canonical session ID. Claude Code stores
+transcripts under `~/.claude/projects/<cwd-munged>/<session-uuid>.jsonl`; Cursor has no configured
+mapping on this machine. If a transcript cannot be resolved, write the session record without
+`transcript_path` and report the degraded mode.
 
 ### Knowledge rules
 

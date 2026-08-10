@@ -8,6 +8,24 @@ Regras vinculantes deste ambiente. Aplicam-se a toda sessão do harness e a todo
 
 ---
 
+## Política de permissões — fluxo contínuo, confirmação para destruição
+
+Prossiga sem confirmação para operações normais e reversíveis dentro do escopo solicitado: ler,
+pesquisar, criar, editar, instalar dependências, executar comandos e testes e acessar serviços
+necessários à tarefa.
+
+Peça confirmação explícita imediatamente antes de qualquer operação destrutiva: excluir arquivos,
+diretórios, código, branches, tags, dados, recursos ou infraestrutura; truncar ou sobrescrever
+conteúdo de recuperação difícil; executar operações destrutivas de Git; `DROP` ou `TRUNCATE`; ou
+usar uma tool marcada como destrutiva. Resolva antes os alvos exatos, explique o que mudará e como
+recuperar, e prefira uma movimentação recuperável quando possível. A autorização vale somente para
+os alvos apresentados; mudança de escopo exige nova confirmação.
+
+Sandbox e command rules são defesa em profundidade. Esta regra comportamental continua vinculante
+para scripts, mutações indiretas e tools que escapem dos prefixos configurados.
+
+---
+
 ## Idioma
 
 - **Conversa, prosa instrucional, títulos e explicações** → pt-BR.
@@ -37,8 +55,12 @@ Agents e skills **nunca** citam uma tool concreta. Eles referenciam uma **capabi
 | `memory`     | Notas/contexto persistente do projeto (opcional)  | _(vazio = default: agent `knowledge-base`)_ |
 | `web`        | Busca e fetch na web                              | `WebSearch`, `WebFetch`                      |
 | `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` (stdio; venv em `~/projects/mcps/graphify/.venv`) |
+| `databricks-sql` | SQL governado, schema checks e smoke tests no Databricks | _(configurar MCP gerenciado de SQL; fallback REST/CLI)_ |
+| `databricks-lakeview` | Export, draft create/update e publish de dashboards AI/BI | _(configurar provider REST, CLI ou MCP fino)_ |
+| `browser` | Validação visual do dashboard final | Browser automation do harness quando disponível |
 | `social-x`   | Ler e publicar na plataforma X (Twitter)          | `mcp__xapi__*` via bridge `xurl mcp` → `https://api.x.com/mcp` |
 | `session-memory` | Busca na memória bruta de sessões passadas — cross-harness e cross-projeto: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` — índice em `~/.cache/deja` |
+| `file-sync` | Replica case bundles entre máquinas e verifica propagação | _(configurar engine e sync root)_ |
 | `tunnel` | Exposição temporária e autenticada de um site local | _(opcional; configurar provider aprovado)_ |
 
 **Primitivos universais** (não precisam de plugue): `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`.
@@ -56,6 +78,7 @@ Um **tool agent** opera uma infraestrutura que os outros agents consomem — con
 | `context` | Contexto vivo do projeto atual em `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
 | `knowledge-base` | Infra (Qdrant + embedding), escrita de notas, recuperação em 3 degraus e memória de sessão | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
 | `graphify` | Knowledge graph de codebase: build/update em `graphify-out/` e query/path/explain | `graphify` |
+| `sync` | Monta case bundles portáteis e verifica propagação entre máquinas | `sync-bundle`, `sync-transport` |
 | `x-social` | Lê e publica no X; escrita sob confirmação explícita | `x-setup`, `x-ops` |
 | `site` | Gera sites visuais citados e os expõe somente após aprovação | `site-report`, `site-expose` |
 
@@ -67,11 +90,12 @@ Só o que não dá pra descobrir lendo as skills:
 
 1. **A knowledge base vive em `~/knowledge-base/`** — um bundle OKF v0.2, **sempre fora** do repositório do usuário. Runtime (volume do Qdrant, venvs) vive em `~/.local/share/omh-kb/`, **nunca dentro do bundle**: o bundle é markdown sincronizável; o índice é artefato derivado.
 2. **O modelo de embedding é FIXO** (`BAAI/bge-m3`) — trocá-lo invalida o índice inteiro e exige decisão explícita do usuário.
-3. **`DEJA_INCLUDE_SUBAGENTS=1` é obrigatório** (exportado em `~/.zshenv`). Sem ele o deja-vu pula transcripts de subagent e descarta ~2/3 do corpus recuperável.
+3. **A indexação de transcripts pelo Deja é opt-in e exige autorização explícita.** Registrar o MCP não indexa o histórico. Depois da autorização, `DEJA_INCLUDE_SUBAGENTS=1` é obrigatório para não omitir transcripts de subagent.
 4. **A redaction do deja-vu é piso, não garantia** — trechos que voltam pela capability já vêm tarjados, e por isso ela é o caminho preferido pra tocar transcript; ler o `.jsonl` cru contorna a proteção. Ao exportar para fora da máquina, revise antes.
 5. **O wiring do deja-vu é do `deja install --auto`**, não do nosso sync — ele pluga MCP e hooks com paths desta máquina, e instala a skill `deja-history` em `~/.claude/skills/`: ela é **dele, não órfã**; o sync não deve removê-la.
 6. **A skill `graphify` é vendored do upstream, em inglês.** O instalador do graphify escreve por cima de `~/.claude/skills/graphify/`, que é symlink pro repo — depois de um upgrade, rediffe e re-sincronize.
 7. **A biblioteca é agnóstica a conta.** Nenhum `CLIENT_ID`, `CLIENT_SECRET`, token ou handle entra no repo; um agent reporta o *estado* da auth, nunca o valor de um segredo.
+8. **O sync root default é `~/sync`.** Tudo dentro dele é cópia; a fonte da verdade permanece na knowledge base, session memory ou repositório. Só declare entrega após a capability `file-sync` provar propagação completa, e nunca inclua segredo ou `.env` num case bundle.
 
 ### Duas camadas de memória, dois escritores
 

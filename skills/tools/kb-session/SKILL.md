@@ -117,6 +117,40 @@ Caveat: com **duas sessões simultâneas no mesmo cwd**, a heurística pode apon
 sessão errada. Se houver mais de um `.jsonl` modificado nos últimos minutos, confira o
 conteúdo (as últimas linhas devem bater com a conversa corrente) antes de assumir.
 
+### codex (on this machine)
+
+Codex transcripts live in
+`$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`, with a legacy
+fallback in `~/.codex/sessions/` when the effective `CODEX_HOME` does not contain the
+matching rollout. Unlike Claude Code, the directory does not encode the project; the
+association is in the first `session_meta` event:
+
+```json
+{"type":"session_meta","payload":{"id":"<session-id>","cwd":"/absolute/project/path"}}
+```
+
+Discover the current Codex session as follows:
+
+1. Resolve `$CODEX_HOME` (default `~/.codex`) and search `$CODEX_HOME/sessions` first.
+   Include `~/.codex/sessions` as a fallback without searching the same root twice.
+2. Consider the most recently modified `rollout-*.jsonl` files, starting with the current
+   date and moving backward only when necessary.
+3. Read only each candidate's first line. Keep candidates whose event is `session_meta`
+   and whose `payload.cwd` is the current absolute working directory.
+4. Choose the most recently modified matching candidate. When sessions overlap, confirm
+   its final lines match the active conversation.
+5. Use `payload.id` as `session_id`; never derive it from the filename.
+6. Write `harness: "codex"` and the absolute rollout path as `transcript_path`.
+
+In a Codex rollout, conversational text is primarily in `response_item` events whose
+payload type is `message`: user messages use `content[].type: "input_text"` and
+assistant messages use `output_text`. `event_msg`, tool calls, reasoning, and metadata
+are noise unless the query explicitly requests them.
+
+The effective `CODEX_HOME` can be `~/.config/codex`; new rollouts then live in
+`~/.config/codex/sessions/`, while legacy sessions can remain in `~/.codex/sessions/`.
+Always consult both roots in that order.
+
 ### Outros harnesses
 
 Estrutura análoga a descobrir: um diretório de sessões por projeto, um arquivo por sessão

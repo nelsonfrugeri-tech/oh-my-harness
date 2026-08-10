@@ -1,0 +1,104 @@
+# Require explicit user confirmation for destructive command families.
+# The AGENTS.md policy covers destructive edits and MCP/app calls that cannot be
+# represented as command prefixes.
+
+prefix_rule(
+    pattern = [["rm", "rmdir", "unlink", "trash"]],
+    decision = "prompt",
+    justification = "Deleting filesystem content requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = ["git", "clean", ["-f", "-fd", "-df", "-fx", "-fdx", "-dfx"]],
+    decision = "prompt",
+    justification = "Deleting untracked Git content requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "prompt",
+    justification = "Discarding Git working-tree content requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = ["git", "branch", ["-d", "-D", "--delete"]],
+    decision = "prompt",
+    justification = "Force-deleting a Git branch requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = ["git", "tag", "-d"],
+    decision = "prompt",
+    justification = "Deleting a Git tag requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "--force-with-lease"]],
+    decision = "prompt",
+    justification = "Force-overwriting remote Git history requires explicit user confirmation.",
+    match = [
+        "git push --force origin main",
+        "git push --force-with-lease origin main",
+    ],
+    not_match = ["git push origin main", "git fetch origin"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "origin", ["--force", "-f", "--force-with-lease"]],
+    decision = "prompt",
+    justification = "Force-overwriting remote Git history requires explicit user confirmation.",
+    match = [
+        "git push origin --force main",
+        "git push origin --force-with-lease main",
+    ],
+    not_match = ["git push origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--delete"],
+    decision = "prompt",
+    justification = "Deleting a remote Git ref requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = ["git", "push", "origin", "--delete"],
+    decision = "prompt",
+    justification = "Deleting a remote Git ref requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = ["docker", ["rm", "rmi"]],
+    decision = "prompt",
+    justification = "Deleting Docker resources requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = [
+        "docker",
+        ["system", "builder", "image", "container", "volume", "network"],
+        "prune",
+    ],
+    decision = "prompt",
+    justification = "Pruning Docker resources requires explicit user confirmation.",
+    match = [
+        "docker system prune",
+        "docker builder prune",
+        "docker image prune",
+        "docker container prune",
+        "docker volume prune",
+        "docker network prune",
+    ],
+    not_match = ["docker system info", "docker image ls"],
+)
+
+prefix_rule(
+    pattern = ["kubectl", "delete"],
+    decision = "prompt",
+    justification = "Deleting Kubernetes resources requires explicit user confirmation.",
+)
+
+prefix_rule(
+    pattern = [["dropdb", "shred"]],
+    decision = "prompt",
+    justification = "Destructive data removal requires explicit user confirmation.",
+)
