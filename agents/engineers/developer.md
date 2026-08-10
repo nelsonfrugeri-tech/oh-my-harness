@@ -1,5 +1,5 @@
 ---
-version: 1.1.0
+version: 1.2.0
 name: developer
 description: >
   Use para implementar features, corrigir bugs, refatorar código, montar ambientes
@@ -7,6 +7,7 @@ description: >
 model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch, ToolSearch
 skills:
+  - evidence
   - implement
   - test
   - environment

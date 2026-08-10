@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 name: research
 description: |
   Metodologia estruturada de pesquisa técnica para decisões de engenharia. Cobre estratégias de
@@ -21,6 +21,10 @@ type: capability
 Esta skill é a base de conhecimento para pesquisa técnica estruturada. Ela fornece metodologia,
 não opiniões. Toda recomendação que um agente fizer deve estar fundamentada em pesquisa atual,
 verificada e multi-fonte.
+
+Apply the `evidence` skill to every synthesis. Separate verified facts, derived results, inference,
+hypothesis, estimate, and unknown. Keep contradictions visible and never use source count as a
+substitute for source quality or scope.
 
 **O que esta skill contém:**
 - Estratégias de busca por plataforma
@@ -241,16 +245,17 @@ Toda informação pesquisada deve passar por validação antes de ser apresentad
 ```
 For every claim or recommendation:
 
-1. SOURCE COUNT
-   - Minimum 2 independent sources for factual claims
-   - Minimum 3 sources for technology recommendations
-   - "Independent" = different authors/organizations
+1. CLAIM-LEVEL VALIDATION
+   - Match each material claim to the source that can establish it
+   - One authoritative primary source may establish a versioned contract
+   - Multiple sources do not turn repetition into verification
+   - "Independent" = not derived from the same author, dataset, or measurement
 
-2. DATE CHECK
-   - Source published within last 12 months? -> strong signal
-   - Source published 12-24 months ago? -> verify still current
-   - Source published > 24 months ago? -> treat as potentially outdated
-   - ALWAYS check: has a newer version been released since the source?
+2. FRESHNESS AND VERSION CHECK
+   - Identify the product, version, revision, and observation time the source covers
+   - Verify whether the claim can change independently of publication date
+   - Check for a newer contract, release, correction, or runtime observation
+   - A recent source can describe an old version; an old source can remain authoritative
 
 3. BIAS DETECTION
    - Is the source a vendor recommending their own product? -> flag bias
@@ -265,16 +270,17 @@ For every claim or recommendation:
    - Is there active debate? -> present both sides
 ```
 
-### Níveis de Confiança
+### Evidence status
 
-Após a validação, atribua um nível de confiança a cada afirmação:
+Classify the claim instead of assigning confidence from source count:
 
-| Nível | Critério | Rótulo |
-|-------|----------|-------|
-| **Alto** | 3+ fontes recentes independentes concordam, sem contradições | Apresentar como fato |
-| **Médio** | 2 fontes concordam, ou fontes recentes mas limitadas | "Com base nas evidências disponíveis..." |
-| **Baixo** | Fonte única, ou fontes desatualizadas, ou contradições | Marcar como [Não verificado] |
-| **Nenhum** | Nenhuma fonte encontrada, ou todas as fontes desatualizadas | "Não é possível verificar. Baseado em dados de treinamento que podem estar desatualizados." |
+| Status | Criterion | Communication |
+| --- | --- | --- |
+| **Verified fact** | A source with the required authority, version, scope, and freshness directly establishes the claim | Cite the source and observed scope |
+| **Derived result** | Cited inputs and a reproducible method establish the result | Cite inputs and show the method |
+| **Inference** | Evidence supports a conclusion that was not directly observed | Show the reasoning and competing interpretation |
+| **Hypothesis** | A falsifiable explanation or prediction still needs a decisive observation | State the falsifying test |
+| **Unknown** | Available sources cannot establish the claim or materially conflict | Preserve the conflict and missing evidence |
 
 ### Quando as Fontes Conflitam
 
@@ -314,7 +320,7 @@ Após a validação, atribua um nível de confiança a cada afirmação:
 ### Recommendation
 
 **Choice:** {Option X}
-**Confidence:** {High/Medium/Low}
+**Evidence status:** {Verified fact / Derived result / Inference / Hypothesis / Estimate / Unknown}
 **Reasoning:** {2-3 sentences explaining the decision}
 **Trade-offs accepted:** {what we give up by choosing this}
 **Revisit when:** {conditions that should trigger re-evaluation}
@@ -332,7 +338,7 @@ Após a validação, atribua um nível de confiança a cada afirmação:
 **Problem:** {What we need to solve}
 **Recommendation:** {Tool/approach}
 **Version:** {Exact version}
-**Confidence:** {High/Medium/Low}
+**Evidence status:** {status plus cited scope}
 
 **Why this:**
 - {Reason 1 with source}
@@ -373,7 +379,7 @@ Após a validação, atribua um nível de confiança a cada afirmação:
 - {Source A} says X, but {Source B} says Y. Resolution: {explanation}
 
 ### Conclusion
-{Final answer with confidence level}
+{Decision, supporting evidence, hypotheses, unknowns, and what would change the conclusion}
 ```
 
 ---

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evidence-driven Software"
+  short_description: "Verify claims and software decisions"
+  default_prompt: "Use $evidence to separate facts from hypotheses and justify this software decision."

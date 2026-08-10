@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 name: review
 description: |
   Metodologia de code review independente de linguagem. Cobre taxonomia de severidade (BLOCKER/MAJOR/MINOR/NIT),
@@ -37,6 +37,11 @@ O objetivo do review é software melhor. Todo comentário deve ser:
 - **Construtivo** — proponha uma alternativa quando identificar um problema
 - **Classificado** — todo achado carrega uma severidade para que a prioridade fique clara
 - **Independente** — o revisor não pode ser o autor do código
+
+Apply the `evidence` skill to claims made by the change and by the review itself. Flag unsupported
+numbers, scope overreach, causal conclusions presented without a falsifiable hypothesis, and test
+results described as proof beyond their executed cases. Critique the proposal rather than the
+author, steelman it, offer a viable alternative, and state what evidence would change the finding.
 
 ### Princípios
 
@@ -187,7 +192,8 @@ Aplique a todo arquivo alterado, independentemente da linguagem.
 - [ ] Caminhos de erro são testados (não apenas o happy path)
 - [ ] Nomes dos testes descrevem o comportamento sendo testado
 
-**Severidade típica:** BLOCKER (sem testes em código crítico) / MAJOR (<50% de cobertura em caminho crítico)
+**Severidade típica:** BLOCKER (sem testes em código crítico) / MAJOR (coverage below the project's
+declared threshold or demonstrably insufficient for the changed risk)
 
 ### Qualidade de Código
 - [ ] Tipos são explícitos (type hints, tipos de TypeScript — sem `any` implícito)

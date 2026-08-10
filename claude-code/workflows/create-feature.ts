@@ -1,7 +1,7 @@
 export const meta = {
   name: 'create-feature',
   description: 'Pipeline de criação de feature após refinamento técnico: user_history (tech-pm) → development (developer ou ai-engineer) → validation_loop[qa+sre] (max 3 iterações) → open_pr (ou escalação ao usuário). Refinamento técnico interativo é feito antes pelo skill /feature.',
-  whenToUse: 'Após o refinamento técnico interativo estar consolidado. Recebe args: { featureName, featureSlug, refinementContent, track }. Track = "developer" ou "ai-engineer" decide quem implementa.',
+  whenToUse: 'Após o refinamento técnico interativo estar consolidado. Recebe args: { featureName, featureSlug, refinementContent, evidence, hypotheses, unknowns, track }. Track = "developer" ou "ai-engineer" decide quem implementa.',
   phases: [
     { title: 'user_history', detail: 'tech-pm escreve user story e abre item no sistema de gerenciamento (GitHub Issues por padrão); salva cópia em <feature>/user_history/user_history.md' },
     { title: 'development', detail: 'developer ou ai-engineer (conforme track) implementa a feature seguindo refinamento + user_history' },
@@ -14,6 +14,9 @@ export const meta = {
 const featureName = args?.featureName
 const featureSlug = args?.featureSlug
 const refinementContent = args?.refinementContent
+const refinementEvidence = Array.isArray(args?.evidence) ? args.evidence : []
+const refinementHypotheses = Array.isArray(args?.hypotheses) ? args.hypotheses : []
+const refinementUnknowns = Array.isArray(args?.unknowns) ? args.unknowns : []
 const track = args?.track === 'ai-engineer' ? 'ai-engineer' : 'developer'
 const repo = args?.repo
 const docsBase = featureSlug
@@ -26,7 +29,7 @@ const MAX_ITERATIONS = 3
 
 const USER_HISTORY_SCHEMA = {
   type: 'object',
-  required: ['title', 'asA', 'iWant', 'soThat', 'acceptanceCriteria', 'definitionOfDone', 'markdown'],
+  required: ['title', 'asA', 'iWant', 'soThat', 'acceptanceCriteria', 'definitionOfDone', 'evidence', 'hypotheses', 'unknowns', 'markdown'],
   properties: {
     title: { type: 'string' },
     asA: { type: 'string' },
@@ -46,6 +49,9 @@ const USER_HISTORY_SCHEMA = {
       },
     },
     definitionOfDone: { type: 'array', items: { type: 'string' } },
+    evidence: { type: 'array', items: { type: 'string' }, description: 'Verified facts, derived results, and inspectable sources' },
+    hypotheses: { type: 'array', items: { type: 'string' }, description: 'Falsifiable assumptions that affect the feature decision' },
+    unknowns: { type: 'array', items: { type: 'string' }, description: 'Missing information and its decision impact' },
     issueUrl: { type: 'string', description: 'URL do issue criado no sistema de gerenciamento, ou string vazia se não conseguiu criar' },
     markdown: { type: 'string', description: 'Markdown completo da user history (para gravar em user_history.md)' },
   },
@@ -53,11 +59,14 @@ const USER_HISTORY_SCHEMA = {
 
 const IMPLEMENTATION_SCHEMA = {
   type: 'object',
-  required: ['summary', 'filesChanged', 'commands', 'verdict'],
+  required: ['summary', 'filesChanged', 'commands', 'evidence', 'hypotheses', 'unknowns', 'verdict'],
   properties: {
     summary: { type: 'string', description: 'O que foi implementado e por quê' },
     filesChanged: { type: 'array', items: { type: 'string' } },
     commands: { type: 'array', items: { type: 'string' }, description: 'Comandos para rodar/testar localmente' },
+    evidence: { type: 'array', items: { type: 'string' }, description: 'Executed observations and their scope' },
+    hypotheses: { type: 'array', items: { type: 'string' }, description: 'Hypotheses tested or still open' },
+    unknowns: { type: 'array', items: { type: 'string' }, description: 'Remaining unverified risks' },
     branch: { type: 'string', description: 'Nome do branch git criado, se aplicável' },
     verdict: { type: 'string', enum: ['done', 'blocked'], description: 'done = pronto para validação; blocked = usuário precisa intervir' },
     blockedReason: { type: 'string' },
@@ -66,7 +75,7 @@ const IMPLEMENTATION_SCHEMA = {
 
 const QA_RESULT_SCHEMA = {
   type: 'object',
-  required: ['verdict', 'evidenceFiles', 'issues'],
+  required: ['verdict', 'evidenceFiles', 'hypotheses', 'unknowns', 'issues'],
   properties: {
     verdict: { type: 'string', enum: ['pass', 'fail'] },
     summary: { type: 'string' },
@@ -82,6 +91,8 @@ const QA_RESULT_SCHEMA = {
         },
       },
     },
+    hypotheses: { type: 'array', items: { type: 'string' }, description: 'Causal or behavioral explanations not established by the executed tests' },
+    unknowns: { type: 'array', items: { type: 'string' }, description: 'Material cases or environments not validated' },
     issues: {
       type: 'array',
       items: {
@@ -99,7 +110,7 @@ const QA_RESULT_SCHEMA = {
 
 const SRE_RESULT_SCHEMA = {
   type: 'object',
-  required: ['verdict', 'evidenceFiles', 'issues'],
+  required: ['verdict', 'evidenceFiles', 'hypotheses', 'unknowns', 'issues'],
   properties: {
     verdict: { type: 'string', enum: ['pass', 'fail'] },
     summary: { type: 'string' },
@@ -115,6 +126,8 @@ const SRE_RESULT_SCHEMA = {
         },
       },
     },
+    hypotheses: { type: 'array', items: { type: 'string' }, description: 'Operational or causal explanations not established by telemetry' },
+    unknowns: { type: 'array', items: { type: 'string' }, description: 'Material production conditions not observed' },
     issues: {
       type: 'array',
       items: {
@@ -154,10 +167,16 @@ ${featureName}
 # Refinamento técnico (refinement_tech.md)
 ${refinementContent}
 
+# Evidence record from refinement
+Verified or derived: ${JSON.stringify(refinementEvidence)}
+Hypotheses: ${JSON.stringify(refinementHypotheses)}
+Unknowns: ${JSON.stringify(refinementUnknowns)}
+
 # Tarefas
 1. Escreva uma user history no formato INVEST: título, "As a / I want / So that", critérios de aceitação Given/When/Then (3-6 cenários), Definition of Done.
 2. Crie um issue/ticket no repositório ${repo || '<descobrir via git remote>'} via a capability `code-host` (carregue a tool concreta via ToolSearch — ver claude-code/CLAUDE.md). Se `code-host` não estiver plugada ou falhar, deixe issueUrl como string vazia e prossiga.
-3. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${docsBase}/user_history/user_history.md.
+3. Use a skill `evidence`. Preserve verified evidence, falsifiable hypotheses, unknowns, and quantitative provenance; never invent a metric.
+4. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${docsBase}/user_history/user_history.md.
 
 Grave o markdown final em disco em `${docsBase}/user_history/user_history.md`. Se a capability `memory` estiver plugada, indexe também um resumo.`,
   { agentType: 'tech-pm', label: 'tech-pm:user_history', phase: 'user_history', schema: USER_HISTORY_SCHEMA },
@@ -184,7 +203,8 @@ ${(userHistory.definitionOfDone || []).map((d, i) => `${i + 1}. ${d}`).join('\n'
 1. Crie um branch git: feature/${featureSlug}
 2. Implemente o código necessário, com testes mínimos.
 3. Garanta que o build/lint/tests locais passam.
-4. Retorne resumo, arquivos alterados, comandos de verificação, nome do branch.
+4. Use a skill `evidence`. Retorne observações executadas com escopo, hipóteses testadas e unknowns restantes; passing tests prove only their exercised cases.
+5. Retorne resumo, arquivos alterados, comandos de verificação, nome do branch.
 
 Se houver bloqueio que exige decisão do usuário, retorne verdict="blocked" com blockedReason claro.`,
   { agentType: implementerAgentType, label: `${implementerLabel}:implement`, phase: 'development', schema: IMPLEMENTATION_SCHEMA },
@@ -232,6 +252,7 @@ ${JSON.stringify(implementation, null, 2)}
 Cada evidência deve ter path do tipo `${docsBase}/validation/qa_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
 
 # Veredito
+Use a skill `evidence`. Preserve unsupported explanations as hypotheses and scope every claim to the executed environment and cases.
 pass apenas se TODOS os critérios de aceitação foram validados sem blockers. Caso contrário fail + lista de issues com severidade e repro.`,
         { agentType: 'qa', label: `qa:iter${iteration}`, phase: 'validation', schema: QA_RESULT_SCHEMA },
       ),
@@ -252,6 +273,7 @@ ${JSON.stringify(implementation, null, 2)}
 Cada evidência deve ter path do tipo `${docsBase}/validation/sre_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
 
 # Veredito
+Use a skill `evidence`. Every metric needs unit, population, time window, source, and method. Treat causal explanations as falsifiable hypotheses.
 pass se infra/performance/observabilidade estão dentro de SLO e sem blockers. Caso contrário fail + lista de issues com severidade.`,
         { agentType: 'sre', label: `sre:iter${iteration}`, phase: 'validation', schema: SRE_RESULT_SCHEMA },
       ),
@@ -360,6 +382,10 @@ ${(userHistory.acceptanceCriteria || []).map(ac => `  - ${ac.scenario}`).join('\
 ## Evidências
 - QA: ${docsBase}/validation/qa_*.md
 - SRE: ${docsBase}/validation/sre_*.md
+
+## Evidence status
+- Verified observations: <cite exact validation paths and executed commands>
+- Hypotheses and unknowns: <preserve anything not established by validation>
 
 ## Como testar
 ${(implementation.commands || []).map(c => `\`\`\`\n${c}\n\`\`\``).join('\n')}

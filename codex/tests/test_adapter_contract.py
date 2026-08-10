@@ -37,6 +37,20 @@ class AdapterContractTest(unittest.TestCase):
         self.assertFalse(any(token in content for token in forbidden))
         self.assertIn("Portable orchestration contract", content)
 
+    def test_engineering_agents_load_the_evidence_skill(self) -> None:
+        roles = ("ai-engineer", "architect", "developer", "qa", "sre", "tech-pm")
+
+        for role in roles:
+            with self.subTest(role=role):
+                shared = _ROOT.joinpath(f"agents/engineers/{role}.md").read_text(
+                    encoding="utf-8"
+                )
+                codex = _ROOT.joinpath(f"codex/agents/{role}.toml").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn("  - evidence", shared)
+                self.assertIn("`evidence`", codex)
+
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (
             _ROOT / "skills/tools/site-report/SKILL.md",

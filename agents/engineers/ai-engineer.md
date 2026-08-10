@@ -1,5 +1,5 @@
 ---
-version: 1.1.0
+version: 1.2.0
 name: ai-engineer
 description: >
   Use para engenharia de AI/ML: LLM integration, RAG systems, embeddings,
@@ -8,6 +8,7 @@ description: >
 model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch, ToolSearch
 skills:
+  - evidence
   - ai-engineer
   - implement
   - test

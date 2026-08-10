@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 name: design
 description: |
   Base de conhecimento de arquitetura de software (2026). Cobre princípios SOLID com trade-offs reais,
@@ -44,6 +44,11 @@ tomada de decisão arquitetural.
 
 Arquitetura de software é o conjunto de decisões que são caras de mudar.
 Diagramas são apenas a representação visual dessas decisões.
+
+Apply the `evidence` skill to material architecture choices. An ADR separates verified evidence,
+derived results, hypotheses, estimates, and unknowns; cites quantitative provenance; compares the
+status quo and viable alternatives; and defines a falsifying result plus review or rollback
+conditions. Do not make uncertain inputs look objective by assigning unsupported numeric scores.
 
 ### Princípios Fundamentais
 
@@ -157,7 +162,7 @@ What constraints exist? What motivated this decision?}
 - {negative consequence and how to mitigate}
 
 ### Risks
-- {identified risk and probability}
+- {identified risk, supporting evidence, and calibrated likelihood or qualitative uncertainty}
 
 ## Related Decisions
 
@@ -239,6 +244,9 @@ O C4 Model, de Simon Brown, organiza diagramas em 4 níveis de zoom progressivo.
 ## 4. Fitness Functions
 
 Fitness functions são métricas automatizadas que protegem decisões arquiteturais.
+
+The thresholds below are illustrative syntax, not universal targets. Replace them with a measured
+baseline, user or business requirement, and explicit observation window for the current system.
 
 ```
 Fitness Function = metric + baseline + target + threshold + automation

@@ -10,8 +10,8 @@ library on Claude Code and Codex today.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-13-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -35,6 +35,7 @@ machine capability mapping changes providers.
 - [Core ideas](#core-ideas)
   - [Capabilities — the tool plug](#capabilities--the-tool-plug)
   - [Progressive disclosure](#progressive-disclosure)
+  - [Evidence-driven decisions](#evidence-driven-decisions)
   - [code-craft — inviolable rules](#code-craft--inviolable-rules)
   - [Language contract](#language-contract)
 - [Quick start](#quick-start)
@@ -132,6 +133,15 @@ environment, change only the active harness's table.
 
 Each skill is a lean `SKILL.md` (overview + when to use) that points to `references/` loaded **on demand**. Context only pays for the depth a task actually needs — the ~140 reference files stay out of the window until required.
 
+### Evidence-driven decisions
+
+Software work uses a shared evidence contract across Claude Code and Codex. Material claims are
+classified as verified facts, derived results, inferences, hypotheses, estimates, unknowns, or
+decisions. Quantitative claims carry reproducible provenance, and material decisions record
+alternatives, uncertainty, falsification, and rollback conditions. The `evidence` skill provides
+the detailed protocol, while the read-only `evidence-reviewer` independently audits consequential
+claims without turning routine work into ceremony.
+
 ### code-craft — inviolable rules
 
 The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/engineers/implement/references/code-craft.md`](skills/engineers/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
@@ -185,6 +195,7 @@ under `codex/agents/`. Both adapters preserve the responsibilities in this catal
 | `engineers` | `qa`          | Test strategy, E2E, performance, accessibility        | sonnet |
 | `engineers` | `sre`         | Observability, SLO/SLI, incident response              | sonnet |
 | `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
+| `engineers` | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions | opus |
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
 | `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/work/projects/{project}/context.md` | sonnet |
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
@@ -200,7 +211,7 @@ therefore remain globally unique.
 
 **Knowledge (languages & domains) — `engineers`:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
-**Capability (method & process) — `engineers`:** `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
+**Capability (method & process) — `engineers`:** `evidence` · `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
 
 **Command & workflow — `engineers`:** `feature`
 

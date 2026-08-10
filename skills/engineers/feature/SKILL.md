@@ -1,5 +1,5 @@
 ---
-version: 2.0.0
+version: 2.1.0
 name: feature
 description: |
   Creates a feature end to end across Claude Code and Codex. Runs interactive technical
@@ -15,7 +15,7 @@ type: workflow
 
 Orchestrate a new feature from technical refinement through PR/MR delivery. Preserve every phase
 and gate below. Do not invent names, technical decisions, or repositories; obtain missing choices
-from the user.
+from the user. Apply the `evidence` skill throughout the workflow.
 
 ## Portable orchestration contract
 
@@ -87,6 +87,9 @@ Delegate the final synthesis to the current specialist, using this structure:
 ## Architecture decisions
 ## Components and responsibilities
 ## Evaluated trade-offs
+## Evidence and provenance
+## Hypotheses and unknowns
+## Decision criteria and falsification plan
 ## Technical risks and mitigations
 ## AI components (if applicable)
 ## Open questions
@@ -100,6 +103,19 @@ Delegate the final synthesis to the current specialist, using this structure:
 Present the complete content or an accurate summary for user approval. Only after approval, persist
 it to `<featureSlug>/refinement_tech.md`. If **memory** is configured, index a summary too.
 
+Before requesting approval for a material or hard-to-reverse decision, delegate a read-only audit
+to `evidence-reviewer`. Give it the refinement and cited sources, but not a preferred verdict.
+Handle its verdict explicitly:
+
+- `approve` — continue to user approval;
+- `approve-with-explicit-uncertainty` — preserve the identified hypotheses and unknowns, then
+  continue to user approval;
+- `block-pending-evidence` — stop refinement until the named decisive evidence is obtained or the
+  user explicitly changes the decision scope to a safe, reversible alternative.
+
+Attach the audit outcome to the refinement. Do not require this extra delegation for trivial,
+reversible choices.
+
 ## Workflow input
 
 The approved refinement produces this harness-neutral input:
@@ -108,6 +124,12 @@ The approved refinement produces this harness-neutral input:
 featureName: <human-readable name>
 featureSlug: <kebab-case slug>
 refinementContent: <complete refinement_tech.md content>
+evidence:
+  - <verified fact, derived result, or source reference>
+hypotheses:
+  - <falsifiable assumption or unresolved explanation>
+unknowns:
+  - <missing evidence and its decision impact>
 track: developer | ai-engineer
 repo: <owner/name | null>
 ```
@@ -127,6 +149,7 @@ Delegate to `tech-pm` with the workflow input. Require:
 - the complete Markdown persisted to `<featureSlug>/user_history/user_history.md`;
 - a structured handoff containing the Markdown, Definition of Done, and `issueUrl` (empty when the
   external action could not be completed).
+- explicit evidence, hypotheses, unknowns, and success metrics with quantitative provenance.
 
 Do not block local work solely because **code-host** is unavailable. Record the pending action.
 
@@ -139,7 +162,8 @@ user history, acceptance criteria, and Definition of Done. Require the role to:
 2. implement the feature and its tests according to the repository's engineering rules;
 3. discover and pass the repository quality gates;
 4. return a structured handoff with `verdict`, summary, changed files, verification commands,
-   branch name, and an explicit `blockedReason` when blocked.
+   branch name, evidence observed, hypotheses tested, remaining unknowns, and an explicit
+   `blockedReason` when blocked.
 
 If the verdict is `blocked`, stop with status `blocked_at_development` and ask the user how to
 resolve the stated blocker.
@@ -154,6 +178,7 @@ Run at most three iterations. In each iteration:
 2. Each validator persists Markdown evidence under `<featureSlug>/validation/` and returns a
    structured handoff with `verdict: pass | fail`, summary, evidence paths, and issues with
    severity and reproduction details when applicable.
+   A pass proves only the executed scope; validators must preserve untested hypotheses and risks.
 3. Append both handoffs to the immutable validation history for that iteration.
 4. Advance only when both verdicts are `pass`.
 5. When either verdict is `fail`, delegate one bounded fix task to the implementer with both
@@ -201,3 +226,5 @@ completed external actions.
   documentation follow the repository language contract (English).
 - Do not duplicate an external side effect when resuming; verify issue, branch, and PR/MR state
   before retrying.
+- Never convert an unsupported claim into a verified fact at a phase boundary. Preserve its evidence
+  classification and provenance through every handoff.

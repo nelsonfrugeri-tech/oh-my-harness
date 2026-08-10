@@ -1,5 +1,5 @@
 ---
-version: 1.1.0
+version: 1.2.0
 name: architect
 description: >
   Use para system design, decisões de arquitetura, análise de trade-offs,
@@ -7,6 +7,7 @@ description: >
 model: opus
 tools: Read, Grep, Glob, WebSearch, WebFetch, ToolSearch
 skills:
+  - evidence
   - design
   - review
   - research

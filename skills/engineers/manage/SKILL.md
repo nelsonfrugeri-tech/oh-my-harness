@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 name: manage
 description: |
   Base de conhecimento de Technical Product/Platform Management. Cobre user stories INVEST,
@@ -41,6 +41,8 @@ Ela foca em gerenciar produtos técnicos — conectando necessidades de negócio
 **Toda feature deve ter um "porquê" claro conectado ao valor de negócio.**
 As métricas de sucesso são definidas ANTES de iniciar o desenvolvimento.
 As decisões são orientadas por dados quando há dados disponíveis, e por hipóteses quando não há.
+Apply the `evidence` skill: preserve each hypothesis as falsifiable, keep unknowns explicit, and
+never invent a metric to make prioritization appear objective.
 
 ### Princípios
 
@@ -105,17 +107,22 @@ As decisões são orientadas por dados quando há dados disponíveis, e por hip�
 ### RICE Score
 
 ```markdown
-| Feature | Reach | Impact | Confidence | Effort | RICE Score |
-|---------|-------|--------|------------|--------|------------|
-| {name}  | {1-10}| {1-3}  | {0.5-1.0}  | {days} | {calc}    |
+| Feature | Reach | Impact | Evidence factor | Effort | RICE Score |
+|---------|-------|--------|-----------------|--------|------------|
+| {name}  | {measured population} | {defined scale} | {calibrated factor} | {estimate with unit} | {calc} |
 
-Score = (Reach × Impact × Confidence) / Effort
+Score = (Reach × Impact × Evidence factor) / Effort
 ```
 
-- **Reach:** Quantos usuários impactados (1-10)
-- **Impact:** Quanto impacto por usuário (1=mínimo, 3=massivo)
-- **Confidence:** Certeza sobre as estimativas (0.5=baixa, 0.75=média, 1.0=alta)
-- **Effort:** Esforço em pessoa-dias
+- **Reach:** Measured population and time window, or a labeled estimate with assumptions
+- **Impact:** A defined ordinal or quantitative scale applied consistently to every alternative
+- **Evidence factor:** Use a numeric factor only when calibration data defines it; otherwise keep
+  evidence strength qualitative and do not calculate a pseudo-precise score
+- **Effort:** Estimate with unit, scope, assumptions, and responsible engineering input
+
+RICE is a decision aid, not evidence. Preserve the source and method for every input, list material
+hypotheses and unknowns beside the ranking, and compare the result with the status quo. When inputs
+are not commensurable, use a qualitative trade-off review instead of fabricated arithmetic.
 
 ### MoSCoW
 
@@ -207,7 +214,7 @@ Score = (Reach × Impact × Confidence) / Effort
 
 ### Team Capacity
 - {N} devs × {M} days = {total} person-days available
-- Buffer: 20% for bugs/unplanned work
+- Buffer: {historical unplanned-work rate and window, or an explicit trial assumption}
 - Net capacity: {net} person-days
 ```
 
@@ -367,16 +374,17 @@ Score = (Reach × Impact × Confidence) / Effort
 ```
 BAD: "We need to refactor the authentication module."
 
-GOOD: "The authentication code causes ~30% of our incidents.
-       Fixing it will reduce our incident response time by half
-       and let us ship new auth features 3x faster. Investment: 2 sprints."
+GOOD: "Authentication code appears in {measured incident share} during {time window}
+       according to {incident query}. Our hypothesis is that {change} will improve
+       {defined outcome}; validate it with {observation}. Estimated investment:
+       {range and assumptions}."
 ```
 
 ### Orçamento de Dívida Técnica
 
-- Reserve 20% de cada sprint para dívida técnica
+- Derive the budget from incident, delivery, and capacity evidence. Without history, label the
+  initial allocation as a trial assumption and define when to review it
 - Acompanhe itens de dívida técnica com o mesmo rigor das features
 - Inclua o impacto na velocity ao construir o business case
 
 ---
-

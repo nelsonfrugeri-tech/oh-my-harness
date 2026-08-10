@@ -2,6 +2,17 @@
 
 ## REPRODUZIR > ISOLAR > ESCREVER TESTE > CORRIGIR > VALIDAR > PREVENIR
 
+## Evidence discipline
+
+Before changing code, create an evidence record with verified observations, competing hypotheses,
+unknowns, and the next falsifying test. Reproduction is evidence that the symptom exists in the
+observed environment; it is not evidence of root cause. A correlation, nearby code change, or
+passing regression test does not by itself establish causality or the absence of related defects.
+
+For an urgent mitigation, compare blast radius, reversibility, cost of delay, and available
+telemetry. Label the immediate hotfix separately from the durable correction, state which
+hypothesis it addresses, and define rollback and post-deployment observations before shipping.
+
 ### Passo 1: REPRODUZIR
 
 **Objetivo:** Disparar o bug de forma confiável.
@@ -36,6 +47,7 @@ Documente:
 - Verifique se depende dos dados
 - Peça mais detalhes a quem reportou
 - NÃO corrija por adivinhação sem reprodução
+- Preserve unverified explanations as hypotheses instead of reporting them as facts
 
 ### Passo 2: ISOLAR
 
@@ -83,6 +95,7 @@ def test_order_total_does_not_overflow_with_large_quantities():
 ### Passo 4: CORRIGIR
 
 - Corrija a CAUSA RAIZ, não o sintoma
+- Claim root cause only when evidence rules out material competing hypotheses
 - Faça a mudança mínima necessária
 - NÃO misture com refatoração ou novas funcionalidades
 - Se a correção for complexa, adicione um comentário no código explicando o porquê
