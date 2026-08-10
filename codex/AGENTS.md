@@ -130,6 +130,17 @@ inventing an answer.
 
 ---
 
+## Facts, hypotheses, and decisions (epistemic doctrine)
+
+<!-- Shared doctrine, single-sourced from doctrine/epistemics.md at the repository root and
+     inlined verbatim at install time (pt-BR — the library's language for instructional prose).
+     To change the doctrine, edit that file in the source repository — never this block. The
+     parity contract lives in codex/tests/test_doctrine_parity.py. -->
+
+{omh_doctrine}
+
+---
+
 ## Mandatory code standards
 
 Before writing, modifying, or reviewing code, follow the complete inviolable standards in the

@@ -80,10 +80,16 @@ suporte da skill (ex.: o `docker-compose.yml` de `kb-infra`) viajam junto.
 Os nomes-folha já são únicos na fonte, então o achatamento nunca colide. Se um dia colidirem,
 pare e pergunte ao usuário como resolver — nunca sobrescreva silenciosamente.
 
-## Passo 3 — Workflows e hooks → symlink direto
+## Passo 3 — Workflows, hooks e doutrina → symlink direto
 
 - `FONTE/claude-code/workflows/*.ts` → `~/.claude/workflows/<nome>.ts`
 - `FONTE/claude-code/hooks/*.sh` → `~/.claude/hooks/<nome>.sh`
+- `FONTE/doctrine` → `~/.claude/doctrine` (symlink do **diretório**)
+
+O symlink de `doctrine/` é o que faz o import `@doctrine/epistemics.md` do `CLAUDE.md`
+instalado resolver. Sem ele, a doutrina epistêmica simplesmente não carrega — e não há aviso
+documentado de import quebrado; na prática ele falha em silêncio. Por isso a verificação é
+obrigatória: depois do sync, confirme com `/context` que o arquivo aparece sob **Memory files**.
 
 Depois de linkar um hook, garanta o bit de execução na **fonte** (`chmod +x`) — o symlink
 não carrega permissão própria, e um hook sem `+x` falha silenciosamente como "non-blocking

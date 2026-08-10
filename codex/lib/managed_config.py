@@ -13,6 +13,7 @@ from lib.layout import InstallLayout
 _START: Final = "<!-- omh-managed:start -->"
 _END: Final = "<!-- omh-managed:end -->"
 _HOOK_MARKER: Final = "omh-managed: context"
+_DOCTRINE_TOKEN: Final = "{omh_doctrine}"
 
 
 class ManagedConfig:
@@ -53,10 +54,21 @@ class ManagedConfig:
 
     def _source_agents(self, current: str) -> str:
         source = self._layout.adapter.joinpath("AGENTS.md").read_text(encoding="utf-8").strip()
+        source = self._inline_doctrine(source)
         managed = self._managed_content(current)
         if managed is None:
             return source
         return preserve_machine_capabilities(source, managed)
+
+    def _inline_doctrine(self, source: str) -> str:
+        # The shared epistemic doctrine is single-sourced at the repository root; the adapter
+        # carries only a token so the text cannot drift between harnesses.
+        if _DOCTRINE_TOKEN not in source:
+            return source
+        doctrine = self._layout.doctrine_file
+        if not doctrine.is_file():
+            raise self._conflict(f"doctrine source missing: {doctrine}")
+        return source.replace(_DOCTRINE_TOKEN, doctrine.read_text(encoding="utf-8").strip())
 
     def _merge_hooks(self) -> str:
         source = self._source_hooks()

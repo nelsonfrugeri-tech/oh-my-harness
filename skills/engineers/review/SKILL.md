@@ -212,6 +212,15 @@ Aplique a todo arquivo alterado, independentemente da linguagem.
 
 **Severidade típica:** MINOR / MAJOR (violação séria)
 
+### Honestidade epistêmica (doutrina em `doctrine/epistemics.md`)
+- [ ] Todo número, métrica ou estado afirmado — no código, no comentário, na descrição do PR ou
+      no relatório da mudança — tem evidência observada (saída de comando, teste, medição)
+- [ ] Hipóteses estão rotuladas como hipóteses; nenhum "deve funcionar" apresentado como conclusão
+- [ ] Decisões de trade-off (fix rápido × correto, abordagem A × B) citam o dado que as embasou,
+      ou declaram a hipótese e o que faria revisitá-la
+
+**Severidade típica:** BLOCKER (dado inventado ou certeza sem evidência) / MAJOR (hipótese sem rótulo)
+
 ### Específico de Frontend (TypeScript/React)
 - [ ] Nenhum secret ou API key em código client-side
 - [ ] `dangerouslySetInnerHTML` é sanitizado

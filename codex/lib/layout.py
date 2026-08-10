@@ -15,6 +15,10 @@ class InstallLayout:
         return self.source_root / "codex"
 
     @property
+    def doctrine_file(self) -> Path:
+        return self.source_root / "doctrine" / "epistemics.md"
+
+    @property
     def global_agents_file(self) -> Path:
         return self.codex_home / "AGENTS.md"
 

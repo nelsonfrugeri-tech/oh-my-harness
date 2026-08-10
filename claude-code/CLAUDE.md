@@ -103,6 +103,17 @@ Depois da busca, **responda citando a fonte**. Se ainda faltar informação, dig
 
 ---
 
+## Fatos, hipóteses e decisões (doutrina epistêmica)
+
+@doctrine/epistemics.md
+
+<!-- O import acima resolve relativo a ESTE arquivo instalado: ~/.claude/doctrine/epistemics.md,
+     symlink que o sync cria apontando para doctrine/ do repo. Fonte única, compartilhada com o
+     Codex (que a inlina no AGENTS.md via installer). Não copie o texto para cá: duplicar quebra
+     o teste de paridade em codex/tests/test_doctrine_parity.py. -->
+
+---
+
 ## Padrões de código — ativação obrigatória
 
 **Antes de escrever, modificar ou revisar qualquer linha de código**, siga os *Padrões de código — invioláveis* da skill `implement` (corpo + `references/code-craft.md`). Não são sugestões.
