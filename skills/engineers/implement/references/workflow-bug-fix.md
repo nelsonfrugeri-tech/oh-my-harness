@@ -2,16 +2,17 @@
 
 ## REPRODUZIR > ISOLAR > ESCREVER TESTE > CORRIGIR > VALIDAR > PREVENIR
 
-## Evidence discipline
+## Disciplina de evidência (skill `evidence`)
 
-Before changing code, create an evidence record with verified observations, competing hypotheses,
-unknowns, and the next falsifying test. Reproduction is evidence that the symptom exists in the
-observed environment; it is not evidence of root cause. A correlation, nearby code change, or
-passing regression test does not by itself establish causality or the absence of related defects.
+Antes de mudar código, crie um registro de evidência com observações verificadas, hipóteses
+concorrentes, desconhecidos e o próximo teste falsificador. Reprodução é evidência de que o sintoma
+existe no ambiente observado; não é evidência de causa raiz. Uma correlação, uma mudança de código
+próxima ou um teste de regressão passando não estabelecem, por si sós, causalidade nem a ausência
+de defeitos relacionados.
 
-For an urgent mitigation, compare blast radius, reversibility, cost of delay, and available
-telemetry. Label the immediate hotfix separately from the durable correction, state which
-hypothesis it addresses, and define rollback and post-deployment observations before shipping.
+Para uma mitigação urgente, compare blast radius, reversibilidade, custo de atraso e telemetria
+disponível. Rotule o hotfix imediato separadamente da correção durável, diga qual hipótese ele
+endereça, e defina rollback e observações pós-deploy antes de subir.
 
 ### Passo 1: REPRODUZIR
 
@@ -47,7 +48,7 @@ Documente:
 - Verifique se depende dos dados
 - Peça mais detalhes a quem reportou
 - NÃO corrija por adivinhação sem reprodução
-- Preserve unverified explanations as hypotheses instead of reporting them as facts
+- Preserve explicações não verificadas como hipóteses em vez de reportá-las como fatos
 
 ### Passo 2: ISOLAR
 
@@ -95,7 +96,7 @@ def test_order_total_does_not_overflow_with_large_quantities():
 ### Passo 4: CORRIGIR
 
 - Corrija a CAUSA RAIZ, não o sintoma
-- Claim root cause only when evidence rules out material competing hypotheses
+- Alegue causa raiz apenas quando a evidência descarta as hipóteses concorrentes materiais
 - Faça a mudança mínima necessária
 - NÃO misture com refatoração ou novas funcionalidades
 - Se a correção for complexa, adicione um comentário no código explicando o porquê

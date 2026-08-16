@@ -45,10 +45,11 @@ tomada de decisão arquitetural.
 Arquitetura de software é o conjunto de decisões que são caras de mudar.
 Diagramas são apenas a representação visual dessas decisões.
 
-Apply the `evidence` skill to material architecture choices. An ADR separates verified evidence,
-derived results, hypotheses, estimates, and unknowns; cites quantitative provenance; compares the
-status quo and viable alternatives; and defines a falsifying result plus review or rollback
-conditions. Do not make uncertain inputs look objective by assigning unsupported numeric scores.
+Aplique a skill `evidence` a escolhas de arquitetura materiais. Um ADR separa evidência verificada,
+resultados derivados, hipóteses, estimativas e desconhecidos; cita a proveniência quantitativa;
+compara o status quo e as alternativas viáveis; e define um resultado falsificador mais as condições
+de revisão ou rollback. Não faça entradas incertas parecerem objetivas atribuindo scores numéricos
+sem sustentação.
 
 ### Princípios Fundamentais
 
@@ -245,8 +246,9 @@ O C4 Model, de Simon Brown, organiza diagramas em 4 níveis de zoom progressivo.
 
 Fitness functions são métricas automatizadas que protegem decisões arquiteturais.
 
-The thresholds below are illustrative syntax, not universal targets. Replace them with a measured
-baseline, user or business requirement, and explicit observation window for the current system.
+Os thresholds abaixo são sintaxe ilustrativa, não alvos universais. Substitua-os por uma baseline
+medida, um requisito de usuário ou de negócio, e uma janela de observação explícita para o sistema
+atual.
 
 ```
 Fitness Function = metric + baseline + target + threshold + automation

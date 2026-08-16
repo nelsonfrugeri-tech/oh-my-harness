@@ -1,53 +1,55 @@
-# Claim Taxonomy and Provenance
+# Taxonomia de Alegações e Proveniência
 
-Use the narrowest status the available evidence supports. A label is useful only when a reader can
-inspect the supporting record and reproduce the reasoning.
+Use o status mais estreito que a evidência disponível sustenta. Um rótulo só é útil quando o leitor
+consegue inspecionar o registro que o sustenta e reproduzir o raciocínio.
 
-## Status tests
+## Testes de status
 
-| Status | Required support | Common failure |
+| Status | Sustentação exigida | Falha comum |
 | --- | --- | --- |
-| Verified fact | Direct observation, source, scope, and observation time | Generalizing beyond the observed scope |
-| Derived result | Cited inputs, formula or procedure, and reproducible output | Hiding assumptions in arithmetic |
-| Inference | Cited facts plus the reasoning that connects them | Calling correlation a cause |
-| Hypothesis | Falsifiable prediction and a discriminating test | Writing an unfalsifiable explanation |
-| Estimate | Assumptions, range or error model, and intended use | Reporting a point value as measured |
-| Unknown | The missing information and its decision impact | Silently filling the gap |
-| Decision | Alternatives, criteria, evidence, owner, and validation plan | Presenting a preference as a fact |
+| Fato verificado | Observação direta, fonte, escopo e momento da observação | Generalizar além do escopo observado |
+| Resultado derivado | Entradas citadas, fórmula ou procedimento, e saída reprodutível | Esconder premissas na aritmética |
+| Inferência | Fatos citados mais o raciocínio que os conecta | Chamar correlação de causa |
+| Hipótese | Previsão falsificável e um teste que discrimina | Escrever uma explicação infalsificável |
+| Estimativa | Premissas, faixa ou modelo de erro, e uso pretendido | Reportar um valor pontual como se medido |
+| Desconhecido | A informação que falta e seu impacto na decisão | Preencher a lacuna em silêncio |
+| Decisão | Alternativas, critérios, evidência, dono e plano de validação | Apresentar uma preferência como fato |
 
-## Quantitative provenance
+## Proveniência quantitativa
 
-For every material number, record:
+Para todo número material, registre:
 
-- metric name and unit;
-- population or denominator;
-- time window and observation time;
-- source revision, query, command, dashboard, or primary document;
-- collection and calculation method;
-- exclusions, assumptions, and known limitations.
+- nome da métrica e unidade;
+- população ou denominador;
+- janela temporal e momento da observação;
+- revisão da fonte, query, comando, dashboard ou documento primário;
+- método de coleta e de cálculo;
+- exclusões, premissas e limitações conhecidas.
 
-Do not transform ordinal labels such as low, medium, and high into numeric probabilities. Use a
-numeric confidence only when a calibration procedure maps that value to observed outcomes.
+Não transforme rótulos ordinais como baixo, médio e alto em probabilidades numéricas. Use confiança
+numérica apenas quando um procedimento de calibração mapeia esse valor a resultados observados.
 
-## Evidence semantics
+## Semântica da evidência
 
-- A file read supports claims about the inspected content and revision.
-- A search count supports the exact query, included paths, and exclusions.
-- A benchmark supports its hardware, dataset, configuration, warm-up, and repetitions.
-- Telemetry supports its instrumented population and window, subject to sampling and data quality.
-- Documentation supports the documented contract at its cited version, not runtime health.
-- A transcript supports what was said. Revalidate any claim that may have become stale.
+- Uma leitura de arquivo sustenta alegações sobre o conteúdo e a revisão inspecionados.
+- Uma contagem de busca sustenta a query exata, os paths incluídos e as exclusões.
+- Um benchmark sustenta seu hardware, dataset, configuração, warm-up e repetições.
+- Telemetria sustenta sua população instrumentada e sua janela, sujeita a sampling e qualidade de
+  dados.
+- Documentação sustenta o contrato documentado na versão citada, não a saúde em runtime.
+- Um transcript sustenta o que foi dito. Revalide qualquer alegação que possa ter ficado obsoleta.
 
-Prefer primary sources for behavior and specifications. Use secondary sources to discover primary
-evidence or to compare interpretations, not to erase a primary-source conflict.
+Prefira fontes primárias para comportamento e especificações. Use fontes secundárias para descobrir
+evidência primária ou comparar interpretações, não para apagar um conflito entre fontes primárias.
 
-A premise supplied by a user or stakeholder is direct evidence that the premise was reported, not
-that its underlying software claim is true. Until corroborated, classify the underlying statement
-as a hypothesis, estimate, or unknown according to its form, and preserve the reporter and time as
-provenance. Do not demand revalidation when the premise is explicitly declared as an assumption for
-a hypothetical exercise.
+Uma premissa fornecida por usuário ou stakeholder é evidência direta de que a premissa foi
+reportada, não de que a alegação de software subjacente é verdadeira. Até ser corroborada,
+classifique a afirmação subjacente como hipótese, estimativa ou desconhecido conforme sua forma, e
+preserve o relator e o momento como proveniência. Não exija revalidação quando a premissa está
+explicitamente declarada como suposição de um exercício hipotético.
 
-A quantitative prediction can contain both an estimate and a hypothesis. Use **Hypothesis** as the
-primary status when the statement predicts a relationship or outcome to be tested; record the
-numeric value and its assumptions as the estimate inside that hypothesis. Use **Estimate** alone
-for an approximate planning quantity that does not assert a causal or predictive relationship.
+Uma previsão quantitativa pode conter uma estimativa e uma hipótese ao mesmo tempo. Use
+**Hipótese** como status primário quando a afirmação prevê uma relação ou um resultado a ser
+testado; registre o valor numérico e suas premissas como a estimativa dentro dessa hipótese. Use
+**Estimativa** sozinha para uma quantidade aproximada de planejamento que não afirma relação causal
+ou preditiva.

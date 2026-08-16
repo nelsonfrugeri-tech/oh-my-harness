@@ -1,4 +1,4 @@
 interface:
-  display_name: "Evidence-driven Software"
-  short_description: "Verify claims and software decisions"
-  default_prompt: "Use $evidence to separate facts from hypotheses and justify this software decision."
+  display_name: "Software Orientado a Evidência"
+  short_description: "Verifique alegações e decisões de software"
+  default_prompt: "Use $evidence para separar fatos de hipóteses e justificar esta decisão de software."

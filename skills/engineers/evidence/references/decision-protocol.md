@@ -1,14 +1,14 @@
-# Evidence-driven Decision Protocol
+# Protocolo de Decisão Orientado a Evidência
 
-Use this protocol when a software decision has meaningful user impact, operational risk,
-irreversibility, or non-trivial cost.
+Use este protocolo quando uma decisão de software tem impacto relevante no usuário, risco
+operacional, irreversibilidade ou custo não-trivial.
 
-## 1. Frame the decision
+## 1. Enquadre a decisão
 
-Write the decision, the deadline, the affected system and population, and the cost of delay. List
-constraints separately from preferences.
+Escreva a decisão, o prazo, o sistema e a população afetados, e o custo do atraso. Liste as
+restrições separadamente das preferências.
 
-## 2. Build the evidence record
+## 2. Monte o registro de evidência
 
 Capture:
 
@@ -23,38 +23,39 @@ alternatives: []
 decision_criteria: []
 ```
 
-Every verified fact, derived result, and inference links to inspectable evidence; without that
-support, relabel it. Hypotheses and estimates cite any available evidence and explicitly record
-when none exists. Unknowns name the missing evidence and its decision impact. Keep contradictory
-evidence rather than averaging it away.
+Todo fato verificado, resultado derivado e inferência aponta para evidência inspecionável; sem essa
+sustentação, rerrotule. Hipóteses e estimativas citam a evidência disponível e registram
+explicitamente quando não existe nenhuma. Desconhecidos nomeiam a evidência que falta e seu impacto
+na decisão. Preserve evidência contraditória em vez de tirar a média dela.
 
-## 3. Choose the cheapest decisive observation
+## 3. Escolha a observação decisiva mais barata
 
-Rank possible investigations by decision value, cost, and latency. Prefer a reproduction, targeted
-test, small measurement, or reversible experiment that distinguishes competing hypotheses. Stop
-collecting evidence when another observation is unlikely to change the choice enough to justify its
-cost.
+Ranqueie as investigações possíveis por valor para a decisão, custo e latência. Prefira uma
+reprodução, um teste dirigido, uma medição pequena ou um experimento reversível que distinga
+hipóteses concorrentes. Pare de coletar evidência quando outra observação dificilmente mudaria a
+escolha o bastante para justificar seu custo.
 
-## 4. Compare alternatives
+## 4. Compare alternativas
 
-For each viable alternative, state expected benefit, failure mode, reversibility, implementation
-cost, and supporting evidence. Do not fabricate scores. A weighted matrix is valid only when its
-weights and scores have defined evidence or are clearly labeled stakeholder judgments.
+Para cada alternativa viável, declare benefício esperado, modo de falha, reversibilidade, custo de
+implementação e a evidência que a sustenta. Não fabrique scores. Uma matriz ponderada só é válida
+quando seus pesos e notas têm evidência definida ou estão claramente rotulados como julgamento de
+stakeholder.
 
-Treat the presented option set as a claim, not a boundary. Check the status quo, staged or reversible
-steps, and combinations of options before accepting a binary choice.
+Trate o conjunto de opções apresentado como uma alegação, não como uma fronteira. Cheque o status
+quo, passos graduais ou reversíveis e combinações de opções antes de aceitar uma escolha binária.
 
-## 5. Decide and pre-register validation
+## 5. Decida e pré-registre a validação
 
-Record:
+Registre:
 
-- the selected alternative and owner;
-- the evidence and criteria that controlled the choice;
-- rejected alternatives and material trade-offs;
-- leading and guardrail metrics with provenance requirements;
-- a result that would falsify the chosen assumptions;
-- rollback or review conditions and the next observation time.
+- a alternativa selecionada e o dono;
+- a evidência e os critérios que controlaram a escolha;
+- as alternativas rejeitadas e os trade-offs materiais;
+- métricas leading e de guardrail com requisitos de proveniência;
+- um resultado que falsificaria as premissas escolhidas;
+- condições de rollback ou revisão e o momento da próxima observação.
 
-When evidence is weak and failure is expensive, reduce blast radius, add instrumentation, or choose
-a reversible step. For an urgent hotfix, distinguish the immediate mitigation from the durable fix
-and record the evidence required before claiming root cause.
+Quando a evidência é fraca e a falha é cara, reduza o blast radius, adicione instrumentação ou
+escolha um passo reversível. Para um hotfix urgente, distinga a mitigação imediata da correção
+durável e registre a evidência exigida antes de alegar causa raiz.

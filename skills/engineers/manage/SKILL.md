@@ -41,8 +41,8 @@ Ela foca em gerenciar produtos técnicos — conectando necessidades de negócio
 **Toda feature deve ter um "porquê" claro conectado ao valor de negócio.**
 As métricas de sucesso são definidas ANTES de iniciar o desenvolvimento.
 As decisões são orientadas por dados quando há dados disponíveis, e por hipóteses quando não há.
-Apply the `evidence` skill: preserve each hypothesis as falsifiable, keep unknowns explicit, and
-never invent a metric to make prioritization appear objective.
+Aplique a skill `evidence`: preserve cada hipótese como falsificável, mantenha os desconhecidos
+explícitos e nunca invente uma métrica para a priorização parecer objetiva.
 
 ### Princípios
 
@@ -114,15 +114,16 @@ never invent a metric to make prioritization appear objective.
 Score = (Reach × Impact × Evidence factor) / Effort
 ```
 
-- **Reach:** Measured population and time window, or a labeled estimate with assumptions
-- **Impact:** A defined ordinal or quantitative scale applied consistently to every alternative
-- **Evidence factor:** Use a numeric factor only when calibration data defines it; otherwise keep
-  evidence strength qualitative and do not calculate a pseudo-precise score
-- **Effort:** Estimate with unit, scope, assumptions, and responsible engineering input
+- **Reach:** População medida e janela temporal, ou uma estimativa rotulada com suas premissas
+- **Impact:** Uma escala ordinal ou quantitativa definida, aplicada consistentemente a toda alternativa
+- **Evidence factor:** Use fator numérico apenas quando dados de calibração o definem; senão,
+  mantenha a força da evidência qualitativa e não calcule um score pseudo-preciso
+- **Effort:** Estimativa com unidade, escopo, premissas e input da engenharia responsável
 
-RICE is a decision aid, not evidence. Preserve the source and method for every input, list material
-hypotheses and unknowns beside the ranking, and compare the result with the status quo. When inputs
-are not commensurable, use a qualitative trade-off review instead of fabricated arithmetic.
+RICE é um apoio à decisão, não evidência. Preserve a fonte e o método de cada entrada, liste
+hipóteses e desconhecidos materiais ao lado do ranking, e compare o resultado com o status quo.
+Quando as entradas não são comensuráveis, use um review qualitativo de trade-offs em vez de
+aritmética fabricada.
 
 ### MoSCoW
 
@@ -382,8 +383,8 @@ GOOD: "Authentication code appears in {measured incident share} during {time win
 
 ### Orçamento de Dívida Técnica
 
-- Derive the budget from incident, delivery, and capacity evidence. Without history, label the
-  initial allocation as a trial assumption and define when to review it
+- Derive o orçamento da evidência de incidentes, entrega e capacidade. Sem histórico, rotule a
+  alocação inicial como premissa provisória e defina quando revisá-la
 - Acompanhe itens de dívida técnica com o mesmo rigor das features
 - Inclua o impacto na velocity ao construir o business case
 

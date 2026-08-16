@@ -1,54 +1,70 @@
 ---
+version: 1.0.0
 name: evidence
-description: Apply evidence-driven reasoning to software engineering claims and decisions. Use for feature design, bug diagnosis, root-cause analysis, architecture, prioritization, implementation, review, delivery, operations, metrics, estimates, benchmarks, and trade-offs whenever facts must be separated from hypotheses or a material choice needs defensible evidence.
+description: |
+  Raciocínio orientado a evidência para alegações e decisões de engenharia de software. Cobre a
+  taxonomia de alegações (fato verificado, resultado derivado, inferência, hipótese, estimativa,
+  desconhecido, decisão), proveniência quantitativa (unidade, população, janela temporal, fonte e
+  método), o protocolo de decisão para trade-offs materiais e hotfixes, e a rubrica de review
+  independente de evidência.
+  Use quando: (1) design de feature, diagnóstico de bug ou análise de causa raiz, (2) arquitetura,
+  priorização, implementação, review, entrega ou operações, (3) métricas, estimativas, benchmarks e
+  trade-offs — sempre que fatos precisarem ser separados de hipóteses ou uma escolha material
+  precisar de evidência defensável.
+  Gatilhos: evidence, evidência, fato vs hipótese, decisão orientada a dados, causa raiz.
+type: capability
 ---
 
-# Evidence-driven Software Engineering
+# Engenharia de Software Orientada a Evidência
 
-Make software claims traceable and decisions testable without blocking safe progress when evidence
-is incomplete. Treat the global software-evidence contract as binding.
+Torne alegações de software rastreáveis e decisões testáveis, sem bloquear progresso seguro quando a
+evidência é incompleta. Trate o contrato global de software-evidence como vinculante.
 
-## Apply the workflow
+## Aplique o workflow
 
-1. **Frame the claim or decision.** Define its scope, affected population, time window, and impact.
-2. **Inventory the current record.** Separate verified facts, derived results, inferences,
-   hypotheses, estimates, unknowns, and decisions.
-3. **Inspect the strongest available evidence.** Prefer direct repository observations, executed
-   tests, telemetry, reproducible commands, and versioned primary sources.
-4. **Check provenance and scope.** Reject or relabel claims that exceed what the evidence proves.
-5. **Reduce decision-relevant uncertainty.** Select the cheapest observation that distinguishes
-   competing hypotheses or materially changes the trade-off.
-6. **Decide proportionately.** Compare alternatives, reversibility, blast radius, cost of delay,
-   and cost of error. Weak evidence calls for smaller, observable, reversible steps.
-7. **Pre-register validation.** Define success, guardrail, falsification, rollback, and review
-   conditions before observing the result.
-8. **Communicate status.** Cite evidence near each material claim and label what remains uncertain.
+1. **Enquadre a alegação ou decisão.** Defina escopo, população afetada, janela temporal e impacto.
+2. **Inventarie o registro atual.** Separe fatos verificados, resultados derivados, inferências,
+   hipóteses, estimativas, desconhecidos e decisões.
+3. **Inspecione a evidência mais forte disponível.** Prefira observações diretas do repositório,
+   testes executados, telemetria, comandos reprodutíveis e fontes primárias versionadas.
+4. **Cheque proveniência e escopo.** Rejeite ou rerrotule alegações que excedem o que a evidência
+   prova.
+5. **Reduza a incerteza relevante para a decisão.** Selecione a observação mais barata que distingue
+   hipóteses concorrentes ou muda materialmente o trade-off.
+6. **Decida proporcionalmente.** Compare alternativas, reversibilidade, blast radius, custo de
+   atraso e custo do erro. Evidência fraca pede passos menores, observáveis e reversíveis.
+7. **Pré-registre a validação.** Defina condições de sucesso, guardrail, falsificação, rollback e
+   revisão antes de observar o resultado.
+8. **Comunique o status.** Cite a evidência junto de cada alegação material e rotule o que permanece
+   incerto.
 
-## Preserve useful uncertainty
+## Preserve a incerteza útil
 
-Do not manufacture certainty to make an answer look complete. A safe hypothesis can support an
-experiment or reversible implementation when it includes a falsifiable prediction. An estimate can
-support planning when its assumptions and uncertainty are visible. An unknown becomes actionable
-when its decision impact and next observation are stated.
+Não fabrique certeza para uma resposta parecer completa. Uma hipótese segura pode sustentar um
+experimento ou uma implementação reversível quando inclui uma previsão falsificável. Uma estimativa
+pode sustentar planejamento quando suas premissas e incerteza estão visíveis. Um desconhecido se
+torna acionável quando seu impacto na decisão e a próxima observação estão declarados.
 
-Do not claim root cause from correlation, a fixed bug from one passing test, production health from
-configuration, or current truth from session history. Narrow the statement or obtain the missing
-observation.
+Não alegue causa raiz a partir de correlação, bug corrigido a partir de um teste que passou, saúde
+de produção a partir de configuração, nem verdade atual a partir de histórico de sessão. Estreite a
+afirmação ou obtenha a observação que falta.
 
-## Challenge decisions collaboratively
+## Desafie decisões colaborativamente
 
-For a material proposal, identify the strongest evidence-backed risk, present the strongest
-reasonable case in its favor, offer a viable alternative, and state what evidence would change the
-recommendation. Request an independent `evidence-reviewer` when impact, irreversibility, or
-uncertainty makes self-review insufficient.
+Para uma proposta material, identifique o risco mais forte sustentado por evidência, apresente o
+caso razoável mais forte a favor dela, ofereça uma alternativa viável e diga que evidência mudaria a
+recomendação. Solicite um `evidence-reviewer` independente quando impacto, irreversibilidade ou
+incerteza tornarem o self-review insuficiente.
 
-Treat a decision as material when it can affect production users, security, privacy, data integrity,
-significant spend, multiple teams, or a difficult rollback, or when an unsupported metric or causal
-claim controls the outcome. Routine reversible choices do not require independent review.
+Trate uma decisão como material quando ela pode afetar usuários de produção, segurança, privacidade,
+integridade de dados, gasto significativo, múltiplos times ou um rollback difícil — ou quando uma
+métrica sem sustentação ou uma alegação causal controla o resultado. Escolhas rotineiras e
+reversíveis não exigem review independente.
 
-## Load the relevant reference
+## Carregue a referência relevante
 
-- Use [claim-taxonomy.md](references/claim-taxonomy.md) to classify claims and validate provenance.
-- Use [decision-protocol.md](references/decision-protocol.md) for material trade-offs and hotfix
-  decisions.
-- Use [review-rubric.md](references/review-rubric.md) for independent evidence review.
+- Use [claim-taxonomy.md](references/claim-taxonomy.md) para classificar alegações e validar
+  proveniência.
+- Use [decision-protocol.md](references/decision-protocol.md) para trade-offs materiais e decisões
+  de hotfix.
+- Use [review-rubric.md](references/review-rubric.md) para review independente de evidência.

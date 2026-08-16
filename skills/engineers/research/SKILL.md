@@ -22,9 +22,9 @@ Esta skill é a base de conhecimento para pesquisa técnica estruturada. Ela for
 não opiniões. Toda recomendação que um agente fizer deve estar fundamentada em pesquisa atual,
 verificada e multi-fonte.
 
-Apply the `evidence` skill to every synthesis. Separate verified facts, derived results, inference,
-hypothesis, estimate, and unknown. Keep contradictions visible and never use source count as a
-substitute for source quality or scope.
+Aplique a skill `evidence` a toda síntese. Separe fato verificado, resultado derivado, inferência,
+hipótese, estimativa e desconhecido. Mantenha as contradições visíveis e nunca use contagem de
+fontes como substituto de qualidade ou escopo de fonte.
 
 **O que esta skill contém:**
 - Estratégias de busca por plataforma
@@ -270,17 +270,17 @@ For every claim or recommendation:
    - Is there active debate? -> present both sides
 ```
 
-### Evidence status
+### Status da evidência
 
-Classify the claim instead of assigning confidence from source count:
+Classifique a alegação em vez de atribuir confiança pela contagem de fontes:
 
-| Status | Criterion | Communication |
+| Status | Critério | Comunicação |
 | --- | --- | --- |
-| **Verified fact** | A source with the required authority, version, scope, and freshness directly establishes the claim | Cite the source and observed scope |
-| **Derived result** | Cited inputs and a reproducible method establish the result | Cite inputs and show the method |
-| **Inference** | Evidence supports a conclusion that was not directly observed | Show the reasoning and competing interpretation |
-| **Hypothesis** | A falsifiable explanation or prediction still needs a decisive observation | State the falsifying test |
-| **Unknown** | Available sources cannot establish the claim or materially conflict | Preserve the conflict and missing evidence |
+| **Fato verificado** | Uma fonte com a autoridade, versão, escopo e frescor exigidos estabelece a alegação diretamente | Cite a fonte e o escopo observado |
+| **Resultado derivado** | Entradas citadas e um método reprodutível estabelecem o resultado | Cite as entradas e mostre o método |
+| **Inferência** | A evidência sustenta uma conclusão que não foi observada diretamente | Mostre o raciocínio e a interpretação concorrente |
+| **Hipótese** | Uma explicação ou previsão falsificável ainda precisa de uma observação decisiva | Declare o teste falsificador |
+| **Desconhecido** | As fontes disponíveis não estabelecem a alegação ou conflitam materialmente | Preserve o conflito e a evidência que falta |
 
 ### Quando as Fontes Conflitam
 

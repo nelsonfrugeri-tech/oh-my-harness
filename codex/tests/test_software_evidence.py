@@ -20,19 +20,19 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
     def test_contract_defines_claim_classes_and_quantitative_provenance(self) -> None:
         contract = self._canonical_contract()
         claim_classes = (
-            "Verified fact",
-            "Derived result",
-            "Inference",
-            "Hypothesis",
-            "Estimate",
-            "Unknown",
-            "Decision",
+            "Fato verificado",
+            "Resultado derivado",
+            "Inferência",
+            "Hipótese",
+            "Estimativa",
+            "Desconhecido",
+            "Decisão",
         )
 
         self.assertTrue(all(name in contract for name in claim_classes))
-        self.assertIn("unit, population, time window, source, and method", contract)
-        self.assertIn("calibration data", contract)
-        self.assertIn("software engineering work", contract)
+        self.assertIn("unidade, população, janela temporal, fonte e método", contract)
+        self.assertIn("dados de calibração", contract)
+        self.assertIn("engenharia de software", contract)
 
     def test_evidence_skill_contains_only_referenced_resources(self) -> None:
         skill = _ROOT / "skills/engineers/evidence/SKILL.md"
@@ -43,7 +43,7 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("name: evidence", content)
         self.assertGreaterEqual(len(references), 3)
         self.assertTrue(all(f"references/{path.name}" in content for path in references))
-        self.assertIn("Every verified fact, derived result, and inference", decision)
+        self.assertIn("Todo fato verificado, resultado derivado e inferência", decision)
         self.assertNotIn("or states why no source exists", decision)
 
     def test_evidence_reviewer_is_read_only_and_has_codex_parity(self) -> None:
@@ -62,21 +62,23 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("fals", codex.lower())
 
     def test_core_software_workflows_invoke_the_evidence_contract(self) -> None:
-        paths = (
-            "skills/engineers/feature/SKILL.md",
-            "skills/engineers/implement/references/workflow-bug-fix.md",
-            "skills/engineers/manage/SKILL.md",
-            "skills/engineers/research/SKILL.md",
-            "skills/engineers/review/SKILL.md",
-            "skills/engineers/design/SKILL.md",
-            "claude-code/workflows/create-feature.ts",
-        )
+        # The expected token also pins each file's prose language to the library
+        # contract: pt-BR instructional prose says "hipótese", English says "hypothesis".
+        paths = {
+            "skills/engineers/feature/SKILL.md": "hypoth",
+            "skills/engineers/implement/references/workflow-bug-fix.md": "hipót",
+            "skills/engineers/manage/SKILL.md": "hipót",
+            "skills/engineers/research/SKILL.md": "hipót",
+            "skills/engineers/review/SKILL.md": "hipót",
+            "skills/engineers/design/SKILL.md": "hipót",
+            "claude-code/workflows/create-feature.ts": "hipót",
+        }
 
-        for relative in paths:
+        for relative, token in paths.items():
             with self.subTest(path=relative):
                 content = _ROOT.joinpath(relative).read_text(encoding="utf-8").lower()
                 self.assertIn("evidence", content)
-                self.assertIn("hypoth", content)
+                self.assertIn(token, content)
         research = _ROOT.joinpath("skills/engineers/research/SKILL.md").read_text()
         manage = _ROOT.joinpath("skills/engineers/manage/SKILL.md").read_text()
         self.assertNotIn("Minimum 3 sources", research)

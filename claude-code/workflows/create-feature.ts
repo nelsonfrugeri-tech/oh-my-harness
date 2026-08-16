@@ -167,15 +167,15 @@ ${featureName}
 # Refinamento técnico (refinement_tech.md)
 ${refinementContent}
 
-# Evidence record from refinement
-Verified or derived: ${JSON.stringify(refinementEvidence)}
-Hypotheses: ${JSON.stringify(refinementHypotheses)}
-Unknowns: ${JSON.stringify(refinementUnknowns)}
+# Registro de evidência do refinamento
+Verificado ou derivado: ${JSON.stringify(refinementEvidence)}
+Hipóteses: ${JSON.stringify(refinementHypotheses)}
+Desconhecidos: ${JSON.stringify(refinementUnknowns)}
 
 # Tarefas
 1. Escreva uma user history no formato INVEST: título, "As a / I want / So that", critérios de aceitação Given/When/Then (3-6 cenários), Definition of Done.
 2. Crie um issue/ticket no repositório ${repo || '<descobrir via git remote>'} via a capability `code-host` (carregue a tool concreta via ToolSearch — ver claude-code/CLAUDE.md). Se `code-host` não estiver plugada ou falhar, deixe issueUrl como string vazia e prossiga.
-3. Use a skill `evidence`. Preserve verified evidence, falsifiable hypotheses, unknowns, and quantitative provenance; never invent a metric.
+3. Use a skill `evidence`. Preserve evidência verificada, hipóteses falsificáveis, desconhecidos e a proveniência quantitativa; nunca invente uma métrica.
 4. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${docsBase}/user_history/user_history.md.
 
 Grave o markdown final em disco em `${docsBase}/user_history/user_history.md`. Se a capability `memory` estiver plugada, indexe também um resumo.`,
@@ -203,7 +203,7 @@ ${(userHistory.definitionOfDone || []).map((d, i) => `${i + 1}. ${d}`).join('\n'
 1. Crie um branch git: feature/${featureSlug}
 2. Implemente o código necessário, com testes mínimos.
 3. Garanta que o build/lint/tests locais passam.
-4. Use a skill `evidence`. Retorne observações executadas com escopo, hipóteses testadas e unknowns restantes; passing tests prove only their exercised cases.
+4. Use a skill `evidence`. Retorne observações executadas com escopo, hipóteses testadas e desconhecidos restantes; testes passando provam apenas os casos exercitados.
 5. Retorne resumo, arquivos alterados, comandos de verificação, nome do branch.
 
 Se houver bloqueio que exige decisão do usuário, retorne verdict="blocked" com blockedReason claro.`,
@@ -252,7 +252,7 @@ ${JSON.stringify(implementation, null, 2)}
 Cada evidência deve ter path do tipo `${docsBase}/validation/qa_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
 
 # Veredito
-Use a skill `evidence`. Preserve unsupported explanations as hypotheses and scope every claim to the executed environment and cases.
+Use a skill `evidence`. Preserve explicações sem sustentação como hipóteses e escope toda alegação ao ambiente e aos casos executados.
 pass apenas se TODOS os critérios de aceitação foram validados sem blockers. Caso contrário fail + lista de issues com severidade e repro.`,
         { agentType: 'qa', label: `qa:iter${iteration}`, phase: 'validation', schema: QA_RESULT_SCHEMA },
       ),
@@ -273,7 +273,7 @@ ${JSON.stringify(implementation, null, 2)}
 Cada evidência deve ter path do tipo `${docsBase}/validation/sre_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
 
 # Veredito
-Use a skill `evidence`. Every metric needs unit, population, time window, source, and method. Treat causal explanations as falsifiable hypotheses.
+Use a skill `evidence`. Toda métrica precisa de unidade, população, janela temporal, fonte e método. Trate explicações causais como hipóteses falsificáveis.
 pass se infra/performance/observabilidade estão dentro de SLO e sem blockers. Caso contrário fail + lista de issues com severidade.`,
         { agentType: 'sre', label: `sre:iter${iteration}`, phase: 'validation', schema: SRE_RESULT_SCHEMA },
       ),
@@ -383,9 +383,9 @@ ${(userHistory.acceptanceCriteria || []).map(ac => `  - ${ac.scenario}`).join('\
 - QA: ${docsBase}/validation/qa_*.md
 - SRE: ${docsBase}/validation/sre_*.md
 
-## Evidence status
-- Verified observations: <cite exact validation paths and executed commands>
-- Hypotheses and unknowns: <preserve anything not established by validation>
+## Status da evidência
+- Observações verificadas: <cite os paths de validação exatos e os comandos executados>
+- Hipóteses e desconhecidos: <preserve o que a validação não estabeleceu>
 
 ## Como testar
 ${(implementation.commands || []).map(c => `\`\`\`\n${c}\n\`\`\``).join('\n')}

@@ -115,48 +115,50 @@ without `transcript_path` and report the degraded mode.
 ---
 
 <!-- software-evidence:start -->
-## Evidence-driven software work
+## Engenharia de software orientada a evidência
 
-For software engineering work, separate what the available evidence establishes from what is still
-being inferred. Apply this contract to feature design, bug diagnosis, implementation, review,
-architecture, delivery, and operations.
+Em trabalho de engenharia de software, separe o que a evidência disponível estabelece do que ainda
+está sendo inferido. Aplique este contrato a design de features, diagnóstico de bugs, implementação,
+review, arquitetura, entrega e operações.
 
-Classify material claims explicitly when their status would affect a decision:
+Classifique alegações materiais explicitamente sempre que o status delas afetar uma decisão:
 
-- **Verified fact** — directly supported by cited, inspectable evidence.
-- **Derived result** — computed from cited inputs with a reproducible method.
-- **Inference** — a conclusion supported by evidence but not directly observed.
-- **Hypothesis** — a falsifiable explanation or prediction that still needs a test.
-- **Estimate** — an approximate value whose assumptions and uncertainty are stated.
-- **Unknown** — information that is required but not currently established.
-- **Decision** — a chosen action with its evidence, trade-offs, and validation plan recorded.
+- **Fato verificado** — sustentado diretamente por evidência citada e inspecionável.
+- **Resultado derivado** — computado a partir de entradas citadas com método reprodutível.
+- **Inferência** — conclusão sustentada por evidência, mas não observada diretamente.
+- **Hipótese** — explicação ou previsão falsificável que ainda precisa de um teste.
+- **Estimativa** — valor aproximado cujas premissas e incerteza estão declaradas.
+- **Desconhecido** — informação necessária, mas ainda não estabelecida.
+- **Decisão** — ação escolhida com evidência, trade-offs e plano de validação registrados.
 
-Never present an externally verifiable claim as fact without evidence. A quantitative claim is
-verified only when its unit, population, time window, source, and method are known. Do not attach a
-numeric confidence score unless calibration data gives that number a defined meaning.
+Nunca apresente como fato uma alegação externamente verificável sem evidência. Uma alegação
+quantitativa só está verificada quando sua unidade, população, janela temporal, fonte e método são
+conhecidos. Não atribua um score numérico de confiança a menos que dados de calibração deem a esse
+número um significado definido.
 
-Treat evidence according to what it can prove:
+Trate a evidência conforme o que ela consegue provar:
 
-- Repository reads establish the inspected revision and paths, not every deployment.
-- Command output establishes that exact invocation, environment, and observation time.
-- Passing tests establish only the exercised cases; they do not prove the absence of defects.
-- Session memory establishes what was previously recorded, not that it remains true now.
-- A configured MCP name establishes configuration, not authentication, reachability, or health.
+- Leituras do repositório estabelecem a revisão e os paths inspecionados, não todo deployment.
+- Saída de comando estabelece aquela invocação exata, seu ambiente e o momento da observação.
+- Testes passando estabelecem apenas os casos exercitados; não provam a ausência de defeitos.
+- Session memory estabelece o que foi registrado antes, não que permanece verdadeiro agora.
+- Um nome de MCP configurado estabelece configuração, não autenticação, alcançabilidade ou saúde.
 
-When evidence is incomplete, continue with clearly labeled hypotheses or estimates when safe. State
-what is unknown, how it affects the decision, and the cheapest decisive observation that would
-reduce the uncertainty. Do not invent measurements, sources, sample sizes, causes, or certainty.
+Quando a evidência é incompleta, siga em frente com hipóteses ou estimativas claramente rotuladas
+quando for seguro. Declare o que é desconhecido, como isso afeta a decisão, e a observação decisiva
+mais barata que reduziria a incerteza. Não invente medições, fontes, tamanhos de amostra, causas nem
+certeza.
 
-For a material decision, record the verified facts, hypotheses, unknowns, alternatives, decision
-criteria, chosen trade-off, and a result that could falsify the choice. Prefer reversible steps when
-evidence is weak or the cost of being wrong is high.
+Para uma decisão material, registre os fatos verificados, as hipóteses, os desconhecidos, as
+alternativas, os critérios de decisão, o trade-off escolhido e um resultado que poderia falsificar a
+escolha. Prefira passos reversíveis quando a evidência é fraca ou o custo de errar é alto.
 
-Be critically collaborative. Challenge the proposal rather than the person, identify the material
-risk and supporting evidence, state the strongest reasonable case for the proposal, offer a viable
-alternative, and say what new evidence would change the conclusion.
+Seja criticamente colaborativo. Desafie a proposta, não a pessoa; identifique o risco material e a
+evidência que o sustenta; enuncie o caso razoável mais forte a favor da proposta; ofereça uma
+alternativa viável; e diga que nova evidência mudaria a conclusão.
 
-Use the `evidence` skill for the operational workflow, provenance requirements, decision protocol,
-and independent review rubric.
+Use a skill `evidence` para o workflow operacional, os requisitos de proveniência, o protocolo de
+decisão e a rubrica de review independente.
 <!-- software-evidence:end -->
 
 ---

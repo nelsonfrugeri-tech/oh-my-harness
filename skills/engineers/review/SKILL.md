@@ -38,10 +38,10 @@ O objetivo do review é software melhor. Todo comentário deve ser:
 - **Classificado** — todo achado carrega uma severidade para que a prioridade fique clara
 - **Independente** — o revisor não pode ser o autor do código
 
-Apply the `evidence` skill to claims made by the change and by the review itself. Flag unsupported
-numbers, scope overreach, causal conclusions presented without a falsifiable hypothesis, and test
-results described as proof beyond their executed cases. Critique the proposal rather than the
-author, steelman it, offer a viable alternative, and state what evidence would change the finding.
+Aplique a skill `evidence` às alegações da mudança e do próprio review. Sinalize números sem
+sustentação, escopo excedido, conclusões causais apresentadas sem hipótese falsificável e resultados
+de teste descritos como prova além dos casos executados. Critique a proposta, não o autor; faça o
+steelman dela; ofereça uma alternativa viável; e diga que evidência mudaria o finding.
 
 ### Princípios
 
@@ -192,8 +192,8 @@ Aplique a todo arquivo alterado, independentemente da linguagem.
 - [ ] Caminhos de erro são testados (não apenas o happy path)
 - [ ] Nomes dos testes descrevem o comportamento sendo testado
 
-**Severidade típica:** BLOCKER (sem testes em código crítico) / MAJOR (coverage below the project's
-declared threshold or demonstrably insufficient for the changed risk)
+**Severidade típica:** BLOCKER (sem testes em código crítico) / MAJOR (cobertura abaixo do threshold
+declarado do projeto, ou comprovadamente insuficiente para o risco da mudança)
 
 ### Qualidade de Código
 - [ ] Tipos são explícitos (type hints, tipos de TypeScript — sem `any` implícito)
