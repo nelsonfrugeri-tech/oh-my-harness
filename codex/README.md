@@ -53,8 +53,11 @@ unmanaged path.
 ## MCP integrations
 
 The installer registers Deja without indexing transcripts, registers Graphify when either the
-current `graphify-mcp` executable or the legacy server name can be resolved, and adds the public
-read-only X Docs MCP. Transcript indexing remains a separate explicit user decision. The
+current `graphify-mcp` executable or the legacy server name can be resolved, registers the official
+open-source Excalidraw MCP App endpoint, and adds the public read-only X Docs MCP. Excalidraw scene
+creation works through standard MCP tools, while inline app rendering or model-side visual
+inspection may remain degraded until the active Codex client supports the full MCP Apps extension.
+Transcript indexing remains a separate explicit user decision. The
 authenticated X API MCP remains opt-in because it requires `xurl`, explicit OAuth approval, and a
 paid X API plan. Every Codex subprocess receives the selected `CODEX_HOME`.
 

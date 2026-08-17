@@ -29,7 +29,11 @@ class CodexIntegrationsTest(unittest.TestCase):
         )
 
     @patch.object(CodexIntegrations, "_check_x_api", return_value="xapi")
-    @patch.object(CodexIntegrations, "_install_x_docs", return_value="x-docs")
+    @patch.object(
+        CodexIntegrations,
+        "_install_remote",
+        side_effect=("excalidraw", "x-docs"),
+    )
     @patch.object(CodexIntegrations, "_install_graphify", return_value="graphify")
     @patch.object(CodexIntegrations, "_install_deja", return_value="deja")
     @patch("lib.integrations.shutil.which", return_value="/usr/bin/codex")
@@ -38,13 +42,53 @@ class CodexIntegrationsTest(unittest.TestCase):
         _which: object,
         _deja: object,
         _graphify: object,
-        _x_docs: object,
+        _remote: object,
         _x_api: object,
     ) -> None:
         self.assertEqual(
             self._integrations.install(),
-            ("deja", "graphify", "x-docs", "xapi"),
+            ("deja", "graphify", "excalidraw", "x-docs", "xapi"),
         )
+
+    @patch("lib.integrations.subprocess.run")
+    @patch.object(CodexIntegrations, "_mcp_state", return_value=McpState.MISSING)
+    def test_excalidraw_uses_the_official_remote_server(
+        self,
+        _state: Mock,
+        run: Mock,
+    ) -> None:
+        run.return_value = Mock(returncode=0, stderr="")
+
+        result = self._integrations._install_remote(
+            "excalidraw", "Excalidraw MCP", "https://mcp.excalidraw.com"
+        )
+
+        self.assertEqual("configured: Excalidraw MCP", result)
+        self.assertEqual(
+            [
+                "codex",
+                "mcp",
+                "add",
+                "excalidraw",
+                "--url",
+                "https://mcp.excalidraw.com",
+            ],
+            run.call_args.args[0],
+        )
+
+    @patch("lib.integrations.subprocess.run")
+    @patch.object(CodexIntegrations, "_mcp_state", return_value=McpState.DRIFTED)
+    def test_excalidraw_transport_drift_is_never_overwritten(
+        self,
+        _state: Mock,
+        run: Mock,
+    ) -> None:
+        result = self._integrations._install_remote(
+            "excalidraw", "Excalidraw MCP", "https://mcp.excalidraw.com"
+        )
+
+        self.assertIn("different transport", result)
+        run.assert_not_called()
 
     @patch("lib.integrations.subprocess.run")
     @patch.object(CodexIntegrations, "_mcp_state", return_value=McpState.MISSING)

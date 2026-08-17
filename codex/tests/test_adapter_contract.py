@@ -156,6 +156,40 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn(f"badge/agents-{agents}-", readme)
         self.assertIn(f"badge/skills-{skills}-", readme)
 
+    def test_excalidraw_agent_uses_only_the_abstract_canvas_capability(self) -> None:
+        paths = (
+            _ROOT / "agents/tools/excalidraw.md",
+            _ROOT / "skills/tools/excalidraw-diagrams/SKILL.md",
+        )
+        content = "\n".join(path.read_text(encoding="utf-8") for path in paths)
+
+        self.assertIn("`diagram-canvas`", content)
+        self.assertNotIn("mcp__", content)
+        self.assertNotIn("mcp-excalidraw-server", content)
+
+    def test_slack_agent_preserves_voice_and_draft_safety(self) -> None:
+        paths = (
+            _ROOT / "agents/tools/slack.md",
+            _ROOT / "skills/tools/slack-messaging/SKILL.md",
+            _ROOT / "codex/agents/slack.toml",
+        )
+        content = "\n".join(path.read_text(encoding="utf-8") for path in paths)
+
+        self.assertIn("primeira pessoa do singular", content.lower())
+        self.assertIn("team-messaging", content)
+        self.assertIn("rascunho", content.lower())
+        self.assertIn("lançamento", content.lower())
+        self.assertNotIn("mcp__", content)
+        self.assertIn("nome canônico", content.lower())
+        self.assertIn("```text", content)
+
+    def test_slack_capability_is_declared_by_both_harnesses(self) -> None:
+        claude = _ROOT.joinpath("claude-code", "CLAUDE.md").read_text(encoding="utf-8")
+        codex = _ROOT.joinpath("codex", "AGENTS.md").read_text(encoding="utf-8")
+
+        self.assertIn("`team-messaging`", claude)
+        self.assertIn("`team-messaging`", codex)
+
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (
             _ROOT / "skills/tools/site-report/SKILL.md",

@@ -63,10 +63,12 @@ The installer may fill empty entries without changing agents or skills.
 | `memory` | Persistent project and personal context | _(empty means the `knowledge-base` agent)_ |
 | `web` | Web search and page retrieval | Codex web capability |
 | `code-graph` | Query, path, and explain over a code knowledge graph | Graphify MCP with CLI fallback |
+| `diagram-canvas` | Create, revise, and inspect evidence-driven diagrams | Official Excalidraw MCP App; inspection may be degraded until Codex renders MCP Apps |
 | `databricks-sql` | Governed SQL, schema checks, and bounded smoke tests in Databricks | _(configure a managed SQL MCP; REST or CLI fallback)_ |
 | `databricks-lakeview` | Export, draft creation or update, and publication of AI/BI dashboards | _(configure a Lakeview REST, CLI, or thin MCP provider)_ |
 | `browser` | Visual validation of the final dashboard | Codex browser capability when available |
 | `social-x` | Read and publish on X | _(optional; configure an authenticated provider)_ |
+| `team-messaging` | Lê o contexto da conversa e cria rascunhos de mensagens de time | _(configure um provider autenticado)_ |
 | `session-memory` | Search past session transcripts by topic or file | Deja CLI or MCP when installed |
 | `file-sync` | Replicate case bundles between machines and verify propagation | _(configure a sync engine and sync root)_ |
 | `tunnel` | Temporarily expose a local site through an authenticated URL | _(optional; configure an approved provider)_ |
@@ -88,7 +90,9 @@ A tool agent operates shared infrastructure consumed by other agents.
 | `context` | Maintain the current project's live context in `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
 | `knowledge-base` | Operate Qdrant and embeddings, immutable notes, three-step retrieval, and session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
 | `graphify` | Build or update a code graph outside the product tree, then query, trace, or explain it | `graphify` |
+| `excalidraw` | Analyze code or concepts and render focused diagrams through the configured canvas | `excalidraw-diagrams` |
 | `sync` | Build portable case bundles and verify cross-machine propagation | `sync-bundle`, `sync-transport` |
+| `slack` | Lê o contexto e prepara rascunhos na voz pessoal do usuário | `slack-messaging` |
 | `x-social` | Read X and publish only after explicit confirmation | `x-setup`, `x-ops` |
 | `site` | Create cited visual analysis sites and optionally expose them after approval | `site-report`, `site-expose` |
 

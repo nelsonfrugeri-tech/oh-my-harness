@@ -10,8 +10,8 @@ library on Claude Code and Codex today.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-14-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-43-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-16-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-45-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -107,6 +107,11 @@ harness. Capabilities are resolved through that harness's machine-local table.
   for any account, on any MCP-speaking harness.
 - The agent **`site`** turns cited technical analysis into a self-contained visual report outside
   the source repository and exposes it only through an explicitly configured `tunnel` capability.
+- The agent **`excalidraw`** reads code or concepts into an evidence-backed semantic model and
+  renders focused architecture, flow, sequence, state, dependency, or mind-map views through the
+  configured `diagram-canvas` capability.
+- O agent **`slack`** lê somente o contexto necessário para preparar rascunhos revisáveis no Slack
+  com a voz do usuário, distinguindo status curtos, propostas, rollouts e lançamentos de feature.
 
 ---
 
@@ -125,7 +130,9 @@ environment, change only the active harness's table.
 | `memory`     | Persistent project notes (optional)   | any memory MCP             |
 | `web`        | Search and fetch                      | `WebSearch`, `WebFetch`    |
 | `code-graph` | Query a built codebase knowledge graph | `mcp__graphify__*`        |
+| `diagram-canvas` | Create, revise, and inspect diagrams | Excalidraw MCP provider |
 | `social-x`   | Read and publish on X (Twitter)       | X's hosted MCP via `xurl`  |
+| `team-messaging` | Ler o contexto da conversa e criar rascunhos | Provider de Slack com suporte a rascunhos |
 | `tunnel`     | Temporary authenticated site exposure | cloudflared / ngrok / equivalent |
 
 ### Progressive disclosure
@@ -189,6 +196,8 @@ under `codex/agents/`. Both adapters preserve the responsibilities in this catal
 | `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/work/projects/{project}/context.md` | sonnet |
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
 | `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
+| `tools`     | `excalidraw`  | Creates evidence-driven architecture, flow, sequence, state, dependency, and mind-map views | opus |
+| `tools`     | `slack`      | Prepara rascunhos no Slack na voz natural do usuário; nunca envia diretamente | sonnet |
 | `tools`     | `x-social`    | Reads and publishes on X (Twitter) — writes require explicit confirmation | sonnet |
 | `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
 | `tools`     | `sync`        | Builds private case bundles and verifies cross-machine propagation | opus |
@@ -212,7 +221,7 @@ therefore remain globally unique.
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure) · `sync-bundle` and `sync-transport` (private cross-machine case transport) · `databricks-dashboard` (governed Lakeview lifecycle). Invoked by the corresponding tool agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `excalidraw-diagrams` (evidence-to-diagram workflow) · `slack-messaging` (rascunhos de Slack contextuais na voz pessoal do usuário) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure) · `sync-bundle` and `sync-transport` (private cross-machine case transport) · `databricks-dashboard` (governed Lakeview lifecycle). Invoked by the corresponding tool agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 

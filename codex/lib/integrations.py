@@ -20,7 +20,10 @@ class CodexIntegrations:
         return (
             self._install_deja(),
             self._install_graphify(),
-            self._install_x_docs(),
+            self._install_remote(
+                "excalidraw", "Excalidraw MCP", "https://mcp.excalidraw.com"
+            ),
+            self._install_remote("x-docs", "X Docs MCP", "https://docs.x.com/mcp"),
             self._check_x_api(),
         )
 
@@ -74,18 +77,14 @@ class CodexIntegrations:
         ]
         return self._run_mcp_add(command, "Graphify MCP")
 
-    def _install_x_docs(self) -> str:
-        state = self._mcp_state(
-            "x-docs", {"type": "streamable_http", "url": "https://docs.x.com/mcp"}
-        )
+    def _install_remote(self, name: str, label: str, url: str) -> str:
+        state = self._mcp_state(name, {"type": "streamable_http", "url": url})
         if state is McpState.MATCHES:
-            return "ok: X Docs MCP"
+            return f"ok: {label}"
         if state is McpState.DRIFTED:
-            return (
-                "pending: X Docs MCP exists with a different transport; review manually"
-            )
-        command = ["codex", "mcp", "add", "x-docs", "--url", "https://docs.x.com/mcp"]
-        return self._run_mcp_add(command, "X Docs MCP")
+            return f"pending: {label} exists with a different transport; review manually"
+        command = ["codex", "mcp", "add", name, "--url", url]
+        return self._run_mcp_add(command, label)
 
     def _check_x_api(self) -> str:
         if self._mcp_exists("xapi"):
