@@ -1,5 +1,5 @@
 ---
-version: 1.1.0
+version: 1.2.0
 name: sre
 description: >
   Use para observabilidade, monitoring, alerting, definição de SLO/SLI, incident response,
@@ -7,6 +7,7 @@ description: >
 model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, ToolSearch
 skills:
+  - evidence
   - operate
   - review
   - research

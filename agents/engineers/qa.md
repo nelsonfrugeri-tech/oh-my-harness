@@ -1,5 +1,5 @@
 ---
-version: 1.1.0
+version: 1.2.0
 name: qa
 description: >
   Use para estratégia de testes, E2E testing, integration testing, performance testing,
@@ -7,6 +7,7 @@ description: >
 model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, ToolSearch
 skills:
+  - evidence
   - test
   - environment
   - review
