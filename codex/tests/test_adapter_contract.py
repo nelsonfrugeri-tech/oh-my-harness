@@ -167,11 +167,11 @@ class AdapterContractTest(unittest.TestCase):
         self.assertNotIn("mcp__", content)
         self.assertNotIn("mcp-excalidraw-server", content)
 
-    def test_slack_agent_preserves_voice_and_draft_safety(self) -> None:
+    def test_team_chat_agent_preserves_voice_and_draft_safety(self) -> None:
         paths = (
-            _ROOT / "agents/tools/slack.md",
-            _ROOT / "skills/tools/slack-messaging/SKILL.md",
-            _ROOT / "codex/agents/slack.toml",
+            _ROOT / "agents/tools/team-chat.md",
+            _ROOT / "skills/tools/team-chat-drafts/SKILL.md",
+            _ROOT / "codex/agents/team-chat.toml",
         )
         content = "\n".join(path.read_text(encoding="utf-8") for path in paths)
 

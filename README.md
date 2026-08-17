@@ -111,7 +111,7 @@ harness. Capabilities are resolved through that harness's machine-local table.
 - The agent **`excalidraw`** reads code or concepts into an evidence-backed semantic model and
   renders focused architecture, flow, sequence, state, dependency, or mind-map views through the
   configured `diagram-canvas` capability.
-- O agent **`slack`** lê somente o contexto necessário para preparar rascunhos revisáveis no Slack
+- O agent **`team-chat`** lê somente o contexto necessário para preparar rascunhos revisáveis no Slack
   com a voz do usuário, distinguindo status curtos, propostas, rollouts e lançamentos de feature.
 
 ---
@@ -208,7 +208,7 @@ under `codex/agents/`. Both adapters preserve the responsibilities in this catal
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
 | `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
 | `tools`     | `excalidraw`  | Creates evidence-driven architecture, flow, sequence, state, dependency, and mind-map views | opus |
-| `tools`     | `slack`      | Prepara rascunhos no Slack na voz natural do usuário; nunca envia diretamente | sonnet |
+| `tools`     | `team-chat`  | Prepara rascunhos no Slack na voz natural do usuário; nunca envia diretamente | sonnet |
 | `tools`     | `x-social`    | Reads and publishes on X (Twitter) — writes require explicit confirmation | sonnet |
 | `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
 | `tools`     | `sync`        | Builds private case bundles and verifies cross-machine propagation | opus |
@@ -232,7 +232,7 @@ therefore remain globally unique.
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `excalidraw-diagrams` (evidence-to-diagram workflow) · `slack-messaging` (rascunhos de Slack contextuais na voz pessoal do usuário) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure) · `sync-bundle` and `sync-transport` (private cross-machine case transport) · `databricks-dashboard` (governed Lakeview lifecycle). Invoked by the corresponding tool agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `excalidraw-diagrams` (evidence-to-diagram workflow) · `team-chat-drafts` (rascunhos de Slack contextuais na voz pessoal do usuário) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure) · `sync-bundle` and `sync-transport` (private cross-machine case transport) · `databricks-dashboard` (governed Lakeview lifecycle). Invoked by the corresponding tool agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 

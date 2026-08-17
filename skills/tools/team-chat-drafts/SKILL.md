@@ -1,5 +1,5 @@
 ---
-name: slack-messaging
+name: team-chat-drafts
 description: >
   Prepara rascunhos de Slack na voz natural do usuário em pt-BR. Adapta cada mensagem ao contexto
   da conversa e diferencia atualizações rápidas, pedidos, propostas, rollouts e lançamentos de

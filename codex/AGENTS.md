@@ -92,7 +92,7 @@ A tool agent operates shared infrastructure consumed by other agents.
 | `graphify` | Build or update a code graph outside the product tree, then query, trace, or explain it | `graphify` |
 | `excalidraw` | Analyze code or concepts and render focused diagrams through the configured canvas | `excalidraw-diagrams` |
 | `sync` | Build portable case bundles and verify cross-machine propagation | `sync-bundle`, `sync-transport` |
-| `slack` | Lê o contexto e prepara rascunhos na voz pessoal do usuário | `slack-messaging` |
+| `team-chat` | Lê o contexto e prepara rascunhos na voz pessoal do usuário | `team-chat-drafts` |
 | `x-social` | Read X and publish only after explicit confirmation | `x-setup`, `x-ops` |
 | `site` | Create cited visual analysis sites and optionally expose them after approval | `site-report`, `site-expose` |
 

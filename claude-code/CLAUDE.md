@@ -80,7 +80,7 @@ Um **tool agent** opera uma infraestrutura que os outros agents consomem — con
 | `knowledge-base` | Infra (Qdrant + embedding), escrita de notas, recuperação em 3 degraus e memória de sessão | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
 | `graphify` | Knowledge graph de codebase: build/update em `graphify-out/` e query/path/explain | `graphify` |
 | `sync` | Monta case bundles portáteis e verifica propagação entre máquinas | `sync-bundle`, `sync-transport` |
-| `slack` | Lê contexto e prepara rascunhos no tom pessoal do usuário | `slack-messaging` |
+| `team-chat` | Lê contexto e prepara rascunhos no tom pessoal do usuário | `team-chat-drafts` |
 | `x-social` | Lê e publica no X; escrita sob confirmação explícita | `x-setup`, `x-ops` |
 | `site` | Gera sites visuais citados e os expõe somente após aprovação | `site-report`, `site-expose` |
 
