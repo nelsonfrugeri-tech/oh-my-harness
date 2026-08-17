@@ -1,5 +1,5 @@
 ---
-version: 1.1.0
+version: 1.2.0
 name: tech-pm
 description: >
   Use para product management, escrever user stories, definir acceptance criteria,
@@ -7,6 +7,7 @@ description: >
 model: sonnet
 tools: Read, Grep, Glob, WebSearch, ToolSearch
 skills:
+  - evidence
   - manage
   - review
   - research

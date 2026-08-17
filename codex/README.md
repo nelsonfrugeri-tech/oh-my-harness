@@ -54,3 +54,8 @@ codex mcp list
 
 Start a new Codex session after installation so global agents, skills, hooks, and instructions are
 rediscovered.
+
+The installed global guidance applies the shared software-evidence contract to engineering work.
+Use the `evidence` skill for claim provenance and decision mechanics, and delegate a read-only audit
+to `evidence-reviewer` when a decision is consequential, difficult to reverse, or controlled by an
+uncertain metric or causal claim.

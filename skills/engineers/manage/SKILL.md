@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 name: manage
 description: |
   Base de conhecimento de Technical Product/Platform Management. Cobre user stories INVEST,
@@ -41,6 +41,8 @@ Ela foca em gerenciar produtos técnicos — conectando necessidades de negócio
 **Toda feature deve ter um "porquê" claro conectado ao valor de negócio.**
 As métricas de sucesso são definidas ANTES de iniciar o desenvolvimento.
 As decisões são orientadas por dados quando há dados disponíveis, e por hipóteses quando não há.
+Aplique a skill `evidence`: preserve cada hipótese como falsificável, mantenha os desconhecidos
+explícitos e nunca invente uma métrica para a priorização parecer objetiva.
 
 ### Princípios
 
@@ -105,17 +107,23 @@ As decisões são orientadas por dados quando há dados disponíveis, e por hip�
 ### RICE Score
 
 ```markdown
-| Feature | Reach | Impact | Confidence | Effort | RICE Score |
-|---------|-------|--------|------------|--------|------------|
-| {name}  | {1-10}| {1-3}  | {0.5-1.0}  | {days} | {calc}    |
+| Feature | Reach | Impact | Evidence factor | Effort | RICE Score |
+|---------|-------|--------|-----------------|--------|------------|
+| {name}  | {measured population} | {defined scale} | {calibrated factor} | {estimate with unit} | {calc} |
 
-Score = (Reach × Impact × Confidence) / Effort
+Score = (Reach × Impact × Evidence factor) / Effort
 ```
 
-- **Reach:** Quantos usuários impactados (1-10)
-- **Impact:** Quanto impacto por usuário (1=mínimo, 3=massivo)
-- **Confidence:** Certeza sobre as estimativas (0.5=baixa, 0.75=média, 1.0=alta)
-- **Effort:** Esforço em pessoa-dias
+- **Reach:** População medida e janela temporal, ou uma estimativa rotulada com suas premissas
+- **Impact:** Uma escala ordinal ou quantitativa definida, aplicada consistentemente a toda alternativa
+- **Evidence factor:** Use fator numérico apenas quando dados de calibração o definem; senão,
+  mantenha a força da evidência qualitativa e não calcule um score pseudo-preciso
+- **Effort:** Estimativa com unidade, escopo, premissas e input da engenharia responsável
+
+RICE é um apoio à decisão, não evidência. Preserve a fonte e o método de cada entrada, liste
+hipóteses e desconhecidos materiais ao lado do ranking, e compare o resultado com o status quo.
+Quando as entradas não são comensuráveis, use um review qualitativo de trade-offs em vez de
+aritmética fabricada.
 
 ### MoSCoW
 
@@ -207,7 +215,7 @@ Score = (Reach × Impact × Confidence) / Effort
 
 ### Team Capacity
 - {N} devs × {M} days = {total} person-days available
-- Buffer: 20% for bugs/unplanned work
+- Buffer: {historical unplanned-work rate and window, or an explicit trial assumption}
 - Net capacity: {net} person-days
 ```
 
@@ -367,16 +375,17 @@ Score = (Reach × Impact × Confidence) / Effort
 ```
 BAD: "We need to refactor the authentication module."
 
-GOOD: "The authentication code causes ~30% of our incidents.
-       Fixing it will reduce our incident response time by half
-       and let us ship new auth features 3x faster. Investment: 2 sprints."
+GOOD: "Authentication code appears in {measured incident share} during {time window}
+       according to {incident query}. Our hypothesis is that {change} will improve
+       {defined outcome}; validate it with {observation}. Estimated investment:
+       {range and assumptions}."
 ```
 
 ### Orçamento de Dívida Técnica
 
-- Reserve 20% de cada sprint para dívida técnica
+- Derive o orçamento da evidência de incidentes, entrega e capacidade. Sem histórico, rotule a
+  alocação inicial como premissa provisória e defina quando revisá-la
 - Acompanhe itens de dívida técnica com o mesmo rigor das features
 - Inclua o impacto na velocity ao construir o business case
 
 ---
-
