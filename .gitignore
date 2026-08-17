@@ -7,3 +7,8 @@
 # Local, machine-specific overrides (e.g. capability plug edits)
 *.local
 *.local.*
+
+# Derived artifacts, rebuildable from source
+__pycache__/
+*.py[cod]
+graphify-out/
