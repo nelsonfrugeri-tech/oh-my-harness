@@ -168,7 +168,7 @@ Quando **você pedir um commit**, antes de `git commit`:
 
 O comando de teste/lint é **descoberto** (config do projeto → target de Makefile → default da linguagem), nunca hardcoded.
 
-O passo 3 é **enforçado por hook** (`PreToolUse` em `git commit`, script `~/.claude/hooks/quality-gate.sh`): redescobre os checks, roda, e bloqueia o commit se algum falhar. Check sem comando descoberto é pulado — repo sem suite nunca fica travado. Passou uma vez para aquele conteúdo, o commit seguinte é instantâneo (cache). Projeto pode declarar comandos próprios em `.claude/quality-gate.json` (`format`/`lint`/`typecheck`/`test` + lista `extra`). Emergência: prefixe `OMH_GATE=off` — permitido, mas o hook declara que o commit não foi verificado.
+O passo 3 é **enforçado por hook** (`PreToolUse` em `git commit`), entregue pelo plugin `oh-my-harness` em `hooks/hooks.json`: redescobre os checks, roda, e bloqueia o commit se algum falhar. Check sem comando descoberto é pulado — repo sem suite nunca fica travado. Passou uma vez para aquele conteúdo, o commit seguinte é instantâneo (cache). Projeto pode declarar comandos próprios em `.claude/quality-gate.json` (`format`/`lint`/`typecheck`/`test` + lista `extra`). Emergência: prefixe `OMH_GATE=off` — permitido, mas o hook declara que o commit não foi verificado.
 
 Três fatos que mudam como você o usa:
 

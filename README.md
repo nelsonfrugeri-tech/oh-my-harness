@@ -154,24 +154,33 @@ Instructional prose is **pt-BR**; code, comments, docstrings, and technical term
 
 ## Quick start
 
+**Claude Code** installs the library as a native plugin — no clone required:
+
+```bash
+claude plugin marketplace add nelsonfrugeri-tech/oh-my-harness
+claude plugin install oh-my-harness@oh-my-harness
+claude plugin list        # Status: ✔ enabled
+```
+
+Skills arrive namespaced (`/oh-my-harness:review`), agents as
+`oh-my-harness:<theme>:<name>`, and the `SessionStart` and commit-gate hooks come with them.
+Updates are a decision, not a side effect of `git pull`: users receive a new version only when
+`version` in the manifest is bumped, and a marketplace entry can pin `ref` or an exact `sha`.
+
+Two surfaces a plugin cannot provide — global instructions and user preferences — still install
+by merge: `claude-code/CLAUDE.md` into `~/.claude/CLAUDE.md`, and the `permissions` block of
+`claude-code/settings.json`. Ask the `claude-code` agent to do it, or follow its skill.
+
+**Codex** uses the versioned, non-interactive installer from a clone:
+
 ```bash
 git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
 cd oh-my-harness
-```
-
-Then install the adapter for the active harness. On a brand-new machine,
-[`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
-
-For Claude Code, ask it to sync through the `claude-code` agent:
-
-> _"Read INSTRUCTIONS.md and sync this library with my ~/.claude."_
-
-For Codex, use the versioned, non-interactive installer:
-
-```bash
 python3 codex/install.py
 python3 codex/install.py --check
 ```
+
+On a brand-new machine, [`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
 
 Finally, configure the capability table in the active harness's managed global guidance. From then
 on, every session start loads the project snapshot and requests `context` FULL or DELTA analysis
