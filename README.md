@@ -11,7 +11,7 @@ library on Claude Code and Codex today.
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
 [![Agents](https://img.shields.io/badge/agents-13-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-40-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -214,6 +214,10 @@ therefore remain globally unique.
 **Capability (method & process) — `engineers`:** `evidence` · `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
 
 **Command & workflow — `engineers`:** `feature`
+
+**Vendored (upstream verbatim) — `engineers/langchain`:** `langchain-fundamentals` · `langchain-rag` · `langchain-dependencies` · `langgraph-fundamentals` · `langgraph-persistence` · `langgraph-human-in-the-loop` · `deep-agents-core` · `deep-agents-memory` · `deep-agents-orchestration` · `ecosystem-primer`. Vendored from `langchain-ai/langchain-skills`: the body stays in the upstream language and each `SKILL.md` records its `upstream_version`. Translating them would fork the runbook and drift on every upstream release.
+
+**Style — `style`:** `didactic-visual`
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
