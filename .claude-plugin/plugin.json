@@ -2,7 +2,7 @@
   "name": "oh-my-harness",
   "displayName": "oh-my-harness",
   "version": "1.0.0",
-  "description": "Biblioteca portátil de agents, skills e workflows para assistentes de código: capabilities abstratas em vez de tools concretas, contrato de evidência, knowledge base OKF e quality gate de commit.",
+  "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
   "author": {
     "name": "Nelson Frugeri",
     "url": "https://github.com/nelsonfrugeri-tech"

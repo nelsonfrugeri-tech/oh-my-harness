@@ -5,14 +5,14 @@
     "url": "https://github.com/nelsonfrugeri-tech"
   },
   "metadata": {
-    "description": "Marketplace da biblioteca oh-my-harness.",
+    "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
     "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "oh-my-harness",
       "source": "./",
-      "description": "Biblioteca portátil de agents, skills e workflows: capabilities abstratas, contrato de evidência, knowledge base OKF e quality gate de commit.",
+      "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
       "category": "workflow",
       "tags": ["agents", "skills", "knowledge-base", "evidence-driven"]
     }
