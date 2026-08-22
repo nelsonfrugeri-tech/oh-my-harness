@@ -168,17 +168,9 @@ Agents e skills **nunca** citam uma tool concreta. Eles referenciam uma **capabi
 
 ## Tools Agents (a infraestrutura do harness)
 
-Um **tool agent** opera uma infraestrutura que os outros agents consomem — conhecimento, grafo de codebase ou plataforma externa.
-
-| Agent | Papel | Skills |
-| --- | --- | --- |
-| `context` | Contexto vivo do projeto atual em `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
-| `knowledge-base` | Infra (Qdrant + embedding), escrita de notas, recuperação em 3 degraus e memória de sessão | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
-| `graphify` | Knowledge graph de codebase: build/update em `graphify-out/` e query/path/explain | `graphify` |
-| `x-social` | Lê e publica no X; escrita sob confirmação explícita | `x-setup`, `x-ops` |
-| `site` | Gera sites visuais citados e os expõe somente após aprovação | `site-report`, `site-expose` |
-
-O roteamento fino vive nas descriptions dos agents; **a mecânica vive nas skills** — não a duplique aqui.
+Um **tool agent** opera uma infraestrutura que os outros agents consomem. Quem são e o que
+cada um cobre está na description deles, que o harness já carrega — **não duplique aqui**.
+Abaixo fica só o que nenhuma description revela.
 
 ### Fatos de ambiente (vinculantes)
 
@@ -210,22 +202,7 @@ Toda a mecânica — escada de recuperação, session memory, imutabilidade de n
 
 ## Fluxo de commit
 
-Quando **você pedir um commit**, antes de `git commit`:
-
-1. **Format + lint** primeiro (alteram arquivos).
-2. **Em paralelo:** code-review num subagent fixado no modelo **fable** sobre o diff *staged* (skill `review` + code-craft), e a suite de testes do projeto.
-3. **Gate:** só commita se o review não tiver blocker **e** os testes passarem. Senão, corrija e repita.
-
-O comando de teste/lint é **descoberto** (config do projeto → target de Makefile → default da linguagem), nunca hardcoded.
-
-O passo 3 é **enforçado por hook** (`PreToolUse` em `git commit`), entregue pelo plugin `oh-my-harness` em `hooks/hooks.json`: redescobre os checks, roda, e bloqueia o commit se algum falhar. Check sem comando descoberto é pulado — repo sem suite nunca fica travado. Passou uma vez para aquele conteúdo, o commit seguinte é instantâneo (cache). Projeto pode declarar comandos próprios em `.claude/quality-gate.json` (`format`/`lint`/`typecheck`/`test` + lista `extra`). Emergência: prefixe `OMH_GATE=off` — permitido, mas o hook declara que o commit não foi verificado.
-
-Três limites que mudam como você confia nele, com a mecânica em `skills/harness/claude-code`:
-
-- **Só age em repositório explicitamente confiado.** Tudo que ele executa vem do repo, e
-  `PreToolUse` dispara **antes** do prompt de permissão — sem o marcador de confiança seria
-  execução de código de terceiro sem aprovação humana. Sem marcador, ele defere e não roda nada.
-- **Valida o working tree, não o snapshot staged.** Com mudança não-staged, o que passou no gate
-  não é exatamente o que será commitado.
-- **A descoberta olha só a raiz do repo.** Monorepo com toolchain própria em subprojeto precisa
-  declarar os comandos em `.claude/quality-gate.json`.
+O gate de qualidade antes de `git commit` é **enforçado por hook** (`PreToolUse`, entregue
+pelo plugin): ele descobre e roda format, lint, typecheck e testes do projeto, e bloqueia o
+commit se algum falhar. Só age em repositório explicitamente confiado; sem o marcador,
+defere sem executar nada. Mecânica e limites em `skills/harness/claude-code`.

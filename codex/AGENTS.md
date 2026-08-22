@@ -174,17 +174,9 @@ that remains possible and state exactly what is pending. Never invent a provider
 
 ## Tool agents
 
-A tool agent operates shared infrastructure consumed by other agents.
-
-| Agent | Responsibility | Skills |
-| --- | --- | --- |
-| `context` | Maintain the current project's live context in `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
-| `knowledge-base` | Operate Qdrant and embeddings, immutable notes, three-step retrieval, and session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
-| `graphify` | Build or update a code graph outside the product tree, then query, trace, or explain it | `graphify` |
-| `x-social` | Read X and publish only after explicit confirmation | `x-setup`, `x-ops` |
-| `site` | Create cited visual analysis sites and optionally expose them after approval | `site-report`, `site-expose` |
-
-Routing belongs in agent descriptions and mechanics belong in skills. Do not duplicate either here.
+A tool agent operates infrastructure the other agents consume. Which ones exist and what each
+covers lives in their descriptions, which the harness already loads — **do not duplicate that
+here**. What follows is only what no description reveals.
 
 ### Binding environment facts
 
@@ -247,12 +239,7 @@ chains, explicit absence semantics, comments that explain why, and the final qua
 
 ## Commit gate
 
-When the user asks for a commit:
-
-1. Run format and lint first because they may modify files.
-2. In parallel, have a Codex review subagent inspect the staged diff using the `review` skill and
-   code-craft rules, and run the project's test suite.
-3. Commit only when the review has no blocker and tests pass. Otherwise fix the findings and repeat.
-
-Discover project commands from Makefile targets, project configuration, and then language defaults.
-Never hardcode a test or lint command.
+The quality gate before `git commit` is **enforced by a hook** shipped with the plugin: it
+discovers and runs the project's format, lint, typecheck, and test commands and blocks the
+commit when one fails. It only acts in an explicitly trusted repository; without the marker
+it defers without executing anything. Mechanics and limits live in the `codex` skill.
