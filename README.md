@@ -144,7 +144,7 @@ claims without turning routine work into ceremony.
 
 ### code-craft — inviolable rules
 
-The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/engineers/implement/references/code-craft.md`](skills/engineers/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
+The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
 
 ### Language contract
 
@@ -171,7 +171,37 @@ Two surfaces a plugin cannot provide — global instructions and user preference
 by merge: `claude-code/CLAUDE.md` into `~/.claude/CLAUDE.md`, and the `permissions` block of
 `claude-code/settings.json`. Ask the `claude-code` agent to do it, or follow its skill.
 
-**Codex** uses the versioned, non-interactive installer from a clone:
+**Codex** also installs the shared library as a native plugin — no clone required:
+
+```bash
+codex plugin marketplace add nelsonfrugeri-tech/oh-my-harness
+codex plugin add oh-my-harness@oh-my-harness
+codex plugin list
+```
+
+Start a new Codex session, open `/hooks`, review the plugin-bundled commands, and trust the exact
+definitions before relying on them. Codex skips new or changed non-managed hooks until this review
+is complete.
+
+The commit gate has an additional per-repository trust because its discovered quality commands are
+repository-controlled. From a checkout you have reviewed, opt in once:
+
+```bash
+common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir)
+repo_sig=$(printf '%s' "$common_git_dir" | shasum -a 256 | cut -d' ' -f1 | cut -c1-12)
+trust_dir="${XDG_CACHE_HOME:-$HOME/.cache}/omh-quality-gate/trusted"
+mkdir -p "$trust_dir"
+touch "$trust_dir/$repo_sig"
+```
+
+The `/hooks` decision trusts the plugin hook; this marker separately trusts the current Git
+repository. Without both, the gate deliberately defers and does not run project commands.
+
+The native plugin supplies shared skills, the Codex installation skill, and lifecycle hooks. The
+context hook can run the shared `explorer` skill directly; installing the optional adapter adds the
+custom `context` agent that can orchestrate it. Codex custom agents, global
+`AGENTS.md` guidance, and machine-local MCP integrations are not plugin components, so install the
+adapter from a clone when you need those additional surfaces:
 
 ```bash
 git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
@@ -214,9 +244,9 @@ under `codex/agents/`. Both adapters preserve the responsibilities in this catal
 
 ### Skills
 
-Skills are grouped by theme under `skills/<theme>/<name>/`, but each **install step flattens them**
-to the harness's skill root (`~/.claude/skills/` or `~/.agents/skills/`). Each leaf name must
-therefore remain globally unique.
+Skills live directly under `skills/<name>/` because that is the common native-plugin discovery
+contract. The catalog below keeps the logical themes without adding another filesystem layer, and
+each skill name remains globally unique.
 
 **Knowledge (languages & domains) — `engineers`:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
@@ -301,18 +331,21 @@ shared layer.
 | agents | ✅ native Markdown | ✅ custom-agent TOML adapter | ⚙️ rules + AGENTS.md |
 | skills | ✅ native | ✅ native shared skills | 📄 as docs |
 | workflows | ✅ Workflow TypeScript | ✅ portable `feature` orchestration | — |
-| hooks | ✅ `settings.json` | ✅ `hooks.json` adapter | — |
+| hooks | ✅ native plugin | ✅ native plugin (trust required) + adapter | — |
 | global rules | ✅ `CLAUDE.md` | ✅ managed global `AGENTS.md` | ⚙️ rules |
 
-Codex installation is defined under [`codex/`](codex/README.md). The adapter installs shared
-skills, Codex-native agents, hooks, managed global guidance, and available MCP integrations without
-overwriting unrelated personal configuration.
+Codex native-plugin packaging is defined by [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
+and [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json). The adapter under
+[`codex/`](codex/README.md) adds custom agents, managed global guidance, and available MCP
+integrations without overwriting unrelated personal configuration.
 
 ---
 
 ## Extending the library
 
-**Add a skill** → create `skills/<theme>/<name>/SKILL.md` with `name` + `description` in the frontmatter; put deep content in `references/` and link it from the `## Reference Files` section. Installers flatten it into their harness-specific skill root, so `<name>` must stay unique across the whole tree.
+**Add a skill** → create `skills/<name>/SKILL.md` with `name` + `description` in the frontmatter;
+put deep content in `references/` and link it from the `## Reference Files` section. Keep `<name>`
+unique across the whole tree so both native plugin hosts expose the same stable namespace.
 
 **Add an agent** → define its shared responsibility and Claude manifest under `agents/<theme>/`,
 then add the equivalent Codex TOML under `codex/agents/`. Keep behavior aligned while preserving

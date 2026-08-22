@@ -1,7 +1,7 @@
 {
   "name": "oh-my-harness",
   "displayName": "oh-my-harness",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
   "author": {
     "name": "Nelson Frugeri",
@@ -18,8 +18,34 @@
     "capabilities"
   ],
   "skills": [
-    "./skills/engineers/",
-    "./skills/harness/",
-    "./skills/tools/"
+    "./skills/ai-engineer/",
+    "./skills/api-design/",
+    "./skills/ci-cd/",
+    "./skills/design/",
+    "./skills/environment/",
+    "./skills/evidence/",
+    "./skills/explorer/",
+    "./skills/feature/",
+    "./skills/frontend-ui/",
+    "./skills/graphify/",
+    "./skills/implement/",
+    "./skills/kb-infra/",
+    "./skills/kb-retrieval/",
+    "./skills/kb-session/",
+    "./skills/kb-write/",
+    "./skills/manage/",
+    "./skills/observability/",
+    "./skills/operate/",
+    "./skills/python/",
+    "./skills/research/",
+    "./skills/review/",
+    "./skills/security/",
+    "./skills/site-expose/",
+    "./skills/site-report/",
+    "./skills/test/",
+    "./skills/typescript/",
+    "./skills/x-ops/",
+    "./skills/x-setup/",
+    "./claude-code/skills/"
   ]
 }
