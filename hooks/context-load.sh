@@ -26,8 +26,9 @@ REPORT="$KB_ROOT/$DOMAIN/context.md"
 if [ ! -f "$REPORT" ]; then
   cat <<EOF
 # omh-managed: context
-Projeto \`$PROJECT\` ainda não tem context report em \`$REPORT\`.
-AÇÃO: invoque o agent \`context\` para rodar a skill \`explorer\` em modo **FULL**.
+Project \`$PROJECT\` does not have a context report at \`$REPORT\` yet.
+ACTION: Run the \`explorer\` skill in **FULL** mode. When the global adapter is installed, the
+custom \`context\` agent can orchestrate that skill for you.
 EOF
   exit 0
 fi
@@ -54,19 +55,19 @@ fi
 TOTAL_LINES=$(wc -l < "$REPORT" 2>/dev/null | tr -d ' ')
 
 printf '# omh-managed: context\n'
-printf 'Projeto `%s` · report gerado em %s · %s linhas em `%s`\n' \
+printf 'Project `%s` · report generated at %s · %s lines in `%s`\n' \
   "$PROJECT" "${GENERATED:-?}" "${TOTAL_LINES:-?}" "$REPORT"
 
 if [ -n "$DRIFT" ] && [ "$DRIFT" -gt 0 ] 2>/dev/null; then
-  printf '\n**DRIFT: %s commits desde a última análise (`%s`).** O snapshot abaixo está desatualizado nesse tanto.\n' "$DRIFT" "$LAST_HASH"
-  printf 'AÇÃO: invoque o agent `context` para rodar a skill `explorer` em modo **DELTA**.\n'
+  printf '\n**DRIFT: %s commits since the last analysis (`%s`).** The snapshot below is stale by that amount.\n' "$DRIFT" "$LAST_HASH"
+  printf 'ACTION: Run the `explorer` skill in **DELTA** mode. The optional custom `context` agent can orchestrate it.\n'
 elif [ -z "$DRIFT" ]; then
-  printf '\nDrift não calculável (`last_hash` ausente ou fora deste repo) — trate o snapshot como possivelmente velho.\n'
+  printf '\nDrift cannot be calculated (`last_hash` is missing or outside this repo); treat the snapshot as potentially stale.\n'
 fi
 
 if [ -n "$HEAD_TEXT" ]; then
   if [ "$TRUNCATED" = yes ]; then
-    printf '\n--- snapshot (início; relatório completo no path acima) ---\n%s\n' "$HEAD_TEXT"
+    printf '\n--- snapshot (beginning; complete report at the path above) ---\n%s\n' "$HEAD_TEXT"
   else
     printf '\n--- snapshot ---\n%s\n' "$HEAD_TEXT"
   fi

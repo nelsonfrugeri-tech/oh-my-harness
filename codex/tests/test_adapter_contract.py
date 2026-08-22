@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import shutil
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -10,6 +14,95 @@ _ROOT = Path(__file__).resolve().parents[2]
 
 
 class AdapterContractTest(unittest.TestCase):
+    def test_codex_plugin_matches_the_shared_plugin_identity(self) -> None:
+        codex = json.loads(
+            _ROOT.joinpath(".codex-plugin/plugin.json").read_text(encoding="utf-8")
+        )
+        claude = json.loads(
+            _ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8")
+        )
+        marketplace = json.loads(
+            _ROOT.joinpath(".claude-plugin/marketplace.json").read_text(encoding="utf-8")
+        )
+
+        self.assertEqual(claude["name"], codex["name"])
+        self.assertEqual(claude["version"], codex["version"])
+        self.assertEqual(claude["version"], marketplace["metadata"]["version"])
+        self.assertEqual("./skills/", codex["skills"])
+        self.assertIn("./claude-code/skills/", claude["skills"])
+        self.assertNotIn("./skills/codex/", claude["skills"])
+        self.assertNotIn("./skills/", claude["skills"])
+        self.assertTrue(_ROOT.joinpath("hooks/hooks.json").is_file())
+
+    def test_codex_marketplace_exposes_the_repository_plugin(self) -> None:
+        marketplace = json.loads(
+            _ROOT.joinpath(".agents/plugins/marketplace.json").read_text(encoding="utf-8")
+        )
+        plugin = marketplace["plugins"][0]
+
+        self.assertEqual("oh-my-harness", marketplace["name"])
+        self.assertEqual("oh-my-harness", plugin["name"])
+        self.assertEqual({"source": "local", "path": "./"}, plugin["source"])
+        self.assertEqual("AVAILABLE", plugin["policy"]["installation"])
+        self.assertEqual("ON_INSTALL", plugin["policy"]["authentication"])
+
+    def test_shared_skills_are_flat_for_native_plugin_discovery(self) -> None:
+        skill_roots = tuple(
+            path for path in _ROOT.joinpath("skills").iterdir() if path.is_dir()
+        )
+
+        self.assertTrue(skill_roots)
+        self.assertTrue(all(path.joinpath("SKILL.md").is_file() for path in skill_roots))
+        self.assertNotIn("claude-code", {path.name for path in skill_roots})
+
+    @unittest.skipUnless(shutil.which("codex"), "Codex CLI is not installed")
+    def test_codex_cli_installs_the_expected_skill_inventory(self) -> None:
+        manifest = json.loads(
+            _ROOT.joinpath(".codex-plugin/plugin.json").read_text(encoding="utf-8")
+        )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            env = {**os.environ, "CODEX_HOME": temporary}
+            self._run_codex(env, "plugin", "marketplace", "add", str(_ROOT))
+            self._run_codex(
+                env,
+                "plugin",
+                "add",
+                "oh-my-harness@oh-my-harness",
+            )
+            installed = Path(temporary).joinpath(
+                "plugins/cache/oh-my-harness/oh-my-harness",
+                manifest["version"],
+            )
+
+            shared = {
+                path.name
+                for path in installed.joinpath("skills").iterdir()
+                if path.is_dir()
+            }
+            expected = {
+                path.name
+                for path in _ROOT.joinpath("skills").iterdir()
+                if path.is_dir()
+            }
+            self.assertEqual(expected, shared)
+            self.assertTrue(installed.joinpath("skills/codex/SKILL.md").is_file())
+            self.assertTrue(installed.joinpath("hooks/hooks.json").is_file())
+
+    def test_plugin_hooks_use_the_codex_schema_and_standalone_instructions(self) -> None:
+        hooks = json.loads(_ROOT.joinpath("hooks/hooks.json").read_text(encoding="utf-8"))
+        handlers = [
+            handler
+            for groups in hooks["hooks"].values()
+            for group in groups
+            for handler in group["hooks"]
+        ]
+        context_loader = _ROOT.joinpath("hooks/context-load.sh").read_text(encoding="utf-8")
+
+        self.assertTrue(all("if" not in handler for handler in handlers))
+        self.assertIn("Run the `explorer` skill", context_loader)
+        self.assertNotIn("invoke the `context` agent", context_loader)
+
     def test_every_portable_agent_has_a_codex_adapter(self) -> None:
         shared = {
             self._yaml_name(path)
@@ -32,7 +125,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual(len(names), len(set(names)))
 
     def test_feature_skill_uses_portable_orchestration(self) -> None:
-        content = _ROOT.joinpath("skills/engineers/feature/SKILL.md").read_text(encoding="utf-8")
+        content = _ROOT.joinpath("skills/feature/SKILL.md").read_text(encoding="utf-8")
         forbidden = ("Workflow({", "AskUserQuestion", "use the tool `Agent`")
         self.assertFalse(any(token in content for token in forbidden))
         self.assertIn("Portable orchestration contract", content)
@@ -53,8 +146,8 @@ class AdapterContractTest(unittest.TestCase):
 
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (
-            _ROOT / "skills/tools/site-report/SKILL.md",
-            _ROOT / "skills/tools/site-expose/SKILL.md",
+            _ROOT / "skills/site-report/SKILL.md",
+            _ROOT / "skills/site-expose/SKILL.md",
         )
         content = "\n".join(path.read_text(encoding="utf-8") for path in paths)
 
@@ -94,3 +187,14 @@ class AdapterContractTest(unittest.TestCase):
         match = re.search(r'^name\s*=\s*"([^"]+)"', path.read_text(encoding="utf-8"), re.MULTILINE)
         self.assertIsNotNone(match, str(path))
         return match.group(1) if match else ""
+
+    def _run_codex(self, env: dict[str, str], *arguments: str) -> None:
+        completed = subprocess.run(
+            ("codex", *arguments),
+            cwd=_ROOT,
+            env=env,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(0, completed.returncode, completed.stderr or completed.stdout)

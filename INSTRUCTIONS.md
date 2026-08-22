@@ -9,8 +9,11 @@ Numa máquina nova, o agent `claude-code` e a skill `claude-code` ainda não est
 
 **Your task when the user requests installation or synchronization:** select the adapter for the
 active harness. For Claude Code, run the `claude-code` agent or follow
-`skills/harness/claude-code/SKILL.md`. For Codex, run `python3 codex/install.py` and validate with
-`python3 codex/install.py --check`; the full runbook lives in `codex/skills/codex/SKILL.md`.
+`claude-code/skills/claude-code/SKILL.md`. For Codex shared skills and hooks, install the repository
+marketplace and its `oh-my-harness` plugin, then review and trust its hook definitions through
+`/hooks`. Run `python3 codex/install.py` and validate with
+`python3 codex/install.py --check` only when custom agents, global guidance, or local integrations
+are also required; the full adapter runbook lives in `skills/codex/SKILL.md`.
 
 Never translate one harness adapter into another during machine setup. The versioned adapter is the
 source of truth for its global files, agents, hooks, workflows, and MCP integration behavior.

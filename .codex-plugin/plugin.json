@@ -1,0 +1,37 @@
+{
+  "name": "oh-my-harness",
+  "version": "1.1.0",
+  "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
+  "author": {
+    "name": "Nelson Frugeri",
+    "url": "https://github.com/nelsonfrugeri-tech"
+  },
+  "homepage": "https://github.com/nelsonfrugeri-tech/oh-my-harness",
+  "repository": "https://github.com/nelsonfrugeri-tech/oh-my-harness",
+  "license": "Apache-2.0",
+  "keywords": [
+    "agents",
+    "skills",
+    "knowledge-base",
+    "evidence-driven",
+    "capabilities"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "oh-my-harness",
+    "shortDescription": "Portable expert workflows for coding agents.",
+    "longDescription": "Share expert skills and repeatable engineering workflows across AI coding assistants.",
+    "developerName": "Nelson Frugeri",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/nelsonfrugeri-tech/oh-my-harness",
+    "defaultPrompt": [
+      "Review this code with the oh-my-harness workflow.",
+      "Plan and implement this feature end to end.",
+      "Investigate this codebase using the available experts."
+    ]
+  }
+}

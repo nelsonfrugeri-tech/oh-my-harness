@@ -31,7 +31,7 @@ class ContextHookTest(unittest.TestCase):
     def test_missing_report_requests_full_analysis(self) -> None:
         output = self._run_hook()
 
-        self.assertIn("modo **FULL**", output)
+        self.assertIn("in **FULL** mode", output)
         self.assertIn("example-project", output)
 
     def test_claude_adapter_resolves_shared_loader_through_symlink(self) -> None:
@@ -41,7 +41,7 @@ class ContextHookTest(unittest.TestCase):
 
         output = self._run_hook(installed)
 
-        self.assertIn("modo **FULL**", output)
+        self.assertIn("in **FULL** mode", output)
 
     def test_current_report_injects_snapshot_without_refresh_request(self) -> None:
         self._write_report(self._head())
@@ -61,7 +61,7 @@ class ContextHookTest(unittest.TestCase):
         output = self._run_hook()
 
         self.assertIn("DRIFT: 1 commits", output)
-        self.assertIn("modo **DELTA**", output)
+        self.assertIn("in **DELTA** mode", output)
         self.assertIn("Architecture: portable core", output)
 
     def _run_hook(self, executable: Path = _HOOK) -> str:
