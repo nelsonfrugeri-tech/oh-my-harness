@@ -532,24 +532,22 @@ Vá para a seção **Template do context.md** e escreva o arquivo completo em `<
 snapshot vivo (seções 1-9) reescrito do zero + a primeira entrada da Timeline
 ("análise inicial completa").
 
-### Fase Final — Indexar em memória (opcional, capability `memory`)
+### Fase Final — Registrar na knowledge base (opcional)
 
-**Objetivo**: Após escrever `context.md` em disco, indexar um resumo numa memória
-persistente — **apenas se a capability `memory` estiver plugada** neste ambiente
-(ver `CLAUDE.md`). Se `memory` for `nenhuma`, pule esta fase: o arquivo em disco já é o
-entregável.
+**Objetivo**: depois de escrever `context.md` em disco, registrar um resumo na knowledge base.
+Isto é **opcional** — o arquivo em disco já é o entregável, e a fase é pulada sem erro se a
+knowledge base não estiver disponível.
 
-1. **Verifique se já existe registro anterior** para este projeto, usando a tool de busca da
-   capability `memory`.
+Quem faz é o agent `knowledge-base`, dono único da memória: peça a ele, não escreva direto nem
+chame as skills dele. Passe o material pronto:
 
-2. **Construa o resumo a indexar:**
-   - `title`: `"Project context: <PROJECT>"`
-   - `summary`: os primeiros ~600 caracteres da seção "1. Identity" do snapshot gerado (prosa
-     específica e densa — não um rótulo genérico)
-   - `body`: conteúdo Markdown completo do `context.md`
-   - referência ao registro anterior, se houver, para substituição
+- `title`: `"Project context: <PROJECT>"`
+- `summary`: os primeiros ~600 caracteres da seção "1. Identity" do snapshot gerado (prosa
+  específica e densa — não um rótulo genérico)
+- `body`: conteúdo Markdown completo do `context.md`
 
-3. Grave via a tool de escrita da capability `memory`.
+Ele resolve o resto: se já existe registro anterior para este projeto, se a correção vira nota
+nova com `supersedes`, e o que fazer quando o índice está fora do ar.
 
 4. Registre no output final: o identificador do registro criado/atualizado e se houve
    substituição ou criação nova.
@@ -993,8 +991,8 @@ findings resolvidos, mudanças de dependências/infra/environment}
     apende (nunca reescreva) uma nova entrada na Timeline
 14. **Fase 3 é adaptativa** — gere APENAS a subseção (3A/3B/3C/3D) relevante ao tipo do projeto
 15. **Seções vazias são omitidas** — se o projeto não tem Docker, a tabela Docker não aparece
-16. **A Fase Final (memória) é opcional** — execute só se a capability `memory` estiver
-    plugada; o arquivo em disco é sempre o entregável
+16. **A Fase Final (registro na knowledge base) é opcional** — peça ao agent `knowledge-base`;
+    o arquivo em disco é sempre o entregável
 17. **Frontmatter é OBRIGATÓRIO** — o `context.md` deve sempre começar com o bloco YAML
     (`type`, `title`, `description`, `domain`, `generated_at`, `last_hash`, `remote_url`)
 18. **Nunca cite uma tool concreta** — sempre referencie a capability abstrata (`web`,

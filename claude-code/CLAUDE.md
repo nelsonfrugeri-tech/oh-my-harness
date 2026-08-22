@@ -113,11 +113,8 @@ no loop principal.
 **Na dúvida, busque — nunca responda de memória o que é privado ou episódico.**
 
 Avalie a resposta candidata em relevância, atualidade e factualidade. Se qualquer eixo não
-estiver sólido, busque antes, roteando pela natureza da pergunta:
-
-- **Pública** (mundo, docs, versões, notícias) → capability `web`.
-- **Privada, episódica, ou fato passado de projeto/processo** → agent `knowledge-base`, que é o
-  dono da memória. Peça o que precisa saber e deixe-o rotear; não chame as skills dele direto.
+estiver sólido, busque antes: conhecimento **público** (mundo, docs, versões, notícias) pela
+capability `web`; qualquer coisa **privada, episódica ou passada** pelo agent `knowledge-base`.
 
 Depois da busca, **responda citando a fonte**. Se ainda faltar informação, diga o que falta em
 vez de inventar.
@@ -153,7 +150,6 @@ simplesmente não tem provider.
 | --- | --- | --- |
 | `web` | Busca e fetch na web | `WebSearch`, `WebFetch` |
 | `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` |
-| `social-x` | Ler e publicar na plataforma X | `mcp__xapi__*` via bridge `xurl mcp` |
 | `session-memory` | Memória bruta de sessões passadas: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` |
 
 `Read`, `Write`, `Edit`, `Bash`, `Grep` e `Glob` são primitivos — não precisam de plugue.
@@ -170,13 +166,30 @@ outro dono:
 
 1. **Tool agent nunca escreve no repositório do usuário.** Conhecimento vai para
    `~/knowledge-base/` — sempre fora do repo — e o sync da biblioteca, para `~/.claude/`.
-2. **Memória tem um escritor só.** A skill `kb-write` é a única que escreve conhecimento curado;
-   mecanismos de nota de outras ferramentas abririam um repositório concorrente e são proibidos.
-   Delas nós só lemos. O agent `knowledge-base` é o dono de tudo mais que envolva memória.
-3. **Nada de terceiro é órfão, nada de segredo entra no repo.** Skills e hooks instalados por
+2. **Nada de terceiro é órfão, nada de segredo entra no repo.** Skills e hooks instalados por
    outras ferramentas (`deja-history`, a cópia externa do `graphify`) não podem ser removidos por
    nenhum sync. E nenhum `CLIENT_ID`, `CLIENT_SECRET`, token ou handle entra no repositório: um
    agent reporta o *estado* da auth, nunca o valor.
+
+### Memória — o agent `knowledge-base`
+
+**O que é.** O dono da memória do usuário: conhecimento durável (decisões, procedimentos,
+referências, eventos), o contexto vivo de cada projeto e o registro das sessões. Ele é **um agent
+desta biblioteca**, não uma capability — logo não é substituível, e é isso que sustenta a garantia
+de escritor único abaixo.
+
+**Quando chamar.** Sempre que a resposta depender de algo **privado, episódico ou passado**: "o que
+decidimos sobre X", "por que isto está assim", "o que falamos naquela sessão". E sempre que algo
+**passar a valer** e precise sobreviver à sessão: uma decisão tomada, um procedimento estabelecido,
+um incidente com causa. Na dúvida entre registrar e não registrar, pergunte ao usuário uma vez.
+
+**Como chamar.** Descreva o que você precisa saber ou o que precisa ficar registrado, e deixe-o
+rotear. Não chame as skills dele nem escreva em `~/knowledge-base/` por conta própria — isso
+contorna as regras que só ele conhece.
+
+**O invariante.** Ele é o **único escritor de conhecimento curado**. Mecanismos de nota de outras
+ferramentas abririam um repositório concorrente e são proibidos; delas nós só lemos. Sem infra, ele
+degrada e declara — nunca falha em silêncio.
 
 ---
 

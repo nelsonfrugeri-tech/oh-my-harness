@@ -178,7 +178,7 @@ Desconhecidos: ${JSON.stringify(refinementUnknowns)}
 3. Use a skill `evidence`. Preserve evidência verificada, hipóteses falsificáveis, desconhecidos e a proveniência quantitativa; nunca invente uma métrica.
 4. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${docsBase}/user_history/user_history.md.
 
-Grave o markdown final em disco em `${docsBase}/user_history/user_history.md`. Se a capability `memory` estiver plugada, indexe também um resumo.`,
+Grave o markdown final em disco em `${docsBase}/user_history/user_history.md`. Peça ao agent `knowledge-base` para registrar um resumo; se a knowledge base não estiver disponível, siga sem ela.`,
   { agentType: 'tech-pm', label: 'tech-pm:user_history', phase: 'user_history', schema: USER_HISTORY_SCHEMA },
 )
 
@@ -249,7 +249,7 @@ ${userHistory.markdown}
 ${JSON.stringify(implementation, null, 2)}
 
 # Salvar evidências
-Cada evidência deve ter path do tipo `${docsBase}/validation/qa_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
+Cada evidência deve ter path do tipo `${docsBase}/validation/qa_<nome_teste>.md`. Grave cada arquivo em disco; peça ao agent `knowledge-base` para registrar um resumo, se disponível.
 
 # Veredito
 Use a skill `evidence`. Preserve explicações sem sustentação como hipóteses e escope toda alegação ao ambiente e aos casos executados.
@@ -270,7 +270,7 @@ ${refinementContent}
 ${JSON.stringify(implementation, null, 2)}
 
 # Salvar evidências
-Cada evidência deve ter path do tipo `${docsBase}/validation/sre_<nome_teste>.md`. Grave cada arquivo em disco (e indexe em `memory` se plugada).
+Cada evidência deve ter path do tipo `${docsBase}/validation/sre_<nome_teste>.md`. Grave cada arquivo em disco; peça ao agent `knowledge-base` para registrar um resumo, se disponível.
 
 # Veredito
 Use a skill `evidence`. Toda métrica precisa de unidade, população, janela temporal, fonte e método. Trate explicações causais como hipóteses falsificáveis.

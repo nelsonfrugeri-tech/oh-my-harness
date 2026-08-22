@@ -155,7 +155,6 @@ simply has no provider.
 | --- | --- | --- |
 | `web` | Web search and page retrieval | Codex web capability |
 | `code-graph` | Query, path, and explain over a code knowledge graph | Graphify MCP with CLI fallback |
-| `social-x` | Read and publish on X | _(optional; configure an authenticated provider)_ |
 | `session-memory` | Raw memory of past sessions: recall by topic, digest, blame by file | Deja CLI or MCP when installed |
 
 Codex built-ins for filesystem access, repository search, shell execution, and patch application
@@ -173,13 +172,30 @@ rules have no other owner:
 
 1. **A tool agent never writes to the user's repository.** Knowledge goes to `~/knowledge-base/`,
    always outside the repo, and adapter installation writes only to `$CODEX_HOME` and `~/.agents/`.
-2. **Memory has a single writer.** `kb-write` is the only writer of curated knowledge; note-writing
-   features of other tools would create a competing store and are forbidden. From those we only
-   read. The `knowledge-base` agent owns everything else about memory.
-3. **Nothing third-party is an orphan, and no secret enters the repository.** Skills and hooks
+2. **Nothing third-party is an orphan, and no secret enters the repository.** Skills and hooks
    installed by other tools (`deja-history`, an external Graphify copy) may not be removed by any
    synchronization. And no client ID, secret, token, or handle enters the repository: an agent
    reports the auth *state*, never the value.
+
+### Memory — the `knowledge-base` agent
+
+**What it is.** The owner of the user's memory: durable knowledge (decisions, procedures,
+references, events), each project's living context, and the record of past sessions. It is **an
+agent of this library**, not a capability — so it is not swappable, and that is what makes the
+single-writer guarantee below hold.
+
+**When to call it.** Whenever the answer depends on something **private, episodic, or past**: what
+was decided about X, why something is the way it is, what a past session covered. And whenever
+something **becomes true** and must outlive the session: a decision taken, a procedure established,
+an incident with a cause. When unsure whether to record, ask the user once.
+
+**How to call it.** Describe what you need to know or what needs recording, and let it route. Do
+not call its skills and do not write into `~/knowledge-base/` yourself — that bypasses rules only
+it knows.
+
+**The invariant.** It is the **only writer of curated knowledge**. Note-writing features of other
+tools would create a competing store and are forbidden; from those we only read. Without
+infrastructure it degrades and says so — never a silent failure.
 
 ### Codex session transcripts
 
