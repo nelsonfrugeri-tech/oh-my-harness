@@ -136,11 +136,17 @@ Este é o degrau 3 da escada de retrieval (ver `kb-retrieval`): quando a busca n
 e a navegação em disco não respondem (ou respondem parcialmente), a resposta pode estar
 na **memória bruta** de uma sessão passada.
 
-O deep search roda pela capability **`session-memory`** (ver `CLAUDE.md`), que indexa os
-transcripts de **todos os harnesses e todos os projetos** da máquina — não só a sessão
-corrente. Isso importa: a resposta com frequência está numa sessão que **nunca teve
-session record**, ou num harness diferente. O caminho por `transcript_path` só alcança o
-que algum record já apontou; a capability alcança o corpus inteiro.
+O deep search roda pela capability **`session-memory`**, que indexa os transcripts de **todos
+os harnesses e todos os projetos** da máquina — não só a sessão corrente. Isso importa: a
+resposta com frequência está numa sessão que **nunca teve session record**, ou num harness
+diferente. O caminho por `transcript_path` só alcança o que algum record já apontou; a
+capability alcança o corpus inteiro.
+
+> **Requisito de ambiente:** a capability precisa de `DEJA_INCLUDE_SUBAGENTS=1` exportado num
+> lugar que valha para shell não-interativo (`~/.zshenv`). Sem isso o índice pula os transcripts
+> de subagent — a maior parte do corpus recuperável num harness que delega — e o deep search
+> devolve pouco sem sinalizar que está cego. Se um recall vier suspeito de vazio, cheque a
+> variável antes de concluir que o assunto nunca foi discutido.
 
 ### 4.1 Modo normal — via capability
 

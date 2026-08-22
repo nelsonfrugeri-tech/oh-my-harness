@@ -113,14 +113,11 @@ no loop principal.
 **Na dúvida, busque — nunca responda de memória o que é privado ou episódico.**
 
 Avalie a resposta candidata em relevância, atualidade e factualidade. Se qualquer eixo não
-estiver sólido, busque primeiro, roteando pela natureza da pergunta:
+estiver sólido, busque antes, roteando pela natureza da pergunta:
 
 - **Pública** (mundo, docs, versões, notícias) → capability `web`.
-- **Privada, episódica, ou fato passado de projeto/processo** → agent `knowledge-base`.
-
-O agent `knowledge-base` é o **dono único** da memória: ele conhece a escada de recuperação, a
-session memory e a degradação sem infra. Não reimplemente essa mecânica aqui nem chame as
-skills dele diretamente — peça o que você precisa saber e deixe-o rotear.
+- **Privada, episódica, ou fato passado de projeto/processo** → agent `knowledge-base`, que é o
+  dono da memória. Peça o que precisa saber e deixe-o rotear; não chame as skills dele direto.
 
 Depois da busca, **responda citando a fonte**. Se ainda faltar informação, diga o que falta em
 vez de inventar.
@@ -145,52 +142,41 @@ Arquivo **auxiliar, temporário ou de execução** — script one-off, relatóri
 
 ---
 
-## Ambiente & Tools (o plugue de capabilities)
+## Ambiente
 
-Agents e skills **nunca** citam uma tool concreta. Eles referenciam uma **capability** abstrata; esta tabela é o único lugar acoplado ao ambiente. Ao trocar de máquina, você edita só ela.
+Agents e skills **nunca** citam uma tool concreta: pedem uma **capability** abstrata. Esta tabela
+é o único lugar acoplado à máquina — ao trocar de máquina, você edita só ela.
 
-| Capability   | Papel                                             | Tool concreta nesta máquina                 |
-| ------------ | ------------------------------------------------- | ------------------------------------------- |
-| `code-host`  | Pull/Merge Requests, issues, reviews remotos      | _(preencher — ex.: `mcp__github__*`)_       |
-| `ci`         | Pipelines de CI/CD                                | _(preencher)_                                |
-| `memory`     | Notas/contexto persistente do projeto (opcional)  | _(vazio = default: agent `knowledge-base`)_ |
-| `web`        | Busca e fetch na web                              | `WebSearch`, `WebFetch`                      |
-| `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` (stdio; venv em `~/projects/mcps/graphify/.venv`) |
-| `social-x`   | Ler e publicar na plataforma X (Twitter)          | `mcp__xapi__*` via bridge `xurl mcp` → `https://api.x.com/mcp` |
-| `session-memory` | Busca na memória bruta de sessões passadas — cross-harness e cross-projeto: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` — índice em `~/.cache/deja` |
-| `tunnel` | Exposição temporária e autenticada de um site local | _(opcional; configurar provider aprovado)_ |
+| Capability | Papel | Tool concreta nesta máquina |
+| --- | --- | --- |
+| `code-host` | Pull/Merge Requests, issues, reviews remotos | _(preencher — ex.: `mcp__github__*`)_ |
+| `ci` | Pipelines de CI/CD | _(preencher)_ |
+| `web` | Busca e fetch na web | `WebSearch`, `WebFetch` |
+| `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` |
+| `social-x` | Ler e publicar na plataforma X | `mcp__xapi__*` via bridge `xurl mcp` |
+| `session-memory` | Memória bruta de sessões passadas: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` |
 
-**Primitivos universais** (não precisam de plugue): `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`.
+`Read`, `Write`, `Edit`, `Bash`, `Grep` e `Glob` são primitivos — não precisam de plugue.
 
-**Como resolver:** a prosa pede a capability → você lê esta tabela e usa a tool mapeada (se for MCP deferida, carregue via `ToolSearch` antes). Capability **vazia** → degrade com elegância: faça a parte possível e diga o que ficou pendente. **Nunca invente uma tool.**
+**Resolução:** a prosa pede a capability → você usa a tool mapeada acima; se for MCP deferida,
+carregue via `ToolSearch` antes. **Nunca invente uma tool.** Capability vazia, provider ausente ou
+infra fora do ar → **degrade e declare**: faça a parte possível e diga exatamente o que ficou
+pendente. Nunca vire falha silenciosa nem invenção.
 
----
+**Onde cada coisa mora.** Tool agents operam a infraestrutura que os outros consomem; quem são e o
+que cobrem está na description deles, que o harness já carrega. A mecânica de cada um está na skill
+dele. Não duplique nenhum dos dois aqui — pergunte ao dono. Três regras transversais, que não têm
+outro dono:
 
-## Tools Agents (a infraestrutura do harness)
-
-Um **tool agent** opera uma infraestrutura que os outros agents consomem. Quem são e o que
-cada um cobre está na description deles, que o harness já carrega — **não duplique aqui**.
-Abaixo fica só o que nenhuma description revela.
-
-### Fatos de ambiente (vinculantes)
-
-Só o que nenhuma skill revela e que muda o que você faz:
-
-1. **A knowledge base vive em `~/knowledge-base/`** — bundle OKF v0.2, **sempre fora** do repositório do usuário. Runtime (volume do Qdrant, venvs) fica em `~/.local/share/omh-kb/`, **nunca dentro do bundle**: o bundle é markdown sincronizável, o índice é artefato derivado.
-2. **A biblioteca é agnóstica a conta.** Nenhum `CLIENT_ID`, `CLIENT_SECRET`, token ou handle entra no repo; um agent reporta o *estado* da auth, nunca o valor de um segredo.
-3. **Conteúdo vendored tem dono externo.** A skill `graphify` é upstream em inglês, e o instalador dele sobrescreve `~/.claude/skills/graphify/` — depois de um upgrade, rediffe antes de assumir que está tudo certo.
-4. **Skills e hooks de terceiros não são órfãos.** `deja-history` e afins são instalados por outras ferramentas; nenhum sync pode removê-los.
-
-### Memória: um dono, dois registros
-
-Existem duas camadas — a **bruta** (o que foi dito, ingerido automaticamente dos transcripts) e a **curada** (o que ficou valendo, no bundle OKF). A regra que não pode ser quebrada é **um único escritor de conhecimento curado**: a skill `kb-write`. Mecanismos de nota de outras ferramentas abririam um segundo repositório concorrente — são proibidos; delas nós só lemos.
-
-Toda a mecânica — escada de recuperação, session memory, imutabilidade de notas, degradação sem Qdrant — pertence ao agent `knowledge-base`. Peça a ele; não reimplemente aqui.
-
-### Regras (vinculantes)
-
-1. **Tools agents nunca escrevem no repositório do usuário** — escrita em `~/knowledge-base/` (e `~/.claude/`, no sync da biblioteca).
-2. **Degrade com elegância e declare o modo degradado** — capability ausente ou infra fora do ar não vira falha silenciosa nem invenção: faça a parte possível e diga o que ficou pendente.
+1. **Tool agent nunca escreve no repositório do usuário.** Conhecimento vai para
+   `~/knowledge-base/` — sempre fora do repo — e o sync da biblioteca, para `~/.claude/`.
+2. **Memória tem um escritor só.** A skill `kb-write` é a única que escreve conhecimento curado;
+   mecanismos de nota de outras ferramentas abririam um repositório concorrente e são proibidos.
+   Delas nós só lemos. O agent `knowledge-base` é o dono de tudo mais que envolva memória.
+3. **Nada de terceiro é órfão, nada de segredo entra no repo.** Skills e hooks instalados por
+   outras ferramentas (`deja-history`, a cópia externa do `graphify`) não podem ser removidos por
+   nenhum sync. E nenhum `CLIENT_ID`, `CLIENT_SECRET`, token ou handle entra no repositório: um
+   agent reporta o *estado* da auth, nunca o valor.
 
 ---
 

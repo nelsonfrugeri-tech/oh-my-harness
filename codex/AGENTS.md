@@ -112,11 +112,8 @@ Evaluate the candidate answer for relevance, freshness, and factuality. If any d
 solid, search first, routing by the nature of the question:
 
 - **Public** facts, documentation, versions, and news use the `web` capability.
-- **Private, episodic, or past project and process facts** go to the `knowledge-base` agent.
-
-The `knowledge-base` agent is the **single owner** of memory: it knows the retrieval ladder, the
-session memory, and how to degrade without infrastructure. Do not reimplement that mechanism here
-and do not call its skills directly — ask for what you need and let it route.
+- **Private, episodic, or past project and process facts** go to the `knowledge-base` agent, which
+  owns memory. Ask for what you need and let it route; do not call its skills directly.
 
 After searching, cite the source. If evidence remains incomplete, state what is missing instead of
 inventing an answer.
@@ -147,60 +144,42 @@ ask before creating it.
 
 ---
 
-## Environment and capability adapters
+## Environment
 
-Agents and skills refer to abstract capabilities, never to concrete tool identifiers. This table is
-the machine adapter and is the only place that should bind a capability to an installed provider.
-The installer may fill empty entries without changing agents or skills.
+Agents and skills never name a concrete tool: they request an abstract **capability**. This table
+is the only place bound to the machine — changing machines means editing only this table.
 
 | Capability | Purpose | Codex provider on this machine |
 | --- | --- | --- |
 | `code-host` | Pull requests, issues, and remote reviews | _(configure during installation)_ |
 | `ci` | CI/CD pipelines | _(configure during installation)_ |
-| `memory` | Persistent project and personal context | _(empty means the `knowledge-base` agent)_ |
 | `web` | Web search and page retrieval | Codex web capability |
 | `code-graph` | Query, path, and explain over a code knowledge graph | Graphify MCP with CLI fallback |
 | `social-x` | Read and publish on X | _(optional; configure an authenticated provider)_ |
-| `session-memory` | Search past session transcripts by topic or file | Deja CLI or MCP when installed |
-| `tunnel` | Temporarily expose a local site through an authenticated URL | _(optional; configure an approved provider)_ |
+| `session-memory` | Raw memory of past sessions: recall by topic, digest, blame by file | Deja CLI or MCP when installed |
 
-Codex built-ins for filesystem access, repository search, shell execution, and patch application do
-not need adapter entries.
+Codex built-ins for filesystem access, repository search, shell execution, and patch application
+need no adapter entry.
 
-Resolve a requested capability through this table. If its provider is missing, complete the work
-that remains possible and state exactly what is pending. Never invent a provider or concrete tool.
+**Resolution:** the prose requests a capability and you use the tool mapped above. Never invent a
+provider. An empty capability, a missing provider, or unavailable infrastructure means **degrade
+and declare**: complete what remains possible and state exactly what is pending. Never a silent
+failure and never an invention.
 
----
+**Where each thing lives.** Tool agents operate the infrastructure the others consume; which ones
+exist and what they cover lives in their descriptions, which the harness already loads, and each
+one's mechanics live in its skill. Duplicate neither here — ask the owner. Three cross-cutting
+rules have no other owner:
 
-## Tool agents
-
-A tool agent operates infrastructure the other agents consume. Which ones exist and what each
-covers lives in their descriptions, which the harness already loads — **do not duplicate that
-here**. What follows is only what no description reveals.
-
-### Binding environment facts
-
-1. The knowledge base is an OKF v0.2 bundle rooted at `~/knowledge-base/`, always outside user
-   repositories. Its runtime belongs under `~/.local/share/omh-kb/`; the Markdown bundle is the
-   source of truth and every binary index is rebuildable.
-2. The embedding model is fixed to `BAAI/bge-m3`. Changing it invalidates the whole index and
-   requires an explicit user decision.
-3. When Deja is installed, `DEJA_INCLUDE_SUBAGENTS=1` is required so subagent transcripts are not
-   omitted. Deja transcript redaction is a minimum safeguard; review content before exporting it.
-4. Deja owns its own MCP and hook wiring. Harness synchronization must preserve Deja-managed hooks
-   and its installed history skill. Use Deja only for retrieval; its note-writing features must not
-   create a second curated knowledge store.
-5. The Graphify skill is vendored upstream and is installed under `~/.agents/skills/graphify/`.
-   Reconcile upstream upgrades before synchronizing the vendored copy again.
-6. The library is account-agnostic. Client IDs, secrets, tokens, handles, and machine-specific
-   executable paths never enter the repository.
-
-### Two memory layers, two owners
-
-| Layer | Storage | Writer | Reader |
-| --- | --- | --- | --- |
-| Raw and episodic: what was said | Codex transcripts and the Deja index | Automatic ingestion only | `session-memory` capability |
-| Distilled and curated: what remains valid | OKF bundle under `~/knowledge-base/` | `kb-write` only | `kb-retrieval` |
+1. **A tool agent never writes to the user's repository.** Knowledge goes to `~/knowledge-base/`,
+   always outside the repo, and adapter installation writes only to `$CODEX_HOME` and `~/.agents/`.
+2. **Memory has a single writer.** `kb-write` is the only writer of curated knowledge; note-writing
+   features of other tools would create a competing store and are forbidden. From those we only
+   read. The `knowledge-base` agent owns everything else about memory.
+3. **Nothing third-party is an orphan, and no secret enters the repository.** Skills and hooks
+   installed by other tools (`deja-history`, an external Graphify copy) may not be removed by any
+   synchronization. And no client ID, secret, token, or handle enters the repository: an agent
+   reports the auth *state*, never the value.
 
 ### Codex session transcripts
 
@@ -209,22 +188,6 @@ Codex stores active transcripts under
 `CODEX_HOME` is `~/.codex`. Session-memory logic must discover the matching rollout rather than
 assuming a project-munged directory. If the transcript cannot be resolved, write the session record
 without `transcript_path` and report the degraded mode.
-
-### Knowledge rules
-
-1. Tool agents never write to the user's repository. Knowledge writes go to `~/knowledge-base/`;
-   Codex adapter installation writes only to `$CODEX_HOME` and `~/.agents/`.
-2. Without Qdrant, disk writes continue and indexing remains pending. Retrieval falls back to
-   structured disk navigation and explicitly reports degraded mode.
-3. Notes are immutable. Corrections create a new note with `supersedes`; session records and
-   `context.md` are named mutable documents and are rewritten in place.
-
----
-
-
-
----
-
 
 ---
 
