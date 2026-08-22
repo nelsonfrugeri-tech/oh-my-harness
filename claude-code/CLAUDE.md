@@ -145,12 +145,12 @@ Arquivo **auxiliar, temporário ou de execução** — script one-off, relatóri
 ## Ambiente
 
 Agents e skills **nunca** citam uma tool concreta: pedem uma **capability** abstrata. Esta tabela
-é o único lugar acoplado à máquina — ao trocar de máquina, você edita só ela.
+é o único lugar acoplado à máquina, e lista **o que está plugado aqui** — não o catálogo do que
+existe. Cada máquina acrescenta as suas linhas; capability citada na prosa e ausente daqui
+simplesmente não tem provider.
 
 | Capability | Papel | Tool concreta nesta máquina |
 | --- | --- | --- |
-| `code-host` | Pull/Merge Requests, issues, reviews remotos | _(preencher — ex.: `mcp__github__*`)_ |
-| `ci` | Pipelines de CI/CD | _(preencher)_ |
 | `web` | Busca e fetch na web | `WebSearch`, `WebFetch` |
 | `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` |
 | `social-x` | Ler e publicar na plataforma X | `mcp__xapi__*` via bridge `xurl mcp` |

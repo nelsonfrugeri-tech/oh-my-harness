@@ -147,12 +147,12 @@ ask before creating it.
 ## Environment
 
 Agents and skills never name a concrete tool: they request an abstract **capability**. This table
-is the only place bound to the machine — changing machines means editing only this table.
+is the only place bound to the machine, and it lists **what is plugged in here** — not a catalogue
+of what exists. Each machine adds its own rows; a capability named in the prose and absent here
+simply has no provider.
 
 | Capability | Purpose | Codex provider on this machine |
 | --- | --- | --- |
-| `code-host` | Pull requests, issues, and remote reviews | _(configure during installation)_ |
-| `ci` | CI/CD pipelines | _(configure during installation)_ |
 | `web` | Web search and page retrieval | Codex web capability |
 | `code-graph` | Query, path, and explain over a code knowledge graph | Graphify MCP with CLI fallback |
 | `social-x` | Read and publish on X | _(optional; configure an authenticated provider)_ |
