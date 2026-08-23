@@ -211,7 +211,7 @@ class AdapterContractTest(unittest.TestCase):
             *_ROOT.glob("skills/**/SKILL.md"),
             *_ROOT.glob("codex/skills/**/SKILL.md"),
         )
-        names = [path.parent.name for path in sources if path.parent.name != "claude-code"]
+        names = [path.parent.name for path in sources]
         self.assertEqual(len(names), len(set(names)))
 
     def test_feature_skill_uses_portable_orchestration(self) -> None:
