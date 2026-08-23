@@ -10,8 +10,8 @@ library on Claude Code and Codex today.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-13-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-27-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -102,10 +102,6 @@ harness. Capabilities are resolved through that harness's machine-local table.
   BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`), 3-step retrieval
   (`kb-retrieval`) and the harness's session memory — living session records plus deep search
   inside raw transcripts (`kb-session`) — see [Knowledge base](#knowledge-base).
-- The agent **`x-social`** reads and publishes on X (Twitter) through the `social-x` capability.
-  The library hosts no server and stores no credentials: X publishes its own hosted MCP, and
-  each user's account is resolved at runtime via OAuth — so the same files work on any machine,
-  for any account, on any MCP-speaking harness.
 - The agent **`site`** turns cited technical analysis into a self-contained visual report outside
   the source repository and exposes it only through an explicitly configured `tunnel` capability.
 
@@ -123,10 +119,8 @@ environment, change only the active harness's table.
 | ----------- | -------------------------------------- | -------------------------- |
 | `code-host`  | Pull/Merge Requests, issues           | `mcp__github__*` / GitLab  |
 | `ci`         | CI/CD pipelines                       | GitHub Actions / GitLab CI |
-| `memory`     | Persistent project notes (optional)   | any memory MCP             |
 | `web`        | Search and fetch                      | `WebSearch`, `WebFetch`    |
 | `code-graph` | Query a built codebase knowledge graph | `mcp__graphify__*`        |
-| `social-x`   | Read and publish on X (Twitter)       | X's hosted MCP via `xurl`  |
 | `tunnel`     | Temporary authenticated site exposure | cloudflared / ngrok / equivalent |
 
 ### Progressive disclosure
@@ -209,7 +203,6 @@ under `codex/agents/`. Both adapters preserve the responsibilities in this catal
 | `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/work/projects/{project}/context.md` | sonnet |
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
 | `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
-| `tools`     | `x-social`    | Reads and publishes on X (Twitter) — writes require explicit confirmation | sonnet |
 | `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
 
 ### Skills
@@ -226,7 +219,7 @@ therefore remain globally unique.
 
 **Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `x-setup` and `x-ops` (X connection and operations) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 

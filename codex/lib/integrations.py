@@ -13,8 +13,6 @@ class CodexIntegrations:
         return (
             self._install_deja(),
             self._install_graphify(),
-            self._install_x_docs(),
-            self._check_x_api(),
         )
 
     def _install_deja(self) -> str:
@@ -63,17 +61,6 @@ class CodexIntegrations:
             str(executable),
         ]
         return self._run_mcp_add(command, "Graphify MCP")
-
-    def _install_x_docs(self) -> str:
-        if self._mcp_exists("x-docs"):
-            return "ok: X Docs MCP"
-        command = ["codex", "mcp", "add", "x-docs", "--url", "https://docs.x.com/mcp"]
-        return self._run_mcp_add(command, "X Docs MCP")
-
-    def _check_x_api(self) -> str:
-        if self._mcp_exists("xapi"):
-            return "ok: authenticated X API MCP"
-        return "optional: X API MCP requires xurl, OAuth approval, and a paid X API plan"
 
     def _mcp_exists(self, name: str) -> bool:
         result = subprocess.run(

@@ -4,7 +4,7 @@ from typing import Final
 
 
 _MACHINE_CAPABILITIES: Final = frozenset(
-    {"code-host", "ci", "memory", "social-x", "tunnel"}
+    {"code-host", "ci", "tunnel"}
 )
 
 

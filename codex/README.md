@@ -39,9 +39,8 @@ unmanaged path.
 
 ## MCP integrations
 
-The installer wires Deja when its CLI is present, registers Graphify when its MCP executable can be
-resolved, and adds the public read-only X Docs MCP. The authenticated X API MCP remains opt-in
-because it requires `xurl`, explicit OAuth approval, and a paid X API plan.
+The installer wires Deja when its CLI is present and registers Graphify when its MCP executable can
+be resolved.
 
 Run `python3 codex/install.py --skip-integrations` to synchronize only filesystem artifacts.
 

@@ -18,8 +18,6 @@ class CodexIntegrationsTest(unittest.TestCase):
             ("pending: Codex CLI is not available",),
         )
 
-    @patch.object(CodexIntegrations, "_check_x_api", return_value="xapi")
-    @patch.object(CodexIntegrations, "_install_x_docs", return_value="x-docs")
     @patch.object(CodexIntegrations, "_install_graphify", return_value="graphify")
     @patch.object(CodexIntegrations, "_install_deja", return_value="deja")
     @patch("lib.integrations.shutil.which", return_value="/usr/bin/codex")
@@ -28,12 +26,10 @@ class CodexIntegrationsTest(unittest.TestCase):
         _which: object,
         _deja: object,
         _graphify: object,
-        _x_docs: object,
-        _x_api: object,
     ) -> None:
         self.assertEqual(
             CodexIntegrations().install(),
-            ("deja", "graphify", "x-docs", "xapi"),
+            ("deja", "graphify"),
         )
 
     @patch("lib.integrations.subprocess.run")
