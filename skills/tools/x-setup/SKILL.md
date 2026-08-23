@@ -223,7 +223,7 @@ presuma JSON.
 
 ## 6. Mapeie a capability
 
-Feito o plug, edite a tabela **Ambiente & Tools** do `CLAUDE.md` do usuário:
+Feito o plug, edite a tabela de capabilities do `CLAUDE.md` do usuário:
 
 | Capability | Papel | Tool concreta nesta máquina |
 | --- | --- | --- |

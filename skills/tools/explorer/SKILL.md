@@ -152,7 +152,7 @@ Esta fase é executada tanto em modo FULL quanto DELTA.
 4. **Detecção de plataforma e fetch de PRs** (capability `code-host`):
 
    Analise a URL do remote para determinar a plataforma e resolva a tool concreta desta
-   máquina através da tabela `## Ambiente & Tools` do `CLAUDE.md` (nunca cite a tool
+   máquina através da tabela de capabilities do `CLAUDE.md` (nunca cite a tool
    diretamente — sempre via capability `code-host`).
 
    - `github.com` → GitHub
@@ -995,8 +995,8 @@ findings resolvidos, mudanças de dependências/infra/environment}
     o arquivo em disco é sempre o entregável
 17. **Frontmatter é OBRIGATÓRIO** — o `context.md` deve sempre começar com o bloco YAML
     (`type`, `title`, `description`, `domain`, `generated_at`, `last_hash`, `remote_url`)
-18. **Nunca cite uma tool concreta** — sempre referencie a capability abstrata (`web`,
-    `code-host`, `memory`) e resolva pela tabela `## Ambiente & Tools` do `CLAUDE.md`
+18. **Nunca cite uma tool concreta** — referencie a capability abstrata (`web`, `code-graph`)
+    e resolva pela tabela do `CLAUDE.md`; conhecimento durável é com o agent `knowledge-base`
 19. **Pense profundamente** — analise com rigor e profundidade, especialmente em modo FULL
 
 ## Output Contract
@@ -1022,14 +1022,14 @@ Ao finalizar, responda com:
   > Env: {N vars} ({secrets} secrets, {undocumented} não documentadas)
   > {N} findings ({critical} critical, {warning} warning, {suggestion} suggestion)
   > {N} deps checked ({atualizadas} updated, {desatualizadas} outdated, {críticas} critical)
-  > Memória: {registro indexado com id X | não indexado — capability memory ausente}
+  > Memória: {registro indexado com id X | não indexado — knowledge base indisponível}
   > Pronto para agents downstream.
 
 - Modo DELTA:
   > context.md atualizado em `<CONTEXT_FILE>` (DELTA, {N} commits)
   > {N} findings ({new} novos, {resolved} resolvidos)
   > Timeline: entrada apendada em {timestamp}
-  > Memória: {registro atualizado id X | não indexado — capability memory ausente}
+  > Memória: {registro atualizado id X | não indexado — knowledge base indisponível}
   > Pronto para agents downstream.
 
 - Sem mudanças:

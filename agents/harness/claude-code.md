@@ -45,7 +45,7 @@ claude-code`). Ela cobre:
 - Symlink de `claude-code/workflows/*.ts` → `~/.claude/workflows/`
 - Detecção e limpeza de symlinks órfãos/quebrados do layout antigo
 - Diff interativo de `CLAUDE.md` e `settings.json` (merge/sobrescrever/manter)
-- Detecção de MCPs da máquina e proposta de mapeamento da tabela `## Ambiente & Tools`
+- Detecção de MCPs da máquina e proposta de mapeamento da tabela de capabilities
 
 Ao final, reporte o resumo no formato que a skill define: quantos linkados, configs
 resolvidos, capabilities mapeadas e o que ficou pendente.

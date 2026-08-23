@@ -159,37 +159,33 @@ carregue via `ToolSearch` antes. **Nunca invente uma tool.** Capability vazia, p
 infra fora do ar → **degrade e declare**: faça a parte possível e diga exatamente o que ficou
 pendente. Nunca vire falha silenciosa nem invenção.
 
-**Onde cada coisa mora.** Tool agents operam a infraestrutura que os outros consomem; quem são e o
-que cobrem está na description deles, que o harness já carrega. A mecânica de cada um está na skill
-dele. Não duplique nenhum dos dois aqui — pergunte ao dono. Três regras transversais, que não têm
-outro dono:
+**Onde cada coisa mora.** Tool agents operam a infraestrutura que os outros consomem: quem são está
+na description deles, que o harness já carrega, e a mecânica está na skill de cada um — pergunte ao
+dono em vez de duplicar aqui. Duas regras transversais não têm outro dono:
 
 1. **Tool agent nunca escreve no repositório do usuário.** Conhecimento vai para
-   `~/knowledge-base/` — sempre fora do repo — e o sync da biblioteca, para `~/.claude/`.
+   `~/knowledge-base/`, sempre fora do repo; o sync da biblioteca, para `~/.claude/`.
 2. **Nada de terceiro é órfão, nada de segredo entra no repo.** Skills e hooks instalados por
    outras ferramentas (`deja-history`, a cópia externa do `graphify`) não podem ser removidos por
-   nenhum sync. E nenhum `CLIENT_ID`, `CLIENT_SECRET`, token ou handle entra no repositório: um
-   agent reporta o *estado* da auth, nunca o valor.
+   nenhum sync; e nenhum token, secret ou handle entra no repositório — um agent reporta o *estado*
+   da auth, nunca o valor.
 
 ### Memória — o agent `knowledge-base`
 
-**O que é.** O dono da memória do usuário: conhecimento durável (decisões, procedimentos,
-referências, eventos), o contexto vivo de cada projeto e o registro das sessões. Ele é **um agent
-desta biblioteca**, não uma capability — logo não é substituível, e é isso que sustenta a garantia
-de escritor único abaixo.
+**O que é.** O dono da memória do usuário: conhecimento durável, o contexto vivo de cada projeto e
+o registro das sessões. É **um agent desta biblioteca, não uma capability** — logo não é
+substituível, e é isso que sustenta o invariante abaixo.
 
-**Quando chamar.** Sempre que a resposta depender de algo **privado, episódico ou passado**: "o que
-decidimos sobre X", "por que isto está assim", "o que falamos naquela sessão". E sempre que algo
-**passar a valer** e precise sobreviver à sessão: uma decisão tomada, um procedimento estabelecido,
-um incidente com causa. Na dúvida entre registrar e não registrar, pergunte ao usuário uma vez.
+**Quando.** Quando a resposta depender de algo **privado, episódico ou passado** ("o que decidimos
+sobre X", "por que isto está assim"), e quando algo **passar a valer** e precise sobreviver à
+sessão — uma decisão, um procedimento, um incidente com causa. Na dúvida em registrar, pergunte.
 
-**Como chamar.** Descreva o que você precisa saber ou o que precisa ficar registrado, e deixe-o
-rotear. Não chame as skills dele nem escreva em `~/knowledge-base/` por conta própria — isso
-contorna as regras que só ele conhece.
+**Como.** Descreva o que precisa saber ou registrar e deixe-o rotear. Não chame as skills dele nem
+escreva em `~/knowledge-base/` por conta própria: isso contorna regras que só ele conhece.
 
-**O invariante.** Ele é o **único escritor de conhecimento curado**. Mecanismos de nota de outras
-ferramentas abririam um repositório concorrente e são proibidos; delas nós só lemos. Sem infra, ele
-degrada e declara — nunca falha em silêncio.
+**O invariante.** É o **único escritor de conhecimento curado** — mecanismos de nota de outras
+ferramentas abririam um repositório concorrente e são proibidos; delas só lemos. Sem infra, degrada
+e declara.
 
 ---
 
@@ -201,7 +197,11 @@ degrada e declara — nunca falha em silêncio.
 
 ## Fluxo de commit
 
-O gate de qualidade antes de `git commit` é **enforçado por hook** (`PreToolUse`, entregue
-pelo plugin): ele descobre e roda format, lint, typecheck e testes do projeto, e bloqueia o
-commit se algum falhar. Só age em repositório explicitamente confiado; sem o marcador,
-defere sem executar nada. Mecânica e limites em `skills/harness/claude-code`.
+Não commite sem **testes passando e review sem blocker**. O review é independente: um subagent
+sobre o diff *staged*, com a skill `review` — o hook não o substitui, porque ele roda checks e
+não julga corretude, arquitetura nem cobertura.
+
+Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin): ele descobre e roda
+format, lint, typecheck e testes, e bloqueia o commit se algum falhar. Só age em repositório
+explicitamente confiado; sem o marcador, defere sem executar nada. Mecânica e limites em
+`skills/harness/claude-code`.
