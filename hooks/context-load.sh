@@ -26,8 +26,9 @@ REPORT="$KB_ROOT/$DOMAIN/context.md"
 if [ ! -f "$REPORT" ]; then
   cat <<EOF
 # omh-managed: context
-Projeto \`$PROJECT\` ainda não tem context report em \`$REPORT\`.
-AÇÃO: invoque o agent \`context\` para rodar a skill \`explorer\` em modo **FULL**.
+O projeto \`$PROJECT\` ainda não possui um context report em \`$REPORT\`.
+AÇÃO: Execute a skill \`explorer\` em modo **FULL**. Quando o adapter global estiver instalado, o
+agent customizado \`context\` poderá orquestrar essa skill.
 EOF
   exit 0
 fi
@@ -58,15 +59,18 @@ printf 'Projeto `%s` · report gerado em %s · %s linhas em `%s`\n' \
   "$PROJECT" "${GENERATED:-?}" "${TOTAL_LINES:-?}" "$REPORT"
 
 if [ -n "$DRIFT" ] && [ "$DRIFT" -gt 0 ] 2>/dev/null; then
-  printf '\n**DRIFT: %s commits desde a última análise (`%s`).** O snapshot abaixo está desatualizado nesse tanto.\n' "$DRIFT" "$LAST_HASH"
-  printf 'AÇÃO: invoque o agent `context` para rodar a skill `explorer` em modo **DELTA**.\n'
+  COMMIT_WORD=commit
+  [ "$DRIFT" -eq 1 ] || COMMIT_WORD=commits
+  printf '\n**DRIFT: %s %s desde a última análise (`%s`).** O snapshot abaixo está desatualizado nessa medida.\n' \
+    "$DRIFT" "$COMMIT_WORD" "$LAST_HASH"
+  printf 'AÇÃO: Execute a skill `explorer` em modo **DELTA**. O agent customizado opcional `context` pode orquestrá-la.\n'
 elif [ -z "$DRIFT" ]; then
-  printf '\nDrift não calculável (`last_hash` ausente ou fora deste repo) — trate o snapshot como possivelmente velho.\n'
+  printf '\nNão foi possível calcular o drift (`last_hash` ausente ou fora deste repositório); trate o snapshot como potencialmente desatualizado.\n'
 fi
 
 if [ -n "$HEAD_TEXT" ]; then
   if [ "$TRUNCATED" = yes ]; then
-    printf '\n--- snapshot (início; relatório completo no path acima) ---\n%s\n' "$HEAD_TEXT"
+    printf '\n--- snapshot (início; report completo no path acima) ---\n%s\n' "$HEAD_TEXT"
   else
     printf '\n--- snapshot ---\n%s\n' "$HEAD_TEXT"
   fi

@@ -3,8 +3,8 @@ version: 2.0.0
 name: claude-code
 description: |
   Runbook de instalação da biblioteca oh-my-harness no Claude Code **como plugin nativo**.
-  Cobre: o manifesto `.claude-plugin/plugin.json` (skills por array de diretórios temados —
-  discovery de skill não recursa, agents recursam), os hooks do plugin em `hooks/hooks.json`
+  Cobre: o manifesto `.claude-plugin/plugin.json` (as skills em `skills/` são descobertas por
+  padrão; só `./claude-code/skills/` precisa ser declarado), os hooks do plugin em `hooks/hooks.json`
   com `${CLAUDE_PLUGIN_ROOT}`, o marketplace para distribuição versionada por git (version,
   ref, sha), as duas superfícies que o plugin **não** cobre (`CLAUDE.md` e `permissions` do
   `settings.json`), e a migração a partir do layout antigo de symlinks — inclusive a remoção

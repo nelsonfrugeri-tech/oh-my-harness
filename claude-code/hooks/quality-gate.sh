@@ -46,10 +46,14 @@ command -v jq >/dev/null 2>&1 || defer
 CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
 TOOL_CMD=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
 
-# Self-filter. The `if` field in settings.json should already scope this hook to
-# `git commit`, but a harness that ignores unknown fields would hand us every Bash
-# call — and then a failing check would deny an unrelated `ls`.
-printf '%s' "$TOOL_CMD" | grep -qE '(^|[;&|]|&&|\|\|)[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*git[[:space:]]+(-[^[:space:]]+[[:space:]]+)*commit([[:space:]]|$)' || defer
+# Claude Code evaluates `if: Bash(git commit*)` before invoking this script.
+# Codex currently retains only the `Bash` matcher, so mirror the declared direct-command
+# scope here. Inspecting only the first line prevents heredoc bodies and documentation
+# from being mistaken for commands without attempting to parse shell grammar.
+TOOL_FIRST_LINE=$(printf '%s' "$TOOL_CMD" | sed -n '1p')
+printf '%s' "$TOOL_FIRST_LINE" |
+  grep -qE '^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+[[:space:]]+)*git[[:space:]]+commit([[:space:]]|$)' ||
+  defer
 
 # Escape hatch. The prefix form (`OMH_GATE=off git commit …`) sets the variable on the
 # *committing* process, which this hook never inherits — so read it off the command

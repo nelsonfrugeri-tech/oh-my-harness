@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 
 _ROOT = Path(__file__).resolve().parents[2]
-_SERVER = _ROOT / "skills/tools/site-expose/scripts/auth_server.py"
+_SERVER = _ROOT / "skills/site-expose/scripts/auth_server.py"
 
 
 class SiteServerIntegrationTest(unittest.TestCase):

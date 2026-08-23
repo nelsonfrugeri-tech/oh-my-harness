@@ -47,7 +47,7 @@ class InstallLayout:
             *self.source_root.glob("skills/**/SKILL.md"),
             *self.adapter.glob("skills/**/SKILL.md"),
         )
-        skills = sorted(path.parent for path in candidates if path.parent.name != "claude-code")
+        skills = sorted(path.parent for path in candidates)
         by_name: dict[str, Path] = {}
         for path in skills:
             if path.name in by_name:
