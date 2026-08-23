@@ -43,10 +43,10 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("engenharia de software", flat)
 
     def test_evidence_skill_contains_only_referenced_resources(self) -> None:
-        skill = _ROOT / "skills/engineers/evidence/SKILL.md"
+        skill = _ROOT / "skills/evidence/SKILL.md"
         content = skill.read_text(encoding="utf-8")
-        references = tuple((_ROOT / "skills/engineers/evidence/references").glob("*.md"))
-        decision = self._read("skills/engineers/evidence/references/decision-protocol.md")
+        references = tuple((_ROOT / "skills/evidence/references").glob("*.md"))
+        decision = self._read("skills/evidence/references/decision-protocol.md")
 
         self.assertIn("name: evidence", content)
         self.assertGreaterEqual(len(references), 3)
@@ -73,12 +73,12 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         # The expected token also pins each file's prose language to the library
         # contract: pt-BR instructional prose says "hipótese", English says "hypothesis".
         paths = {
-            "skills/engineers/feature/SKILL.md": "hypoth",
-            "skills/engineers/implement/references/workflow-bug-fix.md": "hipót",
-            "skills/engineers/manage/SKILL.md": "hipót",
-            "skills/engineers/research/SKILL.md": "hipót",
-            "skills/engineers/review/SKILL.md": "hipót",
-            "skills/engineers/design/SKILL.md": "hipót",
+            "skills/feature/SKILL.md": "hypoth",
+            "skills/implement/references/workflow-bug-fix.md": "hipót",
+            "skills/manage/SKILL.md": "hipót",
+            "skills/research/SKILL.md": "hipót",
+            "skills/review/SKILL.md": "hipót",
+            "skills/design/SKILL.md": "hipót",
             "claude-code/workflows/create-feature.ts": "hipót",
         }
 
@@ -87,13 +87,13 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
                 content = _ROOT.joinpath(relative).read_text(encoding="utf-8").lower()
                 self.assertIn("evidence", content)
                 self.assertIn(token, content)
-        research = _ROOT.joinpath("skills/engineers/research/SKILL.md").read_text()
-        manage = _ROOT.joinpath("skills/engineers/manage/SKILL.md").read_text()
+        research = _ROOT.joinpath("skills/research/SKILL.md").read_text()
+        manage = _ROOT.joinpath("skills/manage/SKILL.md").read_text()
         self.assertNotIn("Minimum 3 sources", research)
         self.assertNotIn("Apresentar como fato", research)
         self.assertNotIn("~30%", manage)
         self.assertNotIn("Buffer: 20%", manage)
-        feature = self._read("skills/engineers/feature/SKILL.md")
+        feature = self._read("skills/feature/SKILL.md")
         adapter = self._read("claude-code/workflows/create-feature.ts")
         self.assertIn("evidence-reviewer", feature)
         self.assertIn("block-pending-evidence", feature)

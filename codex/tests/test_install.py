@@ -76,7 +76,7 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertEqual(1, sum("omh-managed: context" in command for command in commands))
 
     def test_install_removes_only_orphaned_managed_links(self) -> None:
-        retired_source = self._source / "skills/engineers/retired"
+        retired_source = self._source / "skills/retired"
         retired_source.mkdir(parents=True)
         retired_source.joinpath("SKILL.md").write_text("---\nname: retired\n---\n", encoding="utf-8")
         self._installer.install()
@@ -175,7 +175,7 @@ class CodexInstallerTest(unittest.TestCase):
         integrations.assert_not_called()
 
     def test_install_preserves_compatible_external_graphify(self) -> None:
-        source = self._source / "skills/tools/graphify"
+        source = self._source / "skills/graphify"
         source.mkdir(parents=True)
         source.joinpath("SKILL.md").write_text(
             "---\nupstream_version: 0.9.27\nname: graphify\n---\n",
@@ -211,7 +211,7 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertIn("Legacy", backup.read_text(encoding="utf-8"))
 
     def _create_source(self) -> None:
-        skill = self._source / "skills/engineers/example"
+        skill = self._source / "skills/example"
         agent = self._source / "codex/agents"
         hook = self._source / "hooks"
         skill.mkdir(parents=True)

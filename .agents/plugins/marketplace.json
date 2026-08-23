@@ -1,0 +1,20 @@
+{
+  "name": "oh-my-harness",
+  "interface": {
+    "displayName": "oh-my-harness"
+  },
+  "plugins": [
+    {
+      "name": "oh-my-harness",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
