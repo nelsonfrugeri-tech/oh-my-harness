@@ -31,7 +31,7 @@ class ContextHookTest(unittest.TestCase):
     def test_missing_report_requests_full_analysis(self) -> None:
         output = self._run_hook()
 
-        self.assertIn("in **FULL** mode", output)
+        self.assertIn("modo **FULL**", output)
         self.assertIn("example-project", output)
 
     def test_claude_adapter_resolves_shared_loader_through_symlink(self) -> None:
@@ -41,7 +41,7 @@ class ContextHookTest(unittest.TestCase):
 
         output = self._run_hook(installed)
 
-        self.assertIn("in **FULL** mode", output)
+        self.assertIn("modo **FULL**", output)
 
     def test_current_report_injects_snapshot_without_refresh_request(self) -> None:
         self._write_report(self._head())
@@ -60,9 +60,22 @@ class ContextHookTest(unittest.TestCase):
 
         output = self._run_hook()
 
-        self.assertIn("DRIFT: 1 commits", output)
-        self.assertIn("in **DELTA** mode", output)
+        self.assertIn("DRIFT: 1 commit", output)
+        self.assertIn("modo **DELTA**", output)
         self.assertIn("Architecture: portable core", output)
+
+    def test_stale_report_pluralizes_multiple_commits(self) -> None:
+        previous = self._head()
+        self._write_report(previous)
+        self._repository.joinpath("first.txt").write_text("first\n", encoding="utf-8")
+        self._commit("first change")
+        self._repository.joinpath("second.txt").write_text("second\n", encoding="utf-8")
+        self._commit("second change")
+
+        output = self._run_hook()
+
+        self.assertIn("DRIFT: 2 commits", output)
+        self.assertNotIn("commit(s)", output)
 
     def _run_hook(self, executable: Path = _HOOK) -> str:
         environment = {**os.environ, "OMH_KB_ROOT": str(self._knowledge_base)}

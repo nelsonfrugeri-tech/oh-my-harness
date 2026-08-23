@@ -18,6 +18,7 @@
         "hooks": [
           {
             "type": "command",
+            "if": "Bash(git commit*)",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/claude-code/hooks/quality-gate.sh",
             "timeout": 600
           }

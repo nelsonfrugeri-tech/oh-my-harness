@@ -11,9 +11,10 @@ type: capability
 
 # Codex — Global Installation and Sync
 
-Use the native plugin for shared skills and lifecycle hooks. Use the versioned adapter under
-`codex/` for custom agents, global guidance, and machine-local integrations; do not reinterpret
-Claude Code files during installation. The installer preserves user-owned global configuration.
+Use the native plugin for shared skills, the Codex-only installation skill, and lifecycle hooks.
+Use the versioned adapter under `codex/` for custom agents, global guidance, and machine-local
+integrations; do not reinterpret Claude Code files during installation. The installer preserves
+user-owned global configuration.
 
 ## Install or update the native plugin
 
@@ -57,7 +58,8 @@ python3 codex/install.py --check
 
 The installer:
 
-1. links shared skills into `~/.agents/skills/<name>/`, excluding the Claude-only installer skill;
+1. links shared and Codex-only skills into `~/.agents/skills/<name>/`, excluding the Claude-only
+   installer skill;
 2. links Codex custom-agent TOMLs into `~/.codex/agents/`;
 3. links the complete adapter at `~/.codex/oh-my-harness`;
 4. replaces only the `omh-managed` block inside global `~/.codex/AGENTS.md`;

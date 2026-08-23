@@ -26,9 +26,9 @@ REPORT="$KB_ROOT/$DOMAIN/context.md"
 if [ ! -f "$REPORT" ]; then
   cat <<EOF
 # omh-managed: context
-Project \`$PROJECT\` does not have a context report at \`$REPORT\` yet.
-ACTION: Run the \`explorer\` skill in **FULL** mode. When the global adapter is installed, the
-custom \`context\` agent can orchestrate that skill for you.
+O projeto \`$PROJECT\` ainda não possui um context report em \`$REPORT\`.
+AÇÃO: Execute a skill \`explorer\` em modo **FULL**. Quando o adapter global estiver instalado, o
+agent customizado \`context\` poderá orquestrar essa skill.
 EOF
   exit 0
 fi
@@ -55,19 +55,22 @@ fi
 TOTAL_LINES=$(wc -l < "$REPORT" 2>/dev/null | tr -d ' ')
 
 printf '# omh-managed: context\n'
-printf 'Project `%s` · report generated at %s · %s lines in `%s`\n' \
+printf 'Projeto `%s` · report gerado em %s · %s linhas em `%s`\n' \
   "$PROJECT" "${GENERATED:-?}" "${TOTAL_LINES:-?}" "$REPORT"
 
 if [ -n "$DRIFT" ] && [ "$DRIFT" -gt 0 ] 2>/dev/null; then
-  printf '\n**DRIFT: %s commits since the last analysis (`%s`).** The snapshot below is stale by that amount.\n' "$DRIFT" "$LAST_HASH"
-  printf 'ACTION: Run the `explorer` skill in **DELTA** mode. The optional custom `context` agent can orchestrate it.\n'
+  COMMIT_WORD=commit
+  [ "$DRIFT" -eq 1 ] || COMMIT_WORD=commits
+  printf '\n**DRIFT: %s %s desde a última análise (`%s`).** O snapshot abaixo está desatualizado nessa medida.\n' \
+    "$DRIFT" "$COMMIT_WORD" "$LAST_HASH"
+  printf 'AÇÃO: Execute a skill `explorer` em modo **DELTA**. O agent customizado opcional `context` pode orquestrá-la.\n'
 elif [ -z "$DRIFT" ]; then
-  printf '\nDrift cannot be calculated (`last_hash` is missing or outside this repo); treat the snapshot as potentially stale.\n'
+  printf '\nNão foi possível calcular o drift (`last_hash` ausente ou fora deste repositório); trate o snapshot como potencialmente desatualizado.\n'
 fi
 
 if [ -n "$HEAD_TEXT" ]; then
   if [ "$TRUNCATED" = yes ]; then
-    printf '\n--- snapshot (beginning; complete report at the path above) ---\n%s\n' "$HEAD_TEXT"
+    printf '\n--- snapshot (início; report completo no path acima) ---\n%s\n' "$HEAD_TEXT"
   else
     printf '\n--- snapshot ---\n%s\n' "$HEAD_TEXT"
   fi

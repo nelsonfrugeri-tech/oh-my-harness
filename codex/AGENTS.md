@@ -1,116 +1,120 @@
 # AGENTS.md
 
-Binding rules for this environment. They apply to every Codex session and subagent.
+Regras vinculantes deste ambiente. Aplicam-se a toda sessão do Codex e a todo subagent.
 
-<!-- Keep this file focused on rules that must apply to every session. Operational detail
-     belongs in skills and is loaded on demand. Before adding a rule, ask whether removing it
-     would make Codex behave incorrectly. -->
-
----
-
-## Language
-
-- User-facing conversation, instructions, headings, and explanations use Brazilian Portuguese.
-- Engineering terms and proper names remain in English inline, such as *guard clause*, RAG, and OAuth.
-- Repository content uses English, including code, comments, docstrings, and documentation.
-- Skill, agent, and trigger names use English kebab-case. Frontmatter keys use the convention of
-  their ecosystem, normally kebab-case or snake_case.
-- Vendored third-party content remains in its original language and records its provenance and
-  `upstream_version`; translating it would create an implicit fork that drifts from upstream.
+<!-- Mantenha este arquivo curto e focado nas regras que precisam valer em toda sessão. Detalhes
+     operacionais pertencem às skills e carregam sob demanda. Antes de adicionar uma regra,
+     pergunte se removê-la faria o Codex agir incorretamente. -->
 
 ---
 
-## Never pollute a project with non-product files
+## Idioma
 
-**HARD RULE.** Inside a repository, create or edit only files that are part of the product: source
-code, tests, configuration, and documentation intended for version control.
-
-Auxiliary or temporary artifacts, including one-off scripts, analysis reports, scratch files,
-intermediate output, and drafts, never belong in the repository. Put them in the session scratchpad
-or `/tmp`. Prefer an ephemeral command over creating a file. If an artifact's status is ambiguous,
-ask before creating it.
+- Conversa com o usuário, prosa instrucional, títulos e explicações usam pt-BR.
+- Termos técnicos e nomes próprios de engenharia permanecem em inglês inline, como *guard clause*,
+  RAG e OAuth.
+- Conteúdo do repositório usa inglês, incluindo código, comentários, docstrings e documentação.
+- Nomes de skill, agent e trigger usam inglês em kebab-case. Chaves de frontmatter seguem a
+  convenção do ecossistema, normalmente kebab-case ou snake_case.
+- Conteúdo *vendored* de terceiros permanece no idioma original e registra sua proveniência e
+  `upstream_version`; traduzi-lo criaria um fork implícito sujeito a drift do upstream.
 
 ---
 
-## Environment and capability adapters
+## Nunca poluir um projeto com arquivos que não são do produto
 
-Agents and skills refer to abstract capabilities, never to concrete tool identifiers. This table is
-the machine adapter and is the only place that should bind a capability to an installed provider.
-The installer may fill empty entries without changing agents or skills.
+**REGRA DURA.** Dentro de um repositório, crie ou edite apenas arquivos que façam parte do produto:
+código, testes, configuração e documentação destinada a version control.
 
-| Capability | Purpose | Codex provider on this machine |
+Artefatos auxiliares ou temporários — como scripts one-off, relatórios de análise, arquivos de
+scratch, outputs intermediários e rascunhos — nunca pertencem ao repositório. Coloque-os no
+scratchpad da sessão ou em `/tmp`. Prefira um comando efêmero a criar um arquivo. Se o status de um
+artefato for ambíguo, pergunte antes de criá-lo.
+
+---
+
+## Ambiente e adapters de capability
+
+Agents e skills referenciam capabilities abstratas, nunca identificadores concretos de tools. Esta
+tabela é o adapter da máquina e o único lugar que deve vincular uma capability a um provider
+instalado. O installer pode preencher entradas vazias sem alterar agents ou skills.
+
+| Capability | Finalidade | Provider Codex nesta máquina |
 | --- | --- | --- |
-| `code-host` | Pull requests, issues, and remote reviews | _(configure during installation)_ |
-| `ci` | CI/CD pipelines | _(configure during installation)_ |
-| `memory` | Persistent project and personal context | _(empty means the `knowledge-base` agent)_ |
-| `web` | Web search and page retrieval | Codex web capability |
-| `code-graph` | Query, path, and explain over a code knowledge graph | Graphify MCP with CLI fallback |
-| `social-x` | Read and publish on X | _(optional; configure an authenticated provider)_ |
-| `session-memory` | Search past session transcripts by topic or file | Deja CLI or MCP when installed |
-| `tunnel` | Temporarily expose a local site through an authenticated URL | _(optional; configure an approved provider)_ |
+| `code-host` | Pull Requests, issues e reviews remotos | _(configurar durante a instalação)_ |
+| `ci` | Pipelines de CI/CD | _(configurar durante a instalação)_ |
+| `memory` | Contexto persistente pessoal e de projeto | _(vazio significa o agent `knowledge-base`)_ |
+| `web` | Busca e recuperação de páginas web | Capability web do Codex |
+| `code-graph` | Query, path e explain sobre um knowledge graph de código | Graphify MCP com fallback para CLI |
+| `social-x` | Leitura e publicação no X | _(opcional; configurar um provider autenticado)_ |
+| `session-memory` | Busca em transcripts de sessões passadas por tópico ou arquivo | Deja CLI ou MCP quando instalado |
+| `tunnel` | Exposição temporária de um site local por URL autenticada | _(opcional; configurar um provider aprovado)_ |
 
-Codex built-ins for filesystem access, repository search, shell execution, and patch application do
-not need adapter entries.
+Built-ins do Codex para acesso ao filesystem, busca no repositório, execução de shell e aplicação de
+patch não precisam de entradas no adapter.
 
-Resolve a requested capability through this table. If its provider is missing, complete the work
-that remains possible and state exactly what is pending. Never invent a provider or concrete tool.
+Resolva uma capability solicitada por esta tabela. Se o provider estiver ausente, conclua o trabalho
+que ainda for possível e declare exatamente o que ficou pendente. Nunca invente um provider ou uma
+tool concreta.
 
 ---
 
 ## Tool agents
 
-A tool agent operates shared infrastructure consumed by other agents.
+Um tool agent opera infraestrutura compartilhada consumida por outros agents.
 
-| Agent | Responsibility | Skills |
+| Agent | Responsabilidade | Skills |
 | --- | --- | --- |
-| `context` | Maintain the current project's live context in `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
-| `knowledge-base` | Operate Qdrant and embeddings, immutable notes, three-step retrieval, and session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
-| `graphify` | Build or update a code graph outside the product tree, then query, trace, or explain it | `graphify` |
-| `x-social` | Read X and publish only after explicit confirmation | `x-setup`, `x-ops` |
-| `site` | Create cited visual analysis sites and optionally expose them after approval | `site-report`, `site-expose` |
+| `context` | Manter o contexto vivo do projeto atual em `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
+| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas e session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
+| `graphify` | Criar ou atualizar um code graph fora da árvore do produto e então consultá-lo ou explicá-lo | `graphify` |
+| `x-social` | Ler o X e publicar somente após confirmação explícita | `x-setup`, `x-ops` |
+| `site` | Criar sites visuais com fontes e expô-los opcionalmente após aprovação | `site-report`, `site-expose` |
 
-Routing belongs in agent descriptions and mechanics belong in skills. Do not duplicate either here.
+O routing pertence às descriptions dos agents, e a mecânica pertence às skills. Não duplique nenhum
+dos dois aqui.
 
-### Binding environment facts
+### Fatos vinculantes do ambiente
 
-1. The knowledge base is an OKF v0.2 bundle rooted at `~/knowledge-base/`, always outside user
-   repositories. Its runtime belongs under `~/.local/share/omh-kb/`; the Markdown bundle is the
-   source of truth and every binary index is rebuildable.
-2. The embedding model is fixed to `BAAI/bge-m3`. Changing it invalidates the whole index and
-   requires an explicit user decision.
-3. When Deja is installed, `DEJA_INCLUDE_SUBAGENTS=1` is required so subagent transcripts are not
-   omitted. Deja transcript redaction is a minimum safeguard; review content before exporting it.
-4. Deja owns its own MCP and hook wiring. Harness synchronization must preserve Deja-managed hooks
-   and its installed history skill. Use Deja only for retrieval; its note-writing features must not
-   create a second curated knowledge store.
-5. The Graphify skill is vendored upstream and is installed under `~/.agents/skills/graphify/`.
-   Reconcile upstream upgrades before synchronizing the vendored copy again.
-6. The library is account-agnostic. Client IDs, secrets, tokens, handles, and machine-specific
-   executable paths never enter the repository.
+1. A knowledge base é um bundle OKF v0.2 em `~/knowledge-base/`, sempre fora dos repositórios do
+   usuário. Seu runtime fica em `~/.local/share/omh-kb/`; o bundle Markdown é a source of truth e
+   todo índice binário pode ser reconstruído.
+2. O modelo de embedding é fixo em `BAAI/bge-m3`. Alterá-lo invalida todo o índice e exige uma
+   decisão explícita do usuário.
+3. Quando o Deja estiver instalado, `DEJA_INCLUDE_SUBAGENTS=1` é obrigatório para que transcripts de
+   subagents não sejam omitidos. A redaction de transcripts do Deja é uma proteção mínima; revise o
+   conteúdo antes de exportá-lo.
+4. O Deja controla seu próprio wiring de MCP e hooks. A sincronização do harness deve preservar
+   hooks gerenciados pelo Deja e sua skill de histórico instalada. Use o Deja apenas para retrieval;
+   seus recursos de escrita de notas não podem criar um segundo repositório de conhecimento curado.
+5. A skill Graphify é *vendored* do upstream e instalada em `~/.agents/skills/graphify/`. Reconcilie
+   upgrades do upstream antes de sincronizar novamente a cópia *vendored*.
+6. A biblioteca é agnóstica a contas. Client IDs, secrets, tokens, handles e paths de executáveis
+   específicos da máquina nunca entram no repositório.
 
-### Two memory layers, two owners
+### Duas camadas de memória, dois responsáveis
 
-| Layer | Storage | Writer | Reader |
+| Camada | Armazenamento | Escritor | Leitor |
 | --- | --- | --- | --- |
-| Raw and episodic: what was said | Codex transcripts and the Deja index | Automatic ingestion only | `session-memory` capability |
-| Distilled and curated: what remains valid | OKF bundle under `~/knowledge-base/` | `kb-write` only | `kb-retrieval` |
+| Bruta e episódica: o que foi dito | Transcripts do Codex e índice do Deja | Apenas ingestão automática | Capability `session-memory` |
+| Destilada e curada: o que permanece válido | Bundle OKF em `~/knowledge-base/` | Somente `kb-write` | `kb-retrieval` |
 
-### Codex session transcripts
+### Transcripts de sessão do Codex
 
-Codex stores active transcripts under
-`$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; the default
-`CODEX_HOME` is `~/.codex`. Session-memory logic must discover the matching rollout rather than
-assuming a project-munged directory. If the transcript cannot be resolved, write the session record
-without `transcript_path` and report the degraded mode.
+O Codex armazena transcripts ativos em
+`$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; o `CODEX_HOME` default é
+`~/.codex`. A lógica de session memory deve descobrir o rollout correspondente em vez de assumir um
+diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, escreva o session
+record sem `transcript_path` e informe o modo degradado.
 
-### Knowledge rules
+### Regras de conhecimento
 
-1. Tool agents never write to the user's repository. Knowledge writes go to `~/knowledge-base/`;
-   Codex adapter installation writes only to `$CODEX_HOME` and `~/.agents/`.
-2. Without Qdrant, disk writes continue and indexing remains pending. Retrieval falls back to
-   structured disk navigation and explicitly reports degraded mode.
-3. Notes are immutable. Corrections create a new note with `supersedes`; session records and
-   `context.md` are named mutable documents and are rewritten in place.
+1. Tool agents nunca escrevem no repositório do usuário. Escritas de conhecimento vão para
+   `~/knowledge-base/`; a instalação do adapter Codex escreve apenas em `$CODEX_HOME` e `~/.agents/`.
+2. Sem Qdrant, escritas em disco continuam e a indexação permanece pendente. O retrieval usa
+   navegação estruturada em disco como fallback e informa explicitamente o modo degradado.
+3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records e
+   `context.md` são documentos mutáveis nomeados e reescritos in-place.
 
 ---
 
@@ -163,48 +167,49 @@ decisão e a rubrica de review independente.
 
 ---
 
-## Self-evaluation before answering
+## Autoavaliação antes de responder
 
-When uncertain, search before answering. Never answer private or episodic questions from memory.
+Na dúvida, busque antes de responder. Nunca responda de memória a perguntas privadas ou episódicas.
 
-Evaluate a candidate answer for relevance, freshness, and factuality. If any dimension is not
-solid, search first:
+Avalie a resposta candidata quanto a relevância, atualidade e factualidade. Se qualquer dimensão não
+estiver sólida, busque primeiro:
 
-- Public facts, documentation, versions, and news use the `web` capability.
-- Private, episodic, project-history, and process questions use the knowledge base, including the
-  session-memory step of `kb-retrieval` when needed.
+- Fatos públicos, documentação, versões e notícias usam a capability `web`.
+- Perguntas privadas, episódicas ou sobre histórico de projeto e processo usam a knowledge base,
+  incluindo a etapa de session memory de `kb-retrieval` quando necessário.
 
-After searching, cite the source. If evidence remains incomplete, state what is missing instead of
-inventing an answer.
-
----
-
-## Mandatory code standards
-
-Before writing, modifying, or reviewing code, follow the complete inviolable standards in the
-`implement` skill and `implement/references/code-craft.md`. This includes total typing, immutable
-defaults, small cohesive functions and files, guard clauses, patterns instead of long conditional
-chains, explicit absence semantics, comments that explain why, and the final quality gate.
+Depois da busca, cite a fonte. Se a evidência continuar incompleta, declare o que falta em vez de
+inventar uma resposta.
 
 ---
 
-## Commit gate
+## Padrões de código obrigatórios
 
-When the user asks for a commit:
-
-1. Run format and lint first because they may modify files.
-2. In parallel, have a Codex review subagent inspect the staged diff using the `review` skill and
-   code-craft rules, and run the project's test suite.
-3. Commit only when the review has no blocker and tests pass. Otherwise fix the findings and repeat.
-
-Discover project commands from Makefile targets, project configuration, and then language defaults.
-Never hardcode a test or lint command.
+Antes de escrever, modificar ou revisar código, siga integralmente os padrões invioláveis da skill
+`implement` e de `implement/references/code-craft.md`. Isso inclui tipagem total, defaults imutáveis,
+funções e arquivos pequenos e coesos, guard clauses, patterns em vez de cadeias condicionais longas,
+semântica explícita de ausência, comentários que expliquem o porquê e o quality gate final.
 
 ---
 
-## Long-running work
+## Fluxo de commit
 
-Delegate a substantial, well-scoped, non-interactive task to a background subagent and remain
-available to the user. Keep quick or interaction-heavy work inline. A subagent does not spawn
-another subagent or communicate with the user mid-task; work that needs either stays in the main
-loop.
+Quando o usuário pedir um commit:
+
+1. Execute format e lint primeiro, pois eles podem modificar arquivos.
+2. Em paralelo, faça um subagent Codex revisar o diff staged usando a skill `review` e as regras de
+   code-craft, e execute a test suite do projeto.
+3. Faça o commit somente quando o review não tiver blocker e os testes passarem. Caso contrário,
+   corrija os findings e repita.
+
+Descubra os comandos do projeto a partir de targets do Makefile, da configuração do projeto e então
+dos defaults da linguagem. Nunca faça hardcode de um comando de teste ou lint.
+
+---
+
+## Trabalho de longa duração
+
+Delegue uma tarefa substancial, bem delimitada e não interativa a um subagent em background e
+permaneça disponível ao usuário. Mantenha inline o trabalho rápido ou intensivo em interação. Um
+subagent não cria outro subagent nem se comunica com o usuário durante a tarefa; trabalho que exija
+qualquer uma dessas ações permanece no loop principal.

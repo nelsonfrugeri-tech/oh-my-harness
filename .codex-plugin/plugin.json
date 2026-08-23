@@ -16,7 +16,10 @@
     "evidence-driven",
     "capabilities"
   ],
-  "skills": "./skills/",
+  "skills": [
+    "./skills/",
+    "./codex/skills/"
+  ],
   "interface": {
     "displayName": "oh-my-harness",
     "shortDescription": "Portable expert workflows for coding agents.",

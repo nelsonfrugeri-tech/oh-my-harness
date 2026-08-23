@@ -60,6 +60,19 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("allow", decision["permissionDecision"])
         self.assertIn("NOT verified", decision["permissionDecisionReason"])
 
+    def test_non_commit_command_defers_without_running_checks(self) -> None:
+        self._configure(test="false")
+        self._trust_repository()
+
+        self.assertEqual("", self._run_gate("echo hello"))
+
+    def test_heredoc_documentation_does_not_run_the_gate(self) -> None:
+        self._configure(test="false")
+        self._trust_repository()
+        command = 'cat <<\'EOF\' > README.md\nExample:\ngit commit -m "wip"\nEOF'
+
+        self.assertEqual("", self._run_gate(command))
+
     def _configure(self, **commands: str) -> None:
         config = self._repo / ".claude/quality-gate.json"
         config.parent.mkdir()

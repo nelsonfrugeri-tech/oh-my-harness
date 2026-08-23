@@ -60,6 +60,7 @@ run the first installation with `--replace-global-agents`. The original file is 
 | Source | Global destination | Strategy |
 | --- | --- | --- |
 | shared `skills/<name>/` | `~/.agents/skills/<name>/` | Directory symlink |
+| Codex-only `codex/skills/<name>/` | `~/.agents/skills/<name>/` | Directory symlink |
 | `codex/agents/*.toml` | `~/.codex/agents/*.toml` | File symlink |
 | `codex/AGENTS.md` | managed block in `~/.codex/AGENTS.md` | Merge |
 | `codex/hooks.json` | managed entries in `~/.codex/hooks.json` | Merge |
