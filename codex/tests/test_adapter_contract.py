@@ -282,6 +282,62 @@ class AdapterContractTest(unittest.TestCase):
                 with self.subTest(role=role, skill=skill):
                     self.assertIn(skill, content)
 
+    def test_shared_agents_route_llm_evaluation_to_the_official_skills(self) -> None:
+        roles = ("ai-engineer", "qa")
+        required = (
+            "`evals`",
+            "evals:start",
+            "`error-discovery`",
+            "`eval-audit`",
+            "`write-judge-prompt`",
+            "`validate-evaluator`",
+            "`generate-synthetic-data`",
+            "`build-review-interface`",
+            "`evaluate-rag`",
+        )
+
+        for role in roles:
+            content = _ROOT.joinpath(f"agents/engineers/{role}.md").read_text(
+                encoding="utf-8"
+            )
+            for skill in required:
+                with self.subTest(role=role, skill=skill):
+                    self.assertIn(skill, content)
+
+    def test_ai_engineer_separates_the_two_evaluation_toolchains(self) -> None:
+        # `ai-engineer` is the only agent that routes to both eval toolchains, so it is where
+        # picking the wrong one is likeliest. The disambiguation is the load-bearing part of
+        # that section: without it the agent has two plausible routes and no rule to choose.
+        # Asserted against whitespace-normalized text so re-wrapping the paragraph, which
+        # changes no meaning, cannot fail the test.
+        content = _ROOT.joinpath("agents/engineers/ai-engineer.md").read_text(
+            encoding="utf-8"
+        )
+        flat = " ".join(content.split())
+
+        self.assertIn("`langchain-skills:eval-engineering`", flat)
+        self.assertIn("agnóstica de framework", flat)
+        self.assertIn("O discriminador é o Harbor", flat)
+
+    def test_agents_routing_to_third_party_plugins_declare_the_degraded_path(self) -> None:
+        # Every agent that routes to a third-party plugin states what to do when the plugin
+        # is absent, because absence is what actually happens: an uninstalled or failed
+        # plugin contributes no skills and raises no error, so the routing prose would
+        # otherwise send the agent after something that is silently not there.
+        roles = ("ai-engineer", "qa", "architect", "developer")
+
+        for role in roles:
+            with self.subTest(role=role):
+                flat = " ".join(
+                    _ROOT.joinpath(f"agents/engineers/{role}.md")
+                    .read_text(encoding="utf-8")
+                    .split()
+                )
+                self.assertIn("não há erro, só ausência", flat)
+                self.assertIn("nunca cite como usada uma skill que não carregou", flat)
+                self.assertIn("declare a integração pendente", flat)
+                self.assertIn("Passo 5 da skill `claude-code`", flat)
+
     def test_codex_agents_use_pt_br_operational_prose(self) -> None:
         required = {
             "ai-engineer": "Você é um senior AI/ML engineer",
