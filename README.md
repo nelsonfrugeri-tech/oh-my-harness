@@ -165,6 +165,20 @@ Two surfaces a plugin cannot provide — global instructions and user preference
 by merge: `claude-code/CLAUDE.md` into `~/.claude/CLAUDE.md`, and the `permissions` block of
 `claude-code/settings.json`. Ask the `claude-code` agent to do it, or follow its skill.
 
+The `ai-engineer`, `architect`, and `developer` agents route LangChain, LangGraph, and Deep Agents
+work to the official upstream skills rather than to guidance of our own, so install that
+marketplace too — the same agent does it as part of the runbook:
+
+```bash
+claude plugin marketplace add langchain-ai/langchain-plugins
+claude plugin install langchain-skills@langchain-plugins   # 22 skills, ~2.1k tokens always-on
+claude plugin install langchain-mcp@langchain-plugins      # live docs + API reference MCP servers
+```
+
+The LangSmith plugins in that marketplace stay uninstalled by default: they need a LangSmith
+account and OAuth authorization. Nothing is vendored or translated here — upstream owns the
+content, so it never drifts behind a release.
+
 **Codex** also installs the shared library as a native plugin — no clone required:
 
 ```bash

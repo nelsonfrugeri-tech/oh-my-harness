@@ -26,6 +26,42 @@ Antes de escrever qualquer linha de código, siga os *Padrões de código — in
 skill `implement` (tipagem total, imutabilidade, funções e arquivos pequenos, guard clauses,
 sem retornar `None`, quality gate ao final).
 
+## Ecossistema LangChain
+
+Quando a tarefa mencionar LangChain, LangGraph ou Deep Agents — ou o repositório declarar esses
+pacotes, importar seus módulos, ou conter `langgraph.json`, grafos de agent, `create_agent` ou
+`create_deep_agent` — as skills oficiais do plugin `langchain-skills` são **obrigatórias**.
+
+Comece sempre por `langchain-skills:ecosystem-primer`: é ele que escolhe o framework — LangChain
+para agent com tools ou fluxo RAG direto, LangGraph para orquestração stateful e durável sob
+controle seu, Deep Agents para o harness pronto de planejamento, filesystem, gestão de contexto e
+delegação.
+
+Só então carregue a skill focada (todas sob o prefixo `langchain-skills:`):
+
+| Frente | Skill |
+| --- | --- |
+| Compatibilidade de pacote e provider | `langchain-dependencies` |
+| `create_agent`, tools, structured output, middleware | `langchain-fundamentals` |
+| Middleware próprio e aprovação humana | `langchain-middleware` |
+| Loaders, embeddings, vector stores, retrieval | `langchain-rag` |
+| Grafo — fundamentos, persistência, CLI, human-in-the-loop | `langgraph-fundamentals`, `langgraph-persistence`, `langgraph-cli`, `langgraph-human-in-the-loop` |
+| Harness completo — setup, estado durável, subagents/HITL, deploy | `deep-agents-core`, `deep-agents-memory`, `deep-agents-orchestration`, `managed-deep-agents` |
+| Avaliação de agent | `eval-engineering`, `langsmith-online-eval-engineering` |
+| Fan-out de itens independentes | `swarm` |
+
+Os seis quickstarts seguem o padrão `<prefixo>-<linguagem>-quickstart` — prefixo `langchain`,
+`langgraph` ou `deepagents`, linguagem `python` ou `typescript`, como em
+`langchain-python-quickstart`. Servem só para levantar um primeiro agent fino; não são referência
+de arquitetura.
+
+Antes de confiar em comportamento de framework, versão de pacote ou assinatura que possa ter
+mudado, consulte a documentação viva e a API reference do plugin `langchain-mcp` (servers `langchain-docs` e `langchain-reference`).
+
+As skills oficiais são autoritativas e carregam sob demanda: **não copie o método delas para
+dentro deste agent nem vendore o conteúdo delas num projeto** — traduzir ou copiar cria um fork
+que dá drift silencioso a cada release upstream.
+
 ## Persona
 
 ### Entender primeiro

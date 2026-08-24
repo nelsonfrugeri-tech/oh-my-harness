@@ -1,5 +1,5 @@
 ---
-version: 2.0.0
+version: 2.1.0
 name: claude-code
 description: |
   Runbook de instalação da biblioteca oh-my-harness no Claude Code **como plugin nativo**.
@@ -8,11 +8,14 @@ description: |
   com `${CLAUDE_PLUGIN_ROOT}`, o marketplace para distribuição versionada por git (version,
   ref, sha), as duas superfícies que o plugin **não** cobre (`CLAUDE.md` e `permissions` do
   `settings.json`), e a migração a partir do layout antigo de symlinks — inclusive a remoção
-  dos hooks duplicados que dispariam duas vezes.
+  dos hooks duplicados que dispariam duas vezes. Cobre também a instalação dos plugins oficiais
+  do LangChain (`langchain-skills` e `langchain-mcp`, do marketplace `langchain-ai/langchain-plugins`),
+  que são o que os agents `ai-engineer`, `architect` e `developer` roteiam.
   Use quando: (1) instalar a biblioteca numa máquina, (2) atualizar depois de um push,
   (3) migrar do sync por symlink para o plugin, (4) diagnosticar skill/agent/hook que não
-  carrega.
-  Gatilhos: instalar, sincronizar, sync, setup, configurar harness, atualizar biblioteca, plugin.
+  carrega, (5) instalar ou diagnosticar os plugins do LangChain.
+  Gatilhos: instalar, sincronizar, sync, setup, configurar harness, atualizar biblioteca, plugin,
+  langchain, langgraph, deep agents.
 type: capability
 ---
 
@@ -109,7 +112,42 @@ O plugin traz o comportamento; a **tabela de capabilities** é da máquina e viv
 3. Mostre como diff e aplique após confirmação.
 4. Use o prefixo do server (`mcp__github__*`), nunca uma tool individual.
 
-## Passo 5 — Atualizar
+## Passo 5 — Plugins oficiais do LangChain
+
+O ecossistema LangChain entra por **marketplace de terceiro**, nunca por vendoring: o conteúdo é
+mantido pela LangChain e chega pelo fluxo normal de update de plugin, sem trabalho neste repo.
+
+```bash
+claude plugin marketplace add langchain-ai/langchain-plugins
+claude plugin install langchain-skills@langchain-plugins
+claude plugin install langchain-mcp@langchain-plugins
+```
+
+São eles que os agents `ai-engineer`, `architect` e `developer` roteiam — sem os plugins, a seção
+*Ecossistema LangChain* desses agents aponta para skills que não existem. Medido com
+`claude plugin details` na instalação de referência:
+
+| Plugin | Traz | Custo always-on |
+| --- | --- | --- |
+| `langchain-skills` | 22 skills de LangChain, LangGraph e Deep Agents | ~2.1k tokens por sessão |
+| `langchain-mcp` | 2 MCP servers: `langchain-docs` e `langchain-reference` | ~0 (schema resolvido em runtime) |
+
+Os ~2.1k always-on são o preço de ter as 22 descriptions disponíveis para roteamento; o corpo de
+cada skill só carrega quando invocada. Declare esse custo ao usuário em vez de instalar calado.
+
+O mesmo marketplace publica `langsmith-skills` e `langsmith-mcp`, que **não** instalamos por
+padrão: exigem conta LangSmith e autorização OAuth. Instale-os do mesmo marketplace se o usuário
+tiver conta e pedir.
+
+> Observado nesta instalação: o `marketplace add` clona por **SSH** (`git@github.com:…`). Numa
+> máquina sem acesso SSH ao GitHub o passo falha aí — diagnostique o clone antes de suspeitar do
+> marketplace.
+
+Verificação: `claude plugin list` mostra os dois como `✔ enabled`, `claude plugin details
+langchain-skills@langchain-plugins` lista as skills (22 na instalação de referência — o upstream
+pode somar mais), e numa sessão nova `/langchain-skills:ecosystem-primer` responde.
+
+## Passo 6 — Atualizar
 
 ```bash
 claude plugin marketplace update oh-my-harness
@@ -124,7 +162,7 @@ exata, o marketplace aceita `ref` (branch/tag) e `sha` (commit); com os dois pre
 `CLAUDE.md` e `permissions` **não** são atualizados pelo plugin: quando a fonte mudar, refaça
 o merge do Passo 2.
 
-## Passo 6 — Verificação
+## Passo 7 — Verificação
 
 ```bash
 claude plugin validate <fonte>     # manifesto e marketplace

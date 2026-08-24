@@ -255,6 +255,33 @@ class AdapterContractTest(unittest.TestCase):
                 )
                 self.assertTrue(all(skill in content for skill in required))
 
+    def test_shared_agents_route_langchain_work_to_the_official_skills(self) -> None:
+        # The shared agents carry the same routing as the Codex TOMLs, but they name most
+        # skills inside a table under a stated `langchain-skills:` prefix instead of
+        # repeating the prefix on every entry. Pinning the bare names is what the file
+        # actually contains; requiring the prefixed form would fail on correct content.
+        roles = ("ai-engineer", "architect", "developer")
+        required = (
+            "`langchain-skills`",
+            "`langchain-mcp`",
+            "langchain-skills:ecosystem-primer",
+            "`langchain-fundamentals`",
+            "`langchain-rag`",
+            "`langgraph-fundamentals`",
+            "`deep-agents-core`",
+            "`langchain-python-quickstart`",
+            "`eval-engineering`",
+            "`swarm`",
+        )
+
+        for role in roles:
+            content = _ROOT.joinpath(f"agents/engineers/{role}.md").read_text(
+                encoding="utf-8"
+            )
+            for skill in required:
+                with self.subTest(role=role, skill=skill):
+                    self.assertIn(skill, content)
+
     def test_codex_agents_use_pt_br_operational_prose(self) -> None:
         required = {
             "ai-engineer": "Você é um senior AI/ML engineer",
