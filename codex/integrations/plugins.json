@@ -1,11 +1,29 @@
 {
-  "marketplace": {
-    "name": "langchain-plugins",
-    "source": "langchain-ai/langchain-plugins",
-    "remote_url": "https://github.com/langchain-ai/langchain-plugins.git"
-  },
-  "plugins": [
-    "langchain-skills",
-    "langchain-mcp"
+  "marketplaces": [
+    {
+      "label": "LangChain",
+      "summary": "skills LangChain e documentação viva",
+      "marketplace": {
+        "name": "langchain-plugins",
+        "source": "langchain-ai/langchain-plugins",
+        "remote_url": "https://github.com/langchain-ai/langchain-plugins.git"
+      },
+      "plugins": [
+        "langchain-skills",
+        "langchain-mcp"
+      ]
+    },
+    {
+      "label": "AI Evals",
+      "summary": "skills oficiais de avaliação de AI",
+      "marketplace": {
+        "name": "ai-evals-course",
+        "source": "ai-evals-course/evals-skills",
+        "remote_url": "https://github.com/ai-evals-course/evals-skills.git"
+      },
+      "plugins": [
+        "evals"
+      ]
+    }
   ]
 }
