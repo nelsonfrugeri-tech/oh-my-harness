@@ -84,21 +84,21 @@ class ManagedConfig:
     def _hook_data(self, text: str) -> dict[str, object]:
         data = json.loads(text)
         if not isinstance(data, dict) or not isinstance(data.get("hooks"), dict):
-            raise self._conflict("hooks.json must contain a hooks object")
+            raise self._conflict("hooks.json deve conter um objeto hooks")
         hooks = cast(dict[object, object], data["hooks"])
         for event, groups in hooks.items():
             if not isinstance(event, str) or not isinstance(groups, list):
-                raise self._conflict("every hook event must contain a list of groups")
+                raise self._conflict("todo evento de hook deve conter uma lista de grupos")
             for group in groups:
                 if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
-                    raise self._conflict("every hook group must contain a hooks list")
+                    raise self._conflict("todo grupo de hook deve conter uma lista hooks")
         return cast(dict[str, object], data)
 
     def _replace_managed_block(self, current: str, source: str) -> str:
         block = f"{_START}\n{source}\n{_END}"
         has_start, has_end = _START in current, _END in current
         if has_start != has_end:
-            raise self._conflict("global AGENTS.md contains an incomplete managed block")
+            raise self._conflict("AGENTS.md global contém um bloco gerenciado incompleto")
         if not has_start:
             prefix = current.rstrip()
             return f"{prefix}\n\n{block}\n" if prefix else f"{block}\n"
@@ -121,7 +121,7 @@ class ManagedConfig:
             if not backup.exists():
                 shutil.copy2(target, backup)
         atomic_write(target, content)
-        return f"updated: {target}"
+        return f"atualizado: {target}"
 
     def _without_managed_handlers(self, group: object) -> object:
         if not isinstance(group, dict):
@@ -141,11 +141,11 @@ class ManagedConfig:
     def _check_managed_block(self) -> str:
         content = self._layout.global_agents_file.read_text(encoding="utf-8")
         if _START not in content or _END not in content:
-            raise self._conflict("global AGENTS.md managed block is missing")
+            raise self._conflict("bloco gerenciado do AGENTS.md global está ausente")
         managed = cast(str, self._managed_content(content))
         expected = self._source_agents(content)
         if managed != expected:
-            raise self._conflict("global AGENTS.md managed block is stale")
+            raise self._conflict("bloco gerenciado do AGENTS.md global está desatualizado")
         return f"ok: {self._layout.global_agents_file}"
 
     def _check_hook(self) -> str:
@@ -159,5 +159,5 @@ class ManagedConfig:
             for group in groups
         )
         if any(missing):
-            raise self._conflict("managed SessionStart hook is missing or stale")
+            raise self._conflict("hook SessionStart gerenciado está ausente ou desatualizado")
         return f"ok: {self._layout.hooks_file}"

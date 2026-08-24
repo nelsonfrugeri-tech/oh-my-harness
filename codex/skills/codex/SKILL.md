@@ -2,21 +2,21 @@
 version: 1.1.0
 name: codex
 description: |
-  Installs and synchronizes oh-my-harness into Codex. Covers the native Git-backed plugin,
-  custom agents, global AGENTS.md managed content, lifecycle hooks, MCP integration checks,
-  conflict handling, and post-install validation. Use for first-time Codex setup, sync after a
-  repository update, or diagnosis of a partial Codex installation.
+  Instala e sincroniza oh-my-harness no Codex. Cobre o plugin nativo com Git, agents customizados,
+  conteúdo gerenciado de AGENTS.md global, lifecycle hooks, verificações de integração MCP,
+  tratamento de conflitos e validação pós-instalação. Use para o primeiro setup do Codex,
+  sincronização após atualização do repositório ou diagnóstico de uma instalação parcial do Codex.
 type: capability
 ---
 
-# Codex — Global Installation and Sync
+# Codex — Instalação e sincronização global
 
-Use the native plugin for shared skills, the Codex-only installation skill, and lifecycle hooks.
-Use the versioned adapter under `codex/` for custom agents, global guidance, and machine-local
-integrations; do not reinterpret Claude Code files during installation. The installer preserves
-user-owned global configuration.
+Use o plugin nativo para skills compartilhadas, a skill de instalação exclusiva do Codex e lifecycle hooks.
+Use o adapter versionado em `codex/` para agents customizados, orientações globais e integrações locais
+da máquina; não reinterprete arquivos do Claude Code durante a instalação. O installer preserva a
+configuração global pertencente ao usuário.
 
-## Install or update the native plugin
+## Instalar ou atualizar o plugin nativo
 
 ```bash
 codex plugin marketplace add nelsonfrugeri-tech/oh-my-harness
@@ -24,13 +24,13 @@ codex plugin add oh-my-harness@oh-my-harness
 codex plugin list
 ```
 
-Use `codex plugin marketplace upgrade oh-my-harness` to refresh the Git-backed catalog before
-installing a newer manifest version. Start a new session after installation or upgrade. Open
-`/hooks`, review the bundled commands, and trust their exact definitions; Codex skips new or
-changed non-managed hooks until that explicit review is complete.
+Use `codex plugin marketplace upgrade oh-my-harness` para atualizar o catálogo com Git antes de
+instalar uma versão mais nova do manifesto. Inicie uma nova sessão após a instalação ou upgrade. Abra
+`/hooks`, revise os comandos incluídos e confie em suas definições exatas; o Codex ignora hooks não
+gerenciados novos ou alterados até que essa revisão explícita seja concluída.
 
-The commit quality gate requires a second, per-repository opt-in because it executes commands
-discovered from the repository. From a checkout whose code you reviewed, run once:
+O quality gate de commit exige um segundo opt-in por repositório, pois executa comandos
+descobertos nele. Em um checkout cujo código você revisou, execute uma vez:
 
 ```bash
 common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir)
@@ -40,52 +40,52 @@ mkdir -p "$trust_dir"
 touch "$trust_dir/$repo_sig"
 ```
 
-Trust through `/hooks` authorizes the plugin hook definition. The marker above separately
-authorizes repository-controlled format, lint, typecheck, and test commands. Without both, the
-gate deliberately defers instead of executing project code.
+Confiar via `/hooks` autoriza a definição do hook do plugin. O marcador acima autoriza separadamente
+os comandos de format, lint, typecheck e teste controlados pelo repositório. Sem ambos, o gate
+intencionalmente adia a execução em vez de executar código do projeto.
 
-The plugin-only context hook instructs Codex to run the bundled `explorer` skill directly. When the
-global adapter is also present, its custom `context` agent can orchestrate that workflow.
+O context hook exclusivo do plugin instrui o Codex a executar diretamente a skill `explorer` incluída.
+Quando o adapter global também estiver presente, seu agent customizado `context` pode orquestrar esse workflow.
 
-## Install or sync the global adapter
+## Instalar ou sincronizar o adapter global
 
-From the repository root, run:
+Na raiz do repositório, execute:
 
 ```bash
 python3 codex/install.py
 python3 codex/install.py --check
 ```
 
-The installer:
+O installer:
 
-1. links shared and Codex-only skills into `~/.agents/skills/<name>/`, excluding the Claude-only
-   installer skill;
-2. links Codex custom-agent TOMLs into `~/.codex/agents/`;
-3. links the complete adapter at `~/.codex/oh-my-harness`;
-4. replaces only the `omh-managed` block inside global `~/.codex/AGENTS.md`;
-5. replaces only the managed context hook inside `~/.codex/hooks.json`, preserving unrelated hooks;
-6. wires Deja, Graphify, and the official LangChain skills and documentation integrations;
-7. reports account-bound integrations that still require human authorization.
+1. cria links das skills compartilhadas e exclusivas do Codex em `~/.agents/skills/<name>/`, excluindo a
+   skill de instalação exclusiva do Claude;
+2. cria links dos TOMLs de agents customizados do Codex em `~/.codex/agents/`;
+3. cria o link do adapter completo em `~/.codex/oh-my-harness`;
+4. substitui somente o bloco `omh-managed` dentro de `~/.codex/AGENTS.md` global;
+5. substitui somente o context hook gerenciado em `~/.codex/hooks.json`, preservando hooks não relacionados;
+6. configura Deja, Graphify e as integrações oficiais de skills e documentação LangChain;
+7. reporta integrações vinculadas a conta que ainda exigem autorização humana.
 
-Run with `--skip-integrations` when only filesystem artifacts should be synchronized.
-Use `--replace-global-agents` only when migrating a confirmed legacy oh-my-harness global file;
-the installer creates `AGENTS.md.omh.bak` before replacing it.
+Execute com `--skip-integrations` quando somente os artefatos de filesystem precisarem ser sincronizados.
+Use `--replace-global-agents` apenas ao migrar um arquivo global legado confirmado de oh-my-harness;
+o installer cria `AGENTS.md.omh.bak` antes de substituí-lo.
 
-## Conflict policy
+## Política de conflitos
 
-Never overwrite a user-owned file or directory where a managed symlink is expected. Stop and show
-the exact path. The user must decide whether to preserve, move, or replace it. Managed text blocks
-and managed hook entries are safe to update because their ownership markers are explicit.
+Nunca sobrescreva um arquivo ou diretório pertencente ao usuário onde for esperado um symlink gerenciado. Pare e mostre
+o path exato. O usuário deve decidir se quer preservá-lo, movê-lo ou substituí-lo. Blocos de texto gerenciados
+e entradas de hooks gerenciadas podem ser atualizados com segurança porque seus marcadores de posse são explícitos.
 
-Before changing an editable global file, the installer creates a one-time `.omh.bak` sibling.
+Antes de alterar um arquivo global editável, o installer cria um sibling `.omh.bak` de uso único.
 
-## Validation
+## Validação
 
-`--check` is read-only and must pass before reporting the setup complete. Then verify the active
-MCP inventory through the Codex MCP configuration surface. Account-bound providers may remain
-pending, but the report must distinguish missing software from missing authorization.
+`--check` é somente leitura e deve passar antes de reportar o setup como concluído. Em seguida, verifique o
+inventário MCP ativo pela superfície de configuração MCP do Codex. Providers vinculados a conta podem permanecer
+pending, mas o relatório deve distinguir software ausente de autorização ausente.
 
-## Repository conduct
+## Conduta no repositório
 
-This repository is the source of truth. Installation writes only to Codex global state and the
-personal skills directory. Temporary diagnostics belong in `/tmp`, never in the repository.
+Este repositório é a fonte de verdade. A instalação escreve somente no estado global do Codex e no
+diretório pessoal de skills. Diagnósticos temporários pertencem a `/tmp`, nunca ao repositório.

@@ -15,7 +15,7 @@ class CodexIntegrationsTest(unittest.TestCase):
     def test_install_reports_missing_codex(self, _which: object) -> None:
         self.assertEqual(
             CodexIntegrations().install(),
-            ("pending: Codex CLI is not available",),
+            ("pending: CLI do Codex não está disponível",),
         )
 
     @patch.object(CodexIntegrations, "_install_graphify", return_value="graphify")
@@ -46,7 +46,7 @@ class CodexIntegrationsTest(unittest.TestCase):
 
         result = CodexIntegrations()._install_deja()
 
-        self.assertIn("with subagent indexing", result)
+        self.assertIn("com indexação de subagents", result)
         self.assertEqual(
             run.call_args_list[1],
             call(
