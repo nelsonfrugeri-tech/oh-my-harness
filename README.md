@@ -165,19 +165,30 @@ Two surfaces a plugin cannot provide — global instructions and user preference
 by merge: `claude-code/CLAUDE.md` into `~/.claude/CLAUDE.md`, and the `permissions` block of
 `claude-code/settings.json`. Ask the `claude-code` agent to do it, or follow its skill.
 
-The `ai-engineer`, `architect`, and `developer` agents route LangChain, LangGraph, and Deep Agents
-work to the official upstream skills rather than to guidance of our own, so install that
-marketplace too — the same agent does it as part of the runbook:
+Some agents route to skills that are not ours: where a domain already has an authoritative upstream
+plugin, they point at it instead of at guidance we would have to keep current ourselves. Install
+those marketplaces too — the same agent does it as part of the runbook:
 
 ```bash
 claude plugin marketplace add langchain-ai/langchain-plugins
 claude plugin install langchain-skills@langchain-plugins   # 22 skills, ~2.1k tokens always-on
 claude plugin install langchain-mcp@langchain-plugins      # live docs + API reference MCP servers
+
+claude plugin marketplace add ai-evals-course/evals-skills
+claude plugin install evals@ai-evals-course                # 8 skills, ~862 tokens always-on
 ```
 
-The LangSmith plugins in that marketplace stay uninstalled by default: they need a LangSmith
-account and OAuth authorization. Nothing is vendored or translated here — upstream owns the
-content, so it never drifts behind a release.
+`langchain-skills` backs the LangChain, LangGraph, and Deep Agents routing in `ai-engineer`,
+`architect`, and `developer`. `evals` backs the LLM-evaluation routing in `ai-engineer` and `qa`:
+error analysis from real traces, LLM-as-judge, judge calibration against human labels, and RAG
+evaluation. The two overlap on the word "eval" and not in method, so the agents say which is which
+— `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
+benchmark work, whatever framework the evaluated agent uses.
+
+The LangSmith plugins in the LangChain marketplace stay uninstalled by default: they need a
+LangSmith account and OAuth authorization. Nothing is vendored or translated here — upstream owns
+the content, so it never drifts behind a release. The always-on cost is listed because it is paid
+on every session, whether or not the topic comes up.
 
 **Codex** also installs the shared library as a native plugin — no clone required:
 

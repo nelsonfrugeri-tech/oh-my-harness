@@ -1,5 +1,5 @@
 ---
-version: 2.1.0
+version: 2.2.0
 name: claude-code
 description: |
   Runbook de instalação da biblioteca oh-my-harness no Claude Code **como plugin nativo**.
@@ -8,14 +8,15 @@ description: |
   com `${CLAUDE_PLUGIN_ROOT}`, o marketplace para distribuição versionada por git (version,
   ref, sha), as duas superfícies que o plugin **não** cobre (`CLAUDE.md` e `permissions` do
   `settings.json`), e a migração a partir do layout antigo de symlinks — inclusive a remoção
-  dos hooks duplicados que dispariam duas vezes. Cobre também a instalação dos plugins oficiais
-  do LangChain (`langchain-skills` e `langchain-mcp`, do marketplace `langchain-ai/langchain-plugins`),
-  que são o que os agents `ai-engineer`, `architect` e `developer` roteiam.
+  dos hooks duplicados que dispariam duas vezes. Cobre também os plugins de terceiro que os
+  agents roteiam e que não são vendorizados aqui: `langchain-skills` e `langchain-mcp` (marketplace
+  `langchain-ai/langchain-plugins`), roteados por `ai-engineer`, `architect` e `developer`; e
+  `evals` (marketplace `ai-evals-course`), roteado por `ai-engineer` e `qa`.
   Use quando: (1) instalar a biblioteca numa máquina, (2) atualizar depois de um push,
   (3) migrar do sync por symlink para o plugin, (4) diagnosticar skill/agent/hook que não
-  carrega, (5) instalar ou diagnosticar os plugins do LangChain.
+  carrega, (5) instalar ou diagnosticar os plugins de terceiro.
   Gatilhos: instalar, sincronizar, sync, setup, configurar harness, atualizar biblioteca, plugin,
-  langchain, langgraph, deep agents.
+  langchain, langgraph, deep agents, evals, error analysis, llm-as-judge.
 type: capability
 ---
 
@@ -112,10 +113,17 @@ O plugin traz o comportamento; a **tabela de capabilities** é da máquina e viv
 3. Mostre como diff e aplique após confirmação.
 4. Use o prefixo do server (`mcp__github__*`), nunca uma tool individual.
 
-## Passo 5 — Plugins oficiais do LangChain
+## Passo 5 — Plugins de terceiro que os agents roteiam
 
-O ecossistema LangChain entra por **marketplace de terceiro**, nunca por vendoring: o conteúdo é
-mantido pela LangChain e chega pelo fluxo normal de update de plugin, sem trabalho neste repo.
+Alguns agents desta biblioteca roteiam para skills que **não são nossas**: elas vivem em
+marketplaces de terceiro, nunca vendorizadas aqui. O conteúdo é mantido upstream e chega pelo
+fluxo normal de update de plugin, sem trabalho neste repo — em troca, sem os plugins instalados a
+prosa desses agents aponta para skills que não existem.
+
+Instale os dois marketplaces abaixo. Em ambos, declare ao usuário o custo always-on em vez de
+instalar calado: são tokens somados a **toda** sessão, mesmo quando o assunto não aparece.
+
+### LangChain, LangGraph e Deep Agents
 
 ```bash
 claude plugin marketplace add langchain-ai/langchain-plugins
@@ -123,29 +131,40 @@ claude plugin install langchain-skills@langchain-plugins
 claude plugin install langchain-mcp@langchain-plugins
 ```
 
-São eles que os agents `ai-engineer`, `architect` e `developer` roteiam — sem os plugins, a seção
-*Ecossistema LangChain* desses agents aponta para skills que não existem. Medido com
-`claude plugin details` na instalação de referência:
+Roteados pela seção *Ecossistema LangChain* dos agents `ai-engineer`, `architect` e `developer`.
+Medido com `claude plugin details` na instalação de referência:
 
 | Plugin | Traz | Custo always-on |
 | --- | --- | --- |
 | `langchain-skills` | 22 skills de LangChain, LangGraph e Deep Agents | ~2.1k tokens por sessão |
 | `langchain-mcp` | 2 MCP servers: `langchain-docs` e `langchain-reference` | ~0 (schema resolvido em runtime) |
 
-Os ~2.1k always-on são o preço de ter as 22 descriptions disponíveis para roteamento; o corpo de
-cada skill só carrega quando invocada. Declare esse custo ao usuário em vez de instalar calado.
+Os ~2.1k são o preço de ter as 22 descriptions disponíveis para roteamento; o corpo de cada skill
+só carrega quando invocada.
 
 O mesmo marketplace publica `langsmith-skills` e `langsmith-mcp`, que **não** instalamos por
 padrão: exigem conta LangSmith e autorização OAuth. Instale-os do mesmo marketplace se o usuário
 tiver conta e pedir.
 
-> Observado nesta instalação: o `marketplace add` clona por **SSH** (`git@github.com:…`). Numa
+### Avaliação de LLM
+
+```bash
+claude plugin marketplace add ai-evals-course/evals-skills
+claude plugin install evals@ai-evals-course
+```
+
+Roteado pela seção *Avaliação de LLM (evals)* dos agents `ai-engineer` e `qa`. Traz **8 skills**
+de error analysis, LLM-as-judge, calibração de evaluator e avaliação de RAG, a **~862 tokens**
+always-on e nenhum MCP server. O nome do marketplace (`ai-evals-course`) difere do nome do
+repositório (`evals-skills`) — o ID de instalação usa o do marketplace.
+
+> Observado nas duas instalações: o `marketplace add` clona por **SSH** (`git@github.com:…`). Numa
 > máquina sem acesso SSH ao GitHub o passo falha aí — diagnostique o clone antes de suspeitar do
 > marketplace.
 
-Verificação: `claude plugin list` mostra os dois como `✔ enabled`, `claude plugin details
-langchain-skills@langchain-plugins` lista as skills (22 na instalação de referência — o upstream
-pode somar mais), e numa sessão nova `/langchain-skills:ecosystem-primer` responde.
+Verificação: `claude plugin list` mostra os três como `✔ enabled`; `claude plugin details <id>`
+lista as skills (22 e 8 na instalação de referência — o upstream pode somar mais); e numa sessão
+nova `/langchain-skills:ecosystem-primer` e `/evals:start` respondem.
 
 ## Passo 6 — Atualizar
 
