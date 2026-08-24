@@ -76,7 +76,15 @@ unmanaged path.
 ## MCP integrations
 
 The installer wires Deja when its CLI is present and registers Graphify when its MCP executable can
-be resolved.
+be resolved. It also installs the official LangChain marketplace and its `langchain-skills` and
+`langchain-mcp` plugins. They cover LangChain, LangGraph, and Deep Agents skills plus live
+documentation and API reference. The optional LangSmith plugins are not installed because they
+require a LangSmith account and OAuth authorization.
+
+The upstream marketplace publishes skills and MCP servers, not Codex custom agents. The local
+`ai-engineer`, `developer`, and `architect` agents route matching framework work through
+`langchain-skills:ecosystem-primer` and the relevant official skills; they do not copy or fork
+upstream guidance.
 
 Run `python3 codex/install.py --skip-integrations` to synchronize only filesystem artifacts.
 

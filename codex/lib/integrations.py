@@ -5,6 +5,8 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
+from lib.plugin_integrations import PluginIntegrations
+
 
 class CodexIntegrations:
     def install(self) -> tuple[str, ...]:
@@ -13,7 +15,12 @@ class CodexIntegrations:
         return (
             self._install_deja(),
             self._install_graphify(),
+            self._install_langchain(),
         )
+
+    def _install_langchain(self) -> str:
+        source_root = Path(__file__).resolve().parents[2]
+        return PluginIntegrations(source_root).install()
 
     def _install_deja(self) -> str:
         executable = shutil.which("deja")

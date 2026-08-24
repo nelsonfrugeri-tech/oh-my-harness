@@ -1,0 +1,11 @@
+{
+  "marketplace": {
+    "name": "langchain-plugins",
+    "source": "langchain-ai/langchain-plugins",
+    "remote_url": "https://github.com/langchain-ai/langchain-plugins.git"
+  },
+  "plugins": [
+    "langchain-skills",
+    "langchain-mcp"
+  ]
+}

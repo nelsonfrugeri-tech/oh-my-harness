@@ -19,17 +19,19 @@ class CodexIntegrationsTest(unittest.TestCase):
         )
 
     @patch.object(CodexIntegrations, "_install_graphify", return_value="graphify")
+    @patch.object(CodexIntegrations, "_install_langchain", return_value="langchain")
     @patch.object(CodexIntegrations, "_install_deja", return_value="deja")
     @patch("lib.integrations.shutil.which", return_value="/usr/bin/codex")
     def test_install_runs_every_supported_integration(
         self,
         _which: object,
         _deja: object,
+        _langchain: object,
         _graphify: object,
     ) -> None:
         self.assertEqual(
             CodexIntegrations().install(),
-            ("deja", "graphify"),
+            ("deja", "graphify", "langchain"),
         )
 
     @patch("lib.integrations.subprocess.run")
