@@ -94,11 +94,11 @@ Ative quando o usuário sinalizar uma mudança grande e pedir atualização — 
 
 ---
 
-## Capability `memory` (opcional)
+## Registro na knowledge base (opcional)
 
-Se a capability `memory` estiver plugada (ver `CLAUDE.md`), a skill `explorer` já indexa um
-resumo automaticamente ao final de cada run FULL/DELTA — você não precisa fazer nada adicional
-aqui. Se `memory` for `nenhuma`, não há passo extra: o `context.md` em disco é a única fonte.
+Ao final de cada run FULL/DELTA, a skill `explorer` pede ao agent `knowledge-base` para registrar
+um resumo do contexto — você não precisa fazer nada adicional aqui. Se a knowledge base não estiver
+disponível, o passo é pulado sem erro: o `context.md` em disco é sempre a fonte da verdade.
 
 ---
 

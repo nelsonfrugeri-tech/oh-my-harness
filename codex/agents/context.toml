@@ -23,7 +23,7 @@ For an explicit request to refresh context after a large or external change, for
 
 Return a concise context block containing the project, context-file status, analysis timestamp and hash, a condensed current state from snapshot sections Identity, Architecture, and Service Interface, and relevant Review Guidance items.
 
-If the abstract `memory` capability is configured in the applicable `AGENTS.md`, rely on `explorer` to index its summary. If it is unavailable, treat the context file as the only source.
+At the end of every FULL or DELTA run, `explorer` asks the `knowledge-base` agent to register a summary of the context, so you do nothing extra here. If the knowledge base is unavailable, the step is skipped without error and the context file on disk stays the source of truth.
 
 Never invent context. If exploration or persistence fails, report the failure and do not claim the context was loaded. Keep the no-change path to path resolution, frontmatter reading, and a Git log check.
 """

@@ -17,22 +17,30 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertEqual(canonical, self._embedded_contract("codex/AGENTS.md"))
         self.assertEqual(canonical, self._embedded_contract("claude-code/CLAUDE.md"))
 
-    def test_contract_defines_claim_classes_and_quantitative_provenance(self) -> None:
+    def test_contract_defines_labelled_claim_classes_and_quantitative_provenance(self) -> None:
         contract = self._canonical_contract()
-        claim_classes = (
-            "Fato verificado",
-            "Resultado derivado",
-            "Inferência",
-            "Hipótese",
-            "Estimativa",
-            "Desconhecido",
-            "Decisão",
+        # The seven states are response labels, so they are pinned in the exact shape the
+        # model must emit — symbol and casing included. Weakening this to a case-insensitive
+        # substring would let the label drift out of the contract without failing.
+        labels = (
+            "🟢 **FATO VERIFICADO**",
+            "🔵 **RESULTADO DERIVADO**",
+            "🟠 **INFERÊNCIA**",
+            "🟡 **HIPÓTESE**",
+            "🟣 **ESTIMATIVA**",
+            "🔴 **DESCONHECIDO**",
+            "⚪ **DECISÃO**",
         )
 
-        self.assertTrue(all(name in contract for name in claim_classes))
-        self.assertIn("unidade, população, janela temporal, fonte e método", contract)
-        self.assertIn("dados de calibração", contract)
-        self.assertIn("engenharia de software", contract)
+        for label in labels:
+            with self.subTest(label=label):
+                self.assertIn(label, contract)
+        # Prose assertions run against whitespace-normalized text: a phrase must not stop
+        # counting as present because the line happened to wrap in the middle of it.
+        flat = " ".join(contract.split())
+        self.assertIn("unidade, população, janela temporal, fonte e método", flat)
+        self.assertIn("dados de calibração", flat)
+        self.assertIn("engenharia de software", flat)
 
     def test_evidence_skill_contains_only_referenced_resources(self) -> None:
         skill = _ROOT / "skills/evidence/SKILL.md"
