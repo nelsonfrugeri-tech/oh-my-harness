@@ -65,7 +65,7 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("name: evidence-reviewer", shared)
         self.assertIn('name = "evidence-reviewer"', codex)
         self.assertIn("read-only", shared.lower())
-        self.assertIn("read-only", codex.lower())
+        self.assertIn("somente leitura", codex.lower())
         self.assertIn("fals", shared.lower())
         self.assertIn("fals", codex.lower())
 

@@ -255,6 +255,30 @@ class AdapterContractTest(unittest.TestCase):
                 )
                 self.assertTrue(all(skill in content for skill in required))
 
+    def test_codex_agents_use_pt_br_operational_prose(self) -> None:
+        required = {
+            "ai-engineer": "Você é um senior AI/ML engineer",
+            "architect": "Você é um senior software architect",
+            "codex": "Use a skill instalada `codex` como runbook.",
+            "context": "Você orquestra o ciclo de vida",
+            "developer": "Você é um senior software engineer",
+            "evidence-reviewer": "Realize uma auditoria independente",
+            "graphify": "Você orquestra graphify",
+            "knowledge-base": "Você orquestra a knowledge base",
+            "qa": "Você é um quality assurance engineer",
+            "site": "Use a skill instalada `site-report`",
+            "sre": "Você é um site reliability engineer",
+            "tech-pm": "Você é um technical product manager",
+        }
+
+        for role, prose in required.items():
+            with self.subTest(role=role):
+                content = _ROOT.joinpath(f"codex/agents/{role}.toml").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn(prose, content)
+                self.assertNotIn("You are ", content)
+
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (
             _ROOT / "skills/site-report/SKILL.md",
