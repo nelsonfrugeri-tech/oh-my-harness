@@ -234,6 +234,27 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertIn("  - evidence", shared)
                 self.assertIn("`evidence`", codex)
 
+    def test_langchain_agents_reference_the_official_skills_and_docs(self) -> None:
+        roles = ("ai-engineer", "developer", "architect")
+        required = (
+            "`langchain-skills`",
+            "`langchain-mcp`",
+            "langchain-skills:ecosystem-primer",
+            "langchain-skills:langchain-fundamentals",
+            "langchain-skills:langgraph-fundamentals",
+            "langchain-skills:deep-agents-core",
+            "langchain-skills:langchain-python-quickstart",
+            "langchain-skills:eval-engineering",
+            "langchain-skills:swarm",
+        )
+
+        for role in roles:
+            with self.subTest(role=role):
+                content = _ROOT.joinpath(f"codex/agents/{role}.toml").read_text(
+                    encoding="utf-8"
+                )
+                self.assertTrue(all(skill in content for skill in required))
+
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (
             _ROOT / "skills/site-report/SKILL.md",

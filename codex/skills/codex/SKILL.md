@@ -64,7 +64,7 @@ The installer:
 3. links the complete adapter at `~/.codex/oh-my-harness`;
 4. replaces only the `omh-managed` block inside global `~/.codex/AGENTS.md`;
 5. replaces only the managed context hook inside `~/.codex/hooks.json`, preserving unrelated hooks;
-6. wires Deja and supported MCP integrations when their executables are available;
+6. wires Deja, Graphify, and the official LangChain skills and documentation integrations;
 7. reports account-bound integrations that still require human authorization.
 
 Run with `--skip-integrations` when only filesystem artifacts should be synchronized.
