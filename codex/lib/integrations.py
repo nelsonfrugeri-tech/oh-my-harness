@@ -15,10 +15,10 @@ class CodexIntegrations:
         return (
             self._install_deja(),
             self._install_graphify(),
-            self._install_langchain(),
+            *self._install_plugins(),
         )
 
-    def _install_langchain(self) -> str:
+    def _install_plugins(self) -> tuple[str, ...]:
         source_root = Path(__file__).resolve().parents[2]
         return PluginIntegrations(source_root).install()
 

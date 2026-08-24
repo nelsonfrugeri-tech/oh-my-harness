@@ -239,6 +239,8 @@ class AdapterContractTest(unittest.TestCase):
         required = (
             "`langchain-skills`",
             "`langchain-mcp`",
+            "confirme que eles aparecem entre as skills e tools disponíveis no runtime",
+            "não tente usá-lo nem diga que o usou",
             "langchain-skills:ecosystem-primer",
             "langchain-skills:langchain-fundamentals",
             "langchain-skills:langgraph-fundamentals",
@@ -246,6 +248,34 @@ class AdapterContractTest(unittest.TestCase):
             "langchain-skills:langchain-python-quickstart",
             "langchain-skills:eval-engineering",
             "langchain-skills:swarm",
+        )
+
+        for role in roles:
+            with self.subTest(role=role):
+                content = _ROOT.joinpath(f"codex/agents/{role}.toml").read_text(
+                    encoding="utf-8"
+                )
+                self.assertTrue(all(skill in content for skill in required))
+
+    def test_qa_agent_guards_unavailable_langchain_integrations(self) -> None:
+        content = _ROOT.joinpath("codex/agents/qa.toml").read_text(encoding="utf-8")
+        self.assertIn("`langchain-skills:*`", content)
+        self.assertIn("`langchain-mcp`", content)
+        self.assertIn("não tente usá-lo nem diga que o usou", content)
+
+    def test_eval_agents_guard_and_route_to_the_official_skills(self) -> None:
+        roles = ("ai-engineer", "developer", "architect", "qa")
+        required = (
+            "`evals:*` aparece entre as skills disponíveis no runtime",
+            "não tente invocá-la nem diga que a usou",
+            "`evals:start`",
+            "`evals:eval-audit`",
+            "`evals:error-discovery`",
+            "`evals:generate-synthetic-data`",
+            "`evals:write-judge-prompt`",
+            "`evals:validate-evaluator`",
+            "`evals:evaluate-rag`",
+            "`evals:build-review-interface`",
         )
 
         for role in roles:

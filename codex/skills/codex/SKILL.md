@@ -64,7 +64,7 @@ O installer:
 3. cria o link do adapter completo em `~/.codex/oh-my-harness`;
 4. substitui somente o bloco `omh-managed` dentro de `~/.codex/AGENTS.md` global;
 5. substitui somente o context hook gerenciado em `~/.codex/hooks.json`, preservando hooks não relacionados;
-6. configura Deja, Graphify e as integrações oficiais de skills e documentação LangChain;
+6. configura Deja, Graphify, as integrações oficiais de skills e documentação LangChain e as skills oficiais AI Evals;
 7. reporta integrações vinculadas a conta que ainda exigem autorização humana.
 
 Execute com `--skip-integrations` quando somente os artefatos de filesystem precisarem ser sincronizados.

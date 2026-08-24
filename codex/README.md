@@ -81,6 +81,12 @@ be resolved. It also installs the official LangChain marketplace and its `langch
 documentation and API reference. The optional LangSmith plugins are not installed because they
 require a LangSmith account and OAuth authorization.
 
+It also installs the official AI Evals Course marketplace and its `evals` plugin. It provides
+eight skills for error discovery, eval-pipeline audits, synthetic data, RAG evaluation, human
+review interfaces, LLM-as-Judge prompts, and judge calibration. The local `ai-engineer`,
+`developer`, `architect`, and `qa` agents first verify that `evals:*` is available at runtime;
+when installation is pending, they report that state and do not claim to use unavailable skills.
+
 The upstream marketplace publishes skills and MCP servers, not Codex custom agents. The local
 `ai-engineer`, `developer`, and `architect` agents route matching framework work through
 `langchain-skills:ecosystem-primer` and the relevant official skills; they do not copy or fork
