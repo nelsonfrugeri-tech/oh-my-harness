@@ -12,13 +12,13 @@ from lib.sync import CodexInstaller, InstallConflict
 
 
 def _arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Install oh-my-harness into Codex global state.")
-    parser.add_argument("--check", action="store_true", help="Validate without changing files.")
+    parser = argparse.ArgumentParser(description="Instala oh-my-harness no estado global do Codex.")
+    parser.add_argument("--check", action="store_true", help="Valida sem alterar arquivos.")
     parser.add_argument("--skip-integrations", action="store_true")
     parser.add_argument(
         "--replace-global-agents",
         action="store_true",
-        help="Replace an unowned legacy global AGENTS.md after creating a backup.",
+        help="Substitui um AGENTS.md global legado sem dono após criar um backup.",
     )
     parser.add_argument("--codex-home", type=Path, default=Path.home() / ".codex")
     parser.add_argument("--agents-home", type=Path, default=Path.home() / ".agents")
@@ -48,7 +48,7 @@ def main() -> int:
         json.JSONDecodeError,
         subprocess.SubprocessError,
     ) as error:
-        print(f"error: {error}", file=sys.stderr)
+        print(f"erro: {error}", file=sys.stderr)
         return 1
     print("\n".join(results))
     return 0

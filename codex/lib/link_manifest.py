@@ -28,11 +28,11 @@ class ManagedLinkManifest:
             return f"ok: {self._path}"
         self._path.parent.mkdir(parents=True, exist_ok=True)
         atomic_write(self._path, content)
-        return f"updated: {self._path}"
+        return f"atualizado: {self._path}"
 
     def validate(self, entries: tuple[tuple[Path, Path], ...]) -> str:
         if not self._path.exists() or self._path.read_text(encoding="utf-8") != self._content(entries):
-            raise self._conflict(f"managed links manifest is missing or stale: {self._path}")
+            raise self._conflict(f"manifesto de links gerenciados ausente ou desatualizado: {self._path}")
         return f"ok: {self._path}"
 
     def _entries(self) -> tuple[tuple[Path, Path], ...]:
@@ -40,17 +40,17 @@ class ManagedLinkManifest:
             return ()
         data = json.loads(self._path.read_text(encoding="utf-8"))
         if not isinstance(data, dict) or data.get("version") != 1:
-            raise self._conflict(f"invalid managed links manifest: {self._path}")
+            raise self._conflict(f"manifesto de links gerenciados inválido: {self._path}")
         links = data.get("links")
         if not isinstance(links, list):
-            raise self._conflict(f"invalid managed links manifest: {self._path}")
+            raise self._conflict(f"manifesto de links gerenciados inválido: {self._path}")
         entries = []
         for entry in links:
             if not isinstance(entry, dict):
-                raise self._conflict(f"invalid managed links manifest: {self._path}")
+                raise self._conflict(f"manifesto de links gerenciados inválido: {self._path}")
             target, source = entry.get("target"), entry.get("source")
             if not isinstance(target, str) or not isinstance(source, str):
-                raise self._conflict(f"invalid managed links manifest: {self._path}")
+                raise self._conflict(f"manifesto de links gerenciados inválido: {self._path}")
             entries.append((Path(target), Path(source)))
         return tuple(entries)
 

@@ -11,7 +11,7 @@ from lib.plugin_integrations import PluginIntegrations
 class CodexIntegrations:
     def install(self) -> tuple[str, ...]:
         if shutil.which("codex") is None:
-            return ("pending: Codex CLI is not available",)
+            return ("pending: CLI do Codex não está disponível",)
         return (
             self._install_deja(),
             self._install_graphify(),
@@ -25,7 +25,7 @@ class CodexIntegrations:
     def _install_deja(self) -> str:
         executable = shutil.which("deja")
         if executable is None:
-            return "pending: install Deja, then run `deja install codex`"
+            return "pending: instale Deja e execute `deja install codex`"
         result = subprocess.run(
             [executable, "install", "codex"],
             check=False,
@@ -34,7 +34,7 @@ class CodexIntegrations:
             timeout=60,
         )
         if result.returncode != 0:
-            return f"pending: Deja Codex integration failed: {result.stderr.strip()}"
+            return f"pending: a integração Deja com Codex falhou: {result.stderr.strip()}"
         command = [
             "codex",
             "mcp",
@@ -46,17 +46,17 @@ class CodexIntegrations:
             executable,
             "mcp",
         ]
-        configured = self._run_mcp_add(command, "Deja MCP with subagent indexing")
+        configured = self._run_mcp_add(command, "MCP Deja com indexação de subagents")
         if configured.startswith("pending:"):
             return configured
-        return "configured: Deja hooks and MCP with subagent indexing"
+        return "configured: hooks e MCP Deja com indexação de subagents"
 
     def _install_graphify(self) -> str:
         if self._mcp_exists("graphify"):
-            return "ok: Graphify MCP"
+            return "ok: MCP Graphify"
         executable = self._graphify_server()
         if executable is None:
-            return "pending: install graphifyy with its MCP server, then rerun this installer"
+            return "pending: instale graphifyy com seu servidor MCP e execute este installer novamente"
         command = [
             "codex",
             "mcp",
@@ -97,5 +97,5 @@ class CodexIntegrations:
             timeout=60,
         )
         if result.returncode != 0:
-            return f"pending: {label} registration failed: {result.stderr.strip()}"
+            return f"pending: o registro de {label} falhou: {result.stderr.strip()}"
         return f"configured: {label}"

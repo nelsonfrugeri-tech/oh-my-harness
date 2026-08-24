@@ -42,7 +42,7 @@ class ManagedLinks:
     def validate(self) -> tuple[str, ...]:
         orphans = self._managed_orphans()
         if orphans:
-            raise self._conflict(f"stale managed links: {', '.join(map(str, orphans))}")
+            raise self._conflict(f"links gerenciados desatualizados: {', '.join(map(str, orphans))}")
         results = [self._check_link(self._layout.installed_adapter, self._layout.adapter)]
         results.extend(
             self._check_link(self._layout.installed_hooks / path.name, path)
@@ -63,7 +63,7 @@ class ManagedLinks:
         results = []
         for target in self._managed_orphans():
             target.unlink()
-            results.append(f"removed stale managed link: {target}")
+            results.append(f"link gerenciado desatualizado removido: {target}")
         return tuple(results)
 
     def _managed_orphans(self) -> tuple[Path, ...]:
@@ -105,13 +105,13 @@ class ManagedLinks:
     def _install_skill(self, source: Path) -> str:
         target = self._layout.personal_skills / source.name
         if self._is_compatible_external_graphify(source, target):
-            return f"preserved: compatible external Graphify skill at {target}"
+            return f"preservada: skill Graphify externa compatível em {target}"
         return self._link(source, target)
 
     def _check_skill(self, source: Path) -> str:
         target = self._layout.personal_skills / source.name
         if self._is_compatible_external_graphify(source, target):
-            return f"ok: compatible external Graphify skill at {target}"
+            return f"ok: skill Graphify externa compatível em {target}"
         return self._check_link(target, source)
 
     def _link(self, source: Path, target: Path) -> str:
@@ -119,27 +119,27 @@ class ManagedLinks:
         if target.is_symlink() and target.resolve() == source.resolve():
             return f"ok: {target}"
         if target.exists() or target.is_symlink():
-            raise self._conflict(f"refusing to replace existing path: {target}")
+            raise self._conflict(f"recusando substituir path existente: {target}")
         target.symlink_to(source)
-        return f"linked: {target}"
+        return f"linkado: {target}"
 
     def _check_available(self, source: Path, target: Path) -> None:
         self._check_parent_directory(target)
         if target.is_symlink() and target.resolve() == source.resolve():
             return
         if target.exists() or target.is_symlink():
-            raise self._conflict(f"refusing to replace existing path: {target}")
+            raise self._conflict(f"recusando substituir path existente: {target}")
 
     def _check_parent_directory(self, target: Path) -> None:
         candidate = target.parent
         while not candidate.exists() and not candidate.is_symlink():
             candidate = candidate.parent
         if not candidate.is_dir():
-            raise self._conflict(f"refusing to create inside non-directory path: {candidate}")
+            raise self._conflict(f"recusando criar dentro de path que não é diretório: {candidate}")
 
     def _check_link(self, target: Path, source: Path) -> str:
         if not target.is_symlink() or target.resolve() != source.resolve():
-            raise self._conflict(f"invalid or missing managed link: {target}")
+            raise self._conflict(f"link gerenciado inválido ou ausente: {target}")
         return f"ok: {target}"
 
     def _is_compatible_external_graphify(self, source: Path, target: Path) -> bool:

@@ -51,7 +51,7 @@ class InstallLayout:
         by_name: dict[str, Path] = {}
         for path in skills:
             if path.name in by_name:
-                raise ValueError(f"duplicate skill leaf name: {path.name}")
+                raise ValueError(f"nome de skill duplicado: {path.name}")
             by_name[path.name] = path
         return tuple(by_name.values())
 

@@ -27,7 +27,7 @@ class PluginIntegrationsTest(unittest.TestCase):
 
         result = self._integrations.install()
 
-        self.assertEqual("configured: LangChain skills and live documentation", result)
+        self.assertEqual("configured: skills LangChain e documentação viva", result)
         self.assertEqual(
             [
                 call(
@@ -101,7 +101,7 @@ class PluginIntegrationsTest(unittest.TestCase):
 
         result = self._integrations.install()
 
-        self.assertEqual("ok: LangChain skills and live documentation", result)
+        self.assertEqual("ok: skills LangChain e documentação viva", result)
         self.assertEqual(2, run.call_count)
 
     @patch("lib.plugin_integrations.subprocess.run")
@@ -120,7 +120,7 @@ class PluginIntegrationsTest(unittest.TestCase):
         result = self._integrations.install()
 
         self.assertEqual(
-            "pending: LangChain marketplace source mismatch: https://example.invalid/plugins.git",
+            "pending: a origem do marketplace LangChain diverge: https://example.invalid/plugins.git",
             result,
         )
         self.assertEqual(1, run.call_count)
@@ -135,7 +135,7 @@ class PluginIntegrationsTest(unittest.TestCase):
         result = self._integrations.install()
 
         self.assertEqual(
-            "pending: LangChain marketplace registration failed: network unavailable",
+            "pending: o registro do marketplace LangChain falhou: network unavailable",
             result,
         )
         self.assertEqual(2, run.call_count)

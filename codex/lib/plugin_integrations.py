@@ -28,12 +28,12 @@ class PluginIntegrations:
             plugin for plugin in catalog.plugins if self._plugin_id(plugin, catalog) not in installed
         )
         if not missing:
-            return "ok: LangChain skills and live documentation"
+            return "ok: skills LangChain e documentação viva"
         for plugin in missing:
             result = self._run(["codex", "plugin", "add", self._plugin_id(plugin, catalog)])
             if result.returncode != 0:
-                return f"pending: LangChain plugin installation failed: {result.stderr.strip()}"
-        return "configured: LangChain skills and live documentation"
+                return f"pending: a instalação do plugin LangChain falhou: {result.stderr.strip()}"
+        return "configured: skills LangChain e documentação viva"
 
     def _catalog(self) -> PluginCatalog:
         content = json.loads(self._catalog_file.read_text(encoding="utf-8"))
@@ -43,17 +43,17 @@ class PluginIntegrations:
         source = marketplace["source"]
         remote_url = marketplace["remote_url"]
         if not all(isinstance(field, str) for field in (name, source, remote_url)):
-            raise ValueError("plugin marketplace fields must be strings")
+            raise ValueError("os campos do marketplace de plugins devem ser strings")
         if not isinstance(plugins, list) or not all(isinstance(plugin, str) for plugin in plugins):
-            raise ValueError("plugin names must be a list of strings")
+            raise ValueError("os nomes de plugins devem ser uma lista de strings")
         if not plugins:
-            raise ValueError("plugin catalog cannot be empty")
+            raise ValueError("o catálogo de plugins não pode estar vazio")
         return PluginCatalog(name, source, remote_url, tuple(plugins))
 
     def _marketplace(self, catalog: PluginCatalog) -> str:
         result = self._run(["codex", "plugin", "marketplace", "list", "--json"])
         if result.returncode != 0:
-            return f"pending: LangChain marketplace lookup failed: {result.stderr.strip()}"
+            return f"pending: a consulta ao marketplace LangChain falhou: {result.stderr.strip()}"
         marketplaces = json.loads(result.stdout)["marketplaces"]
         current = next(
             (item for item in marketplaces if item["name"] == catalog.marketplace_name),
@@ -63,12 +63,12 @@ class PluginIntegrations:
             source = current.get("marketplaceSource", {}).get("source")
             if source == catalog.marketplace_remote_url:
                 return "ok"
-            return f"pending: LangChain marketplace source mismatch: {source}"
+            return f"pending: a origem do marketplace LangChain diverge: {source}"
         result = self._run(
             ["codex", "plugin", "marketplace", "add", catalog.marketplace_source]
         )
         if result.returncode != 0:
-            return f"pending: LangChain marketplace registration failed: {result.stderr.strip()}"
+            return f"pending: o registro do marketplace LangChain falhou: {result.stderr.strip()}"
         return "configured"
 
     def _installed_plugins(self) -> set[str]:

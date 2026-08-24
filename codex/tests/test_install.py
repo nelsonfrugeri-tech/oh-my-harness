@@ -92,7 +92,7 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertFalse(managed.exists())
         self.assertFalse(managed.is_symlink())
         self.assertTrue(external.is_symlink())
-        self.assertTrue(any(result.startswith("removed stale managed link:") for result in results))
+        self.assertTrue(any(result.startswith("link gerenciado desatualizado removido:") for result in results))
 
     def test_install_preserves_machine_capability_mappings(self) -> None:
         self._installer.install()
@@ -187,7 +187,7 @@ class CodexInstallerTest(unittest.TestCase):
 
         results = self._installer.install()
 
-        self.assertTrue(any(result.startswith("preserved:") for result in results))
+        self.assertTrue(any(result.startswith("preservada:") for result in results))
         self.assertFalse(target.is_symlink())
 
     def test_validate_detects_stale_managed_agents_block(self) -> None:
