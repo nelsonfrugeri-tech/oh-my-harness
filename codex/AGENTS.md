@@ -43,7 +43,6 @@ instalado. O installer pode preencher entradas vazias sem alterar agents ou skil
 | --- | --- | --- |
 | `code-host` | Pull Requests, issues e reviews remotos | _(configurar durante a instalação)_ |
 | `ci` | Pipelines de CI/CD | _(configurar durante a instalação)_ |
-| `memory` | Contexto persistente pessoal e de projeto | _(vazio significa o agent `knowledge-base`)_ |
 | `web` | Busca e recuperação de páginas web | Capability web do Codex |
 | `code-graph` | Query, path e explain sobre um knowledge graph de código | Graphify MCP com fallback para CLI |
 | `session-memory` | Busca em transcripts de sessões passadas por tópico ou arquivo | Deja CLI ou MCP quando instalado |

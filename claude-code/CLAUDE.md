@@ -204,4 +204,4 @@ não julga corretude, arquitetura nem cobertura.
 Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin): ele descobre e roda
 format, lint, typecheck e testes, e bloqueia o commit se algum falhar. Só age em repositório
 explicitamente confiado; sem o marcador, defere sem executar nada. Mecânica e limites em
-`skills/harness/claude-code`.
+`claude-code/skills/claude-code`.
