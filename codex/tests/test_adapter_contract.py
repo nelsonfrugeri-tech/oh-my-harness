@@ -392,6 +392,143 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertIn(prose, content)
                 self.assertNotIn("You are ", content)
 
+    def test_kb_write_requires_machine_and_session_provenance(self) -> None:
+        content = _ROOT.joinpath("skills/kb-write/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        required = (
+            "`provenance.harness.name`",
+            "`provenance.harness.session_id`",
+            "`provenance.harness.session_name`",
+            "`provenance.harness.app_name`",
+            "`provenance.execution.cwd`",
+            "`provenance.execution.transcript_path`",
+            "`provenance.machine.id`",
+            "`provenance.machine.label`",
+            "`provenance.machine.hostname`",
+            "`provenance.machine.username`",
+            "~/.local/share/omh-kb/identity.json",
+        )
+
+        self.assertTrue(all(field in content for field in required))
+        self.assertIn("não escreva a nota", " ".join(content.split()))
+        self.assertIn("MAC address bruto", content)
+
+    def test_kb_session_record_carries_nullable_runtime_metadata(self) -> None:
+        content = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        required = (
+            '"session_name"',
+            '"app_name"',
+            '"cwd"',
+            '"machine_id"',
+            '"machine_label"',
+            '"hostname"',
+            '"username"',
+        )
+
+        self.assertTrue(all(field in content for field in required))
+        self.assertIn("campos existem no schema mesmo quando o valor é `null`", content)
+        self.assertIn("contiver apenas whitespace", content)
+        self.assertIn("todo path não nulo devem ser absolutos", content)
+
+    def test_kb_legacy_session_records_have_a_lossless_v3_migration(self) -> None:
+        session = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        infra = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        session_flat = " ".join(session.split())
+        infra_flat = " ".join(infra.split())
+        for phrase in (
+            "projeta cada campo ausente no payload Qdrant como `null`",
+            "nunca reescreve o JSON histórico",
+            "nunca atribui a máquina atual a uma sessão passada",
+            "promova-o ao schema v3 somente com valores observados",
+            "preserve o record legacy sem alteração",
+        ):
+            self.assertIn(phrase, session_flat)
+        self.assertIn("continue o lote", infra_flat)
+        self.assertIn("O reindex nunca modifica o JSON", infra_flat)
+
+    def test_kb_session_schema_matches_qdrant_provenance_payload(self) -> None:
+        session = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        infra = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        provenance_fields = {
+            "harness",
+            "session_id",
+            "session_name",
+            "app_name",
+            "cwd",
+            "transcript_path",
+            "machine_id",
+            "machine_label",
+            "hostname",
+            "username",
+        }
+        schema_match = re.search(r"Schema:\n\n```json\n(.*?)\n```", session, re.DOTALL)
+        payload_match = re.search(
+            r'\| Payload por ponto \(`kind: "session"`\) \| ([^|]+) \|', infra
+        )
+
+        self.assertIsNotNone(schema_match)
+        self.assertIsNotNone(payload_match)
+        schema_fields = set(json.loads(schema_match.group(1)))
+        payload_fields = set(re.findall(r"`([^`]+)`", payload_match.group(1)))
+        expected_payload_fields = (schema_fields - {"description", "resume"}) | {"kind"}
+
+        self.assertTrue(provenance_fields <= schema_fields)
+        self.assertEqual(expected_payload_fields, payload_fields)
+
+    def test_kb_qdrant_indexes_provenance_fields(self) -> None:
+        content = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        indexed_fields = (
+            '"harness"',
+            '"session_id"',
+            '"session_name"',
+            '"machine_id"',
+            '"machine_label"',
+        )
+
+        self.assertTrue(all(field in content for field in indexed_fields))
+        self.assertIn("PayloadSchemaType.KEYWORD", content)
+
+    def test_kb_retrieval_can_filter_by_provenance(self) -> None:
+        content = _ROOT.joinpath("skills/kb-retrieval/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        fields = (
+            "`harness`",
+            "`session_id`",
+            "`session_name`",
+            "`machine_id`",
+            "`machine_label`",
+        )
+
+        self.assertTrue(all(field in content for field in fields))
+        self.assertIn("Pontos legacy", content)
+
+    def test_kb_agents_enforce_provenance_before_writing(self) -> None:
+        shared = _ROOT.joinpath("agents/tools/knowledge-base.md").read_text(
+            encoding="utf-8"
+        )
+        codex = _ROOT.joinpath("codex/agents/knowledge-base.toml").read_text(
+            encoding="utf-8"
+        )
+
+        for content in (shared, codex):
+            self.assertIn("provenance", content)
+            self.assertIn("identity.json", content)
+            self.assertIn("não escreva", content)
+
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (
             _ROOT / "skills/site-report/SKILL.md",

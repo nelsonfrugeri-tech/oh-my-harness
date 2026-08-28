@@ -102,7 +102,7 @@ O Codex armazena transcripts ativos em
 `$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; o `CODEX_HOME` default é
 `~/.codex`. A lógica de session memory deve descobrir o rollout correspondente em vez de assumir um
 diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, escreva o session
-record sem `transcript_path` e informe o modo degradado.
+record com `transcript_path: null` e informe o modo degradado.
 
 ### Regras de conhecimento
 
@@ -112,6 +112,10 @@ record sem `transcript_path` e informe o modo degradado.
    navegação estruturada em disco como fallback e informa explicitamente o modo degradado.
 3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records e
    `context.md` são documentos mutáveis nomeados e reescritos in-place.
+4. Toda nova nota e todo session record carregam provenance real de harness, sessão, cwd e máquina
+   conforme `kb-write`/`kb-session`. A identidade estável vem de
+   `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente bloqueia a escrita, enquanto
+   metadata que o harness não fornece permanece explicitamente `null`.
 
 ---
 
