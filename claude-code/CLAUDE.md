@@ -182,6 +182,8 @@ sessão — uma decisão, um procedimento, um incidente com causa. Na dúvida em
 
 **Como.** Descreva o que precisa saber ou registrar e deixe-o rotear. Não chame as skills dele nem
 escreva em `~/knowledge-base/` por conta própria: isso contorna regras que só ele conhece.
+Toda escrita nova leva provenance real de harness, sessão, cwd e identidade estável da máquina;
+campo obrigatório ausente bloqueia a escrita, e metadata realmente indisponível fica `null`.
 
 **O invariante.** É o **único escritor de conhecimento curado** — mecanismos de nota de outras
 ferramentas abririam um repositório concorrente e são proibidos; delas só lemos. Sem infra, degrada

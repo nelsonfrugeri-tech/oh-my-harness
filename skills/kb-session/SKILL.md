@@ -1,13 +1,14 @@
 ---
-version: 2.0.0
+version: 3.0.0
 name: kb-session
 description: |
   Memória de sessão do harness — mantém um session record VIVO por sessão em
   ~/knowledge-base/{domain}/sessions/<session_id>.json (JSON reescrito in-place —
   exceção nomeada à imutabilidade das notas) e executa deep search na memória bruta
   de sessões quando os degraus 1–2 do retrieval não respondem.
-  Cobre: o schema do record (harness, session_id, domain, name, description, resume
-  denso 200-800 chars — núcleo do texto embedado, transcript_path, created_at/updated_at),
+  Cobre: o schema do record (harness, session_id, session_name, app_name, machine
+  identity, domain, name, description, resume denso 200-800 chars — núcleo do texto
+  embedado, cwd, transcript_path, created_at/updated_at),
   a descoberta da sessão corrente por harness (claude-code: JSONL mais recente em
   ~/.claude/projects/<cwd-munged>/), a atualização de carona em toda invocação do
   agent knowledge-base, a indexação como point vivo no Qdrant (kind: "session",
@@ -57,11 +58,18 @@ Schema:
 {
   "harness": "claude-code",
   "session_id": "55cb8ac6-ffb4-417c-b9af-62e513f14737",
+  "session_name": "refactor-da-biblioteca-portable",
+  "app_name": "Claude Code",
   "domain": "work/projects/oh-my-harness",
   "name": "Refactor da biblioteca portable",
   "description": "Sessão de refactor dos assets/ para o layout agnóstico de harness, cobrindo a decisão de symlink temado e o achatamento de skills.",
   "resume": "<prosa densa de 200-800 chars — núcleo do texto embedado>",
+  "cwd": "/Users/nelson.frugeri/projects/harness/oh-my-harness",
   "transcript_path": "/Users/nelson.frugeri/.claude/projects/-Users-nelson-frugeri-projects-harness-oh-my-harness/55cb8ac6-ffb4-417c-b9af-62e513f14737.jsonl",
+  "machine_id": "49d7a0f0-4f0d-4ea0-8987-0f442fab9130",
+  "machine_label": "m4",
+  "hostname": "MacBook-Pro-de-Nelson",
+  "username": "nelson.frugeri",
   "created_at": "2026-07-19T14:30:00Z",
   "updated_at": "2026-07-19T16:05:00Z"
 }
@@ -71,12 +79,41 @@ Schema:
 |---|---|
 | `harness` | String aberta identificando o harness da sessão: `"claude-code"`, `"codex"`, `"cursor"`, ... |
 | `session_id` | UUID da sessão no harness — também é o nome do arquivo e o point id no Qdrant. |
+| `session_name` | Nome atribuído pelo próprio harness, ou `null` quando a sessão não tem nome registrado. Não confundir com `name`, que é o assunto curado do record. |
+| `app_name` | Nome do app registrado pela sessão, ou `null` quando o harness não expõe esse dado. |
 | `domain` | O bounded context da sessão, relativo à raiz do bundle (mesma regra do resto da KB — ver `kb-write`). |
 | `name` | Assunto curto da sessão, no estilo do auto-naming de sessões do Claude Code (ex.: "Refactor da biblioteca portable"). |
 | `description` | Descrição da sessão **até aquele momento** — o que ela cobre, em 1-2 frases. |
 | `resume` | Resumo denso da sessão até aquele momento — **núcleo do texto embedado** (o embedding é `name + description + resume`, ver seção 5). Aplique a mesma doutrina do summary de `kb-write`: prosa densa, específica e auto-contida de **200-800 chars**, sem bullets, nomeando sistemas, decisões e atores. É aqui que o recall da sessão é ganho ou perdido. |
-| `transcript_path` | Caminho da memória bruta da sessão no harness (o transcript completo). Grave sempre o **caminho absoluto expandido** (`/Users/...`, nunca `~`) — o deep search o segue diretamente com Read/grep, que não expandem `~`. |
+| `cwd` | Diretório de trabalho absoluto observado na sessão (`/Users/...`, nunca `~` nem path relativo). |
+| `transcript_path` | Caminho absoluto da memória bruta da sessão no harness, ou `null` no modo degradado. |
+| `machine_id` / `machine_label` | Identidade estável e nome operacional lidos de `~/.local/share/omh-kb/identity.json`. |
+| `hostname` / `username` | Valores observados na máquina no momento da atualização do record. |
 | `created_at` / `updated_at` | ISO 8601 UTC. `created_at` **nunca muda** depois da criação; `updated_at` muda a cada reescrita. |
+
+`harness`, `session_id`, `cwd`, `machine_id`, `machine_label`, `hostname` e `username`
+são obrigatórios e não nulos. `session_name`, `app_name` e `transcript_path` são
+nullable, mas os campos existem no schema mesmo quando o valor é `null`. Nunca omita
+nem invente metadata para esconder ausência. Se um campo não nullable não puder ser
+resolvido, estiver vazio ou contiver apenas whitespace, não escreva nem atualize o
+record; informe o campo ausente. `cwd` e todo path não nulo devem ser absolutos.
+
+### Compatibilidade com session records anteriores ao schema v3
+
+Session records históricos podem não conter `session_name`, `app_name`, `cwd`,
+`transcript_path`, `machine_id`, `machine_label`, `hostname` ou `username`. Eles
+continuam legíveis e reindexáveis em modo legacy:
+
+1. O reindex projeta cada campo ausente no payload Qdrant como `null` e reporta o
+   record como legacy; não rejeita a reconstrução inteira.
+2. O reindex nunca reescreve o JSON histórico e nunca atribui a máquina atual a uma
+   sessão passada.
+3. Ao atualizar o record da **sessão corrente**, promova-o ao schema v3 somente com
+   valores observados nessa atualização. Preserve `created_at`; grave os campos
+   nullable como `null` quando o harness não os expõe.
+4. Se qualquer campo obrigatório não puder ser observado na atualização corrente,
+   aplique o gate fail-closed: preserve o record legacy sem alteração e informe o
+   campo pendente. Nunca fabrique provenance para concluir a promoção.
 
 ## 2. Ciclo de vida — sob demanda e de carona
 
@@ -89,10 +126,12 @@ O record é criado/atualizado em dois gatilhos:
   `description`, `resume` e `updated_at` do record da sessão corrente. Sem perguntar,
   sem anunciar como tarefa — é manutenção de rotina.
 
-Mecânica da atualização: descubra a sessão corrente (seção 3), leia o record se
+Mecânica da atualização: descubra a sessão corrente (seção 3), resolva a identidade da
+máquina via `kb-infra`, leia o record se
 existir, reescreva o JSON inteiro in-place com os campos atualizados. Se o record não
 existe ainda, crie-o (`created_at` = agora). **`created_at` nunca muda** numa
-atualização — só `updated_at` avança.
+atualização — só `updated_at` avança. Se o arquivo existente for legacy, siga a
+promoção controlada descrita acima antes de reescrever.
 
 ## 3. Descoberta da sessão corrente
 
@@ -121,8 +160,10 @@ conteúdo (as últimas linhas devem bater com a conversa corrente) antes de assu
 
 Estrutura análoga a descobrir: um diretório de sessões por projeto, um arquivo por sessão
 nomeado pelo id. Se você não conseguir determinar o caminho com confiança, **degrade com
-elegância**: escreva o record sem `transcript_path` e diga explicitamente ao usuário o que
-ficou pendente. **Nunca invente um caminho de transcript.**
+elegância**: escreva `transcript_path: null` e diga explicitamente ao usuário o que
+ficou pendente. **Nunca invente um caminho de transcript.** A ausência de `session_id`
+não é degradável porque ele identifica tanto o arquivo quanto o point; nesse caso,
+recuse a escrita até resolver a sessão correta.
 
 > O `transcript_path` serve ao **modo degradado** do deep search (seção 4.2) e como
 > ponteiro auditável para a origem bruta da sessão. Ele **não** é pré-requisito do deep
@@ -220,8 +261,9 @@ O record é indexado na collection `knowledge-base` (desenho em `kb-infra`):
   bge-m3, igual às notas.
 - **Point ID**: o UUID do `session_id`.
 - **Payload**: `kind: "session"` (notas usam `kind: "note"` — ver `kb-infra`),
-  `harness`, `session_id`, `domain`, `name`, `created_at`, `updated_at`,
-  `transcript_path`.
+  `harness`, `session_id`, `session_name`, `app_name`, `domain`, `name`, `created_at`,
+  `updated_at`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname` e
+  `username`. Preserve os campos nullable com valor nulo.
 - **Re-upsert no mesmo point a cada atualização** — documento vivo → índice vivo. Sem
   `supersedes`, sem `archived`: o point é sempre o estado corrente da sessão.
 
@@ -248,5 +290,9 @@ Degrade sem Qdrant: o JSON em disco é escrito mesmo assim e a indexação fica
    `kb-write`.
 8. **Escrita só em `~/knowledge-base/`** — nunca no repo do usuário; scripts efêmeros
    via heredoc com o venv de `kb-infra`.
-9. **Harness não mapeado → degrade explícito** — record sem `transcript_path` e aviso
-   do que ficou pendente; nunca invente um caminho de transcript.
+9. **Harness não mapeado → degrade explícito** — record com `transcript_path: null` e
+   aviso do que ficou pendente; nunca invente um caminho de transcript. Sem
+   `session_id`, a escrita é recusada.
+10. **Proveniência de máquina é obrigatória** — leia a identidade persistente de
+    `~/.local/share/omh-kb/identity.json`; não use MAC address bruto nem gere um novo
+    UUID quando o arquivo já existir.

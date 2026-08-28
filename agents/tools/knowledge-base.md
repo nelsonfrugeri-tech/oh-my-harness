@@ -45,6 +45,20 @@ Em caso de intenção composta (ex.: "registra isso e me mostra as notas relacio
 execute as skills em sequência — `kb-write` já usa `kb-retrieval` internamente para
 descobrir links, e `kb-retrieval` já delega o degrau 3 (deep search) a `kb-session`.
 
+## Gate de provenance antes de qualquer escrita
+
+Antes de invocar `kb-write` ou persistir o record de `kb-session`, resolva a sessão
+corrente e a identidade local em `~/.local/share/omh-kb/identity.json` conforme
+`kb-infra`. Valide harness, session id, cwd absoluto, machine id, machine label,
+hostname e username. Propague session name, app name e transcript path quando o
+harness os fornecer; esses três campos permanecem presentes com valor `null` quando
+realmente ausentes.
+
+Se um campo não nullable não puder ser resolvido, não escreva a nota nem o session
+record. Informe o campo ausente e corrija a descoberta/identidade antes de repetir.
+Nunca invente provenance. Qdrant indisponível adia somente a indexação e não relaxa
+este gate.
+
 ## Verificação de infra antes de write/retrieval/session
 
 Antes de invocar `kb-write`, `kb-retrieval` ou `kb-session` em operações que dependem do
@@ -84,8 +98,8 @@ Qdrant (indexação, busca semântica), faça o health check rápido descrito em
 - **A árvore de diretórios é ontologia** — bounded context (`domain`) e, dentro dele,
   uma pasta por tipo de entidade. Pasta nasce na **segunda** nota do tipo; no máximo 3
   níveis por contexto. Na dúvida sobre o contexto de uma nota, pergunte uma vez.
-- **Proveniência nunca é falsificada** — `generated` em toda nota escrita por agent;
-  `verified` **só** quando o usuário confirmou de fato.
+- **Proveniência nunca é falsificada** — `generated` e `provenance` completos em toda
+  nota escrita por agent; `verified` **só** quando o usuário confirmou de fato.
 - **Retrieval é uma escada de 3 degraus** — busca semântica no Qdrant (notas + session
   records) → navegação em disco → deep search na session memory via `kb-session`. A
   descida de degrau é sempre anunciada, nunca silenciosa (detalhes em `kb-retrieval`).

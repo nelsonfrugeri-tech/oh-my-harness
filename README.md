@@ -305,9 +305,10 @@ Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
         decisions/
           <date>--<slug>.md # immutable notes: frontmatter (type, knowledge_type, ...) + body
         sessions/
-          <id>.json         # living session records: name, description, resume, transcript_path
+          <id>.json         # living records: session, app, machine, paths, and semantic resume
 
 ~/.local/share/omh-kb/      # runtime, OUTSIDE the bundle — derived and rebuildable
+  identity.json             # stable machine UUID + operator-facing label (m4, m1, ifood)
   qdrant/                   # local Qdrant volume (docker, port 6333)
   venv/                     # embedding environment
 ```
@@ -321,9 +322,11 @@ conversation`).
 - **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
   archived. The only edit ever allowed on an existing note is flipping its `status` to
   `deprecated` during a supersede.
-- **Provenance is never faked** — every agent-written note carries `generated: {by, at}`;
-  `verified: [{by: human:…}]` appears only when the user actually confirmed it. Retrieval
-  surfaces the difference instead of hiding it.
+- **Provenance is never faked** — every new note and session record identifies the harness,
+  session, absolute working directory, and stable machine identity. Harness-provided session/app
+  names and transcript paths are preserved or explicitly `null`; a missing required identity
+  blocks the write. Raw MAC addresses are not persisted. `verified: [{by: human:…}]` appears only
+  when the user actually confirmed the knowledge.
 - **Session records are living documents** — one JSON per harness session, rewritten in place
   (a named exception to note immutability), pointing at the harness's raw transcript so
   retrieval can deep-search what was actually said in past sessions.

@@ -1,12 +1,13 @@
 ---
-version: 2.1.0
+version: 2.2.0
 name: kb-retrieval
 description: |
   Recuperação de conhecimento da knowledge base (bundle OKF v0.2 em ~/knowledge-base/)
   como uma escada de 3 degraus: (1) busca semântica híbrida no Qdrant sobre notas E
   session records (query → embedding BAAI/bge-m3 dense+sparse → dois prefetch fundidos
-  com Reciprocal Rank Fusion, filtros por kind/type/knowledge_type/domain/data via
-  payload); (2) navegação estruturada do bundle em disco — descida pelos index.md dos
+  com Reciprocal Rank Fusion, filtros por kind/type/knowledge_type/domain/data e
+  provenance de harness/sessão/máquina via payload); (2) navegação estruturada do
+  bundle em disco — descida pelos index.md dos
   bounded contexts e pastas de tipo de entidade — como fallback sem Qdrant; (3) deep
   search na session memory bruta do harness via kb-session, quando os degraus
   anteriores não respondem. Cobre também travessia de relacionamentos por links
@@ -71,12 +72,19 @@ Desenho validado na era oh-my-kb — espelhe-o:
 4. **Filtros server-side no nível do prefetch** (não depois da fusão): `domain` (match
    no payload — o bounded context), `type` (o substantivo do domínio),
    `knowledge_type` (o enum epistêmico), janela de `created_at` (range DATETIME), e
-   `must_not archived=true` por padrão.
+   `must_not archived=true` por padrão. Quando a pergunta pedir origem, filtre também
+   por `harness`, `session_id`, `session_name`, `machine_id` ou `machine_label`.
 
    Os dois eixos de tipo servem a perguntas diferentes: filtre por `type` quando a
    pergunta é sobre uma **classe de coisa** ("quais serviços temos?"), e por
    `knowledge_type` quando é sobre a **natureza do conhecimento** ("que decisões
    tomamos?"). Filtrar pelos dois ao mesmo tempo quase sempre estreita demais.
+
+   Provenance responde perguntas auditáveis: `session_id` é a identidade canônica da
+   sessão, `session_name` é o nome legível quando existe, `machine_id` é a identidade
+   estável e `machine_label` é o nome operacional (`m4`, `m1`, `ifood`). Use campos
+   exatos, nunca inferência por path. Pontos legacy podem ter esses campos `null`; um
+   filtro de provenance os exclui deliberadamente e isso deve ser informado.
 
 A collection indexa **dois kinds** de ponto (payload `kind`, ver `kb-infra`): notas
 (`kind: "note"`, embedding do summary) e session records (`kind: "session"`, embedding
@@ -178,6 +186,9 @@ Quando a navegação não basta, caia no grep:
   `grep -rl "^knowledge_type: decision" ~/knowledge-base/<domain>/`.
 - **Por assunto**: grep por termos no `title`/`description`/`summary`/`entities` do
   frontmatter; leia só os frontmatters (head) antes de abrir corpos.
+- **Por provenance**: grep nos campos `harness`, `session_id`, `session_name`,
+  `machine_id` ou `machine_label` das notas e session records. Notas legacy sem
+  `provenance` não entram em filtros de origem; declare essa limitação.
 - **Cross-context**: o mesmo padrão com glob `~/knowledge-base/**/*.md`.
 
 E os session records: grep por termos nos campos `name`/`description`/`resume` dos
@@ -294,8 +305,8 @@ Fontes:
 ## Regras de execução
 
 1. **Read-only** — recuperação nunca escreve nada, nem em `~/knowledge-base/`.
-2. **Filtros no servidor** — domain/type/knowledge_type/data/archived via payload filter
-   no prefetch, nunca filtragem client-side após a fusão.
+2. **Filtros no servidor** — domain/type/knowledge_type/data/archived e provenance via
+   payload filter no prefetch, nunca filtragem client-side após a fusão.
 3. **No degrau 2, navegue antes de grepar** — a descida pelos `index.md` é mais barata e
    mais precisa que varredura por padrão.
 4. **Cadeias supersedes sempre resolvidas** — nunca apresente conhecimento arquivado

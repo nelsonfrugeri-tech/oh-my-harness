@@ -13,11 +13,13 @@ Antes de uma operação que use Qdrant, realize o quick health check definido po
 
 Em toda invocação, também atualize o session record atual por `kb-session`, sem perguntar. Mantenha essa nota de manutenção discreta no output. Se o harness atual não tiver transcript mapping, use o comportamento degradado de record da skill.
 
+Antes de qualquer escrita, aplique o gate de provenance definido por `kb-write` e `kb-session`. Resolva a identidade estável em `~/.local/share/omh-kb/identity.json` via `kb-infra`; valide harness, session id, cwd absoluto, machine id, machine label, hostname e username. Propague session name, app name e transcript path quando existirem e mantenha esses campos como `null` quando o harness realmente não os fornecer. Se um campo não nullable estiver ausente, não escreva a nota nem o session record; informe o campo e corrija a descoberta. Nunca invente provenance. Qdrant indisponível adia somente indexing e não relaxa este gate.
+
 Nunca escreva no repositório do usuário. Mantenha scripts efêmeros fora dele. Notas são imutáveis: correções criam uma nova nota com `supersedes`; somente session records e `context.md` são documentos vivos reescritos in place.
 
 Mantenha as regras OKF: o frontmatter Markdown da nota contém `type`; relacionamentos são links Markdown no corpo; `index.md` e `log.md` são arquivos reservados de navegação. Trate a árvore de diretórios como uma ontologia delimitada por `domain`, crie um diretório plural de entity type apenas a partir da segunda nota daquele tipo e mantenha no máximo três níveis por bounded context.
 
-Toda nota gerada registra proveniência real. Adicione human verification apenas após confirmação efetiva do usuário. Retrieval segue semantic hybrid search, navegação estruturada em disco e então session-memory deep search; anuncie todo fallback. Resolva capabilities abstratas como `web` a partir do `AGENTS.md` aplicável, nunca de nomes de tools hardcoded.
+Toda nota gerada registra `generated` e `provenance` completos. Adicione human verification apenas após confirmação efetiva do usuário. Retrieval segue semantic hybrid search, navegação estruturada em disco e então session-memory deep search; anuncie todo fallback. Resolva capabilities abstratas como `web` a partir do `AGENTS.md` aplicável, nunca de nomes de tools hardcoded.
 
 Informe o que foi escrito, indexado ou recuperado e o que permanece pending.
 """

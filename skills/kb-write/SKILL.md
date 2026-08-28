@@ -1,5 +1,5 @@
 ---
-version: 2.0.0
+version: 3.0.0
 name: kb-write
 description: |
   O scribe da knowledge base — playbook de julgamento e mecânica para registrar
@@ -12,8 +12,9 @@ description: |
   conhecimento foi obtido), quando criar vs. superseder (nota é conhecimento imutável
   num ponto do tempo — nunca editar in-place), como escrever o summary denso de 200-800
   chars que decide o recall, extração de entities e tags, relacionamentos como links
-  markdown no corpo (não como campo estruturado), proveniência (`generated` /
-  `verified`), sinais linguísticos do usuário para supersede, e quando NÃO escrever.
+  markdown no corpo (não como campo estruturado), proveniência de agent, harness,
+  sessão e máquina, sinais linguísticos do usuário para supersede, e quando NÃO
+  escrever.
   Invocada pelo agent `knowledge-base` quando a intenção é registrar conhecimento.
 type: capability
 ---
@@ -247,21 +248,61 @@ alto sem relação semântica real **não** vira link.
 > tem o índice. Link markdown é navegável por qualquer leitor, renderiza no GitHub,
 > resolve no Obsidian e desenha o grafo — e é exatamente o que o OKF especifica.
 
-## 7. Proveniência — quem escreveu, quem confirmou
+## 7. Proveniência — quem, em qual sessão e em qual máquina
 
-Todo conhecimento gravado por um agent carrega a marca de quem o produziu. É isto que
-separa "o modelo escreveu sozinho" de "o humano confirmou":
+Todo conhecimento gravado por um agent carrega duas camadas de proveniência:
+
+1. `generated` e `verified` registram quem produziu e quem confirmou o conhecimento.
+2. `provenance` identifica o harness, a sessão, a execução e a máquina que originaram
+   a escrita.
 
 ```yaml
 generated:
-  by: knowledge-base/1.0        # o agent que escreveu
+  by: knowledge-base/3.0        # o agent que escreveu
   at: 2026-08-01T14:30:00Z
+provenance:
+  harness:
+    name: codex
+    session_id: 55cb8ac6-ffb4-417c-b9af-62e513f14737
+    session_name: refactor-da-biblioteca-portable
+    app_name: Codex Desktop
+  execution:
+    cwd: /Users/nelson.frugeri/projects/harness/oh-my-harness
+    transcript_path: /Users/nelson.frugeri/.codex/sessions/2026/08/01/rollout.jsonl
+  machine:
+    id: 49d7a0f0-4f0d-4ea0-8987-0f442fab9130
+    label: m4
+    hostname: MacBook-Pro-de-Nelson
+    username: nelson.frugeri
 verified:
   - by: human:nelson            # o prefixo human: é obrigatório e define o tier de confiança
     at: 2026-08-01T15:02:00Z
 ```
 
 - **`generated` sempre.** Nenhuma nota escrita por agent sai sem ele.
+- **Campos obrigatórios e não nulos:** `provenance.harness.name`,
+  `provenance.harness.session_id`, `provenance.execution.cwd`,
+  `provenance.machine.id`, `provenance.machine.label`,
+  `provenance.machine.hostname` e `provenance.machine.username`.
+- Valor vazio ou composto apenas por whitespace equivale a ausente.
+- **Campos obrigatoriamente presentes, mas nullable:**
+  `provenance.harness.session_name`, `provenance.harness.app_name` e
+  `provenance.execution.transcript_path`. Preserve o valor fornecido pelo harness;
+  quando ele realmente não existir, grave `null`, nunca string vazia ou valor
+  inventado.
+- **Paths sempre absolutos.** `cwd` nunca usa `~` nem path relativo. Quando houver
+  transcript, `transcript_path` segue a mesma regra.
+- **Identidade local estável.** Leia `machine.id` e `machine.label` de
+  `~/.local/share/omh-kb/identity.json`, inicializado de forma idempotente por
+  `kb-infra`. O UUID nunca muda; `label` é o nome operacional legível (`m4`, `m1`,
+  `ifood`). Capture `hostname` e `username` observados no momento da escrita.
+- **Não use MAC address bruto.** Uma máquina pode ter vários adaptadores, MAC
+  randomizado e mudanças por dock ou rede; além disso, é um identificador sensível.
+  O UUID de `identity.json` é a identidade canônica da máquina.
+- **Falha fechada.** Se qualquer campo obrigatório não puder ser resolvido, não escreva
+  a nota. Informe exatamente o campo ausente e inicialize/corrija a identidade ou a
+  descoberta da sessão antes de tentar novamente. A indisponibilidade do Qdrant não
+  muda esta regra: ela adia apenas a indexação, nunca a proveniência.
 - **`verified` só quando houve confirmação real do usuário** — ele leu e concordou.
   Nunca preencha `verified` por conta própria: seria falsificar a única marca de
   confiança que a KB tem.
@@ -303,6 +344,20 @@ status: stable | draft | deprecated
 generated:
   by: <producer/version>
   at: <ISO 8601 UTC>
+provenance:
+  harness:
+    name: <harness>
+    session_id: <id real da sessão>
+    session_name: <nome real da sessão, ou null>
+    app_name: <nome do app registrado pela sessão, ou null>
+  execution:
+    cwd: <path absoluto>
+    transcript_path: <path absoluto, ou null>
+  machine:
+    id: <uuid estável de ~/.local/share/omh-kb/identity.json>
+    label: <nome operacional da máquina>
+    hostname: <hostname observado>
+    username: <usuário observado>
 verified:                       # só se houve confirmação humana real
   - by: human:<id>
     at: <ISO 8601 UTC>
@@ -343,7 +398,10 @@ Nenhum dos dois carrega frontmatter de conceito, e nenhum é indexado como nota.
 Após gravar o arquivo, indexe na collection `knowledge-base` (desenho em `kb-infra`):
 embede o **summary** com bge-m3 (dense 1024 + sparse) e faça upsert com o `id` da nota
 como point id e payload `kind: "note"`, `id`, `title`, `type`, `knowledge_type`,
-`domain`, `created_at`, `summary`, `path` (absoluto), `supersedes`, `archived: false`.
+`domain`, `created_at`, `summary`, `path` (absoluto), `supersedes`, `archived: false`,
+`harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`,
+`machine_id`, `machine_label`, `hostname` e `username`. Os campos nullable permanecem
+no payload com valor nulo; não os omita.
 Ao superseder, faça as duas coisas: vire o `status` da nota antiga para `deprecated` no
 frontmatter dela (a única mutação permitida — ver seção 3) e atualize o payload dela
 para `archived: true`. O corpo da nota antiga nunca muda.
@@ -364,8 +422,9 @@ reconcilia depois. Nunca deixe de registrar conhecimento por falta de índice.
    relação explicada na prosa. `links_out` não existe mais.
 5. **Summary 200–800 chars, ≠ título, ≠ `description`, prosa sem bullets** — é o
    contrato de recall.
-6. **`generated` em toda nota; `verified` só com confirmação humana real.** Nunca
-   falsifique a marca de confiança.
+6. **`generated` e `provenance` completos em toda nota; `verified` só com confirmação
+   humana real.** Proveniência obrigatória ausente bloqueia a escrita; nunca invente
+   metadata para satisfazer o schema.
 7. **Pasta nasce na segunda nota do tipo; no máximo 3 níveis por bounded context.**
 8. **Uma nota, um conhecimento** — natureza mista vira duas notas linkadas.
 9. **Busque antes de escrever** — para descobrir relacionamentos e evitar duplicar nota

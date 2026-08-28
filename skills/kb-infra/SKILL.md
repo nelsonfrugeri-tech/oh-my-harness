@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 name: kb-infra
 description: |
   Sobe, verifica e mantém a infraestrutura da knowledge base: Qdrant local via docker
@@ -86,6 +86,34 @@ teardown e o próximo `up` volta com o índice intacto. Apagar o volume é açã
 só com confirmação explícita do usuário (e é recuperável via reindex, pois o disco é a
 fonte da verdade).
 
+### Identidade estável da máquina
+
+Cada máquina que escreve na KB possui uma identidade local em
+`~/.local/share/omh-kb/identity.json`, fora do bundle sincronizado:
+
+```json
+{
+  "id": "49d7a0f0-4f0d-4ea0-8987-0f442fab9130",
+  "label": "m4",
+  "created_at": "2026-08-28T18:00:00Z"
+}
+```
+
+- `id` é um UUID v4 gerado uma única vez e nunca substituído enquanto a instalação
+  representar a mesma máquina.
+- `label` é o nome operacional legível escolhido pelo usuário (`m4`, `m1`, `ifood`).
+  Aceite `OMH_MACHINE_LABEL` em instalação não interativa; sem ele, pergunte uma vez.
+- Crie o arquivo com permissão `0600` e escrita atômica. Se já existir, valide o schema
+  e preserve `id`; nunca regenere silenciosamente.
+- `hostname` e `username` não ficam congelados nesse arquivo: são observados em cada
+  escrita e registrados na provenance da nota/session record.
+- Não persista MAC address bruto. Interfaces múltiplas, randomização e troca de rede
+  tornam esse dado instável e sensível; `id` é a identidade canônica.
+
+Sem `identity.json` válido, `kb-write` e `kb-session` recusam a escrita. Isso não é o
+mesmo que Qdrant indisponível: o índice pode ficar pending, mas provenance perdida não
+pode ser reconstruída com segurança.
+
 ---
 
 ## 2. Ambiente de embedding — `BAAI/bge-m3` via FlagEmbedding
@@ -170,8 +198,10 @@ por `kb-write`) e session records (`kind: "session"`, mantidos por `kb-session`)
 | Payload index | `created_at` → `DATETIME` (permite `order_by`/filtros temporais sem full-scan) |
 | Payload index | `domain` → `KEYWORD` (acelera filtro por bounded context) |
 | Payload index | `kind` → `KEYWORD` (separa notas de session records no filtro) |
-| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `created_at`, `summary`, `path`, `supersedes`, `archived` |
-| Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `domain`, `name`, `created_at`, `updated_at`, `transcript_path` |
+| Payload index | `harness`, `session_id`, `session_name` → `KEYWORD` (provenance da sessão) |
+| Payload index | `machine_id`, `machine_label` → `KEYWORD` (provenance da máquina) |
+| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `created_at`, `summary`, `path`, `supersedes`, `archived`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
+| Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `session_name`, `app_name`, `domain`, `name`, `created_at`, `updated_at`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
 
 Note os **dois eixos de tipo** no payload de nota: `type` é o substantivo do domínio
 (exigido pelo OKF — `system`, `person`, `decision`...) e `knowledge_type` é o enum
@@ -199,6 +229,12 @@ if not client.collection_exists("knowledge-base"):
 client.create_payload_index("knowledge-base", "created_at", field_schema=PayloadSchemaType.DATETIME)
 client.create_payload_index("knowledge-base", "domain", field_schema=PayloadSchemaType.KEYWORD)
 client.create_payload_index("knowledge-base", "kind", field_schema=PayloadSchemaType.KEYWORD)
+for field in ("harness", "session_id", "session_name", "machine_id", "machine_label"):
+    client.create_payload_index(
+        "knowledge-base",
+        field,
+        field_schema=PayloadSchemaType.KEYWORD,
+    )
 ```
 
 ---
@@ -212,13 +248,21 @@ pendente), ou o volume foi perdido, reconstrua o índice a partir do disco:
    `log.md` e o `context.md` de cada contexto — **e** os session records
    (`~/knowledge-base/**/sessions/*.json`).
 2. Para cada nota, extraia o frontmatter (`id`, `title`, `type`, `knowledge_type`,
-   `domain`, `created_at`, `summary`, `supersedes`, `status`) e embede o **summary**
+   `domain`, `created_at`, `summary`, `supersedes`, `status`, `provenance`) e embede o **summary**
    (dense + sparse), com payload `kind: "note"`. O payload `archived` **é derivado**,
    não lido: `archived = (status == "deprecated")` — `archived` não existe no
    frontmatter. Nota sem `type` não é conforme ao OKF — reporte em vez de indexar
    silenciosamente. Para cada session record, embede
    `name + "\n" + description + "\n" + resume` com payload `kind: "session"` (campos
    em `kb-session`).
+   Notas anteriores ao contrato de provenance continuam legíveis: indexe seus campos
+   de provenance como `null` e reporte-as como legacy; nunca edite notas imutáveis para
+   fabricar metadata histórica. A mesma regra vale para session records anteriores ao
+   schema v3: projete todo campo novo ausente como `null`, reporte o record como legacy
+   e continue o lote. O reindex nunca modifica o JSON nem atribui a identidade da
+   máquina que executa o reindex a uma sessão histórica. Somente `kb-session`, ao
+   atualizar a sessão corrente, pode promover o record com valores observados; se um
+   campo obrigatório continuar indisponível, preserva o record sem alteração.
 3. Faça upsert no Qdrant usando o UUID como point id (`id` da nota; `session_id` do
    record) — upsert por id é naturalmente idempotente: reindexar duas vezes não
    duplica nada.
