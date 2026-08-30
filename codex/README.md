@@ -73,6 +73,11 @@ instructions, MCP servers, plugins, and personal skills. It removes stale symlin
 ownership manifest proves they were created by a previous run, and stops instead of replacing an
 unmanaged path.
 
+An externally installed Graphify skill is preserved only when its upstream marker and complete
+file tree match the repository copy. `upstream_version` records provenance; it is not proof of
+distribution identity. A local or upstream copy with the same version marker but different content
+is reported as a conflict instead of silently bypassing harness patches.
+
 ## MCP integrations
 
 The installer wires Deja when its CLI is present and registers Graphify when its MCP executable can

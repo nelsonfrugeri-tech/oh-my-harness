@@ -5,6 +5,7 @@ from typing import Type
 
 from lib.layout import InstallLayout
 from lib.link_manifest import ManagedLinkManifest
+from lib.skill_identity import graphify_distribution_matches
 
 
 class ManagedLinks:
@@ -146,10 +147,18 @@ class ManagedLinks:
         if source.name != "graphify" or target.is_symlink() or not target.is_dir():
             return False
         version_file = target / ".graphify_version"
-        if not version_file.is_file():
+        if version_file.is_symlink() or not version_file.is_file():
             return False
         expected = self._upstream_version(source / "SKILL.md")
-        return version_file.read_text(encoding="utf-8").strip() == expected
+        try:
+            actual = version_file.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeError):
+            return False
+        return (
+            bool(expected)
+            and actual == expected
+            and graphify_distribution_matches(source, target)
+        )
 
     def _upstream_version(self, skill_file: Path) -> str:
         for line in skill_file.read_text(encoding="utf-8").splitlines():

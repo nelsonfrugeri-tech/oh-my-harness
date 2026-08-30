@@ -77,6 +77,11 @@ Nunca sobrescreva um arquivo ou diretório pertencente ao usuário onde for espe
 o path exato. O usuário deve decidir se quer preservá-lo, movê-lo ou substituí-lo. Blocos de texto gerenciados
 e entradas de hooks gerenciadas podem ser atualizados com segurança porque seus marcadores de posse são explícitos.
 
+Preserve uma instalação Graphify que não seja symlink somente quando seu `.graphify_version`
+corresponder à proveniência vendored e toda a árvore de arquivos for idêntica à distribuição do
+repositório. O marker upstream isolado não identifica patches do harness; qualquer drift de conteúdo
+é um conflito.
+
 Antes de alterar um arquivo global editável, o installer cria um sibling `.omh.bak` de uso único.
 
 ## Validação

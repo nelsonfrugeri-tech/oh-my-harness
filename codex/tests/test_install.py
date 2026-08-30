@@ -11,6 +11,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from lib.layout import InstallLayout
+from lib.skill_identity import graphify_distribution_matches
 from lib.sync import CodexInstaller, InstallConflict
 import install as install_module
 
@@ -175,20 +176,70 @@ class CodexInstallerTest(unittest.TestCase):
         integrations.assert_not_called()
 
     def test_install_preserves_compatible_external_graphify(self) -> None:
-        source = self._source / "skills/graphify"
-        source.mkdir(parents=True)
-        source.joinpath("SKILL.md").write_text(
-            "---\nupstream_version: 0.9.27\nname: graphify\n---\n",
-            encoding="utf-8",
-        )
+        source = self._create_graphify_source()
         target = self._agents_home / "skills/graphify"
-        target.mkdir(parents=True)
+        target.parent.mkdir(parents=True)
+        shutil.copytree(source, target)
         target.joinpath(".graphify_version").write_text("0.9.27", encoding="utf-8")
 
         results = self._installer.install()
 
         self.assertTrue(any(result.startswith("preservada:") for result in results))
         self.assertFalse(target.is_symlink())
+
+    def test_install_rejects_external_graphify_with_same_version_and_different_content(
+        self,
+    ) -> None:
+        self._create_graphify_source()
+        target = self._agents_home / "skills/graphify"
+        target.mkdir(parents=True)
+        target.joinpath("SKILL.md").write_text("upstream content\n", encoding="utf-8")
+        target.joinpath(".graphify_version").write_text("0.9.27", encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+        self.assertFalse(self._codex_home.joinpath("oh-my-harness").exists())
+
+    def test_install_rejects_external_graphify_with_changed_reference(self) -> None:
+        source = self._create_graphify_source()
+        target = self._agents_home / "skills/graphify"
+        target.parent.mkdir(parents=True)
+        shutil.copytree(source, target)
+        target.joinpath(".graphify_version").write_text("0.9.27", encoding="utf-8")
+        target.joinpath("references/hooks.md").write_text("stale hooks\n", encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+    def test_validate_detects_external_graphify_after_source_changes(self) -> None:
+        source = self._create_graphify_source()
+        target = self._agents_home / "skills/graphify"
+        target.parent.mkdir(parents=True)
+        shutil.copytree(source, target)
+        target.joinpath(".graphify_version").write_text("0.9.27", encoding="utf-8")
+        self._installer.install()
+        source.joinpath("references/hooks.md").write_text("new harness hooks\n", encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.validate()
+
+    def test_install_rejects_external_graphify_with_invalid_version_marker(self) -> None:
+        source = self._create_graphify_source()
+        target = self._agents_home / "skills/graphify"
+        target.parent.mkdir(parents=True)
+        shutil.copytree(source, target)
+        target.joinpath(".graphify_version").write_bytes(b"\xff")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+    def test_graphify_identity_rejects_unencodable_paths(self) -> None:
+        error = UnicodeEncodeError("utf-8", "\udcff", 0, 1, "surrogate")
+        with mock.patch("lib.skill_identity._tree_digest", side_effect=error):
+            matches = graphify_distribution_matches(Path("source"), Path("target"))
+
+        self.assertFalse(matches)
 
     def test_validate_detects_stale_managed_agents_block(self) -> None:
         self._installer.install()
@@ -234,6 +285,17 @@ class CodexInstallerTest(unittest.TestCase):
             }
         }
         self._source.joinpath("codex/hooks.json").write_text(json.dumps(hooks), encoding="utf-8")
+
+    def _create_graphify_source(self) -> Path:
+        source = self._source / "skills/graphify"
+        references = source / "references"
+        references.mkdir(parents=True)
+        source.joinpath("SKILL.md").write_text(
+            "---\nupstream_version: 0.9.27\nname: graphify\n---\nWorkspace safety.\n",
+            encoding="utf-8",
+        )
+        references.joinpath("hooks.md").write_text("native hooks\n", encoding="utf-8")
+        return source
 
 
 if __name__ == "__main__":
