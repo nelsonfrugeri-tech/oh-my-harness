@@ -31,6 +31,10 @@ class InstallLayout:
         return self.codex_home / "oh-my-harness-links.json"
 
     @property
+    def agents_manifest(self) -> Path:
+        return self.codex_home / "oh-my-harness-agents.json"
+
+    @property
     def personal_skills(self) -> Path:
         return self.agents_home / "skills"
 

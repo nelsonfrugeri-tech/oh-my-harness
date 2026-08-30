@@ -42,7 +42,10 @@ class CodexInstallerTest(unittest.TestCase):
         self._installer.install()
 
         self.assertTrue(self._agents_home.joinpath("skills/example").is_symlink())
-        self.assertTrue(self._codex_home.joinpath("agents/developer.toml").is_symlink())
+        installed_agent = self._codex_home / "agents/developer.toml"
+        self.assertTrue(installed_agent.is_file())
+        self.assertFalse(installed_agent.is_symlink())
+        self.assertEqual('name = "developer"\n', installed_agent.read_text(encoding="utf-8"))
         self.assertTrue(self._codex_home.joinpath("hooks/context-load.sh").is_symlink())
         agents = self._codex_home.joinpath("AGENTS.md").read_text(encoding="utf-8")
         self.assertIn("Personal rule.", agents)
@@ -138,6 +141,79 @@ class CodexInstallerTest(unittest.TestCase):
         second_agents = self._codex_home.joinpath("AGENTS.md").read_text(encoding="utf-8")
         self.assertEqual(first_agents, second_agents)
         self.assertTrue(all(result.startswith("ok:") for result in self._installer.validate()))
+
+    def test_install_updates_an_unchanged_managed_agent_copy(self) -> None:
+        self._installer.install()
+        source = self._source / "codex/agents/developer.toml"
+        source.write_text('name = "developer"\ndescription = "updated"\n', encoding="utf-8")
+
+        self._installer.install()
+
+        target = self._codex_home / "agents/developer.toml"
+        self.assertEqual(source.read_text(encoding="utf-8"), target.read_text(encoding="utf-8"))
+
+    def test_install_migrates_a_managed_agent_symlink_to_a_copy(self) -> None:
+        source = self._source / "codex/agents/developer.toml"
+        target = self._codex_home / "agents/developer.toml"
+        target.parent.mkdir(parents=True)
+        target.symlink_to(source)
+        manifest = {"version": 1, "links": [{"target": str(target), "source": str(source)}]}
+        self._layout.links_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+
+        self._installer.install()
+
+        self.assertTrue(target.is_file())
+        self.assertFalse(target.is_symlink())
+        self.assertEqual(source.read_text(encoding="utf-8"), target.read_text(encoding="utf-8"))
+
+    def test_failed_agent_copy_preserves_the_managed_agent_symlink(self) -> None:
+        source = self._source / "codex/agents/developer.toml"
+        target = self._codex_home / "agents/developer.toml"
+        target.parent.mkdir(parents=True)
+        target.symlink_to(source)
+        manifest = {"version": 1, "links": [{"target": str(target), "source": str(source)}]}
+        self._layout.links_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+
+        with mock.patch("lib.agent_copies.atomic_write", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError):
+                self._installer.install()
+
+        self.assertTrue(target.is_symlink())
+        self.assertEqual(source.resolve(), target.resolve())
+
+    def test_install_refuses_to_replace_a_modified_managed_agent_copy(self) -> None:
+        self._installer.install()
+        target = self._codex_home / "agents/developer.toml"
+        target.write_text('name = "personal"\n', encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+    def test_install_rejects_an_agent_manifest_target_outside_the_managed_directory(self) -> None:
+        outside = self._temporary.name + "/outside.toml"
+        manifest = {
+            "version": 1,
+            "agents": [{"target": outside, "source": outside, "sha256": "0" * 64}],
+        }
+        self._codex_home.mkdir(parents=True)
+        self._layout.agents_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+    def test_install_rejects_a_structurally_invalid_agent_manifest(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        self._layout.agents_manifest.write_text('{"version": 1, "agents": [{}]}', encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+    def test_install_rejects_invalid_agent_manifest_json(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        self._layout.agents_manifest.write_text("{", encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
 
     def test_install_refuses_to_replace_user_owned_skill(self) -> None:
         skill = self._agents_home / "skills/example"

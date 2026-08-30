@@ -60,7 +60,7 @@ O installer:
 
 1. cria links das skills compartilhadas e exclusivas do Codex em `~/.agents/skills/<name>/`, excluindo a
    skill de instalação exclusiva do Claude;
-2. cria links dos TOMLs de agents customizados do Codex em `~/.codex/agents/`;
+2. copia os TOMLs de agents customizados do Codex para `~/.codex/agents/` com ownership registrado;
 3. cria o link do adapter completo em `~/.codex/oh-my-harness`;
 4. substitui somente o bloco `omh-managed` dentro de `~/.codex/AGENTS.md` global;
 5. substitui somente o context hook gerenciado em `~/.codex/hooks.json`, preservando hooks não relacionados;

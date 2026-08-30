@@ -22,6 +22,9 @@ class ManagedLinkManifest:
             )
         )
 
+    def owns(self, target: Path, source: Path) -> bool:
+        return (target, source) in self._entries() and self._is_recorded_link(target, source)
+
     def write(self, entries: tuple[tuple[Path, Path], ...]) -> str:
         content = self._content(entries)
         if self._path.exists() and self._path.read_text(encoding="utf-8") == content:

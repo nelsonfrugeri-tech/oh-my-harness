@@ -22,10 +22,6 @@ class ManagedLinks:
             for path in self._layout.hook_sources()
         )
         results.extend(self._install_skills())
-        results.extend(
-            self._link(path, self._layout.custom_agents / path.name)
-            for path in self._layout.agent_sources()
-        )
         results.append(self._manifest.write(self._current_entries()))
         return tuple(results)
 
@@ -37,8 +33,6 @@ class ManagedLinks:
             target = self._layout.personal_skills / source.name
             if not self._is_compatible_external_graphify(source, target):
                 self._check_available(source, target)
-        for source in self._layout.agent_sources():
-            self._check_available(source, self._layout.custom_agents / source.name)
 
     def validate(self) -> tuple[str, ...]:
         orphans = self._managed_orphans()
@@ -50,10 +44,6 @@ class ManagedLinks:
             for path in self._layout.hook_sources()
         )
         results.extend(self._check_skill(path) for path in self._layout.skill_sources())
-        results.extend(
-            self._check_link(self._layout.custom_agents / path.name, path)
-            for path in self._layout.agent_sources()
-        )
         results.append(self._manifest.validate(self._current_entries()))
         return tuple(results)
 
@@ -76,10 +66,6 @@ class ManagedLinks:
             self._layout.installed_hooks / source.name
             for source in self._layout.hook_sources()
         )
-        expected.update(
-            self._layout.custom_agents / source.name
-            for source in self._layout.agent_sources()
-        )
         expected.add(self._layout.installed_adapter)
         return self._manifest.orphans(expected)
 
@@ -93,13 +79,9 @@ class ManagedLinks:
             (self._layout.personal_skills / source.name, source)
             for source in self._layout.skill_sources()
         )
-        agents = (
-            (self._layout.custom_agents / source.name, source)
-            for source in self._layout.agent_sources()
-        )
         return tuple(
             (target, source)
-            for target, source in (*candidates, *hooks, *skills, *agents)
+            for target, source in (*candidates, *hooks, *skills)
             if target.is_symlink() and target.resolve() == source.resolve()
         )
 
