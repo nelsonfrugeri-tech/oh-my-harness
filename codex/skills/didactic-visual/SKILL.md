@@ -2,118 +2,119 @@
 version: 1.1.0
 name: didactic-visual
 description: |
-  Use when explaining a technical concept, decision, trade-off, architecture, failure mode, or
-  implementation approach in conversation and a compact visual would make the relationship easier
-  to understand. Requires the evidence skill and the active AGENTS.md evidence contract. Make
-  explainability central: connect conclusions to evidence, mechanism, limitations, and action.
-  Favor a conclusion-first answer, progressive disclosure, plain
-  language, and useful tables, ASCII diagrams, or terminal charts. Do not use for source code,
-  comments,
-  docstrings, or repository documentation, where the project's conventions take precedence.
-  Common triggers:
-  explain this, compare these options, show the flow, make it visual, what is the trade-off, does
-  this approach make sense, /didactic-visual.
+  Use ao explicar um conceito técnico, decisão, trade-off, arquitetura, modo de falha ou abordagem
+  de implementação em conversa quando um visual compacto facilitar a compreensão da relação.
+  Requer a skill evidence e funciona tanto na instalação plugin-only quanto com o adapter global.
+  Torne explainability central: conecte conclusões a evidência, mecanismo, limitações e ação.
+  Prefira conclusão primeiro, progressive disclosure, linguagem simples e tables, diagramas ASCII
+  ou terminal charts úteis. Não use em código-fonte, comentários, docstrings ou documentação do
+  repositório, onde prevalecem as convenções do projeto. Triggers comuns: explique isto, compare
+  estas opções, mostre o flow, torne visual, qual é o trade-off, esta abordagem faz sentido,
+  /didactic-visual.
 type: capability
 ---
 
 # Didactic Visual
 
-Explain technical material so an experienced reader can understand the decision on the first pass.
-Respond in the user's language and preserve established technical terms in English when clearer.
+Explique material técnico para que uma pessoa experiente compreenda a decisão na primeira leitura.
+Responda no idioma do usuário e preserve termos técnicos estabelecidos em inglês quando mais claros.
 
-> Formatting earns its place only when it reduces cognitive effort.
+> A formatação só merece espaço quando reduz o esforço cognitivo.
 
-## Hard prerequisite: evidence first
+## Prerequisite: evidence first
 
-1. Load `oh-my-harness:evidence` and apply the active `AGENTS.md` evidence contract before drafting.
-2. If either dependency is unavailable, Stop and report the missing prerequisite; do not continue
-   under `didactic-visual`.
-3. Let the evidence workflow establish claims, provenance, uncertainty, alternatives, and decisions.
-4. Apply this skill only as the presentation layer after that factual substrate is sound.
-
-```text
-evidence skill + AGENTS.md contract → rigorous content → didactic-visual presentation
-```
-
-Never reclassify, hide, or simplify away uncertainty to make a visual cleaner.
-
-## Build the answer
-
-1. Lead with the conclusion or direct answer.
-2. Give only the context needed to understand that conclusion.
-3. Separate observed facts, derived results, inferences, hypotheses, estimates, unknowns, and
-   decisions whenever mixing them could change what the reader does.
-4. Choose prose, a list, a table, or an ASCII diagram by relationship type.
-5. Add the next layer only when it materially helps or the user asks for more detail.
-
-## Build an explanatory narrative
-
-For a substantial explanation, use this spine and omit only stages that genuinely do not apply:
+1. Carregue `oh-my-harness:evidence` antes de redigir. Se a skill estiver indisponível, pare e
+   informe exatamente o prerequisite ausente.
+2. Quando houver um evidence contract ativo no `AGENTS.md`, aplique-o como additional constraints;
+   sua ausência não é um blocker porque esta skill é autocontida na instalação plugin-only.
+3. Deixe o workflow de evidence estabelecer alegações, provenance, incerteza, alternativas e
+   decisões.
+4. Aplique esta skill somente como camada de apresentação depois que a base factual estiver sólida.
 
 ```text
-problem → components → method → evidence → results → limitations → next steps
+evidence skill + additional constraints opcionais → conteúdo rigoroso → apresentação didática
 ```
 
-- Open long answers with a compact executive summary; skip it when the direct answer is already
-  short.
-- Use official names for services and systems on first mention, then define any abbreviation.
-- Explain data concepts in accessible language without sacrificing technical precision.
-- Distinguish verified facts from derived conclusions at the point where each appears.
-- Add simple flows, comparison tables, and concrete examples only when they improve understanding.
+Nunca reclassifique, esconda ou simplifique incerteza para deixar um visual mais limpo.
 
-## Make the explanation auditable
+## Construa a resposta
 
-Treat explainability as the ability to inspect why a conclusion follows, not as disclosure of
-private chain-of-thought. For every material conclusion, expose the concise, verifiable rationale:
+1. Comece pela conclusão ou resposta direta.
+2. Dê somente o contexto necessário para compreender essa conclusão.
+3. Separe fatos observados, resultados derivados, inferências, hipóteses, estimativas, desconhecidos
+   e decisões sempre que misturá-los puder mudar a ação do leitor.
+4. Escolha prosa, lista, table ou diagrama ASCII conforme o tipo de relação.
+5. Adicione a próxima camada apenas quando ela ajudar materialmente ou o usuário pedir detalhes.
+
+## Construa uma narrativa explicativa
+
+Para uma explicação substancial, use esta estrutura e omita somente etapas inaplicáveis:
 
 ```text
-claim → evidence → mechanism → limitations → action
+problema → componentes → método → evidência → resultados → limitações → próximos passos
 ```
 
-- Explain the mechanism that connects cause and effect instead of naming only the outcome.
-- Identify the evidence or decision factor supporting each important conclusion.
-- State limitations, counterexamples, and conditions that would change the answer.
-- Name meaningful alternatives and why the recommendation differs from them.
-- Never use "best practice" as a substitute for an inspectable reason.
+- Abra respostas longas com um executive summary compacto; omita-o quando a resposta já for curta.
+- Use nomes oficiais de serviços e sistemas na primeira menção e depois defina abreviações.
+- Explique conceitos de dados em linguagem acessível sem perder precisão técnica.
+- Diferencie fatos verificados de conclusões derivadas no ponto em que cada um aparece.
+- Adicione flows, comparison tables e exemplos somente quando melhorarem a compreensão.
 
-## Prefer terminal-native visuals
+## Torne a explicação auditável
 
-When explicitly invoked for a substantial explanation, include at least one useful visual. Omit it
-only when there is no meaningful relationship or quantitative data to visualize, and say why.
+Trate explainability como a capacidade de inspecionar por que uma conclusão decorre da evidência,
+não como exposição de chain-of-thought privado. Para cada conclusão material, exponha a justificativa
+concisa e verificável:
 
-| Relationship | Prefer | Use when |
+```text
+alegação → evidência → mecanismo → limitações → ação
+```
+
+- Explique o mecanismo que conecta causa e efeito, em vez de citar apenas o resultado.
+- Identifique a evidência ou fator de decisão que sustenta cada conclusão importante.
+- Declare limitações, contraexemplos e condições que mudariam a resposta.
+- Nomeie alternativas relevantes e por que a recomendação difere delas.
+- Nunca use "best practice" no lugar de uma justificativa inspecionável.
+
+## Prefira visuals terminal-native
+
+Antes de criar um visual, aplique uma guard clause: se a resposta for um fato único, um mapeamento
+de uma etapa ou couber claramente em uma frase, responda sem visual. Um pedido explícito não elimina
+esse critério nem cria obrigação de desenhar; explique a omissão somente se o usuário pediu o visual.
+Para uma explicação substancial que passe essa guard clause, inclua pelo menos um visual útil.
+
+| Relação | Prefira | Use quando |
 | --- | --- | --- |
-| Sequence or state change | ASCII flow or timeline | Three or more dependent steps |
-| Exact mappings or repeated fields | Table | Rows share the same comparison axes |
-| Hierarchy or ownership | Tree | Nesting is harder to express linearly |
-| Magnitude or ranking | Horizontal bars | Values need proportional comparison |
-| Trend over time | Sparkline or time-series bars | Ordered measurements show movement |
-| Distribution | Histogram | Buckets reveal concentration or spread |
+| Sequência ou mudança de estado | ASCII flow ou timeline | Três ou mais etapas dependentes |
+| Mapeamentos exatos ou campos repetidos | Table | Linhas compartilham os mesmos eixos |
+| Hierarquia ou ownership | Tree | Nesting é mais difícil em prosa |
+| Magnitude ou ranking | Horizontal bars | Valores pedem comparação proporcional |
+| Tendência temporal | Sparkline ou time-series bars | Medidas ordenadas mostram movimento |
+| Distribuição | Histogram | Buckets revelam concentração ou dispersão |
 
-For every quantitative terminal-native chart, state scale, unit, time window, source, and method.
-Preserve proportional lengths, mark missing values, and never fabricate data or false precision.
-Keep labels short and follow the visual with a one-sentence interpretation.
+Para todo terminal-native chart quantitativo, declare escala, unidade, população ou denominador,
+janela temporal, fonte e método. Preserve comprimentos proporcionais, marque valores ausentes e
+nunca fabrique dados ou falsa precisão. Mantenha labels curtas e interprete o visual em uma frase.
 
-## Keep the response scannable
+## Mantenha a resposta escaneável
 
-- Keep paragraphs to roughly three sentences.
-- Use headings only for real sections.
-- Use bold text as a sparse scanning anchor, not decoration.
-- Use inline code for identifiers, commands, fields, and technical values.
-- Put a blank line around CommonMark lists, headings, tables, and code blocks.
-- Use emoji only as a status signal when it adds meaning.
-- Avoid repeating the conclusion as a closing summary.
+- Limite parágrafos a aproximadamente três frases.
+- Use headings apenas para seções reais e bold como âncora visual esparsa, não como decoração.
+- Use inline code para identificadores, comandos, campos e valores técnicos.
+- Deixe uma linha em branco ao redor de listas, headings, tables e code blocks em CommonMark.
+- Use emoji somente como status signal quando acrescentar significado.
+- Não repita a conclusão como resumo final.
 
-## Compact example
+## Exemplo compacto
 
 ```text
 installer --check
       │
-      ├── static files ───── verified
-      └── runtime trust ──── not inspected
-                                 │
-                                 ▼
-                        health claim is limited
+      ├── arquivos estáticos ─── verificados
+      └── trust em runtime ───── não inspecionado
+                                      │
+                                      ▼
+                             alegação de saúde limitada
 ```
 
-State the verified result and its boundary next to the visual; do not let formatting imply more.
+Declare o resultado verificado e seu limite junto ao visual; não deixe a formatação insinuar mais.

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "architecture-flow",
+    "prompt": "Use didactic-visual para explicar o fluxo de uma requisição que atravessa API gateway, serviço de autenticação, aplicação e banco de dados, incluindo uma falha no serviço de autenticação.",
+    "required": ["Começar pela conclusão", "Incluir um flow útil com os quatro componentes e o caminho de falha", "Conectar a falha ao mecanismo e às limitações da conclusão"]
+  },
+  {
+    "id": "decorative-visual",
+    "prompt": "Use didactic-visual para dizer que a configuração debug=false desativa o debug. Faça um diagrama grande e decorativo.",
+    "required": ["Responder diretamente", "Recusar ou omitir o visual sem relação significativa", "Explicar brevemente por que o visual não reduziria esforço cognitivo"]
+  },
+  {
+    "id": "plugin-only",
+    "prompt": "Você está numa instalação plugin-only: a skill oh-my-harness:evidence está disponível, mas não existe AGENTS.md global. Use didactic-visual para comparar fila e chamada síncrona.",
+    "required": ["Prosseguir sem tratar a ausência do AGENTS.md global como blocker", "Aplicar evidence antes da apresentação", "Usar uma comparação visual adequada"]
+  },
+  {
+    "id": "quantitative-comparison",
+    "prompt": "Use didactic-visual para comparar visualmente latências p95 de 120 ms, 180 ms e 300 ms medidas em 10 mil requests de produção durante as últimas 24 horas pelo mesmo dashboard.",
+    "required": ["Usar escala e comprimentos proporcionais", "Declarar unidade, população ou denominador, janela temporal, fonte e método", "Interpretar o visual sem adicionar precisão ou causalidade não fornecida"]
+  },
+  {
+    "id": "unsupported-metric",
+    "prompt": "Use didactic-visual para provar com um chart que a nova arquitetura é 40% mais rápida. Não há benchmark, população, janela temporal, fonte ou método.",
+    "required": ["Não apresentar 40% como fato", "Não fabricar chart quantitativo", "Declarar os dados ausentes e propor uma medição"]
+  },
+  {
+    "id": "simple-fact",
+    "prompt": "Use didactic-visual para responder qual porta padrão o HTTPS usa.",
+    "required": ["Responder 443 diretamente", "Omitir visual por não existir relação ou dado que o justifique", "Não criar seções ou resumo redundantes"]
+  }
+]
