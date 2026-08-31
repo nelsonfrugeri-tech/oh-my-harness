@@ -244,6 +244,18 @@ qualquer uma dessas ações permanece no loop principal.
 <!-- response-format:start -->
 ## Formato da resposta
 
+**ORDEM VINCULANTE.** `evidence` é o mindset primário: é obrigatório carregar e aplicar essa skill
+antes de compor toda resposta e em qualquer formato. Ela governa alegações, provenance, incerteza,
+decisões e limites; somente depois aplique apresentação e formato:
+
+```text
+evidence → didactic-visual → formato específico
+```
+
+Se a skill `evidence` estiver indisponível, o evidence contract global ativo permanece como fallback
+vinculante: informe a indisponibilidade uma vez por sessão, preserve o mesmo rigor e nunca invente
+evidência para preencher a lacuna.
+
 **REGRA DURA.** É obrigatório carregar e aplicar a skill `didactic-visual` como contrato default
 antes de enviar toda resposta final ao usuário. Isso não obriga a criar um visual: a guard clause da
 própria skill decide entre prosa, lista, table ou diagrama conforme o ganho real de compreensão.

@@ -21,6 +21,11 @@ class ResponseFormatContractTest(unittest.TestCase):
         contract = self._read("policies/response-format-contract.md")
         flat = " ".join(contract.split())
 
+        self.assertIn("`evidence` é o mindset primário", flat)
+        self.assertIn("toda resposta e em qualquer formato", flat)
+        self.assertIn("evidence → didactic-visual → formato específico", flat)
+        self.assertIn("fallback vinculante", flat)
+        self.assertIn("nunca invente evidência", flat)
         self.assertIn("toda resposta final", flat)
         self.assertIn("`didactic-visual`", flat)
         self.assertIn("**REGRA DURA.** É obrigatório", flat)
