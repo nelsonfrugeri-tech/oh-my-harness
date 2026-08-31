@@ -82,11 +82,17 @@ class AdapterContractTest(unittest.TestCase):
                 "plugins/cache/oh-my-harness/oh-my-harness",
                 manifest["version"],
             )
-            expected = {
+            shared_skills = {
                 path.name
                 for path in _ROOT.joinpath("skills").iterdir()
                 if path.is_dir()
-            } | {"codex"}
+            }
+            codex_skills = {
+                path.name
+                for path in _ROOT.joinpath("codex/skills").iterdir()
+                if path.is_dir()
+            }
+            expected = shared_skills | codex_skills
             prompt_input = self._run_codex(
                 env,
                 "debug",
