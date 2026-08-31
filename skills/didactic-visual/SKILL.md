@@ -25,7 +25,7 @@ Responda no idioma do usuário e preserve termos técnicos estabelecidos em ingl
 
 1. Carregue `oh-my-harness:evidence` antes de redigir. Se a skill estiver indisponível, pare e
    informe exatamente o prerequisite ausente.
-2. Quando houver um evidence contract ativo no `AGENTS.md`, aplique-o como additional constraints;
+2. Quando houver um evidence contract ativo no harness, aplique-o como additional constraints;
    sua ausência não é um blocker porque esta skill é autocontida na instalação plugin-only.
 3. Deixe o workflow de evidence estabelecer alegações, provenance, incerteza, alternativas e
    decisões.

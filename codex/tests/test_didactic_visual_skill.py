@@ -5,13 +5,12 @@ from pathlib import Path
 
 
 _ROOT = Path(__file__).resolve().parents[2]
-_SKILL = _ROOT / "codex/skills/didactic-visual/SKILL.md"
+_SKILL = _ROOT / "skills/didactic-visual/SKILL.md"
 
 
 class DidacticVisualSkillTest(unittest.TestCase):
-    def test_skill_is_codex_plugin_native(self) -> None:
+    def test_skill_uses_the_shared_native_plugin_contract(self) -> None:
         self.assertTrue(_SKILL.is_file())
-        self.assertFalse((_ROOT / "skills/didactic-visual").exists())
 
     def test_skill_declares_discovery_and_visualization_contract(self) -> None:
         content = _SKILL.read_text(encoding="utf-8")
@@ -29,6 +28,7 @@ class DidacticVisualSkillTest(unittest.TestCase):
         self.assertIn("conceitos de dados", content.lower())
         self.assertIn("Prerequisite: evidence first", content)
         self.assertIn("`oh-my-harness:evidence`", content)
+        self.assertIn("evidence contract ativo no harness", content)
         self.assertIn("additional constraints", content)
         self.assertIn("ausência não é um blocker", content)
         self.assertNotIn("If either dependency is unavailable", content)

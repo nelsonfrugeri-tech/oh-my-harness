@@ -268,7 +268,7 @@ each skill name remains globally unique.
 
 **Knowledge (languages & domains) — `engineers`:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
-**Capability (method & process) — `engineers`:** `evidence` · `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
+**Capability (method & process) — `engineers`:** `evidence` · `didactic-visual` · `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
 
 **Command & workflow — `engineers`:** `feature`
 

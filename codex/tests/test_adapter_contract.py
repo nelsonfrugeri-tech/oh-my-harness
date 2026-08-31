@@ -120,7 +120,7 @@ class AdapterContractTest(unittest.TestCase):
             self.assertIn("evidence", discovered)
             self.assertTrue(installed.joinpath("codex/skills/codex/SKILL.md").is_file())
             didactic_visual = installed.joinpath(
-                "codex/skills/didactic-visual/SKILL.md"
+                "skills/didactic-visual/SKILL.md"
             ).read_text(encoding="utf-8")
             self.assertIn("ausência não é um blocker", didactic_visual)
             self.assertTrue(installed.joinpath("hooks/hooks.json").is_file())
