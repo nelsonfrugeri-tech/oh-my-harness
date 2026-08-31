@@ -63,7 +63,8 @@ O installer:
 2. copia os TOMLs de agents customizados do Codex para `~/.codex/agents/` com ownership registrado;
 3. cria o link do adapter completo em `~/.codex/oh-my-harness`;
 4. substitui somente o bloco `omh-managed` dentro de `~/.codex/AGENTS.md` global;
-5. substitui somente o context hook gerenciado em `~/.codex/hooks.json`, preservando hooks não relacionados;
+5. remove o context hook legado do adapter em `~/.codex/hooks.json`, preservando hooks não relacionados,
+   porque o plugin nativo é o único owner desse lifecycle hook;
 6. configura Deja, Graphify, as integrações oficiais de skills e documentação LangChain e as skills oficiais AI Evals;
 7. reporta integrações vinculadas a conta que ainda exigem autorização humana.
 

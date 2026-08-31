@@ -67,13 +67,18 @@ class ManagedConfig:
             else {"hooks": {}}
         )
         hooks = current.setdefault("hooks", {})
-        for event, groups in source["hooks"].items():
+        for event in tuple(hooks):
             retained = [
                 group
-                for candidate in hooks.get(event, [])
+                for candidate in hooks[event]
                 if (group := self._without_managed_handlers(candidate)) is not None
             ]
-            hooks[event] = [*retained, *groups]
+            if retained:
+                hooks[event] = retained
+            else:
+                del hooks[event]
+        for event, groups in source["hooks"].items():
+            hooks[event] = [*hooks.get(event, []), *groups]
         rendered = json.dumps(current, indent=2, ensure_ascii=False) + "\n"
         return self._write_if_changed(target, rendered)
 
@@ -160,4 +165,14 @@ class ManagedConfig:
         )
         if any(missing):
             raise self._conflict("hook SessionStart gerenciado está ausente ou desatualizado")
+        stale = (
+            handler
+            for groups in target_hooks.values()
+            for group in groups
+            if isinstance(group, dict)
+            for handler in group.get("hooks", [])
+            if isinstance(handler, dict) and _HOOK_MARKER in str(handler.get("command", ""))
+        )
+        if any(stale):
+            raise self._conflict("hook SessionStart global duplica o hook do plugin")
         return f"ok: {self._layout.hooks_file}"

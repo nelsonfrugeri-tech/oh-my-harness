@@ -46,13 +46,13 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertTrue(installed_agent.is_file())
         self.assertFalse(installed_agent.is_symlink())
         self.assertEqual('name = "developer"\n', installed_agent.read_text(encoding="utf-8"))
-        self.assertTrue(self._codex_home.joinpath("hooks/context-load.sh").is_symlink())
+        self.assertFalse(self._codex_home.joinpath("hooks/context-load.sh").exists())
         agents = self._codex_home.joinpath("AGENTS.md").read_text(encoding="utf-8")
         self.assertIn("Personal rule.", agents)
         self.assertIn("Shared rules.", agents)
         hooks = self._codex_home.joinpath("hooks.json").read_text(encoding="utf-8")
         self.assertIn("deja hook", hooks)
-        self.assertIn("omh-managed: context", hooks)
+        self.assertNotIn("omh-managed: context", hooks)
 
     def test_install_preserves_user_handler_in_managed_hook_group(self) -> None:
         self._codex_home.mkdir(parents=True)
@@ -77,7 +77,7 @@ class CodexInstallerTest(unittest.TestCase):
             for handler in group["hooks"]
         ]
         self.assertIn("deja hook", commands)
-        self.assertEqual(1, sum("omh-managed: context" in command for command in commands))
+        self.assertEqual(0, sum("omh-managed: context" in command for command in commands))
 
     def test_install_removes_only_orphaned_managed_links(self) -> None:
         retired_source = self._source / "skills/retired"
@@ -224,16 +224,6 @@ class CodexInstallerTest(unittest.TestCase):
 
         self.assertFalse(self._codex_home.joinpath("oh-my-harness").exists())
 
-    def test_hook_parent_conflict_fails_before_any_write(self) -> None:
-        self._codex_home.mkdir(parents=True)
-        self._codex_home.joinpath("hooks").write_text("user-owned", encoding="utf-8")
-
-        with self.assertRaises(InstallConflict):
-            self._installer.install()
-
-        self.assertFalse(self._codex_home.joinpath("oh-my-harness").exists())
-        self.assertFalse(self._agents_home.exists())
-
     def test_entrypoint_does_not_run_integrations_after_preflight_conflict(self) -> None:
         conflict = self._codex_home / "oh-my-harness"
         conflict.mkdir(parents=True)
@@ -355,11 +345,7 @@ class CodexInstallerTest(unittest.TestCase):
 | `tunnel` | Temporary exposure | _(optional tunnel)_ |
 """
         self._source.joinpath("codex/AGENTS.md").write_text(agents_content, encoding="utf-8")
-        hooks = {
-            "hooks": {
-                "SessionStart": [{"hooks": [{"command": "run # omh-managed: context"}]}]
-            }
-        }
+        hooks = {"hooks": {}}
         self._source.joinpath("codex/hooks.json").write_text(json.dumps(hooks), encoding="utf-8")
 
     def _create_graphify_source(self) -> Path:

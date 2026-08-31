@@ -63,4 +63,4 @@ class InstallLayout:
         return tuple(sorted((self.adapter / "agents").glob("*.toml")))
 
     def hook_sources(self) -> tuple[Path, ...]:
-        return tuple(sorted(self.source_root.glob("hooks/*.sh")))
+        return ()

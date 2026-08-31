@@ -541,12 +541,9 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("[a-z0-9]+(?:-[a-z0-9]+)*", content)
         self.assertIn("https://", content)
 
-    def test_codex_hook_has_a_managed_session_start(self) -> None:
+    def test_codex_adapter_does_not_duplicate_the_plugin_session_start(self) -> None:
         data = json.loads(_ROOT.joinpath("codex/hooks.json").read_text(encoding="utf-8"))
-        groups = data["hooks"]["SessionStart"]
-        commands = [handler["command"] for group in groups for handler in group["hooks"]]
-        self.assertTrue(any("omh-managed: context" in command for command in commands))
-        self.assertTrue(any("{codex_home}/hooks/context-load.sh" in command for command in commands))
+        self.assertEqual({}, data["hooks"])
 
     def test_context_loader_is_shared_and_executable(self) -> None:
         loader = _ROOT / "hooks/context-load.sh"
