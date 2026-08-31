@@ -60,10 +60,11 @@ O installer:
 
 1. cria links das skills compartilhadas e exclusivas do Codex em `~/.agents/skills/<name>/`, excluindo a
    skill de instalação exclusiva do Claude;
-2. cria links dos TOMLs de agents customizados do Codex em `~/.codex/agents/`;
+2. copia os TOMLs de agents customizados do Codex para `~/.codex/agents/` com ownership registrado;
 3. cria o link do adapter completo em `~/.codex/oh-my-harness`;
 4. substitui somente o bloco `omh-managed` dentro de `~/.codex/AGENTS.md` global;
-5. substitui somente o context hook gerenciado em `~/.codex/hooks.json`, preservando hooks não relacionados;
+5. remove o context hook legado do adapter em `~/.codex/hooks.json`, preservando hooks não relacionados,
+   porque o plugin nativo é o único owner desse lifecycle hook;
 6. configura Deja, Graphify, as integrações oficiais de skills e documentação LangChain e as skills oficiais AI Evals;
 7. reporta integrações vinculadas a conta que ainda exigem autorização humana.
 
@@ -76,6 +77,11 @@ o installer cria `AGENTS.md.omh.bak` antes de substituí-lo.
 Nunca sobrescreva um arquivo ou diretório pertencente ao usuário onde for esperado um symlink gerenciado. Pare e mostre
 o path exato. O usuário deve decidir se quer preservá-lo, movê-lo ou substituí-lo. Blocos de texto gerenciados
 e entradas de hooks gerenciadas podem ser atualizados com segurança porque seus marcadores de posse são explícitos.
+
+Preserve uma instalação Graphify que não seja symlink somente quando seu `.graphify_version`
+corresponder à proveniência vendored e toda a árvore de arquivos for idêntica à distribuição do
+repositório. O marker upstream isolado não identifica patches do harness; qualquer drift de conteúdo
+é um conflito.
 
 Antes de alterar um arquivo global editável, o installer cria um sibling `.omh.bak` de uso único.
 

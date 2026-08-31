@@ -5,6 +5,7 @@ from typing import Type
 
 from lib.layout import InstallLayout
 from lib.link_manifest import ManagedLinkManifest
+from lib.skill_identity import graphify_distribution_matches
 
 
 class ManagedLinks:
@@ -21,10 +22,6 @@ class ManagedLinks:
             for path in self._layout.hook_sources()
         )
         results.extend(self._install_skills())
-        results.extend(
-            self._link(path, self._layout.custom_agents / path.name)
-            for path in self._layout.agent_sources()
-        )
         results.append(self._manifest.write(self._current_entries()))
         return tuple(results)
 
@@ -36,8 +33,6 @@ class ManagedLinks:
             target = self._layout.personal_skills / source.name
             if not self._is_compatible_external_graphify(source, target):
                 self._check_available(source, target)
-        for source in self._layout.agent_sources():
-            self._check_available(source, self._layout.custom_agents / source.name)
 
     def validate(self) -> tuple[str, ...]:
         orphans = self._managed_orphans()
@@ -49,10 +44,6 @@ class ManagedLinks:
             for path in self._layout.hook_sources()
         )
         results.extend(self._check_skill(path) for path in self._layout.skill_sources())
-        results.extend(
-            self._check_link(self._layout.custom_agents / path.name, path)
-            for path in self._layout.agent_sources()
-        )
         results.append(self._manifest.validate(self._current_entries()))
         return tuple(results)
 
@@ -75,10 +66,6 @@ class ManagedLinks:
             self._layout.installed_hooks / source.name
             for source in self._layout.hook_sources()
         )
-        expected.update(
-            self._layout.custom_agents / source.name
-            for source in self._layout.agent_sources()
-        )
         expected.add(self._layout.installed_adapter)
         return self._manifest.orphans(expected)
 
@@ -92,13 +79,9 @@ class ManagedLinks:
             (self._layout.personal_skills / source.name, source)
             for source in self._layout.skill_sources()
         )
-        agents = (
-            (self._layout.custom_agents / source.name, source)
-            for source in self._layout.agent_sources()
-        )
         return tuple(
             (target, source)
-            for target, source in (*candidates, *hooks, *skills, *agents)
+            for target, source in (*candidates, *hooks, *skills)
             if target.is_symlink() and target.resolve() == source.resolve()
         )
 
@@ -146,10 +129,18 @@ class ManagedLinks:
         if source.name != "graphify" or target.is_symlink() or not target.is_dir():
             return False
         version_file = target / ".graphify_version"
-        if not version_file.is_file():
+        if version_file.is_symlink() or not version_file.is_file():
             return False
         expected = self._upstream_version(source / "SKILL.md")
-        return version_file.read_text(encoding="utf-8").strip() == expected
+        try:
+            actual = version_file.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeError):
+            return False
+        return (
+            bool(expected)
+            and actual == expected
+            and graphify_distribution_matches(source, target)
+        )
 
     def _upstream_version(self, skill_file: Path) -> str:
         for line in skill_file.read_text(encoding="utf-8").splitlines():

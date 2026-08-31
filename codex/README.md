@@ -61,10 +61,9 @@ run the first installation with `--replace-global-agents`. The original file is 
 | --- | --- | --- |
 | shared `skills/<name>/` | `~/.agents/skills/<name>/` | Directory symlink |
 | Codex-only `codex/skills/<name>/` | `~/.agents/skills/<name>/` | Directory symlink |
-| `codex/agents/*.toml` | `~/.codex/agents/*.toml` | File symlink |
+| `codex/agents/*.toml` | `~/.codex/agents/*.toml` | Managed file copy |
 | `codex/AGENTS.md` | managed block in `~/.codex/AGENTS.md` | Merge |
-| `codex/hooks.json` | managed entries in `~/.codex/hooks.json` | Merge |
-| shared `hooks/*.sh` | `~/.codex/hooks/<name>.sh` | File symlink |
+| `codex/hooks.json` | removes obsolete adapter-owned context hook | Merge |
 | `codex/` | `~/.codex/oh-my-harness` | Directory symlink |
 | generated ownership manifest | `~/.codex/oh-my-harness-links.json` | Atomic rewrite |
 
@@ -72,6 +71,18 @@ The installer preserves unrelated hooks, machine-specific capability mappings, g
 instructions, MCP servers, plugins, and personal skills. It removes stale symlinks only when the
 ownership manifest proves they were created by a previous run, and stops instead of replacing an
 unmanaged path.
+
+The native plugin is the sole owner of the context lifecycle hook. The global adapter removes its
+legacy managed registration so an installation that uses both surfaces injects context once.
+
+An externally installed Graphify skill is preserved only when its upstream marker and complete
+file tree match the repository copy. `upstream_version` records provenance; it is not proof of
+distribution identity. A local or upstream copy with the same version marker but different content
+is reported as a conflict instead of silently bypassing harness patches.
+
+Custom-agent TOMLs are copied instead of symlinked because current Codex releases do not discover
+symlinked files reliably. A content manifest permits safe upgrades while refusing to overwrite a
+managed copy that the user changed locally.
 
 ## MCP integrations
 

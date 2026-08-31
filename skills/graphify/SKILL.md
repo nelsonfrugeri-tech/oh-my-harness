@@ -1,7 +1,7 @@
 ---
-version: 1.1.0
+version: 1.1.1
 name: graphify
-# Runbook oficial do graphify, vendored sem tradução — `upstream_version` diz qual release.
+# Based on the official Graphify runbook; harness patches are versioned separately above.
 upstream_version: 0.9.27
 description: "Use for any question about a codebase, its architecture, file relationships, or project content — especially when graphify-out/ exists, where the question should be treated as a graphify query first. Turns any input (code, docs, papers, images, videos) into a persistent knowledge graph with god nodes, community detection, and query/path/explain tools."
 type: capability

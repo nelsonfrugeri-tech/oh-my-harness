@@ -352,7 +352,7 @@ shared layer.
 | agents | ✅ native Markdown | ✅ custom-agent TOML adapter | ⚙️ rules + AGENTS.md |
 | skills | ✅ native | ✅ native shared skills | 📄 as docs |
 | workflows | ✅ Workflow TypeScript | ✅ portable `feature` orchestration | — |
-| hooks | ✅ native plugin | ✅ native plugin (trust required) + adapter | — |
+| hooks | ✅ native plugin | ✅ native plugin (trust required) | — |
 | global rules | ✅ `CLAUDE.md` | ✅ managed global `AGENTS.md` | ⚙️ rules |
 
 Codex native-plugin packaging is defined by [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
