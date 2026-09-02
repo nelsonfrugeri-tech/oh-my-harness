@@ -33,6 +33,10 @@ realmente há trabalho novo a fazer.
    bundle OKF. Um repositório é sempre um bounded context próprio.
 3. `KB_DIR` = `~/knowledge-base/<DOMAIN>`
 4. `CONTEXT_FILE` = `<KB_DIR>/context.md`
+5. Antes de carregar ou invocar `explorer`, valide que `remote_url` e `Repository` do
+   context existente pertencem ao repo atual. Sem context, deixe `explorer` aplicar o
+   gate sobre provenance existente. Colisão ou identidade insuficiente bloqueia leitura
+   e escrita até existir um resolver persistente compartilhado.
 
 Você nunca escreve dentro do repositório do usuário — toda escrita acontece em `KB_DIR`, e
 quem escreve de fato é sempre a skill `explorer` (você só orquestra e lê o resultado).

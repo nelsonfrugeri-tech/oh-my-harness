@@ -9,6 +9,7 @@ Resolva o projeto assim:
 2. `DOMAIN` is `work/projects/<PROJECT>`.
 3. `KB_DIR` is `~/knowledge-base/<DOMAIN>`.
 4. `CONTEXT_FILE` is `<KB_DIR>/context.md`.
+5. Antes de carregar ou invocar `explorer`, valide que `remote_url` e `Repository` do context existente pertencem ao repo atual. Sem context, deixe `explorer` aplicar o collision gate sobre provenance existente. Colisão ou identidade insuficiente bloqueia leitura e escrita até existir um resolver persistente compartilhado.
 
 Nunca escreva no repositório do usuário. Todas as escritas de contexto pertencem a `KB_DIR`, e a skill `explorer` as executa.
 

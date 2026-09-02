@@ -1,13 +1,14 @@
 ---
-version: 1.1.0
+version: 1.3.0
 name: kb-infra
 description: |
   Sobe, verifica e mantém a infraestrutura da knowledge base: Qdrant local via docker
   (compose embutido nesta skill — container oh-my-harness-qdrant, porta 6333, volume
   persistente em ~/.local/share/omh-kb/qdrant) e o ambiente de embedding BAAI/bge-m3 via
-  FlagEmbedding (python, dense 1024-dim + lexical sparse no mesmo forward pass). Cobre
+  FlagEmbedding (python, dense 1024-dim + lexical sparse no mesmo forward pass) e
+  parsing seguro de frontmatter via PyYAML. Cobre
   criação idempotente da collection com named vectors (dense cosine + sparse) e payload
-  indexes (created_at, domain, kind), health checks (docker up? collection existe?
+  indexes (created_at, domain, topic, kind), health checks (docker up? collection existe?
   modelo responde?), reindex das notas e session records do bundle OKF em disco e
   teardown. Invocada
   pelo agent `knowledge-base` quando a intenção é subir/verificar/derrubar infra — não
@@ -127,10 +128,10 @@ projeto e fora do bundle: `~/.local/share/omh-kb/venv`.
 mkdir -p ~/.local/share/omh-kb
 cd ~/.local/share/omh-kb
 test -d venv || uv venv venv
-uv pip install --python venv/bin/python -U FlagEmbedding qdrant-client
+uv pip install --python venv/bin/python -U FlagEmbedding qdrant-client PyYAML
 ```
 
-Sem `uv` na máquina, degrade para `python3 -m venv venv && venv/bin/pip install -U FlagEmbedding qdrant-client`.
+Sem `uv` na máquina, degrade para `python3 -m venv venv && venv/bin/pip install -U FlagEmbedding qdrant-client PyYAML`.
 
 Na primeira execução o modelo (~2 GB) é baixado para o cache do Hugging Face — avise o
 usuário que o primeiro run demora.
@@ -197,10 +198,11 @@ por `kb-write`) e session records (`kind: "session"`, mantidos por `kb-session`)
 | Named vector sparse | `"sparse"` — `SparseVectorParams()` |
 | Payload index | `created_at` → `DATETIME` (permite `order_by`/filtros temporais sem full-scan) |
 | Payload index | `domain` → `KEYWORD` (acelera filtro por bounded context) |
+| Payload index | `topic` → `KEYWORD` (acelera filtro pelo assunto estável dentro do domain) |
 | Payload index | `kind` → `KEYWORD` (separa notas de session records no filtro) |
 | Payload index | `harness`, `session_id`, `session_name` → `KEYWORD` (provenance da sessão) |
 | Payload index | `machine_id`, `machine_label` → `KEYWORD` (provenance da máquina) |
-| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `created_at`, `summary`, `path`, `supersedes`, `archived`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
+| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `topic`, `distillation_key`, `created_at`, `summary`, `path`, `supersedes`, `archived`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
 | Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `session_name`, `app_name`, `domain`, `name`, `created_at`, `updated_at`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
 
 Note os **dois eixos de tipo** no payload de nota: `type` é o substantivo do domínio
@@ -228,8 +230,16 @@ if not client.collection_exists("knowledge-base"):
     )
 client.create_payload_index("knowledge-base", "created_at", field_schema=PayloadSchemaType.DATETIME)
 client.create_payload_index("knowledge-base", "domain", field_schema=PayloadSchemaType.KEYWORD)
+client.create_payload_index("knowledge-base", "topic", field_schema=PayloadSchemaType.KEYWORD)
 client.create_payload_index("knowledge-base", "kind", field_schema=PayloadSchemaType.KEYWORD)
-for field in ("harness", "session_id", "session_name", "machine_id", "machine_label"):
+for field in (
+    "harness",
+    "session_id",
+    "session_name",
+    "machine_id",
+    "machine_label",
+    "distillation_key",
+):
     client.create_payload_index(
         "knowledge-base",
         field,
@@ -248,16 +258,18 @@ pendente), ou o volume foi perdido, reconstrua o índice a partir do disco:
    `log.md` e o `context.md` de cada contexto — **e** os session records
    (`~/knowledge-base/**/sessions/*.json`).
 2. Para cada nota, extraia o frontmatter (`id`, `title`, `type`, `knowledge_type`,
-   `domain`, `created_at`, `summary`, `supersedes`, `status`, `provenance`) e embede o **summary**
+   `domain`, `topic`, `distillation_key`, `created_at`, `summary`, `supersedes`,
+   `status`, `provenance`) e embede o **summary**
    (dense + sparse), com payload `kind: "note"`. O payload `archived` **é derivado**,
    não lido: `archived = (status == "deprecated")` — `archived` não existe no
    frontmatter. Nota sem `type` não é conforme ao OKF — reporte em vez de indexar
    silenciosamente. Para cada session record, embede
    `name + "\n" + description + "\n" + resume` com payload `kind: "session"` (campos
    em `kb-session`).
-   Notas anteriores ao contrato de provenance continuam legíveis: indexe seus campos
-   de provenance como `null` e reporte-as como legacy; nunca edite notas imutáveis para
-   fabricar metadata histórica. A mesma regra vale para session records anteriores ao
+   Notas anteriores ao routing topic-first continuam legíveis: projete `topic: null`,
+   reporte-as como legacy e preserve seu path, que é o Concept ID no OKF. Notas
+   anteriores ao contrato de provenance também usam `null` nos campos ausentes; nunca
+   edite notas imutáveis para fabricar metadata histórica. A mesma regra vale para session records anteriores ao
    schema v3: projete todo campo novo ausente como `null`, reporte o record como legacy
    e continue o lote. O reindex nunca modifica o JSON nem atribui a identidade da
    máquina que executa o reindex a uma sessão histórica. Somente `kb-session`, ao

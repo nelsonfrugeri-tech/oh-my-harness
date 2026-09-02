@@ -24,7 +24,7 @@ URLs externas citadas, nomes de documentos, ponteiros livres.
 > relação, dentro da seção onde a relação aparece — porque o OKF não tipa
 > relacionamentos: quem diz que a relação é "substitui", "foi causada por" ou "opera"
 > é a prosa em volta do link. Use caminho absoluto ao bundle:
-> `[rotação de chave KMS](/work/projects/api-gateway/procedures/kms-rotation.md)`.
+> `[rotação de chave KMS](/work/projects/api-gateway/security/2026-03-11--kms-rotation.md)`.
 > Uma lista de "ver também" no rodapé não carrega informação nenhuma.
 
 ---

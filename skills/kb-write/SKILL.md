@@ -1,19 +1,20 @@
 ---
-version: 3.0.0
+version: 4.1.0
 name: kb-write
 description: |
   O scribe da knowledge base — playbook de julgamento e mecânica para registrar
   conhecimento como notas imutáveis em bundles conformes ao Open Knowledge Format
   (OKF v0.2): markdown com YAML frontmatter em ~/knowledge-base/, indexado no Qdrant
-  (summary → dense+sparse via BAAI/bge-m3). Cobre: onde a nota mora (bounded context +
-  pasta por tipo de entidade, no espírito do DDD), os dois eixos de classificação
+  (summary → dense+sparse via BAAI/bge-m3). Cobre: onde a nota mora (scope + bounded
+  context + topic estável), resolução do projeto por evidência, os dois eixos de classificação
   (`type` = o substantivo do domínio, exigido pelo OKF; `knowledge_type` = o enum
   fechado decision | event | procedure | reference | conversation, que diz como o
   conhecimento foi obtido), quando criar vs. superseder (nota é conhecimento imutável
   num ponto do tempo — nunca editar in-place), como escrever o summary denso de 200-800
   chars que decide o recall, extração de entities e tags, relacionamentos como links
   markdown no corpo (não como campo estruturado), proveniência de agent, harness,
-  sessão e máquina, sinais linguísticos do usuário para supersede, e quando NÃO
+  sessão e máquina, sinais linguísticos do usuário para supersede, destilação
+  idempotente de sessões longas em várias notas atômicas interligadas, e quando NÃO
   escrever.
   Invocada pelo agent `knowledge-base` quando a intenção é registrar conhecimento.
 type: capability
@@ -23,54 +24,108 @@ type: capability
 
 Esta skill diz **onde a nota mora** e **como preencher seus campos**. A mecânica (nome
 de arquivo, indexação) está na seção final; o resto é **julgamento**: em que domínio
-registrar, qual entidade a nota descreve, como escrever um summary que recupera bem, e
-com o que ela se relaciona.
+registrar, qual topic e entidade a nota descrevem, como escrever um summary que recupera
+bem, e com o que ela se relaciona.
 
 O corpo de toda nota segue o template em
 [`references/note-template.md`](references/note-template.md).
 
 ---
 
-## 1. Onde a nota mora — bounded context e tipo de entidade
+## 1. Onde a nota mora — scope, domain e topic
 
 A knowledge base inteira é **um bundle OKF**: uma árvore de markdown enraizada em
-`~/knowledge-base/`. A árvore não é acúmulo — ela é uma **ontologia deliberada**,
-desenhada no espírito do DDD.
+`~/knowledge-base/`. A árvore é uma ontologia deliberada, mas não tenta codificar
+todas as dimensões no path. O routing primário é:
 
-Duas camadas, e só duas:
+```text
+scope → domain → topic → concept
+```
+
+- **Scope** separa as grandes fronteiras de acesso e significado: `person` e `work`.
+- **Domain** é o bounded context. Para software, é
+  `work/projects/<project>`; para conhecimento técnico transversal pode ser
+  `work/data-architecture`; para a empresa, `work/ifood`.
+- **Topic** é o assunto ou entidade temática estável dentro do domain, em
+  lowercase-kebab: `knowledge-base`, `codex-adapter`, `authentication`.
+- **Concept** é uma unidade de conhecimento em um Markdown.
+
+O layout padrão nasce topic-first:
 
 ```
 ~/knowledge-base/                    # raiz do bundle (index.md declara okf_version)
-  person/                            # bounded context: vida pessoal
-    people/  finances/  health/  ideas/
+  person/                            # scope e domain para vida pessoal
+    health/                          # topic
+      <YYYY-MM-DD>--<short-slug>.md
   work/
-    ifood/                           # bounded context: a empresa
-      systems/  teams/  people/  rituals/  metrics/  decisions/
+    data-architecture/               # domain transversal
+      icloud/                        # topic
+        <YYYY-MM-DD>--<short-slug>.md
     projects/
-      oh-my-harness/                 # bounded context: um repositório
-        context.md  log.md
-        decisions/  procedures/  components/
+      oh-my-harness/                 # domain de um projeto
+        context.md
+        sessions/
+        knowledge-base/              # topic
+          index.md
+          <YYYY-MM-DD>--<short-slug>.md
 ```
 
-| Camada | O que é | Como nomear |
-|---|---|---|
-| **Bounded context** | A fronteira onde uma palavra tem um significado só. `people/` dentro de `ifood/` são colegas; dentro de `person/` são amigos e família — entidades diferentes, contextos diferentes. | Caminho relativo à raiz do bundle. É o valor do campo `domain`. |
-| **Tipo de entidade** | A pasta imediatamente acima da nota. É o **substantivo do domínio** no plural: `systems/`, `decisions/`, `people/`. Casa com o valor de `type` no singular. | Plural, lowercase-kebab, inglês. |
+### Resolva o projeto antes do topic
 
-**Relacionamento nunca vira pasta.** A hierarquia expressa *pertencimento*; tudo o mais
-(depende-de, causou, substitui, opera) é **link markdown no corpo** — é ali que mora o
-grafo de verdade, mais rico que a árvore de diretórios.
+Para conhecimento de software, determine o project nesta ordem:
 
-Duas regras duras contra a taxonomia que mata a captura:
+1. Considere o nome de projeto fornecido explicitamente pelo usuário como identidade
+   legível, não como autorização para divergir o path canônico.
+2. Para todo repositório Git, use o resolver canônico compartilhado
+   por `explorer`, `kb-session` e `context-load.sh`: basename da raiz Git, lowercase,
+   caracteres fora de `[a-z0-9-]` convertidos em hífen, hífens repetidos colapsados e
+   pontas aparadas. Esse slug único mantém notas, contexto e sessões no mesmo domain.
+3. Antes de escrever num domain existente, prove que ele pertence ao mesmo repo. Com
+   `context.md`, valide `remote_url` e `Repository` contra o remote e a raiz Git
+   observados. Sem `context.md`, inspecione a provenance de **todas** as notas e session
+   records existentes: resolva a raiz Git e o remote dos `cwd` ainda acessíveis e exija
+   compatibilidade. Artifact existente sem identidade suficiente deixa o domain
+   ocupado e ambíguo; falhe fechado. Divergência ou ambiguidade é colisão a reportar;
+   nunca procure outro slug nem redirecione somente a nota.
+4. Se não houver identidade Git estável, o projeto ainda não está registrado: pergunte
+   uma vez qual nome e slug canônicos o usuário quer antes de criar
+   `work/projects/<project>/index.md`. Esse caso não é consumido pelo context loader
+   até existir uma associação futura explícita.
+5. Em repo Git, colisão bloqueia a escrita: informe as identidades observadas e
+   não crie outro slug. A escrita só pode continuar depois que um resolver persistente
+   e compartilhado por `explorer`, `kb-session`, `context-load.sh` e `kb-write` tiver
+   sido definido; um alias local fragmentaria o bounded context.
+6. Se o conhecimento não pertencer a projeto, escolha o domain não-projeto adequado;
+   nunca force tudo para `work/projects`.
 
-1. **Uma pasta nasce quando aparece a segunda nota daquele tipo.** Nunca crie pasta
-   especulativamente — uma nota solta na raiz do contexto é preferível a vinte pastas
-   vazias.
-2. **Máximo 3 níveis dentro de um bounded context.** Se você precisou de um quarto, o
-   que falta é link, não pasta.
+Projeto Git resolvido pelo algoritmo compartilhado não gera pergunta repetida. Nunca
+aceite nem descubra um slug alternativo para o mesmo remote ou raiz: isso fragmenta
+notas, `context.md` e session records em domains diferentes.
 
-Na dúvida sobre em que contexto a nota entra, pergunte ao usuário uma vez. Contexto
-errado é o único erro caro aqui — os demais campos se corrigem com uma nota nova.
+### Resolva o topic por evidência
+
+Antes de criar path, busque notas relacionadas e leia o `index.md` do domain:
+
+1. Reutilize um topic existente quando ele cobre o mesmo assunto ou entidade dominante.
+2. Sem topic compatível, derive um nome curto e específico das entities centrais e crie
+   a pasta de assunto já na primeira nota, junto com seu `index.md`.
+3. Se dois topics existentes forem igualmente plausíveis e a escolha mudar a
+   interpretação, pergunte uma vez; não escolha por similaridade lexical superficial.
+4. `type` não determina o diretório. Ele continua metadata do conceito; o mesmo topic
+   pode conter decisions, procedures, references e components.
+5. Subpastas físicas por type são opcionais e só existem por decisão explícita de layout
+   registrada no `index.md` do topic. Nunca surgem por contagem de notas.
+
+Relacionamentos como depende-de, causou, substitui e opera são links Markdown no corpo,
+não diretórios. Mantenha no máximo dois níveis semânticos abaixo do domain
+(`topic[/subtopic]`); profundidade maior pede links ou revisão do domain.
+
+### Preserve o path
+
+No OKF, o path relativo é o Concept ID. Nunca mova ou renomeie uma nota durante uma
+escrita normal. Reorganização é uma migração explícita: valide e reescreva links,
+`index.md` e payloads Qdrant de todos os conceitos afetados antes de concluir. O UUID
+da extensão oh-my-harness não torna uma mudança de path invisível a consumidores OKF.
 
 ## 2. Os dois eixos de classificação
 
@@ -78,12 +133,12 @@ Toda nota responde **duas** perguntas diferentes, e por muito tempo respondemos 
 
 | Campo | Pergunta | Valores |
 |---|---|---|
-| `type` | **Sobre o que isso é?** — o substantivo do domínio | String livre, casada com a pasta no singular: `system`, `person`, `team`, `ritual`, `metric`, `component`, `decision`... Exigido pelo OKF. |
+| `type` | **Que entidade ou conceito é este?** | String livre e autoexplicativa: `system`, `person`, `team`, `ritual`, `metric`, `component`, `decision`... Exigido pelo OKF. |
 | `knowledge_type` | **Como eu sei disso?** — a natureza epistêmica | Enum **fechado**: `decision \| event \| procedure \| reference \| conversation`. Extensão nossa. |
 
-O OKF deixa `type` livre de propósito. Nós **restringimos por convenção**: o valor tem
-que ser o singular da pasta que contém a nota. Isso mantém o vocabulário ubíquo e o
-filtro por tipo utilizável — liberdade sem entropia.
+O OKF deixa `type` livre de propósito. Use um substantivo de domínio estável e
+autoexplicativo, mas não derive o path dele: topic organiza pertencimento temático;
+`type` e `knowledge_type` organizam filtros e views.
 
 ### Escolhendo o `knowledge_type`
 
@@ -221,10 +276,10 @@ Antes de escrever, **busque via `kb-retrieval`** com o tema da nova nota (use
 frase que explica a relação:
 
 ```markdown
-Substitui o fluxo definido em [rotação de chave KMS](/work/projects/api-gateway/procedures/2026-03-11--kms-rotation.md),
+Substitui o fluxo definido em [rotação de chave KMS](/work/projects/api-gateway/security/2026-03-11--kms-rotation.md),
 que assumia chave única por ambiente.
 
-Motivada pelo incidente de [2026-05-30](/work/projects/api-gateway/events/2026-05-30--cache-deprecation.md).
+Motivada pelo incidente de [2026-05-30](/work/projects/api-gateway/delivery/2026-05-30--cache-deprecation.md).
 ```
 
 Três regras de link:
@@ -258,7 +313,7 @@ Todo conhecimento gravado por um agent carrega duas camadas de proveniência:
 
 ```yaml
 generated:
-  by: knowledge-base/3.0        # o agent que escreveu
+  by: knowledge-base/4.1        # o agent que escreveu
   at: 2026-08-01T14:30:00Z
 provenance:
   harness:
@@ -319,24 +374,78 @@ verified:
 
 Na dúvida se algo merece nota, pergunte ao usuário uma vez.
 
+### Destilação de sessão longa em várias notas
+
+Quando o usuário ou outro agent pedir explicitamente para **destilar a sessão inteira**,
+combine o corpus integral produzido por `kb-session` com este workflow. A atualização
+automática do session record **não cria notas automaticamente**: memória episódica e
+conhecimento curado continuam separados.
+
+1. Exija o relatório de cobertura de `kb-session`. Se houver intervalo não processado,
+   transcript ausente ou provenance inválida, não afirme completude; registre o gap e
+   prossiga somente com a parcela que possa ser identificada sem ambiguidade.
+2. Agrupe candidatos por domain, topic e entidade dominante. Quebre cada grupo em
+   conhecimentos atômicos; uma nota por conhecimento, mesmo que vários tenham surgido
+   na mesma conversa.
+3. Para cada candidato, derive `distillation_key` como SHA-256 de um JSON UTF-8 canônico
+   com estes campos, serializados com chaves em ordem lexicográfica: `algorithm` fixo em
+   `omh-kb-distillation-v1`, `evidence` como array de ids ou pares de offsets ordenados
+   numericamente, `harness`, `knowledge_type`, `session_id`, `topic` e `concept_key`.
+   Normalize strings em Unicode NFC, converta line endings para LF, colapse whitespace
+   interno em um espaço e remova whitespace nas pontas; serialize sem indentação nem
+   espaços entre tokens e sem escaping ASCII. `concept_key` é uma identidade curta em
+   kebab-case baseada na entidade dominante e na alegação atômica, não no texto
+   parafraseado da nota. A mesma evidência e o mesmo conceito devem produzir os mesmos
+   bytes em qualquer execução. Faça primeiro uma busca exata em disco por essa chave e
+   só então execute `kb-retrieval`. Classifique a ação no
+   **plano de notas** como `create | supersede | skip`, citando a evidência da sessão e
+   a nota vigente relacionada. Chave já presente, duplicata semântica ou conteúdo
+   transitório resultam em `skip`; nunca dependa apenas do Qdrant para idempotência.
+   Ao encontrar a chave em disco, antes do `skip`, valide e repare o `index.md` do topic,
+   os índices ancestrais e a indexação Qdrant pendente. A nota permanece imutável; apenas
+   estruturas mutáveis ou derivadas são reconciliadas, e o manifesto registra
+   `reconciled` ou a pendência que ainda falhou.
+4. Defina os links entre candidatos somente quando houver relação semântica explícita
+   — por exemplo, uma decisão motivada por um evento — e preserve o limite de cinco
+   links por nota. Ordem cronológica ou tema parecido, sozinhos, não criam relação. Um
+   link só pode ser publicado quando o destino já existe em disco. Ordene a escrita
+   para publicar primeiro os destinos; se um destino falhar ou houver ciclo entre
+   candidatos novos, omita a relação e registre a pendência no manifesto.
+5. Escreva e indexe cada nota como uma unidade independente. Uma falha não apaga as
+   notas concluídas: reporte por candidato `written`, `indexed`, `pending` ou `failed`.
+6. Torne a operação idempotente: numa reexecução sobre a mesma sessão e o mesmo
+   conhecimento, a busca exata em disco por `distillation_key` deve impedir outra nota
+   e levar à reconciliação descrita acima, seguida de `skip`, inclusive se o Qdrant
+   continuar indisponível. Só use `supersede` quando a sessão realmente altera
+   conhecimento vigente; a nova versão recebe uma chave distinta porque seu
+   fingerprint ou sua evidência mudou.
+7. Encerre com um manifesto: intervalo e fonte cobertos, topics encontrados, candidatos
+   por ação, paths criados, links estabelecidos e pendências. Contagens incluem unidade,
+   população, janela, fonte e método; nunca use “tudo” quando a cobertura tiver gap.
+
 ---
 
 ## 9. Mecânica — o arquivo e o índice
 
 ### Arquivo em disco (fonte da verdade)
 
-Cada nota é um markdown em `~/knowledge-base/<domain>/<tipo-entidade-plural>/`
+Cada nota é um Markdown em
+`~/knowledge-base/<domain>/<topic>/[<subtopic>/]<YYYY-MM-DD>--<short-slug>.md`
 (`mkdir -p` se preciso):
 
-- **Nome do arquivo**: `<YYYY-MM-DD>--<slug-do-titulo>.md` (slug lowercase-kebab). A
-  data no nome permite navegação cronológica sem abrir arquivos; a identidade canônica
-  é o `id` do frontmatter, não o nome.
+Para projetos, o caso canônico é
+`work/projects/<project>/<topic>/<YYYY-MM-DD>--<short-slug>.md`.
+
+- **Nome do arquivo**: `<YYYY-MM-DD>--<short-slug>.md`, com um slug lowercase-kebab de
+  **2 a 6 termos substantivos** que identifiquem o conceito sem repetir o título
+  inteiro. A data permite navegação cronológica. No OKF, o path relativo é o Concept
+  ID; o UUID do frontmatter é a identidade do índice derivado, não substitui o path.
 - **Frontmatter**:
 
 ```markdown
 ---
 # --- OKF v0.2 ---
-type: <substantivo do domínio, singular da pasta>
+type: <substantivo autoexplicativo da entidade ou conceito>
 title: <título curto e específico>
 description: <uma frase de vitrine — NÃO é o summary>
 tags: [<0-3 recortes transversais>]
@@ -365,8 +474,10 @@ stale_after: <YYYY-MM-DD>       # opcional, quando há validade conhecida
 
 # --- extensões oh-my-harness (o spec permite qualquer chave extra) ---
 id: <uuid4>
+distillation_key: <sha256 determinístico, ou null fora de destilação de sessão>
 knowledge_type: decision | event | procedure | reference | conversation
 domain: <caminho do bounded context, relativo à raiz do bundle>
+topic: <assunto estável em lowercase-kebab, relativo ao domain>
 created_at: <ISO 8601 UTC — nascimento da nota; é o que vai ao payload>
 entities: [<2-6 substantivos de domínio>]
 supersedes: <uuid da nota substituída, ou null>
@@ -384,9 +495,14 @@ por `generated.at`, e numa KB de notas imutáveis ele seria redundante com `crea
 
 ### Arquivos reservados do bundle
 
-- **`index.md`** — listagem do diretório, para navegação progressiva sem busca. Sempre
-  que criar uma pasta de tipo de entidade nova, crie o `index.md` dela. Por convenção
-  nossa (o spec apenas permite), o `index.md` da **raiz do bundle** declara
+- **`index.md`** — listagem do diretório, para navegação progressiva sem busca. Em toda
+  escrita, atualize atomicamente o `index.md` do topic para listar o conceito e os
+  índices ancestrais relevantes para listar topics ou subtopics novos. Ao criar um
+  topic ou subtopic, crie seu `index.md` na mesma operação, descrevendo o escopo do
+  assunto e listando seus conceitos ou filhos. Uma nota só conta como concluída depois
+  dessa reconciliação; falha preserva a versão anterior dos índices e entra no
+  manifesto. Por convenção nossa (o spec apenas
+  permite), o `index.md` da **raiz do bundle** declara
   `okf_version: "0.2"` e é o único que carrega essa chave.
 - **`log.md`** — histórico cronológico do bounded context, agrupado por data, mais
   recente no topo. É o mesmo padrão da timeline do `context.md` mantido pelo `explorer`.
@@ -398,7 +514,8 @@ Nenhum dos dois carrega frontmatter de conceito, e nenhum é indexado como nota.
 Após gravar o arquivo, indexe na collection `knowledge-base` (desenho em `kb-infra`):
 embede o **summary** com bge-m3 (dense 1024 + sparse) e faça upsert com o `id` da nota
 como point id e payload `kind: "note"`, `id`, `title`, `type`, `knowledge_type`,
-`domain`, `created_at`, `summary`, `path` (absoluto), `supersedes`, `archived: false`,
+`domain`, `topic`, `distillation_key`, `created_at`, `summary`, `path` (absoluto),
+`supersedes`, `archived: false`,
 `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`,
 `machine_id`, `machine_label`, `hostname` e `username`. Os campos nullable permanecem
 no payload com valor nulo; não os omita.
@@ -410,14 +527,22 @@ Se o Qdrant estiver fora do ar: **o arquivo em disco é escrito mesmo assim** e 
 indexação fica pendente — informe explicitamente e lembre que o reindex de `kb-infra`
 reconcilia depois. Nunca deixe de registrar conhecimento por falta de índice.
 
+### Compatibilidade com notas legadas
+
+Notas históricas na raiz do domain ou em pastas orientadas por type continuam legíveis
+e reindexáveis com `topic: null`. Uma escrita normal nunca as move ou rebatiza. Quando
+conhecimento legado for supersedido, a nota nova segue o routing topic-first e cria um
+link explícito para o path antigo. Reorganizar o corpus existente exige uma migração
+separada e auditável, não faz parte de uma captura comum.
+
 ## Regras de execução
 
 1. **Nota é imutável** — correção = nota nova com `supersedes`. A **única** edição
    permitida num arquivo existente é virar o `status` dela para `deprecated` durante um
    supersede; corpo, título e summary nunca mudam.
 2. **Escrita só em `~/knowledge-base/`** — nunca no repo do usuário.
-3. **`type` é o singular da pasta; `knowledge_type` é o enum fechado.** Os dois eixos
-   sempre presentes, nunca confundidos.
+3. **`type` descreve a entidade; `knowledge_type` é o enum fechado.** Ambos são metadata
+   obrigatória e nenhum deles determina o diretório.
 4. **Relacionamento é link markdown no corpo**, com caminho absoluto ao bundle e a
    relação explicada na prosa. `links_out` não existe mais.
 5. **Summary 200–800 chars, ≠ título, ≠ `description`, prosa sem bullets** — é o
@@ -425,7 +550,8 @@ reconcilia depois. Nunca deixe de registrar conhecimento por falta de índice.
 6. **`generated` e `provenance` completos em toda nota; `verified` só com confirmação
    humana real.** Proveniência obrigatória ausente bloqueia a escrita; nunca invente
    metadata para satisfazer o schema.
-7. **Pasta nasce na segunda nota do tipo; no máximo 3 níveis por bounded context.**
+7. **Route topic-first e preserve paths.** Crie topic e `index.md` na primeira nota;
+   use no máximo `topic[/subtopic]`. Diretório por type só existe por layout explícito.
 8. **Uma nota, um conhecimento** — natureza mista vira duas notas linkadas.
 9. **Busque antes de escrever** — para descobrir relacionamentos e evitar duplicar nota
    vigente.

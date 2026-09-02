@@ -34,6 +34,76 @@ EOF
 fi
 
 fm_value() { sed -n "s/^$1: *//p" "$REPORT" 2>/dev/null | head -1 | tr -d '\r'; }
+remote_identity() {
+  REMOTE_VALUE=$1
+  REMOTE_BASE=$2
+  REMOTE_VALUE=$(printf '%s\n' "$REMOTE_VALUE" | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\\(.*\\)'$/\\1/")
+  if [ -z "$REMOTE_VALUE" ] || [ "$REMOTE_VALUE" = null ]; then
+    printf 'null\n'
+    return
+  fi
+  REMOTE_SCHEME=
+  case "$REMOTE_VALUE" in
+    *://*) REMOTE_SCHEME=$(printf '%s' "${REMOTE_VALUE%%://*}" | tr '[:upper:]' '[:lower:]') ;;
+  esac
+  case "$REMOTE_VALUE" in
+    file://localhost/*) REMOTE_VALUE=${REMOTE_VALUE#file://localhost} ;;
+    file:///*) REMOTE_VALUE=${REMOTE_VALUE#file://} ;;
+  esac
+  case "$REMOTE_VALUE" in
+    *://*|*:*|/*) ;;
+    *) REMOTE_VALUE="$REMOTE_BASE/$REMOTE_VALUE" ;;
+  esac
+  REMOTE_ID=$(printf '%s\n' "$REMOTE_VALUE" |
+    sed -E \
+      -e 's#^[[:alpha:]][[:alnum:]+.-]*://([^/@]+@)?#//#' \
+      -e 's#^([^/@]+@)?([^/:]+):#//\2/#' \
+      -e 's#^//([^/]+)/#\1/#' \
+      -e 's#[?#].*$##' \
+      -e 's#/*$##' \
+      -e 's#\.git$##')
+  case "$REMOTE_ID" in
+    /*) printf '%s\n' "$REMOTE_ID" ;;
+    */*)
+      REMOTE_HOST=${REMOTE_ID%%/*}
+      REMOTE_PATH=${REMOTE_ID#*/}
+      case "$REMOTE_SCHEME:$REMOTE_HOST" in
+        ssh:*:22) REMOTE_HOST=${REMOTE_HOST%:22} ;;
+        https:*:443) REMOTE_HOST=${REMOTE_HOST%:443} ;;
+        http:*:80) REMOTE_HOST=${REMOTE_HOST%:80} ;;
+        git:*:9418) REMOTE_HOST=${REMOTE_HOST%:9418} ;;
+      esac
+      printf '%s/%s\n' "$(printf '%s' "$REMOTE_HOST" | tr '[:upper:]' '[:lower:]')" "$REMOTE_PATH"
+      ;;
+    *) printf '%s\n' "$REMOTE_ID" | tr '[:upper:]' '[:lower:]' ;;
+  esac
+}
+REPORT_REPO=$(sed -n 's/^> Repository: *//p' "$REPORT" 2>/dev/null | head -1 | tr -d '\r')
+REPORT_REMOTE=$(fm_value remote_url)
+CURRENT_REMOTE=$(git remote get-url origin 2>/dev/null || true)
+if [ -n "$REPORT_REPO" ] && [ -d "$REPORT_REPO" ]; then
+  REPORT_REPO=$(cd "$REPORT_REPO" 2>/dev/null && pwd -P)
+fi
+REPO_ROOT=$(cd "$REPO_ROOT" 2>/dev/null && pwd -P) || quiet
+REPORT_REMOTE_ID=$(remote_identity "$REPORT_REMOTE" "$REPORT_REPO")
+CURRENT_REMOTE_ID=$(remote_identity "$CURRENT_REMOTE" "$REPO_ROOT")
+
+SAME_REPOSITORY=no
+if [ -n "$REPORT_REMOTE" ] && [ "$REPORT_REMOTE" != null ] && [ -n "$CURRENT_REMOTE" ]; then
+  [ "$REPORT_REMOTE_ID" = "$CURRENT_REMOTE_ID" ] && SAME_REPOSITORY=yes
+elif [ -n "$REPORT_REPO" ] && [ "$REPORT_REPO" = "$REPO_ROOT" ]; then
+  SAME_REPOSITORY=yes
+fi
+
+if [ "$SAME_REPOSITORY" != yes ]; then
+  printf '# omh-managed: context collision\n'
+  printf 'O domain `%s` já pertence a outra identidade ou não possui identidade verificável.\n' "$DOMAIN"
+  printf 'Esperado: remote identity `%s`, raiz `%s`; encontrado: remote identity `%s`, raiz `%s`.\n' \
+    "${CURRENT_REMOTE_ID:-null}" "$REPO_ROOT" "${REPORT_REMOTE_ID:-null}" "${REPORT_REPO:-null}"
+  printf 'AÇÃO: não carregue nem escreva neste domain até existir um resolver persistente compartilhado.\n'
+  exit 0
+fi
+
 LAST_HASH=$(fm_value last_hash)
 GENERATED=$(fm_value generated_at)
 

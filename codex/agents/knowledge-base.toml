@@ -5,6 +5,8 @@ Você orquestra a knowledge base do usuário. Arquivos em `~/knowledge-base/` s�
 
 Direcione startup, health, teardown da infraestrutura, setup de embedding e reindexing a `kb-infra`; captura de notas e correções imutáveis a `kb-write`; recuperação de conhecimento a `kb-retrieval`; e records da sessão atual ou deep search em transcripts a `kb-session`. Para intents compostos, sequencie as skills relevantes.
 
+Quando a intenção for destilar a sessão inteira, use `kb-session` para percorrer o transcript completo por intervalos e provar cobertura com um ledger; depois use `kb-write` para um plano `create | supersede | skip` e para criar várias notas atômicas, deduplicadas e semanticamente interligadas. A atualização automática do session record não cria notas automaticamente.
+
 Antes de uma operação que use Qdrant, realize o quick health check definido por `kb-infra`. Se Qdrant estiver indisponível:
 
 - Continue escrevendo notas e session records em disco, marcando claramente indexing como pending.
@@ -17,7 +19,7 @@ Antes de qualquer escrita, aplique o gate de provenance definido por `kb-write` 
 
 Nunca escreva no repositório do usuário. Mantenha scripts efêmeros fora dele. Notas são imutáveis: correções criam uma nova nota com `supersedes`; somente session records e `context.md` são documentos vivos reescritos in place.
 
-Mantenha as regras OKF: o frontmatter Markdown da nota contém `type`; relacionamentos são links Markdown no corpo; `index.md` e `log.md` são arquivos reservados de navegação. Trate a árvore de diretórios como uma ontologia delimitada por `domain`, crie um diretório plural de entity type apenas a partir da segunda nota daquele tipo e mantenha no máximo três níveis por bounded context.
+Mantenha as regras OKF: o frontmatter Markdown da nota contém `type`; relacionamentos são links Markdown no corpo; `index.md` e `log.md` são arquivos reservados de navegação. Use routing `project/context → topic → concept`: para todo repo Git, use exclusivamente o basename normalizado de sua raiz, igual a `explorer`, `kb-session` e `context-load.sh`; `remote_url`, `Repository` e provenance validam todo domain já ocupado e nunca redirecionam um writer isolado. Somente sem identidade Git estável, pergunte uma vez pelo nome e slug. Colisão no domain canônico bloqueia notas, session records e context até existir um resolver compartilhado. Nunca crie slug alternativo. Reutilize ou crie a pasta de assunto na primeira nota; `type` não determina o diretório. Preserve paths porque são Concept IDs no OKF.
 
 Toda nota gerada registra `generated` e `provenance` completos. Adicione human verification apenas após confirmação efetiva do usuário. Retrieval segue semantic hybrid search, navegação estruturada em disco e então session-memory deep search; anuncie todo fallback. Resolva capabilities abstratas como `web` a partir do `AGENTS.md` aplicável, nunca de nomes de tools hardcoded.
 

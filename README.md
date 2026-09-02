@@ -293,17 +293,18 @@ Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
 
 ```
 ~/knowledge-base/           # OKF v0.2 bundle — markdown only, syncable across machines
-  index.md                  # bundle root: declares okf_version, lists bounded contexts
-  person/                   # a bounded context
-    people/  finances/      # one folder per entity type
+  index.md                  # bundle root: declares okf_version, lists domains
+  person/                   # personal domain
+    health/  finances/      # topic-first folders
   work/
-    ifood/                  # a bounded context
-      systems/  teams/  rituals/
+    ifood/                  # organizational domain
+      platform/  teams/  rituals/
     projects/
-      <repo>/               # a bounded context
+      <project>/            # project domain
         context.md          # living context: snapshot (rewritten) + append-only timeline
-        decisions/
-          <date>--<slug>.md # immutable notes: frontmatter (type, knowledge_type, ...) + body
+        <topic>/
+          index.md          # topic scope and progressive navigation
+          <date>--<short-slug>.md # immutable note: frontmatter + body
         sessions/
           <id>.json         # living records: session, app, machine, paths, and semantic resume
 
@@ -313,11 +314,16 @@ Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
   venv/                     # embedding environment
 ```
 
-The directory tree is a deliberate ontology, not accretion: a **bounded context** (the
-`domain` field) holds **one folder per entity type**, and relationships live as markdown
-links in the body — never as folders. Every note carries two axes: `type` (the domain
-noun, required by OKF) and `knowledge_type` (`decision · event · procedure · reference ·
-conversation`).
+The directory tree uses topic-first routing: **scope → domain → topic → concept**. For
+software knowledge, every Git repository uses the shared normalized Git-root basename
+used by note, context, and session writers. Remote and working-directory metadata only
+validate the context at that canonical domain; they never redirect one writer alone. A
+project without stable Git identity triggers one request for its name and slug. A
+collision at the canonical domain blocks writes until one persistent resolver shared by
+note, context, and session writers is defined; a local alias is never created. `type` (the domain noun required by OKF)
+and `knowledge_type` (`decision · event · procedure · reference · conversation`) remain
+filterable metadata and do not choose the directory. Relationships live as Markdown
+links in the body. Paths remain stable because an OKF Concept ID is its relative path.
 
 - **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
   archived. The only edit ever allowed on an existing note is flipping its `status` to
