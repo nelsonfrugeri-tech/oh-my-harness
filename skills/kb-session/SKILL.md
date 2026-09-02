@@ -1,5 +1,5 @@
 ---
-version: 3.0.0
+version: 3.1.0
 name: kb-session
 description: |
   Memória de sessão do harness — mantém um session record VIVO por sessão em
@@ -15,8 +15,9 @@ description: |
   re-upsert no mesmo point, sem supersedes) e o playbook de deep search pela capability
   `session-memory` — busca cross-harness e cross-projeto por tema, digest de sessão e
   blame por arquivo, com a disciplina de query lexical AND (poucos termos raros, não
-  frases) — mais o modo degradado por grep dirigido sobre o JSONL quando a capability
-  não existe. Invocada pelo agent `knowledge-base` sob demanda ("registra a sessão",
+  frases) — mais o modo degradado por grep dirigido sobre o JSONL e a destilação
+  integral auditável em intervalos cronológicos quando o usuário pede transformar uma
+  sessão longa em várias notas. Invocada pelo agent `knowledge-base` sob demanda ("registra a sessão",
   "atualiza o resumo da sessão", "o que falamos naquela sessão sobre X?", "que sessões
   mexeram neste arquivo?") ou como degrau 3 de `kb-retrieval` — não destinada a
   invocação direta pelo usuário.
@@ -44,9 +45,19 @@ atualização, sem `supersedes`, sem arquivo novo. A sessão evolui; o record ev
 
 Um JSON por sessão em `~/knowledge-base/{domain}/sessions/<session_id>.json`
 (`{domain}` = o bounded context da sessão, relativo à raiz do bundle — para uma sessão
-de código, `work/projects/<basename-do-cwd-em-lowercase-kebab>`, exatamente a mesma
-derivação que o `explorer` usa para o `context.md`, para que sessão e contexto do mesmo
-repositório caiam no mesmo bounded context. `mkdir -p` se preciso).
+de código em repo Git, resolva a raiz com `git -C <cwd> rev-parse --show-toplevel` e
+normalize **o basename da raiz**, nunca o basename do `cwd`: lowercase, caracteres fora
+de `[a-z0-9-]` convertidos em hífen, hífens repetidos colapsados e pontas aparadas. O
+resultado é `work/projects/<project>`, exatamente a mesma derivação de `explorer`,
+`kb-write` e `context-load.sh`, inclusive quando a sessão começa num subdiretório. Sem
+repo Git, se a atividade for um projeto de software, reutilize o slug canônico já
+registrado em `work/projects/<project>` ou aplique a única pergunta de nome e slug de
+`kb-write`; nunca desvie seu session record para um domain não-projeto. Somente conteúdo
+que realmente não pertence a projeto usa o domain não-projeto adequado. Não derive
+silenciosamente um project do diretório corrente. Antes de `mkdir` ou de qualquer
+reescrita, aplique integralmente o collision gate de `kb-write` ao domain: identidade
+divergente ou insuficiente bloqueia o session record; nunca crie slug alternativo só
+neste writer. `mkdir -p` somente depois de o gate passar).
 
 > Session records são `.json`, não `.md` — ficam **fora** do conjunto de arquivos que a
 > conformance do OKF avalia, e por isso podem seguir sendo documentos vivos em JSON
@@ -253,6 +264,50 @@ Então:
   **mecanismo de escrita/notas da própria capability**, qualquer que seja o nome dele
   nesta máquina (ver `CLAUDE.md`: um único escritor de conhecimento curado).
 
+### 4.4 Destilação integral de sessão
+
+Deep search responde uma pergunta e para cedo; **destilar a sessão inteira** é outra
+operação e só acontece por pedido explícito. Nesse modo, percorra o transcript completo
+em intervalos cronológicos limitados, sem carregá-lo inteiro no contexto, e entregue os
+candidatos a `kb-write`. A carona que atualiza o session record não cria notas
+automaticamente.
+
+1. Resolva o transcript real e registre tamanho em bytes, quantidade total de registros
+   brutos, eventos parseáveis, parsing failures e primeiro/último timestamp. Sem
+   transcript, não existe alegação de cobertura integral: reporte o modo parcial e o
+   que falta.
+2. Divida o corpus em intervalos cronológicos contíguos, com pequena sobreposição apenas
+   nas fronteiras. Para cada intervalo, extraia decisões, eventos, procedimentos,
+   referências, entidades, topics e ponteiros de evidência; ignore tool noise e
+   tentativas transitórias sem valor durável.
+3. Antes de registrar candidatos, detecte credentials, tokens, secrets, personal data e
+   outros dados sensíveis. Redija os valores irreversivelmente no ledger e no corpus
+   entregue a `kb-write`, preservando apenas categoria e contexto necessários. Nunca
+   grave o valor bruto em nota, summary, link, log ou Qdrant. Se houver detecção ou
+   dúvida sobre PII, apresente o plano já redigido e obtenha confirmação humana antes de
+   escrever; confirmação nunca autoriza persistir um secret bruto.
+4. Mantenha fora do repo, no scratchpad da sessão ou em `/tmp`, um **ledger de
+   cobertura** com intervalo, offsets ou ids inicial/final, bytes, total de registros,
+   status de cada registro e candidatos. Cada registro termina como conteúdo processado,
+   noise excluído com motivo, parsing failure ou tipo desconhecido não classificado.
+   Marque um intervalo como processado somente depois de contabilizar todos os seus
+   registros; parsing failure ou registro não classificado é gap, nunca descarte.
+5. Antes de sintetizar, valide que os intervalos formam uma cobertura contínua do
+   primeiro ao último byte e registro, sem lacunas e sem duplicação fora das fronteiras.
+   Só diga “sessão integralmente analisada” quando houver **nenhum intervalo não
+   processado**, parsing failure ou registro não classificado.
+6. Reúna candidatos equivalentes encontrados em intervalos diferentes, preserve todos
+   os ponteiros de evidência e entregue a `kb-write` o corpus, o ledger e a janela total.
+   `kb-write` decide `create | supersede | skip`, atomiza e conecta as notas.
+7. O relatório final informa fonte, janela, método, bytes, população total de registros,
+   eventos parseáveis, noise justificado, parsing failures, registros não classificados,
+   intervalos processados, gaps, candidatos e resultado por nota. Não confunda número
+   de linhas JSONL com número de mensagens sem declarar o parser usado.
+
+Esta seção é a exceção explícita à regra de não ler transcript inteiro: a operação cobre
+o corpus inteiro **por streaming e janelas**, nunca como um único prompt. A proibição
+continua valendo para deep search comum.
+
 ## 5. Indexação no Qdrant — índice vivo, sem supersedes
 
 O record é indexado na collection `knowledge-base` (desenho em `kb-infra`):
@@ -279,8 +334,9 @@ Degrade sem Qdrant: o JSON em disco é escrito mesmo assim e a indexação fica
 3. **Deep search pela capability `session-memory`** — é ela que alcança outros harnesses e
    sessões sem record, e é ela que devolve trechos já **tarjados** (redaction aplicada).
    Acesso direto ao JSONL é o modo degradado, declarado como tal.
-4. **NUNCA leia um transcript inteiro** — no modo degradado, deep search é grep dirigido +
-   janelas por offset/limit ao redor dos hits.
+4. **NUNCA carregue um transcript inteiro no contexto** — deep search degradado usa grep
+   dirigido + janelas; somente a destilação integral explícita percorre todo o corpus,
+   por streaming, intervalos e ledger de cobertura conforme a seção 4.4.
 5. **Query lexical é AND** — 2 a 3 termos raros, não uma frase. Vazio significa "estreitei
    demais": remova termos e tente sinônimos em pt e en.
 6. **Toda resposta de deep search cita a fonte** — session name + session_id + harness; e

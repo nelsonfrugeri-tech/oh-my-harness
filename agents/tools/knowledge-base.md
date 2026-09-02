@@ -39,6 +39,7 @@ metodologia vive nas skills, não aqui.
 | Registrar conhecimento | "registra isso", "anota essa decisão", "documenta o incidente", "atualiza a nota X" | `kb-write` |
 | Recuperar conhecimento | "o que decidimos sobre X?", "busca na knowledge base", "qual o procedimento de Y?", "lista as notas de Z" | `kb-retrieval` |
 | Registrar/atualizar a sessão corrente; buscar algo dito numa sessão passada | "registra a sessão", "atualiza o resumo da sessão", "o que falamos naquela sessão sobre X?", "em que conversa decidimos Y?" | `kb-session` |
+| Destilar toda uma sessão em várias notas curadas | "salva tudo desta sessão", "destila a sessão inteira", "transforma esta conversa em conhecimento" | `kb-session` (cobertura integral) → `kb-write` (plano e notas) |
 | Investigar a história **de um arquivo** pela conversa que a produziu | "quando mexemos neste arquivo?", "por que esta linha ficou assim?", "que sessão introduziu isso?" | `kb-retrieval` (entrada lateral) → `kb-session` |
 
 Em caso de intenção composta (ex.: "registra isso e me mostra as notas relacionadas"),
@@ -88,6 +89,10 @@ Qdrant (indexação, busca semântica), faça o health check rápido descrito em
   manutenção de rotina, não uma tarefa a anunciar — no output, a carona pode aparecer
   como um rodapé de uma linha, nunca como tarefa; se o harness da sessão não estiver
   mapeado, degrade conforme `kb-session`.
+- **Destilação integral é explícita** — ao pedido de destilar a sessão inteira, percorra
+  o transcript por intervalos com ledger de cobertura e então produza o plano de várias
+  notas atômicas, deduplicadas e interligadas conforme `kb-session` + `kb-write`. A
+  carona do session record não cria notas automaticamente.
 - **Notas são imutáveis** — nunca edite uma nota existente; correções são notas novas
   com `supersedes` (regra detalhada em `kb-write`). **Session records e o `context.md`
   são a exceção nomeada**: documentos vivos, reescritos in-place, nunca via
@@ -95,9 +100,15 @@ Qdrant (indexação, busca semântica), faça o health check rápido descrito em
 - **A KB é um bundle OKF** — todo arquivo de nota é markdown com frontmatter contendo
   `type`; os relacionamentos são **links markdown no corpo**, nunca campo estruturado;
   `index.md` e `log.md` são nomes reservados de navegação, não conceitos.
-- **A árvore de diretórios é ontologia** — bounded context (`domain`) e, dentro dele,
-  uma pasta por tipo de entidade. Pasta nasce na **segunda** nota do tipo; no máximo 3
-  níveis por contexto. Na dúvida sobre o contexto de uma nota, pergunte uma vez.
+- **A árvore usa routing `project/context → topic → concept`** — para todo repo Git, use
+  exclusivamente o basename normalizado de sua raiz, igual a `explorer`, `kb-session` e
+  `context-load.sh`; `remote_url`, `Repository` e provenance validam todo domain já
+  ocupado e nunca redirecionam um writer isolado. Somente sem identidade Git estável,
+  pergunte uma vez pelo nome e slug. Colisão no domain canônico bloqueia a escrita de
+  notas, session records e context até existir um resolver
+  compartilhado; nunca crie slug alternativo. Reutilize ou
+  crie a pasta de assunto na primeira nota; `type` não determina o diretório. Preserve
+  paths porque são Concept IDs no OKF.
 - **Proveniência nunca é falsificada** — `generated` e `provenance` completos em toda
   nota escrita por agent; `verified` **só** quando o usuário confirmou de fato.
 - **Retrieval é uma escada de 3 degraus** — busca semântica no Qdrant (notas + session

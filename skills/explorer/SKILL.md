@@ -80,8 +80,12 @@ Antes de todas as fases, resolva onde o knowledge base vive:
    bundle OKF (ver `kb-write`). Um repositório é sempre um bounded context próprio.
 3. `KB_DIR` = `~/knowledge-base/<DOMAIN>`
 4. `CONTEXT_FILE` = `<KB_DIR>/context.md`
-5. Se `KB_DIR` não existir, crie-o: `mkdir -p "<KB_DIR>"`. Esta é a ÚNICA escrita permitida
-   fora de `CONTEXT_FILE` em si.
+5. Antes de criar ou reescrever, aplique o collision gate de `kb-write`: valide
+   `remote_url` e `Repository` do `context.md`; sem ele, inspecione provenance das notas
+   e session records existentes. Identidade divergente ou insuficiente bloqueia toda
+   escrita. Nunca reutilize nem crie slug alternativo só neste writer.
+6. Somente após o gate, se `KB_DIR` não existir, crie-o: `mkdir -p "<KB_DIR>"`. Esta é a
+   ÚNICA escrita permitida fora de `CONTEXT_FILE` em si.
 
 > `context.md` é um **documento vivo**, não uma nota: fica na raiz do bounded context,
 > não numa pasta de tipo de entidade, e é reescrito in-place. Ainda assim carrega
