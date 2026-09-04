@@ -1,5 +1,5 @@
 ---
-version: 2.2.0
+version: 2.3.0
 name: kb-retrieval
 description: |
   Recuperação de conhecimento da knowledge base (bundle OKF v0.2 em ~/knowledge-base/)
@@ -39,6 +39,47 @@ diferença entre "busca semântica", "grep estrutural" e "trecho do transcript d
 sessão" importa para o leitor) e **nunca escale silenciosamente** — a descida de degrau
 é sempre declarada, nunca disfarçada de resultado do degrau anterior.
 
+### Entrada direta: entidade ou endereço
+
+Quando a pergunta contém uma entidade nomeada ou pede um endereço — por exemplo "abra
+o projeto X", "onde fica X?", "qual o link do repo X?", "quem é Y?" ou "quando
+aconteceu Z?" — faça **exact lookup antes da busca semântica**. Extraia o nome ou alias
+pedido e a propriedade desejada; não deixe o embedding escolher entre homônimos.
+
+Para project ou repository, consulte primeiro todos os reports
+`~/knowledge-base/work/projects/*/context.md`:
+
+1. compare sem diferenciar maiúsculas/minúsculas o nome do diretório, `title`, nome do
+   repository em `remote_url` e aliases registrados em notas;
+2. leia `Repository` no corpo como o path absoluto do repo e `remote_url` no
+   frontmatter como candidato a endereço remoto;
+3. antes de responder, revalide o `remote_url`: rejeite password, credential-bearing
+   URL userinfo, userinfo em HTTP(S), query string, fragment e parsing ambíguo. Preserve
+   remotes SSH/SCP cujo `git@` seja apenas username de transporte. O exemplo hostil
+   `https://user:token@example.com/repo.git?signature=secret` equivale a
+   `remote_url: null`: informe `redacted` e nunca devolva o target sensível, nem
+   parcialmente;
+4. nunca use `cwd` como locator — ele é provenance e pode ser subdiretório ou execução
+   feita a partir de outro projeto;
+5. um match inequívoco responde diretamente; múltiplos matches exigem desambiguação e
+   **nunca** abrem automaticamente o primeiro; zero matches segue para o lookup exato
+   em notas e session records.
+
+Para qualquer entidade, consulte `entity_refs.name`, `entities`, `aliases` e
+`references.target`; no Qdrant use os campos flat `entity_keys` e
+`reference_targets`, e no disco leia o frontmatter. `entity_keys` é derivado por NFKC,
+Unicode casefold e colapso de whitespace sobre nomes e aliases; preserve o valor
+original na resposta. Para datas e horas, consulte `occurred_at`, `temporal_refs` e
+`temporal_values` sem inventar timezone.
+
+Depois de encontrar o endereço, abra a nota ou `context.md` no disco, que continua
+sendo a fonte da verdade, e devolva a propriedade solicitada somente depois dos gates
+de segurança e verificação. Se o usuário disser "abra", o agent resolve e cita somente
+o endereço seguro; o caller com a capability apropriada executa a abertura. Se o lookup
+exato falhar, prossiga para a escada de 3 degraus e declare a transição. Se o dado
+existir mas estiver `unverified`, `redacted` ou falhar na revalidação, informe o
+status sem ecoar o valor sensível nem fabricar um endereço utilizável.
+
 ### Entrada lateral: quando a pergunta é sobre um *arquivo*
 
 A escada acima busca por **tema**. Quando a pergunta é ancorada num **path** — "quando
@@ -73,7 +114,10 @@ Desenho validado na era oh-my-kb — espelhe-o:
    no payload — o bounded context), `type` (o substantivo do domínio),
    `knowledge_type` (o enum epistêmico), janela de `created_at` (range DATETIME), e
    `must_not archived=true` por padrão. Quando a pergunta pedir origem, filtre também
-   por `harness`, `session_id`, `session_name`, `machine_id` ou `machine_label`.
+   por `harness`, `session_id`, `session_name`, `machine_id` ou `machine_label`. Quando
+   a query já resolveu uma entidade ou endereço, filtre por `entity_keys`,
+   `entity_kinds` ou `reference_targets`; use `occurred_at` para instante principal e
+   `temporal_values` para referências temporais adicionais.
 
    Os dois eixos de tipo servem a perguntas diferentes: filtre por `type` quando a
    pergunta é sobre uma **classe de coisa** ("quais serviços temos?"), e por
@@ -184,16 +228,20 @@ Quando a navegação não basta, caia no grep:
 - **Por tipo de entidade**: é a própria pasta — `ls ~/knowledge-base/work/ifood/systems/`.
 - **Por natureza do conhecimento**: grep no frontmatter —
   `grep -rl "^knowledge_type: decision" ~/knowledge-base/<domain>/`.
-- **Por assunto**: grep por termos no `title`/`description`/`summary`/`entities` do
-  frontmatter; leia só os frontmatters (head) antes de abrir corpos.
+- **Por entidade/endereço**: grep case-insensitive em `entities`, `aliases`,
+  `entity_refs`, `references`, `occurred_at` e `temporal_refs`; para repositories,
+  examine também `work/projects/*/context.md`.
+- **Por assunto**: grep por termos no `title`/`description`/`summary` do frontmatter;
+  leia só os frontmatters (head) antes de abrir corpos.
 - **Por provenance**: grep nos campos `harness`, `session_id`, `session_name`,
   `machine_id` ou `machine_label` das notas e session records. Notas legacy sem
   `provenance` não entram em filtros de origem; declare essa limitação.
 - **Cross-context**: o mesmo padrão com glob `~/knowledge-base/**/*.md`.
 
-E os session records: grep por termos nos campos `name`/`description`/`resume` dos
-JSONs — `grep -rl -i "<termo>" ~/knowledge-base/**/sessions/*.json` — e ordene por
-`updated_at` para privilegiar sessões recentes.
+E os session records: grep por termos nos campos `name`/`description`/`resume`,
+`entities`, `aliases`, `entity_refs`, `references` e `temporal_refs` dos JSONs —
+`grep -rl -i "<termo>" ~/knowledge-base/**/sessions/*.json` — e ordene por `updated_at`
+para privilegiar sessões recentes.
 
 `index.md` e `log.md` são **arquivos reservados**, não conceitos: use-os para navegar e
 para ler a cronologia de um contexto, mas nunca os apresente como nota-fonte.
@@ -305,19 +353,22 @@ Fontes:
 ## Regras de execução
 
 1. **Read-only** — recuperação nunca escreve nada, nem em `~/knowledge-base/`.
-2. **Filtros no servidor** — domain/type/knowledge_type/data/archived e provenance via
+2. **Exact lookup precede semantic search** — entidade ou endereço resolvido usa a
+   entrada direta; aliases ambíguos exigem desambiguação e nunca escolhem o primeiro
+   resultado automaticamente.
+3. **Filtros no servidor** — domain/type/knowledge_type/data/archived e provenance via
    payload filter no prefetch, nunca filtragem client-side após a fusão.
-3. **No degrau 2, navegue antes de grepar** — a descida pelos `index.md` é mais barata e
+4. **No degrau 2, navegue antes de grepar** — a descida pelos `index.md` é mais barata e
    mais precisa que varredura por padrão.
-4. **Cadeias supersedes sempre resolvidas** — nunca apresente conhecimento arquivado
+5. **Cadeias supersedes sempre resolvidas** — nunca apresente conhecimento arquivado
    como vigente (vale para notas; session records são vivos e não têm cadeia).
-5. **Sinais de confiança nunca são silenciados** — nota sem `verified` é apresentada
+6. **Sinais de confiança nunca são silenciados** — nota sem `verified` é apresentada
    como não confirmada; nota com `stale_after` vencido, como expirada.
-6. **Toda resposta cita as fontes** — título, os dois eixos de tipo, data e path para
+7. **Toda resposta cita as fontes** — título, os dois eixos de tipo, data e path para
    notas; session name + session_id + harness para trechos de sessão.
-7. **Escada explícita, nunca silenciosa** — anuncie o degrau que respondeu; a descida
+8. **Escada explícita, nunca silenciosa** — anuncie o degrau que respondeu; a descida
    ao degrau 2 (bundle em disco) ou 3 (deep search via `kb-session`) é sempre declarada.
-8. **Scripts efêmeros via heredoc** com o venv de `kb-infra` — nunca crie arquivos de
+9. **Scripts efêmeros via heredoc** com o venv de `kb-infra` — nunca crie arquivos de
    script no projeto do usuário.
-9. **Pergunta ancorada num arquivo não sobe a escada** — vai direto ao blame por arquivo
+10. **Pergunta ancorada num arquivo não sobe a escada** — vai direto ao blame por arquivo
    da capability `session-memory`, e se combina com `git log` quando o "porquê" importa.

@@ -443,7 +443,8 @@ class AdapterContractTest(unittest.TestCase):
         session_flat = " ".join(session.split())
         infra_flat = " ".join(infra.split())
         for phrase in (
-            "projeta cada campo ausente no payload Qdrant como `null`",
+            "campos multivalorados ausentes como `[]`",
+            "campos escalares nullable ausentes como `null`",
             "nunca reescreve o JSON histórico",
             "nunca atribui a máquina atual a uma sessão passada",
             "promova-o ao schema v3 somente com valores observados",
@@ -481,7 +482,21 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIsNotNone(payload_match)
         schema_fields = set(json.loads(schema_match.group(1)))
         payload_fields = set(re.findall(r"`([^`]+)`", payload_match.group(1)))
-        expected_payload_fields = (schema_fields - {"description", "resume"}) | {"kind"}
+        disk_only_fields = {
+            "description",
+            "resume",
+            "entity_refs",
+            "references",
+            "temporal_refs",
+        }
+        derived_fields = {
+            "kind",
+            "entity_kinds",
+            "entity_keys",
+            "reference_targets",
+            "temporal_values",
+        }
+        expected_payload_fields = (schema_fields - disk_only_fields) | derived_fields
 
         self.assertTrue(provenance_fields <= schema_fields)
         self.assertEqual(expected_payload_fields, payload_fields)
@@ -528,6 +543,156 @@ class AdapterContractTest(unittest.TestCase):
             self.assertIn("provenance", content)
             self.assertIn("identity.json", content)
             self.assertIn("não escreva", content)
+
+    def test_kb_agents_route_named_entity_and_repository_lookup(self) -> None:
+        shared = _ROOT.joinpath("agents/tools/knowledge-base.md").read_text(
+            encoding="utf-8"
+        )
+        codex = _ROOT.joinpath("codex/agents/knowledge-base.toml").read_text(
+            encoding="utf-8"
+        )
+
+        for content in (shared, codex):
+            self.assertIn("entity completeness gate", content)
+            self.assertIn("abra o projeto", content)
+            self.assertIn("qual o link do repo", content)
+            self.assertIn("nome canônico", content)
+            self.assertIn("aliases", content)
+
+    def test_kb_write_preserves_entities_temporal_facts_and_references(self) -> None:
+        content = _ROOT.joinpath("skills/kb-write/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        for field in ("entity_refs", "aliases", "references", "occurred_at"):
+            self.assertIn(field, content)
+        for entity_type in ("project", "repository", "person", "company", "brand"):
+            self.assertIn(f"`{entity_type}`", content)
+        self.assertIn("timezone", content)
+        self.assertIn("nunca invente", content.lower())
+
+    def test_kb_retrieval_has_exact_entity_and_project_address_lookup(self) -> None:
+        content = _ROOT.joinpath("skills/kb-retrieval/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("Entrada direta: entidade ou endereço", content)
+        self.assertIn("work/projects/*/context.md", content)
+        self.assertIn("remote_url", content)
+        self.assertIn("Repository", content)
+        self.assertIn("aliases", content)
+
+    def test_kb_qdrant_payload_carries_entity_lookup_fields(self) -> None:
+        content = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        fields = (
+            "entities",
+            "aliases",
+            "entity_kinds",
+            "entity_keys",
+            "reference_targets",
+            "temporal_values",
+        )
+        for field in fields:
+            self.assertIn(f"`{field}`", content)
+            self.assertIn(f'"{field}"', content)
+        self.assertIn('"occurred_at"', content)
+        self.assertIn("PayloadSchemaType.DATETIME", content)
+
+    def test_kb_session_merges_entity_memory_without_turn_based_erasure(self) -> None:
+        content = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        fields = (
+            "entities",
+            "aliases",
+            "entity_refs",
+            "references",
+            "temporal_refs",
+        )
+        for field in fields:
+            self.assertIn(f'"{field}"', content)
+        self.assertIn("omissão no turno atual não apaga", content)
+        self.assertIn("Entity completeness gate também vale na carona", content)
+
+    def test_kb_note_template_requires_safe_exact_material_references(self) -> None:
+        content = _ROOT.joinpath("skills/kb-write/references/note-template.md").read_text(
+            encoding="utf-8"
+        )
+
+        for field in ("`kind`", "`label`", "`target`"):
+            self.assertIn(field, content)
+        for sensitive_value in ("credentials", "tokens", "signed URLs"):
+            self.assertIn(sensitive_value, content)
+
+    def test_kb_exact_lookup_precedes_semantic_and_rejects_ambiguous_aliases(
+        self,
+    ) -> None:
+        content = _ROOT.joinpath("skills/kb-retrieval/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        exact_lookup = content.index("Entrada direta: entidade ou endereço")
+        semantic_search = content.index("Degrau 1 — Busca semântica híbrida")
+        self.assertLess(exact_lookup, semantic_search)
+        self.assertIn("múltiplos matches exigem desambiguação", content)
+        self.assertIn("nunca use `cwd` como locator", content)
+
+    def test_project_context_and_retrieval_reject_sensitive_remotes(self) -> None:
+        explorer = _ROOT.joinpath("skills/explorer/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        retrieval = _ROOT.joinpath("skills/kb-retrieval/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        hostile_remote = (
+            "https://user:token@example.com/repo.git?signature=secret"
+        )
+
+        for content in (explorer, retrieval):
+            self.assertIn(hostile_remote, content)
+            self.assertIn("remote_url: null", content)
+        self.assertIn("revalide o `remote_url`", retrieval)
+        self.assertIn("nunca devolva o target sensível", retrieval)
+
+    def test_kb_session_defines_merge_keys_per_structured_field(self) -> None:
+        content = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        expected_keys = (
+            "`entity_refs`: `kind + nome canônico normalizado`",
+            "`references`: `kind + target normalizado + entity`",
+            "`temporal_refs`: `value + timezone + meaning`",
+        )
+        for key in expected_keys:
+            self.assertIn(key, content)
+        self.assertIn("derive novamente todos os campos flat", content)
+        self.assertNotIn('"meaning": "record update"', content)
+
+    def test_qdrant_only_indexes_timezone_aware_occurred_at(self) -> None:
+        write = _ROOT.joinpath("skills/kb-write/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        infra = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn(
+            "Somente um timestamp RFC 3339 com timezone",
+            write,
+        )
+        self.assertIn(
+            "`occurred_at` recebe somente timestamp RFC 3339 com timezone",
+            infra,
+        )
+        self.assertIn(
+            "datas `YYYY-MM-DD` permanecem apenas em `temporal_values`",
+            infra,
+        )
 
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (

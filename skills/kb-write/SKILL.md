@@ -1,5 +1,5 @@
 ---
-version: 3.0.0
+version: 3.1.0
 name: kb-write
 description: |
   O scribe da knowledge base — playbook de julgamento e mecânica para registrar
@@ -11,7 +11,8 @@ description: |
   fechado decision | event | procedure | reference | conversation, que diz como o
   conhecimento foi obtido), quando criar vs. superseder (nota é conhecimento imutável
   num ponto do tempo — nunca editar in-place), como escrever o summary denso de 200-800
-  chars que decide o recall, extração de entities e tags, relacionamentos como links
+  chars que decide o recall, entity completeness gate para nomes canônicos, aliases,
+  referências e fatos temporais, extração de entities e tags, relacionamentos como links
   markdown no corpo (não como campo estruturado), proveniência de agent, harness,
   sessão e máquina, sinais linguísticos do usuário para supersede, e quando NÃO
   escrever.
@@ -192,27 +193,96 @@ Um summary mais longo que ~800 chars quase sempre significa "você colocou conte
 corpo no summary". O corpo tem seu próprio lugar. E o summary nunca pode ser igual ao
 título.
 
-## 5. Extraindo `entities` e `tags`
+## 5. Entity completeness gate
 
-`entities` é uma lista de substantivos de domínio sobre os quais a nota *trata*. Não
-fazem parte do contrato de embedding — são metadados para filtragem e agrupamento.
+Antes de escrever, construa um inventário das **entidades nomeadas, referências e fatos
+temporais materiais** presentes na fonte. Material significa que o dado muda a
+identidade, o significado, a rastreabilidade ou uma pergunta futura plausível; não
+inclua substantivos genéricos nem exemplos incidentais.
 
-- Incluir: nomes de sistemas, produtos/serviços, times ou pessoas se forem relevantes,
-  tecnologias específicas, conceitos formais.
-- Excluir: palavras genéricas ("sistema", "código", "usuário"), artigos, qualquer coisa
-  substituível por sinônimo sem mudar o significado.
+O gate só passa quando cada item do inventário aparece no frontmatter estruturado e,
+quando necessário para explicar a relação, no corpo. Se um item material estiver
+ausente, complete a nota antes de gravar. Se duas identidades puderem corresponder ao
+mesmo nome ou alias, não adivinhe: busque na KB e peça desambiguação quando a evidência
+continuar insuficiente.
 
-| Título / summary | Boas entidades | Por quê |
-|---|---|---|
-| "Decisão de migrar do Postgres 14 para 16 no banco de pedidos" | `["postgres", "pedidos-db", "migração"]` | Sistemas específicos + a operação. |
-| "Procedimento de rotação de chave KMS no api-gateway" | `["kms", "api-gateway", "rotação-de-chave"]` | Concreto, pesquisável. |
-| "Reunião sobre roadmap" | `[]` ou pule a nota | Genérico demais — provavelmente não deveria ser uma nota. |
+### Entidades e aliases
 
-De duas a seis entidades é a forma certa. Dez é ruído.
+Preserve a grafia, capitalização e acentuação do **nome canônico** conforme a fonte mais
+autoritativa observada. `aliases` contém somente siglas, handles, slugs, nomes anteriores
+ou grafias alternativas realmente observadas; alias nunca substitui o nome canônico.
 
-`tags` é o campo **transversal** do OKF: recortes que atravessam bounded contexts
-(`["custo", "segurança"]`). Se a tag só faz sentido dentro de um contexto, ela não é
-tag — é entidade. De zero a três tags; a maioria das notas não precisa de nenhuma.
+Tipos mínimos reconhecidos: `project`, `repository`, `person`, `company`, `brand`,
+`system`, `product`, `service`, `team`, `technology` e `other`. Não funda
+entidades só porque os nomes parecem semelhantes. Marca e empresa legal, project e
+repository, ou duas pessoas homônimas permanecem separadas até existir evidência de
+identidade.
+
+Mantenha `entities` como a lista flat de nomes canônicos para compatibilidade. Registre
+o detalhe em `entity_refs`:
+
+```yaml
+entities: [oh-my-harness, GitHub, Nelson Frugeri]
+aliases: [OMH, github]
+entity_refs:
+  - kind: project
+    name: oh-my-harness
+    aliases: [OMH]
+  - kind: brand
+    name: GitHub
+    aliases: [github]
+  - kind: person
+    name: Nelson Frugeri
+    aliases: []
+```
+
+Não há limite arbitrário de entidades: registre **todas** as materiais. Deduplicate por
+`kind + name canônico`; ordem de primeira ocorrência torna a revisão reproduzível.
+
+### References e endereços
+
+Toda URL ou path material vai para `references`, mesmo quando também aparece no corpo:
+
+```yaml
+references:
+  - kind: repository-url
+    label: oh-my-harness repository
+    target: https://github.com/example/oh-my-harness
+    entity: oh-my-harness
+    status: verified
+  - kind: repository-path
+    label: local checkout
+    target: /absolute/path/to/oh-my-harness
+    entity: oh-my-harness
+    status: observed
+```
+
+Kinds usuais: `repository-url`, `repository-path`, `website`, `document-url`,
+`issue-url`, `artifact-path` e `other`. Preserve o target exato e estável. Para
+local repository, resolva a raiz Git e o remote observado; `cwd` é provenance e não
+prova o repo root. Valide sintaxe, existência local ou alcance remoto quando essa
+observação for barata. Use `observed` quando apenas a fonte forneceu o valor e
+`unverified` quando a validação falhar; nunca promova plausibilidade a `verified`.
+
+Nunca persista credentials, tokens, URL userinfo, secret query params ou signed URLs.
+Remova tracking params sem significado; se sanitizar tornaria o endereço inútil,
+registre a referência como redacted e peça uma alternativa segura.
+
+### Datas e horas
+
+`occurred_at` registra o instante principal de um evento quando ele é conhecido.
+`temporal_refs` preserva todas as demais datas, horas, deadlines e intervalos materiais,
+cada um com significado. Normalize para ISO 8601 e preserve a timezone observada. Para
+uma data sem hora, use `YYYY-MM-DD`; para uma hora sem timezone, grave `timezone:
+unknown` — nunca invente UTC nem a timezone local. Somente um timestamp RFC 3339 com timezone
+é projetado no payload Qdrant `occurred_at`; datas sem hora e valores com timezone
+`unknown` permanecem recuperáveis em `temporal_values`, com `occurred_at: null` no
+índice.
+
+`tags` continua sendo o campo **transversal** do OKF: recortes que atravessam bounded
+contexts (`["custo", "segurança"]`). Se a tag só faz sentido dentro de um contexto,
+ela não é tag — é entidade. De zero a três tags; a maioria das notas não precisa de
+nenhuma.
 
 ## 6. Relacionamentos — links markdown, não campo estruturado
 
@@ -368,7 +438,23 @@ id: <uuid4>
 knowledge_type: decision | event | procedure | reference | conversation
 domain: <caminho do bounded context, relativo à raiz do bundle>
 created_at: <ISO 8601 UTC — nascimento da nota; é o que vai ao payload>
-entities: [<2-6 substantivos de domínio>]
+entities: [<todos os nomes canônicos materiais>]
+aliases: [<aliases observados, ou vazio>]
+entity_refs:
+  - kind: <project | repository | person | company | brand | ...>
+    name: <nome canônico>
+    aliases: [<aliases observados>]
+references:
+  - kind: <repository-url | repository-path | website | document-url | issue-url | artifact-path | other>
+    label: <descrição curta>
+    target: <URL segura ou path absoluto>
+    entity: <nome canônico relacionado, ou null>
+    status: <verified | observed | unverified | redacted>
+occurred_at: <ISO 8601 com timezone, YYYY-MM-DD, ou null>
+temporal_refs:
+  - value: <ISO 8601 ou intervalo normalizado>
+    timezone: <timezone observada ou unknown>
+    meaning: <o que a data/hora representa>
 supersedes: <uuid da nota substituída, ou null>
 summary: >
   <prosa densa de 200-800 chars — o texto que vira embedding>
@@ -399,8 +485,10 @@ Após gravar o arquivo, indexe na collection `knowledge-base` (desenho em `kb-in
 embede o **summary** com bge-m3 (dense 1024 + sparse) e faça upsert com o `id` da nota
 como point id e payload `kind: "note"`, `id`, `title`, `type`, `knowledge_type`,
 `domain`, `created_at`, `summary`, `path` (absoluto), `supersedes`, `archived: false`,
-`harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`,
-`machine_id`, `machine_label`, `hostname` e `username`. Os campos nullable permanecem
+`entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `occurred_at`,
+`temporal_values`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`,
+`transcript_path`, `machine_id`, `machine_label`, `hostname` e `username`. Derive os
+campos flat dos metadados estruturados no disco. Os campos nullable permanecem
 no payload com valor nulo; não os omita.
 Ao superseder, faça as duas coisas: vire o `status` da nota antiga para `deprecated` no
 frontmatter dela (a única mutação permitida — ver seção 3) e atualize o payload dela
@@ -431,3 +519,7 @@ reconcilia depois. Nunca deixe de registrar conhecimento por falta de índice.
    vigente.
 10. **Date tudo que pode driftar** — versões, custos, valores de config: use
     `stale_after` no frontmatter e a data de observação no corpo.
+11. **Passe o entity completeness gate** — toda entidade, alias, referência e data/hora
+    material da fonte fica estruturada; ambiguidade é desambiguada, nunca adivinhada.
+12. **Endereços são seguros e verificáveis** — preserve URLs/paths úteis sem credentials,
+    tokens ou signed URLs e declare quando não foi possível validá-los.

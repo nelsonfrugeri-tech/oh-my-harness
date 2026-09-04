@@ -1,5 +1,5 @@
 ---
-version: 1.1.0
+version: 1.2.0
 name: kb-infra
 description: |
   Sobe, verifica e mantém a infraestrutura da knowledge base: Qdrant local via docker
@@ -200,8 +200,10 @@ por `kb-write`) e session records (`kind: "session"`, mantidos por `kb-session`)
 | Payload index | `kind` → `KEYWORD` (separa notas de session records no filtro) |
 | Payload index | `harness`, `session_id`, `session_name` → `KEYWORD` (provenance da sessão) |
 | Payload index | `machine_id`, `machine_label` → `KEYWORD` (provenance da máquina) |
-| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `created_at`, `summary`, `path`, `supersedes`, `archived`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
-| Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `session_name`, `app_name`, `domain`, `name`, `created_at`, `updated_at`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
+| Payload index | `entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `temporal_values` → `KEYWORD` (lookup exato) |
+| Payload index | `occurred_at` → `DATETIME` (instante principal quando houver timezone) |
+| Payload por ponto (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `created_at`, `summary`, `path`, `supersedes`, `archived`, `entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `occurred_at`, `temporal_values`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
+| Payload por ponto (`kind: "session"`) | `kind`, `harness`, `session_id`, `session_name`, `app_name`, `domain`, `name`, `created_at`, `updated_at`, `entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `temporal_values`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
 
 Note os **dois eixos de tipo** no payload de nota: `type` é o substantivo do domínio
 (exigido pelo OKF — `system`, `person`, `decision`...) e `knowledge_type` é o enum
@@ -227,9 +229,14 @@ if not client.collection_exists("knowledge-base"):
         sparse_vectors_config={"sparse": SparseVectorParams()},
     )
 client.create_payload_index("knowledge-base", "created_at", field_schema=PayloadSchemaType.DATETIME)
+client.create_payload_index("knowledge-base", "occurred_at", field_schema=PayloadSchemaType.DATETIME)
 client.create_payload_index("knowledge-base", "domain", field_schema=PayloadSchemaType.KEYWORD)
 client.create_payload_index("knowledge-base", "kind", field_schema=PayloadSchemaType.KEYWORD)
-for field in ("harness", "session_id", "session_name", "machine_id", "machine_label"):
+for field in (
+    "harness", "session_id", "session_name", "machine_id", "machine_label",
+    "entities", "aliases", "entity_kinds", "entity_keys", "reference_targets",
+    "temporal_values",
+):
     client.create_payload_index(
         "knowledge-base",
         field,
@@ -248,18 +255,31 @@ pendente), ou o volume foi perdido, reconstrua o índice a partir do disco:
    `log.md` e o `context.md` de cada contexto — **e** os session records
    (`~/knowledge-base/**/sessions/*.json`).
 2. Para cada nota, extraia o frontmatter (`id`, `title`, `type`, `knowledge_type`,
-   `domain`, `created_at`, `summary`, `supersedes`, `status`, `provenance`) e embede o **summary**
+   `domain`, `created_at`, `summary`, `supersedes`, `status`, `entities`,
+   `aliases`, `entity_refs`, `references`, `occurred_at`, `temporal_refs` e
+   `provenance`) e embede o **summary**
    (dense + sparse), com payload `kind: "note"`. O payload `archived` **é derivado**,
    não lido: `archived = (status == "deprecated")` — `archived` não existe no
    frontmatter. Nota sem `type` não é conforme ao OKF — reporte em vez de indexar
    silenciosamente. Para cada session record, embede
    `name + "\n" + description + "\n" + resume` com payload `kind: "session"` (campos
    em `kb-session`).
-   Notas anteriores ao contrato de provenance continuam legíveis: indexe seus campos
-   de provenance como `null` e reporte-as como legacy; nunca edite notas imutáveis para
-   fabricar metadata histórica. A mesma regra vale para session records anteriores ao
-   schema v3: projete todo campo novo ausente como `null`, reporte o record como legacy
-   e continue o lote. O reindex nunca modifica o JSON nem atribui a identidade da
+   Derive `entity_kinds`, `entity_keys`, `reference_targets` e `temporal_values`
+   dos campos estruturados. `entity_keys` usa NFKC + Unicode casefold + whitespace
+   collapse. No payload, `occurred_at` recebe somente timestamp RFC 3339 com timezone;
+   datas `YYYY-MM-DD` permanecem apenas em `temporal_values`, e valores sem timezone
+   conhecida também produzem `occurred_at: null`. Nunca invente meia-noite ou timezone.
+
+   Para notas e session records legacy, projete campos multivalorados ausentes
+   (`entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`,
+   `temporal_values`) como `[]`; projete somente campos escalares nullable ausentes
+   como `null`. Os campos estruturados disk-only `entity_refs`, `references` e
+   `temporal_refs` não entram no payload. Nunca reescreva a fonte para fabricar esses
+   valores. Notas anteriores ao contrato de provenance continuam legíveis: indexe seus
+   campos de provenance como `null` e reporte-as como legacy; nunca edite notas
+   imutáveis para fabricar metadata histórica. A mesma regra vale para session records
+   anteriores ao schema v3: reporte o record como legacy e continue o lote. O reindex
+   nunca modifica o JSON nem atribui a identidade da
    máquina que executa o reindex a uma sessão histórica. Somente `kb-session`, ao
    atualizar a sessão corrente, pode promover o record com valores observados; se um
    campo obrigatório continuar indisponível, preserva o record sem alteração.

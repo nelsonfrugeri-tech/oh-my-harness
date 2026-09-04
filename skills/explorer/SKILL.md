@@ -1,5 +1,5 @@
 ---
-version: 1.0.0
+version: 1.1.0
 name: explorer
 description: |
   Metodologia de análise profunda de um repositório para construir e manter um knowledge base
@@ -130,16 +130,23 @@ O knowledge base nunca é gravado dentro do repositório analisado — sempre em
 
 Esta fase é executada tanto em modo FULL quanto DELTA.
 
-1. Verifique se há um remote configurado:
-   ```bash
-   git remote get-url origin 2>/dev/null
-   ```
+1. Resolva o remote configurado tratando seu valor como dado sensível não confiável.
+   Capture a saída de `git remote get-url origin` dentro do processo de validação;
+   nunca imprima nem registre o valor bruto antes do gate. O remote só é seguro quando
+   não contém password ou credential-bearing URL userinfo, URLs HTTP(S) não contêm
+   userinfo e nenhum formato contém query string ou fragment. O username de transporte
+   em um remote SSH/SCP, como `git@host:org/repo.git`, não é credential por si só.
+
+   `https://user:token@example.com/repo.git?signature=secret` é hostil: não copie,
+   não mascare parcialmente e não inclua o valor em logs. Use `remote_url: null` e
+   registre somente `remote redacted — credential-bearing or signed URL`. A validação
+   é fail-closed: formato desconhecido ou parsing ambíguo também vira `null`.
 
 2. **Se não há remote**:
    - Registre: "no remote configured — skipping git history"
    - Pule para a próxima fase
 
-3. **Se há remote**, capture os últimos 10-15 commits na branch atual:
+3. **Se há remote seguro**, capture os últimos 10-15 commits na branch atual:
    ```bash
    git log --oneline -n 15 --no-merges
    ```
@@ -629,7 +636,7 @@ description: <uma frase: o que este projeto é>
 domain: <DOMAIN>
 generated_at: <ISO 8601 UTC, ex: 2026-06-14T15:30:00Z>
 last_hash: <hash curto do HEAD nesta análise>
-remote_url: <git remote URL ou null>
+remote_url: <git remote URL validada e segura, ou null quando ausente/redacted>
 ---
 
 # Project Context Report
