@@ -16,9 +16,17 @@ Um parágrafo curto: *por que esta nota existe?* Que situação, pergunta ou gat
 a registrar isso? Mantenha enxuto — poucas frases. Se o contexto é longo, provavelmente
 é uma nota separada — e então vira um link para ela.
 
-### Referências (opcional)
+### Referências (obrigatória quando a fonte contém endereços materiais)
 
-URLs externas citadas, nomes de documentos, ponteiros livres.
+Contextualize repository URLs, websites, documentos, issues e artifact paths que
+sustentam a nota. Cada target desta seção também deve aparecer no campo estruturado
+`references` do frontmatter com `kind`, `label`, `target`, entidade relacionada e
+status de verificação. Isso permite responder deterministicamente perguntas como
+"qual o link do repo X?" sem depender apenas do embedding.
+
+Preserve nomes canônicos e targets exatos; paths locais são absolutos. Nunca inclua
+credentials, tokens, signed URLs ou query params secretos. Se não houver endereço
+material na fonte, omita a seção em vez de inventar uma referência.
 
 > **Links internos entre notas não moram aqui.** Eles moram na frase que explica a
 > relação, dentro da seção onde a relação aparece — porque o OKF não tipa
