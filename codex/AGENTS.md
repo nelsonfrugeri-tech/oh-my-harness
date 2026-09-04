@@ -33,6 +33,22 @@ artefato for ambíguo, pergunte antes de criá-lo.
 
 ---
 
+## Limite de confirmação humana
+
+Peça confirmação ao usuário somente antes de:
+
+1. excluir, sobrescrever de forma irrecuperável ou destruir um artefato; ou
+2. ler ou escrever um arquivo que provavelmente contenha credentials, tokens, senhas, private keys
+   ou material equivalente de autenticação.
+
+Não peça confirmação para leitura, escrita, execução de comandos, testes ou acesso à rede que sejam
+rotineiros e estejam dentro das permissões efetivas da sessão. Uma negação técnica do sandbox não
+transforma uma operação rotineira em decisão sensível: use primeiro os roots e profiles configurados
+pelo adapter. Se uma restrição de maior precedência ainda exigir aprovação, explique que o prompt é
+imposto pelo runtime e não pela política comportamental do oh-my-harness.
+
+---
+
 ## Ambiente e adapters de capability
 
 Agents e skills referenciam capabilities abstratas, nunca identificadores concretos de tools. Esta

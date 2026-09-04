@@ -23,6 +23,10 @@ class InstallLayout:
         return self.codex_home / "hooks.json"
 
     @property
+    def config_file(self) -> Path:
+        return self.codex_home / "config.toml"
+
+    @property
     def installed_adapter(self) -> Path:
         return self.codex_home / "oh-my-harness"
 

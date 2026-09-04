@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -9,6 +10,9 @@ from pathlib import Path
 from lib.integrations import CodexIntegrations
 from lib.layout import InstallLayout
 from lib.sync import CodexInstaller, InstallConflict
+
+
+_MINIMUM_CODEX_VERSION = (0, 138, 0)
 
 
 def _arguments() -> argparse.Namespace:
@@ -35,6 +39,7 @@ def main() -> int:
     )
     installer = CodexInstaller(layout, arguments.replace_global_agents)
     try:
+        _require_permissions_profiles()
         if arguments.check:
             results = installer.validate()
         else:
@@ -52,6 +57,22 @@ def main() -> int:
         return 1
     print("\n".join(results))
     return 0
+
+
+def _require_permissions_profiles() -> None:
+    result = subprocess.run(
+        ["codex", "--version"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    match = re.search(r"(\d+)\.(\d+)\.(\d+)", result.stdout)
+    if match is None:
+        raise InstallConflict("não foi possível determinar a versão do Codex")
+    version = tuple(int(part) for part in match.groups())
+    if version < _MINIMUM_CODEX_VERSION:
+        required = ".".join(str(part) for part in _MINIMUM_CODEX_VERSION)
+        raise InstallConflict(f"Codex {required} ou posterior é necessário")
 
 
 if __name__ == "__main__":

@@ -47,6 +47,9 @@ python3 codex/install.py
 python3 codex/install.py --check
 ```
 
+The global adapter requires Codex `0.138.0` or later because its managed permission profiles are not
+available in older clients. The installer checks this before writing any global state.
+
 The operation is idempotent. Repository-backed artifacts are symlinked so a later `git pull`
 updates them immediately. Editable global files use managed sections so personal configuration is
 preserved.
@@ -64,6 +67,7 @@ run the first installation with `--replace-global-agents`. The original file is 
 | `codex/agents/*.toml` | `~/.codex/agents/*.toml` | Managed file copy |
 | `codex/AGENTS.md` | managed block in `~/.codex/AGENTS.md` | Merge |
 | `codex/hooks.json` | removes obsolete adapter-owned context hook | Merge |
+| generated permissions profile | `~/.codex/config.toml` | Managed sections |
 | `codex/` | `~/.codex/oh-my-harness` | Directory symlink |
 | generated ownership manifest | `~/.codex/oh-my-harness-links.json` | Atomic rewrite |
 
@@ -71,6 +75,12 @@ The installer preserves unrelated hooks, machine-specific capability mappings, g
 instructions, MCP servers, plugins, and personal skills. It removes stale symlinks only when the
 ownership manifest proves they were created by a previous run, and stops instead of replacing an
 unmanaged path.
+
+The managed `oh-my-harness` permissions profile extends Codex's `:workspace` profile and adds
+`~/knowledge-base/` and `~/.local/share/omh-kb/` as reusable workspace roots. Technical approval
+requests are routed through Codex auto-review; the global `AGENTS.md` remains responsible for asking
+the user before destructive operations or access to credential-bearing files. The installer stops
+instead of replacing an existing user-owned sandbox or permissions selection.
 
 The native plugin is the sole owner of the context lifecycle hook. The global adapter removes its
 legacy managed registration so an installation that uses both surfaces injects context once.
