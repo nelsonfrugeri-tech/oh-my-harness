@@ -15,6 +15,14 @@ _ROOT = Path(__file__).resolve().parents[2]
 
 
 class AdapterContractTest(unittest.TestCase):
+    def test_codex_global_guidance_limits_human_confirmation(self) -> None:
+        guidance = _ROOT.joinpath("codex/AGENTS.md").read_text(encoding="utf-8")
+
+        self.assertIn("Peça confirmação ao usuário somente antes de:", guidance)
+        self.assertIn("excluir, sobrescrever de forma irrecuperável", guidance)
+        self.assertIn("credentials, tokens, senhas, private keys", guidance)
+        self.assertIn("imposto pelo runtime", guidance)
+
     def test_codex_plugin_matches_the_shared_plugin_identity(self) -> None:
         codex = json.loads(
             _ROOT.joinpath(".codex-plugin/plugin.json").read_text(encoding="utf-8")

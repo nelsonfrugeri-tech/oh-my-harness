@@ -79,6 +79,129 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertIn("deja hook", commands)
         self.assertEqual(0, sum("omh-managed: context" in command for command in commands))
 
+    def test_install_adds_omh_permissions_without_replacing_user_config(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        target = self._codex_home / "config.toml"
+        target.write_text('model = "gpt-test"\n\n[features]\nexample = true\n', encoding="utf-8")
+
+        self._installer.install()
+
+        content = target.read_text(encoding="utf-8")
+        self.assertIn('model = "gpt-test"', content)
+        self.assertIn('default_permissions = "oh-my-harness"', content)
+        self.assertIn('approval_policy = "on-request"', content)
+        self.assertIn('approvals_reviewer = "auto_review"', content)
+        self.assertIn('[permissions.oh-my-harness]', content)
+        self.assertIn('"~/knowledge-base" = true', content)
+        self.assertIn('"~/.local/share/omh-kb" = true', content)
+        backup = self._codex_home / "config.toml.omh.bak"
+        self.assertEqual(
+            'model = "gpt-test"\n\n[features]\nexample = true\n',
+            backup.read_text(encoding="utf-8"),
+        )
+
+    def test_install_refuses_conflicting_user_permission_selection(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        target = self._codex_home / "config.toml"
+        target.write_text('default_permissions = ":danger-full-access"\n', encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+        self.assertEqual(
+            'default_permissions = ":danger-full-access"\n',
+            target.read_text(encoding="utf-8"),
+        )
+
+    def test_install_refuses_quoted_conflicting_permission_keys(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        target = self._codex_home / "config.toml"
+        target.write_text('"approval_policy" = "never"\n', encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+    def test_install_refuses_quoted_managed_profile_table(self) -> None:
+        variants = (
+            '[permissions."oh-my-harness"]\n',
+            '["permissions"."oh-my-harness"]\n',
+            'permissions."oh-my-harness" = {}\n',
+            '"permissions"."oh-my-harness" = {}\n',
+        )
+        for content in variants:
+            with self.subTest(content=content):
+                self._codex_home.mkdir(parents=True, exist_ok=True)
+                target = self._codex_home / "config.toml"
+                target.write_text(content, encoding="utf-8")
+                with self.assertRaises(InstallConflict):
+                    self._installer.install()
+
+    def test_install_refuses_legacy_sandbox_tables_and_dotted_keys(self) -> None:
+        variants = (
+            "[sandbox_workspace_write]\nnetwork_access = true\n",
+            "sandbox_workspace_write.network_access = true\n",
+            '"sandbox_workspace_write".network_access = true\n',
+            "sandbox_workspace_write = { network_access = true }\n",
+        )
+        for content in variants:
+            with self.subTest(content=content):
+                self._codex_home.mkdir(parents=True, exist_ok=True)
+                target = self._codex_home / "config.toml"
+                target.write_text(content, encoding="utf-8")
+                with self.assertRaises(InstallConflict):
+                    self._installer.install()
+
+    def test_install_refuses_aggregate_permissions_tables(self) -> None:
+        variants = (
+            'permissions = { "oh-my-harness" = {} }\n',
+            "permissions = { other = {} }\n",
+            '"permissions" = { "oh-my-harness" = {} }\n',
+            "[permissions]\nother = {}\n",
+        )
+        for content in variants:
+            with self.subTest(content=content):
+                self._codex_home.mkdir(parents=True, exist_ok=True)
+                target = self._codex_home / "config.toml"
+                target.write_text(content, encoding="utf-8")
+                with self.assertRaises(InstallConflict):
+                    self._installer.install()
+
+    def test_install_preserves_table_like_lines_inside_root_values(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        target = self._codex_home / "config.toml"
+        original = 'message = """\n[not-a-table]\n"""\nvalues = [\n  ["nested"],\n]\n'
+        target.write_text(original, encoding="utf-8")
+
+        self._installer.install()
+
+        content = target.read_text(encoding="utf-8")
+        self.assertLess(content.index('values = ['), content.index('default_permissions ='))
+        self.assertLess(content.index('default_permissions ='), content.index('[permissions.'))
+
+    def test_install_ignores_permission_text_inside_multiline_values(self) -> None:
+        self._codex_home.mkdir(parents=True)
+        target = self._codex_home / "config.toml"
+        original = 'message = """\napproval_policy = "never"\npermissions.oh-my-harness = {}\n"""\n'
+        target.write_text(original, encoding="utf-8")
+
+        self._installer.install()
+
+        content = target.read_text(encoding="utf-8")
+        self.assertIn(original.strip(), content)
+        self.assertIn('default_permissions = "oh-my-harness"', content)
+
+    def test_validate_detects_stale_managed_permissions(self) -> None:
+        self._installer.install()
+        target = self._codex_home / "config.toml"
+        content = target.read_text(encoding="utf-8").replace(
+            '"~/knowledge-base" = true',
+            '"~/knowledge-base" = false',
+        )
+        target.write_text(content, encoding="utf-8")
+
+        with self.assertRaises(InstallConflict):
+            self._installer.validate()
+
     def test_install_removes_only_orphaned_managed_links(self) -> None:
         retired_source = self._source / "skills/retired"
         retired_source.mkdir(parents=True)
@@ -236,9 +359,30 @@ class CodexInstallerTest(unittest.TestCase):
         ]
 
         with mock.patch.object(sys, "argv", arguments):
-            with mock.patch.object(install_module.CodexIntegrations, "install") as integrations:
-                self.assertEqual(1, install_module.main())
+            with mock.patch.object(install_module, "_require_permissions_profiles"):
+                with mock.patch.object(install_module.CodexIntegrations, "install") as integrations:
+                    self.assertEqual(1, install_module.main())
 
+        integrations.assert_not_called()
+
+    def test_entrypoint_rejects_old_codex_before_writing(self) -> None:
+        version = mock.Mock(stdout="codex-cli 0.137.9\n")
+        arguments = [
+            "install.py",
+            "--codex-home",
+            str(self._codex_home),
+            "--agents-home",
+            str(self._agents_home),
+            "--skip-integrations",
+        ]
+
+        with mock.patch.object(sys, "argv", arguments):
+            with mock.patch.object(install_module.subprocess, "run", return_value=version):
+                with mock.patch.object(install_module.CodexIntegrations, "install") as integrations:
+                    self.assertEqual(1, install_module.main())
+
+        self.assertFalse(self._codex_home.exists())
+        self.assertFalse(self._agents_home.exists())
         integrations.assert_not_called()
 
     def test_install_preserves_compatible_external_graphify(self) -> None:
