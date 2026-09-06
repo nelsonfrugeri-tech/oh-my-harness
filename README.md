@@ -325,6 +325,13 @@ and `knowledge_type` (`decision · event · procedure · reference · conversati
 filterable metadata and do not choose the directory. Relationships live as Markdown
 links in the body. Paths remain stable because an OKF Concept ID is its relative path.
 
+- **Named entities remain addressable** — every write inventories material projects,
+  repositories, people, companies, brands, systems, products, dates, times, URLs, and local
+  paths. Canonical names, observed aliases, typed references, and temporal facts are stored in
+  structured metadata and flattened into the derived Qdrant payload for exact lookup.
+- **Address lookup precedes semantic search** — prompts such as "open project X" or "what is the
+  repository URL for X?" first inspect `work/projects/*/context.md` and exact entity/reference
+  fields. Ambiguous aliases require disambiguation instead of selecting the first semantic hit.
 - **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
   archived. The only edit ever allowed on an existing note is flipping its `status` to
   `deprecated` during a supersede.
