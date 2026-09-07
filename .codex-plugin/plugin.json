@@ -37,5 +37,5 @@
       "Investigate this codebase using the available experts."
     ]
   },
-  "hooks": "./harness/codex/plugin-hooks/hooks.json"
+  "hooks": "./harness/codex/hooks/hooks.json"
 }

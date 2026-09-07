@@ -56,15 +56,15 @@ harness. Capabilities are resolved through that harness's machine-local table.
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│  oh-my-harness · SOURCE (this git repo)                            │
-│                                                                     │
-│  shared core                    harness adapters                    │
-│  ├── core/skills/              ├── harness/claude/                  │
-│  ├── core/hooks/               │   agents · hooks · workflows       │
-│  ├── core/policies/            └── harness/codex/                   │
-│  └── core/evals/                   agents · hooks · integrations     │
-│  installers/codex/ · tests/codex/                                   │
-└──────────────────────────────┬──────────────────────────────────────┘
+│  oh-my-harness · SOURCE (this git repo)                           │
+│                                                                   │
+│  shared core                    harness adapters                  │
+│  ├── core/skills/                ├── harness/claude/              │
+│  ├── core/hooks/                 │   agents · hooks · workflows   │
+│  ├── core/policies/              └── harness/codex/               │
+│  └── core/evals/                     agents · hooks · integrations│
+│  installers/codex/ · tests/codex/                                 │
+└───────────────────────────────┬───────────────────────────────────┘
                                 │ harness-native installer
              ┌──────────────────┴──────────────────┐
              ▼                                     ▼
@@ -283,8 +283,8 @@ under `harness/codex/agents/`. Both adapters preserve the responsibilities in th
 
 ### Skills
 
-Skills live directly under `core/skills/<name>/` because that is the common native-plugin discovery
-contract. The catalog below keeps the logical themes without adding another filesystem layer, and
+Skills live under `core/skills/<name>/`, declared explicitly by both plugin manifests.
+The catalog below keeps the logical themes without adding another filesystem layer, and
 each skill name remains globally unique.
 
 **Knowledge (languages & domains) — `engineers`:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`

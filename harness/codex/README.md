@@ -17,6 +17,22 @@ Start a new Codex session so the plugin capabilities are discovered. Then open `
 the bundled commands, and trust their exact definitions. Codex skips new or changed non-managed
 hooks until that explicit review is complete.
 
+When upgrading from 1.1.1 to 1.1.2, review the hooks again: the descriptor and command paths
+move into `harness/codex/hooks/` and `core/hooks/`. Previous trust must not be assumed to carry
+over. Verify both `SessionStart` and the commit gate in `/hooks` before relying on them.
+`install.py --check` checks the global adapter files, not runtime hook trust.
+It checks expected and recorded OMH assets, not every third-party skill directory. If the link
+manifest is lost, restore a known-good backup or inspect conflicting links individually before
+migrating them; their ownership cannot be inferred safely from a familiar filename.
+
+Older installations made with relative `--codex-home` or `--agents-home` arguments may have
+relative targets in `oh-my-harness-links.json`. Those manifests now fail validation before any
+changes. They do not record the original working directory, so the installer cannot safely
+infer absolute targets during an upgrade. Back up the manifest, establish the original install
+directory, and review each target and live symlink before converting those records to absolute
+paths. If that directory is unknown, preserve the conflicting links for individual inspection.
+New CLI installations normalize both home arguments before recording ownership.
+
 The commit quality gate has a separate per-repository trust because it executes commands discovered
 from that repository. From a checkout you have reviewed, opt in once with:
 
@@ -66,7 +82,8 @@ run the first installation with `--replace-global-agents`. The original file is 
 | Codex-only `harness/codex/skills/<name>/` | `~/.agents/skills/<name>/` | Directory symlink |
 | `harness/codex/agents/*.toml` | `~/.codex/agents/*.toml` | Managed file copy |
 | `harness/codex/AGENTS.md` | managed block in `~/.codex/AGENTS.md` | Merge |
-| `harness/codex/hooks.json` | removes obsolete adapter-owned context hook | Merge |
+| `harness/codex/adapter-hooks-removal.json` | removes obsolete adapter-owned context hook | Merge |
+| `harness/codex/hooks/hooks.json` | Native plugin hook definitions | Plugin manifest path |
 | generated permissions profile | `~/.codex/config.toml` | Managed sections |
 | `harness/codex/` | `~/.codex/oh-my-harness` | Directory symlink |
 | generated ownership manifest | `~/.codex/oh-my-harness-links.json` | Atomic rewrite |

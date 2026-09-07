@@ -83,7 +83,8 @@ class ManagedConfig:
         return self._write_if_changed(target, rendered)
 
     def _source_hooks(self) -> dict[str, object]:
-        text = self._layout.adapter.joinpath("hooks.json").read_text(encoding="utf-8")
+        source = self._layout.adapter / "adapter-hooks-removal.json"
+        text = source.read_text(encoding="utf-8")
         return self._hook_data(text.replace("{codex_home}", str(self._layout.codex_home)))
 
     def _hook_data(self, text: str) -> dict[str, object]:

@@ -183,6 +183,15 @@ o merge do Passo 2.
 
 ## Passo 7 — Verificação
 
+### Package migration: 1.1.1 to 1.1.2
+
+Agent and hook paths move into `harness/claude/`; shared scripts move into `core/hooks/`.
+After reinstalling, start a new session and inspect plugin loading and hook execution again.
+Review any approval requested by Claude for the changed package. Codex's `/hooks` trust
+requirement applies to Codex separately; do not assume both runtimes share a trust mechanism.
+Manually created symlinks to old source paths are not owned by the installer: inspect and
+migrate them individually while preserving user-owned files.
+
 ```bash
 claude plugin validate <fonte>     # manifesto e marketplace
 claude plugin list                 # enabled, sem erro de load

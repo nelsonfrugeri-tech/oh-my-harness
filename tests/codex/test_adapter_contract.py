@@ -40,10 +40,13 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual(["./core/skills/", "./harness/codex/skills/"], codex["skills"])
         self.assertEqual(["./core/skills/", "./harness/claude/skills/"], claude["skills"])
         self.assertEqual("./harness/claude/hooks/hooks.json", claude["hooks"])
-        self.assertEqual("./harness/codex/plugin-hooks/hooks.json", codex["hooks"])
-        self.assertEqual(12, len(claude["agents"]))
+        self.assertEqual("./harness/codex/hooks/hooks.json", codex["hooks"])
+        declared = {_ROOT / path for path in claude["agents"]}
+        on_disk = set(_ROOT.glob("harness/claude/agents/**/*.md"))
+        self.assertEqual(on_disk, declared)
+        self.assertEqual(len(declared), len(claude["agents"]))
         self.assertTrue(_ROOT.joinpath("harness/claude/hooks/hooks.json").is_file())
-        self.assertTrue(_ROOT.joinpath("harness/codex/plugin-hooks/hooks.json").is_file())
+        self.assertTrue(_ROOT.joinpath("harness/codex/hooks/hooks.json").is_file())
         self.assertFalse(_ROOT.joinpath("agents").exists())
         self.assertFalse(_ROOT.joinpath("hooks").exists())
 
@@ -138,7 +141,7 @@ class AdapterContractTest(unittest.TestCase):
             ).read_text(encoding="utf-8")
             self.assertIn("absence of", didactic_visual)
             self.assertIn("not a blocker", didactic_visual)
-            self.assertTrue(installed.joinpath("harness/codex/plugin-hooks/hooks.json").is_file())
+            self.assertTrue(installed.joinpath("harness/codex/hooks/hooks.json").is_file())
 
             hook_listing = self._run_codex_app_server(
                 env,
@@ -171,7 +174,11 @@ class AdapterContractTest(unittest.TestCase):
             self.assertNotIn("CLAUDE_PLUGIN_ROOT", quality_gate["command"])
 
     def test_plugin_hooks_use_the_codex_schema_and_standalone_instructions(self) -> None:
-        hooks = json.loads(_ROOT.joinpath("harness/codex/plugin-hooks/hooks.json").read_text(encoding="utf-8"))
+        hooks = json.loads(_ROOT.joinpath("harness/codex/hooks/hooks.json").read_text(encoding="utf-8"))
+        claude_hooks = json.loads(
+            _ROOT.joinpath("harness/claude/hooks/hooks.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(claude_hooks, hooks)
         handlers = [
             handler
             for groups in hooks["hooks"].values()
@@ -430,7 +437,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("https://", content)
 
     def test_codex_adapter_does_not_duplicate_the_plugin_session_start(self) -> None:
-        data = json.loads(_ROOT.joinpath("harness/codex/hooks.json").read_text(encoding="utf-8"))
+        data = json.loads(_ROOT.joinpath("harness/codex/adapter-hooks-removal.json").read_text(encoding="utf-8"))
         self.assertEqual({}, data["hooks"])
 
     def test_context_loader_is_shared_and_executable(self) -> None:

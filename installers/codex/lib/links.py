@@ -26,6 +26,7 @@ class ManagedLinks:
         return tuple(results)
 
     def preflight(self) -> None:
+        self._managed_orphans()
         self._check_available(self._layout.adapter, self._layout.installed_adapter)
         for source in self._layout.hook_sources():
             self._check_available(source, self._layout.installed_hooks / source.name)

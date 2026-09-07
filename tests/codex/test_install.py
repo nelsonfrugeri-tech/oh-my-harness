@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sys
 import tempfile
@@ -225,8 +226,6 @@ class CodexInstallerTest(unittest.TestCase):
     def test_install_retargets_links_owned_by_the_legacy_layout(self) -> None:
         legacy_adapter = self._source / "codex"
         legacy_skill = self._source / "skills/example"
-        legacy_adapter.mkdir(parents=True)
-        legacy_skill.mkdir(parents=True)
         target_adapter = self._layout.installed_adapter
         target_skill = self._agents_home / "skills/example"
         target_adapter.parent.mkdir(parents=True)
@@ -247,6 +246,53 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertEqual(self._layout.adapter.resolve(), target_adapter.resolve())
         expected_skill = self._source / "core/skills/example"
         self.assertEqual(expected_skill.resolve(), target_skill.resolve())
+        first_manifest = self._layout.links_manifest.read_bytes()
+        self._installer.install()
+        self.assertEqual(first_manifest, self._layout.links_manifest.read_bytes())
+        self.assertTrue(all(result.startswith("ok:") for result in self._installer.validate()))
+
+    def test_install_preserves_external_link_occupying_expected_target(self) -> None:
+        target = self._layout.personal_skills / "example"
+        target.parent.mkdir(parents=True)
+        external = self._source / "personal"
+        target.symlink_to(external)
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+        self.assertEqual(external, target.readlink())
+        self.assertFalse(self._layout.installed_adapter.is_symlink())
+
+    def test_install_rejects_external_manifest_target_before_any_write(self) -> None:
+        self._codex_home.mkdir()
+        outside = self._source / "personal-link"
+        source = self._source / "personal-source"
+        outside.symlink_to(source)
+        manifest = {"version": 1, "links": [{"target": str(outside), "source": str(source)}]}
+        self._layout.links_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+        self.assertEqual(source, outside.readlink())
+        self.assertFalse(self._layout.installed_adapter.is_symlink())
+        self.assertFalse(self._layout.custom_agents.exists())
+
+    def test_install_rejects_corrupt_link_manifest_before_any_write(self) -> None:
+        self._codex_home.mkdir()
+        self._layout.links_manifest.write_text("{", encoding="utf-8")
+        with self.assertRaisesRegex(InstallConflict, "oh-my-harness-links.json"):
+            self._installer.install()
+        self.assertFalse(self._layout.installed_adapter.is_symlink())
+        self.assertFalse(self._layout.custom_agents.exists())
+
+    def test_install_preserves_managed_link_retargeted_by_user(self) -> None:
+        self._installer.install()
+        target = self._layout.personal_skills / "example"
+        external = self._source / "personal"
+        target.unlink()
+        target.symlink_to(external)
+        original_manifest = self._layout.links_manifest.read_bytes()
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+        self.assertEqual(external, target.readlink())
+        self.assertEqual(original_manifest, self._layout.links_manifest.read_bytes())
 
     def test_install_preserves_machine_capability_mappings(self) -> None:
         self._installer.install()
@@ -412,6 +458,30 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertFalse(self._agents_home.exists())
         integrations.assert_not_called()
 
+    def test_entrypoint_relative_homes_remain_valid_after_repeated_install(self) -> None:
+        arguments = [
+            "install.py", "--codex-home", "unused/../codex-home",
+            "--agents-home", "agents-home", "--skip-integrations",
+        ]
+        previous = Path.cwd()
+        os.chdir(self._source.parent)
+        try:
+            with mock.patch.object(sys, "argv", arguments), mock.patch.object(
+                install_module, "_require_permissions_profiles"
+            ), mock.patch.object(install_module.CodexIntegrations, "install") as integrations, mock.patch(
+                "builtins.print"
+            ):
+                self.assertEqual(0, install_module.main())
+                self.assertEqual(0, install_module.main())
+                arguments.append("--check")
+                self.assertEqual(0, install_module.main())
+            integrations.assert_not_called()
+        finally:
+            os.chdir(previous)
+        manifest = json.loads(self._layout.links_manifest.read_text(encoding="utf-8"))
+        self.assertTrue(all(Path(entry["target"]).is_absolute() for entry in manifest["links"]))
+        self.assertTrue(all(".." not in Path(entry["target"]).parts for entry in manifest["links"]))
+
     def test_install_preserves_compatible_external_graphify(self) -> None:
         source = self._create_graphify_source()
         target = self._agents_home / "skills/graphify"
@@ -523,7 +593,7 @@ class CodexInstallerTest(unittest.TestCase):
 """
         self._source.joinpath("harness/codex/AGENTS.md").write_text(agents_content, encoding="utf-8")
         hooks = {"hooks": {}}
-        self._source.joinpath("harness/codex/hooks.json").write_text(json.dumps(hooks), encoding="utf-8")
+        self._source.joinpath("harness/codex/adapter-hooks-removal.json").write_text(json.dumps(hooks), encoding="utf-8")
 
     def _create_graphify_source(self) -> Path:
         source = self._source / "core/skills/graphify"

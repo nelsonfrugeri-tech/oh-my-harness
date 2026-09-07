@@ -34,8 +34,8 @@ def main() -> int:
     source_root = Path(__file__).resolve().parents[2]
     layout = InstallLayout(
         source_root,
-        arguments.codex_home.expanduser(),
-        arguments.agents_home.expanduser(),
+        arguments.codex_home.expanduser().resolve(),
+        arguments.agents_home.expanduser().resolve(),
     )
     installer = CodexInstaller(layout, arguments.replace_global_agents)
     try:
