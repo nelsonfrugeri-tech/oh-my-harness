@@ -310,7 +310,7 @@ class AdapterContractTest(unittest.TestCase):
         session_flat = " ".join(session.split())
         infra_flat = " ".join(infra.split())
         for phrase in (
-            "Project each missing Qdrant payload field as `null`",
+            "Project missing multi-value fields as `[]` and nullable scalar fields as `null`",
             "never rewrite historical JSON",
             "never assign the current machine to a past session",
             "Promote only the current session to schema v3 and only with values observed",
@@ -348,7 +348,21 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIsNotNone(payload_match)
         schema_fields = set(json.loads(schema_match.group(1)))
         payload_fields = set(re.findall(r"`([^`]+)`", payload_match.group(1)))
-        expected_payload_fields = (schema_fields - {"description", "resume"}) | {"kind"}
+        disk_only_fields = {
+            "description",
+            "resume",
+            "entity_refs",
+            "references",
+            "temporal_refs",
+        }
+        derived_fields = {
+            "kind",
+            "entity_kinds",
+            "entity_keys",
+            "reference_targets",
+            "temporal_values",
+        }
+        expected_payload_fields = (schema_fields - disk_only_fields) | derived_fields
 
         self.assertTrue(provenance_fields <= schema_fields)
         self.assertEqual(expected_payload_fields, payload_fields)

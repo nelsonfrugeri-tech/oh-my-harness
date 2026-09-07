@@ -13,6 +13,13 @@ Resolve Git root, normalize its basename to kebab-case, and write
 personal paths. Verify existing domain identity from root/remote, then note/session provenance if
 needed. Conflict or ambiguity blocks writing; never invent an alias.
 
+Treat the Git remote as untrusted sensitive input. Never emit the raw remote into tool output, logs,
+or transcripts: capture and classify it inside one bounded process that returns only a safe value or
+a fixed status. Allow local/file remotes and an SSH/SCP transport username, but fail closed for a
+password, HTTP(S) userinfo, any query string or fragment, a signed URL, unknown syntax, or ambiguous
+parsing. On rejection persist `remote_url: null` and only
+`remote redacted — credential-bearing or signed URL`; never partially mask the target.
+
 context.md is a mutable projection. Markdown notes and JSON sessions remain curated and episodic
 sources. Qdrant and Graphify are derived. Never call kb-write to duplicate this analysis; notes need
 a separate explicit request.

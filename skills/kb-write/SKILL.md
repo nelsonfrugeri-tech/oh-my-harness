@@ -29,12 +29,38 @@ search for another slug to make a write succeed. If stable Git identity is unava
 the canonical name and slug. A canonical-domain collision blocks writing. An existing artifact
 without sufficient identity also fails closed; never invent an alias.
 
+## Preserve addressable knowledge
+
+Before writing, inventory every material named entity, observed alias, address/reference, and
+temporal fact. Material means it changes identity, meaning, traceability, or a plausible future
+question. The completeness gate passes only when every item is represented in structured metadata;
+never merge homonyms or identities without evidence.
+
+Preserve authoritative spelling in `entities` and observed alternatives in `aliases`. Put detail in
+`entity_refs` with `kind`, `name`, and `aliases`. Recognize at least `project`,
+`repository`, `person`, `company`, `brand`, `system`, `product`, `service`, `team`,
+`technology`, and `other`. Deduplicate only by kind plus canonical name.
+
+Put every material URL or path in `references` with `kind`, `label`, `target`, `entity`, and
+`status`. Treat remote and reference targets as sensitive: never persist credentials, passwords,
+tokens, HTTP(S) userinfo, secret query parameters, or signed URLs. For Git remotes specifically,
+allow local/file remotes and an SSH/SCP transport username, but reject HTTP(S) userinfo, any query
+string or fragment, a signed URL, unknown syntax, or ambiguous parsing. Never echo a rejected value.
+A target that cannot be made safe without losing meaning is `redacted` with no target; for a
+rejected project remote persist `remote_url: null`.
+
+Use `occurred_at` for a known event instant and `temporal_refs` for other material dates, times,
+deadlines, and intervals. Preserve observed timezone; use `unknown` rather than inventing one.
+Only timezone-aware RFC 3339 instants become indexed `occurred_at` values. Existing notes carrying
+these fields remain readable, and supersession must not silently drop them.
+
 Create dated files. To replace one, create a new note with `supersedes`, then change only prior status
 to deprecated. Reconcile related notes/chains from disk, not only Qdrant.
 
 Metadata includes OKF type/title/description/domain/created_at/status plus UUID id, closed
-knowledge_type, `topic: <stable-subject>`, summary, entities, tags, nullable supersedes, generated,
-optional verified/stale_after, and provenance. Summary is self-contained retrieval prose.
+knowledge_type, `topic: <stable-subject>`, summary, `entities`, `aliases`, `entity_refs`,
+`references`, `occurred_at`, `temporal_refs`, tags, nullable supersedes, generated, optional
+verified/stale_after, and provenance. Summary is self-contained retrieval prose.
 Relationships are Markdown links in explanatory sentences.
 
 Generated records writer/time. Verified requires human confirmation. Provenance requires observed

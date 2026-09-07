@@ -86,6 +86,92 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("topic-first", readme)
         self.assertNotIn("one folder per entity type", readme)
 
+    def test_exact_lookup_precedes_semantic_and_disambiguates(self) -> None:
+        retrieval = self._read("skills/kb-retrieval/SKILL.md")
+        exact = retrieval.index("## Resolve exact entities and addresses first")
+        semantic = retrieval.index("## Run the retrieval ladder")
+
+        self.assertLess(exact, semantic)
+        self.assertIn("A unique match answers directly", retrieval)
+        self.assertIn("Multiple matches require disambiguation", retrieval)
+        self.assertIn("Zero matches", retrieval)
+        self.assertIn("never select the first match", retrieval)
+
+    def test_addressable_knowledge_survives_write_index_and_retrieval(self) -> None:
+        write = self._read("skills/kb-write/SKILL.md")
+        infra = self._read("skills/kb-infra/SKILL.md")
+        retrieval = self._read("skills/kb-retrieval/SKILL.md")
+        session = self._read("skills/kb-session/SKILL.md")
+        template = self._read("skills/kb-write/references/note-template.md")
+
+        source_fields = ("entities", "aliases", "entity_refs", "references", "temporal_refs")
+        derived_fields = ("entity_kinds", "entity_keys", "reference_targets", "temporal_values")
+        for field in source_fields:
+            with self.subTest(layer="write", field=field):
+                self.assertIn(f"`{field}`", write)
+            with self.subTest(layer="session", field=field):
+                self.assertIn(f'"{field}"', session)
+        for field in derived_fields:
+            with self.subTest(layer="infra", field=field):
+                self.assertIn(f"`{field}`", infra)
+            with self.subTest(layer="retrieval", field=field):
+                self.assertIn(f"`{field}`", retrieval)
+
+        mappings = (
+            "`entity_kinds` from `entity_refs[*].kind`",
+            "`entity_keys` from `entity_refs[*].name`",
+            "`reference_targets` from safe, present `references[*].target`",
+            "`temporal_values` from `temporal_refs[*].value`",
+        )
+        infra_flat = " ".join(infra.split())
+        for mapping in mappings:
+            with self.subTest(mapping=mapping):
+                self.assertIn(mapping, infra_flat)
+        self.assertIn("NFKC + Unicode casefold + whitespace collapse", infra_flat)
+        self.assertIn("timezone-aware RFC 3339", infra_flat)
+        self.assertIn("Live upsert and full reindex use this same mapping", infra_flat)
+        self.assertIn("material address", template)
+
+    def test_remote_values_fail_closed_across_context_write_and_retrieval(self) -> None:
+        boundaries = {
+            "explorer": self._read("skills/explorer/SKILL.md"),
+            "writer": self._read("skills/kb-write/SKILL.md"),
+            "retrieval": self._read("skills/kb-retrieval/SKILL.md"),
+        }
+        required_policy = (
+            "HTTP(S) userinfo",
+            "query string",
+            "fragment",
+            "signed URL",
+            "ambiguous parsing",
+            "SSH/SCP transport username",
+            "`remote_url: null`",
+        )
+
+        for boundary, contract in boundaries.items():
+            normalized = " ".join(contract.split())
+            for rule in required_policy:
+                with self.subTest(boundary=boundary, rule=rule):
+                    self.assertIn(rule, normalized)
+        self.assertIn("Never emit the raw remote", boundaries["explorer"])
+        self.assertIn("Never echo a rejected value", boundaries["writer"])
+        self.assertIn(
+            "never echo the sensitive target",
+            " ".join(boundaries["retrieval"].split()),
+        )
+        self.assertIn("Revalidate legacy stored remotes", boundaries["retrieval"])
+
+    def test_legacy_entity_metadata_remains_reindexable(self) -> None:
+        infra = " ".join(self._read("skills/kb-infra/SKILL.md").split())
+        session = " ".join(self._read("skills/kb-session/SKILL.md").split())
+
+        self.assertIn("Project missing multi-value fields as `[]`", infra)
+        self.assertIn("nullable scalar fields as `null`", infra)
+        self.assertIn("Reindexing never modifies source JSON", infra)
+        self.assertIn("full reindex", infra)
+        self.assertIn("Omission in the current update never deletes", session)
+        self.assertIn("derive the flat lookup fields again", session)
+
     def test_disk_timeline_is_recursive_and_excludes_reserved_files(self) -> None:
         retrieval = self._read("skills/kb-retrieval/SKILL.md")
         command = next(

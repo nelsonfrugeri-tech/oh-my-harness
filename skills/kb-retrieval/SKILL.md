@@ -8,6 +8,33 @@ description: "Retrieve curated notes and episodic sessions from the external OKF
 Curated memory is Markdown notes plus mutable context.md. Episodic memory is raw transcripts plus
 mutable JSON sessions. Qdrant and Graphify are derived, not sources.
 
+## Resolve exact entities and addresses first
+
+When a request names an entity or asks for an address, repository, path, URL, owner, or time, perform
+exact lookup before semantic search. Extract the requested name or observed alias and the desired
+property; embeddings must never choose among homonyms.
+
+For project/repository lookup, inspect every `work/projects/*/context.md` first. Match directory,
+title, safe repository name, and aliases; use the body Repository path and frontmatter `remote_url`
+only as candidates. Revalidate legacy stored remotes before responding. Reject a password, HTTP(S)
+userinfo, any query string or fragment, signed URLs, or ambiguous parsing; an SSH/SCP transport
+username is allowed. Treat a rejected value as `remote_url: null`, report `redacted`, and never echo
+the sensitive target, even partially.
+
+For notes and sessions, compare `entity_refs.name`, `entities`, `aliases`, and
+`references.target` on disk; use `entity_kinds`, `entity_keys`, and `reference_targets` in Qdrant. Normalize lookup
+keys with NFKC, Unicode casefold, and whitespace collapse while preserving source spelling in the
+answer. Resolve time through `occurred_at`, `temporal_refs`, and `temporal_values` without inventing
+timezone.
+
+A unique match answers directly from the source record. Multiple matches require disambiguation and
+never select the first match. Zero matches transitions to the retrieval ladder and declares that
+transition. An `unverified`, `redacted`, or unsafe address returns only its status. If the user asks
+to open a safe result, this skill resolves and cites it; a caller with the appropriate capability
+performs the external action.
+
+## Run the retrieval ladder
+
 For topics use: (1) hybrid Qdrant, (2) structured disk, (3) targeted session-memory. Descend when
 unavailable/incomplete and disclose layer/degradation. For a repository path, start with file-aware
 session-memory plus git log --follow.

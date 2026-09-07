@@ -27,6 +27,11 @@ Schema:
   "name": "<curated-session-subject>",
   "description": "<current-session-description>",
   "resume": "<dense-200-800-character-summary>",
+  "entities": [],
+  "aliases": [],
+  "entity_refs": [],
+  "references": [],
+  "temporal_refs": [],
   "cwd": "/absolute/observed/cwd",
   "transcript_path": null,
   "machine_id": "<stable-uuid>",
@@ -44,11 +49,19 @@ exist but may be `null`; reject required values that are empty or whitespace-onl
 non-null path must be absolute. Session ID is the filename and Qdrant point ID. Missing required
 identity blocks writing; a null transcript path is allowed only in declared degraded mode.
 
-Legacy records remain readable and reindexable. Project each missing Qdrant payload field as `null`,
-report the record as legacy, never rewrite historical JSON, and never assign the current machine to
-a past session. Promote only the current session to schema v3 and only with values observed during
-that update, preserving `created_at`. If a required value remains unavailable, preserve the legacy
-record unchanged and report the missing field.
+Legacy records remain readable and reindexable. Project missing multi-value fields as `[]` and
+nullable scalar fields as `null`, report the record as legacy, never rewrite historical JSON, and
+never assign the current machine to a past session. Promote only the current session to schema v3
+and only with values observed during that update, preserving `created_at`. If a required value
+remains unavailable, preserve the legacy record unchanged and report the missing field.
+
+On every update, inventory material entities, aliases, safe references, and temporal facts using
+`kb-write`'s completeness and security gates. Merge `entity_refs` by kind plus normalized canonical
+name, `references` by kind plus normalized target plus entity, and `temporal_refs` by value plus
+timezone plus meaning. Omission in the current update never deletes an earlier item. Preserve first
+canonical spelling, merge only observed aliases, and never invent identity or timezone. After the
+merge, derive the flat lookup fields again: `entities`, `aliases`, `entity_kinds`, `entity_keys`,
+`reference_targets`, and `temporal_values`.
 
 Discover Codex rollouts from harness metadata and dated state inventory by session ID; never derive
 paths from project or cwd. Update atomically, preserving created_at. Session end is a final update,

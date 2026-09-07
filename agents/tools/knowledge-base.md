@@ -2,7 +2,7 @@
 version: 1.0.0
 name: knowledge-base
 description: >
-  Use to operate the external OKF knowledge base, its derived Qdrant index, immutable notes, hybrid retrieval, and living session records.
+  Use to operate the external OKF knowledge base, its derived Qdrant index, immutable notes, hybrid retrieval, and living session records; also use for named-entity or address lookup against stored knowledge, including opening a known project, locating a repository or path, and returning a repository URL.
 model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch, ToolSearch
 skills:

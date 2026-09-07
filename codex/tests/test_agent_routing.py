@@ -84,6 +84,19 @@ class AgentRoutingContractTest(unittest.TestCase):
                     codex_path.read_text(encoding="utf-8"),
                 )
 
+    def test_knowledge_base_role_routes_named_entities_and_addresses(self) -> None:
+        description = _MANIFEST["roles"]["knowledge-base"]["description"].lower()
+
+        for signal in (
+            "named-entity",
+            "address lookup",
+            "opening a known project",
+            "locating a repository or path",
+            "returning a repository url",
+        ):
+            with self.subTest(signal=signal):
+                self.assertIn(signal, description)
+
     def test_runtime_claims_remain_bounded(self) -> None:
         runtime = _MANIFEST["runtime_validation"]
 

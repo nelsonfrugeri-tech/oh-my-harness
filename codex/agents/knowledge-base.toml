@@ -1,5 +1,5 @@
 name = "knowledge-base"
-description = "Use to operate the external OKF knowledge base, its derived Qdrant index, immutable notes, hybrid retrieval, and living session records."
+description = "Use to operate the external OKF knowledge base, its derived Qdrant index, immutable notes, hybrid retrieval, and living session records; also use for named-entity or address lookup against stored knowledge, including opening a known project, locating a repository or path, and returning a repository URL."
 developer_instructions = """
 # Knowledge Base Orchestrator
 

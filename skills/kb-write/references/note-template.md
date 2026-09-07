@@ -11,3 +11,8 @@ Select by knowledge_type, never free-form OKF type. Include only informative sec
 
 If conversation produced another class, use that stronger knowledge_type. Express relationships as
 Markdown links in sentences naming the relationship. Use bundle-rooted paths; omit related-link dumps.
+
+A source with a material address also requires a structured `references` entry, even when the body
+mentions it. Preserve canonical entities and observed aliases in `entity_refs`. Never include
+credentials, HTTP(S) userinfo, secret query parameters, or signed URLs; a reference that cannot be
+made safe is `redacted` and has no target.
