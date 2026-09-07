@@ -17,7 +17,7 @@ Start a new Codex session so the plugin capabilities are discovered. Then open `
 the bundled commands, and trust their exact definitions. Codex skips new or changed non-managed
 hooks until that explicit review is complete.
 
-When upgrading from 1.1.1 to 1.1.2, review the hooks again: the descriptor and command paths
+When upgrading from 2.0.0 to 2.0.1, review the hooks again: the descriptor and command paths
 move into `harness/codex/hooks/` and `core/hooks/`. Previous trust must not be assumed to carry
 over. Verify both `SessionStart` and the commit gate in `/hooks` before relying on them.
 `install.py --check` checks the global adapter files, not runtime hook trust.

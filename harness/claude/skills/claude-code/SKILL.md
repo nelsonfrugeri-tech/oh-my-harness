@@ -183,7 +183,7 @@ o merge do Passo 2.
 
 ## Passo 7 — Verificação
 
-### Package migration: 1.1.1 to 1.1.2
+### Package migration: 2.0.0 to 2.0.1
 
 Agent and hook paths move into `harness/claude/`; shared scripts move into `core/hooks/`.
 After reinstalling, start a new session and inspect plugin loading and hook execution again.

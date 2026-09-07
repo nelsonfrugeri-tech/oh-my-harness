@@ -266,6 +266,9 @@ when required, maintaining the living knowledge base at
 Canonical Claude manifests are grouped under `harness/claude/agents/<theme>/`; Codex-native representations live
 under `harness/codex/agents/`. Both adapters preserve the responsibilities in this catalog.
 
+The shared routing contract lives in `core/agents/routing.json`; it defines the portable roles
+and the native paths for both adapters.
+
 | Theme       | Agent         | Role                                                | Model  |
 | ----------- | ------------- | ---------------------------------------------------- | ------ |
 | `engineers` | `architect`   | System design, ADRs, C4, trade-offs, API design       | opus   |

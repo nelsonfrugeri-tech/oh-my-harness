@@ -40,7 +40,7 @@
   "adapter_specs": {
     "shared-markdown": {
       "format": "yaml-frontmatter-markdown",
-      "path_template": "agents/{family}/{role}.md",
+      "path_template": "harness/claude/agents/{family}/{role}.md",
       "canonical_fields": [
         "name",
         "description",
@@ -208,7 +208,7 @@
     },
     "codex-toml": {
       "format": "toml-multiline-instructions",
-      "path_template": "codex/agents/{role}.toml",
+      "path_template": "harness/codex/agents/{role}.toml",
       "canonical_fields": [
         "name",
         "description",

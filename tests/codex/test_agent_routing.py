@@ -8,7 +8,7 @@ from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = json.loads(
-    _ROOT.joinpath("agents/routing.json").read_text(encoding="utf-8")
+    _ROOT.joinpath("core/agents/routing.json").read_text(encoding="utf-8")
 )
 
 
@@ -86,9 +86,9 @@ class AgentRoutingContractTest(unittest.TestCase):
         families = _MANIFEST["role_families"]
         for role_id, role in _MANIFEST["roles"].items():
             shared_path = _ROOT.joinpath(
-                "agents", families[role_id], f"{role_id}.md"
+                "harness/claude/agents", families[role_id], f"{role_id}.md"
             )
-            codex_path = _ROOT.joinpath("codex", "agents", f"{role_id}.toml")
+            codex_path = _ROOT.joinpath("harness/codex", "agents", f"{role_id}.toml")
             with self.subTest(role=role_id):
                 self.assertEqual(
                     _render_shared(role_id, role),

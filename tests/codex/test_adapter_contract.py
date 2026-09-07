@@ -135,7 +135,7 @@ class AdapterContractTest(unittest.TestCase):
             self.assertNotIn("claude-code", discovered)
             self.assertIn("didactic-visual", discovered)
             self.assertIn("evidence", discovered)
-            self.assertTrue(installed.joinpath("harness/codex/skills/harness/codex/SKILL.md").is_file())
+            self.assertTrue(installed.joinpath("harness/codex/skills/codex/SKILL.md").is_file())
             didactic_visual = installed.joinpath(
                 "core/skills/didactic-visual/SKILL.md"
             ).read_text(encoding="utf-8")
@@ -185,7 +185,7 @@ class AdapterContractTest(unittest.TestCase):
             for group in groups
             for handler in group["hooks"]
         ]
-        context_loader = _ROOT.joinpath("hooks/context-load.sh").read_text(encoding="utf-8")
+        context_loader = _ROOT.joinpath("core/hooks/context-load.sh").read_text(encoding="utf-8")
 
         quality_gate = next(
             handler for handler in handlers if "quality-gate.sh" in handler["command"]
@@ -441,12 +441,12 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual({}, data["hooks"])
 
     def test_context_loader_is_shared_and_executable(self) -> None:
-        loader = _ROOT / "hooks/context-load.sh"
+        loader = _ROOT / "core/hooks/context-load.sh"
         claude_adapter = _ROOT / "harness/claude/hooks/context-load.sh"
 
         self.assertTrue(loader.is_file())
         self.assertTrue(loader.stat().st_mode & 0o111)
-        self.assertIn("../../hooks/context-load.sh", claude_adapter.read_text(encoding="utf-8"))
+        self.assertIn("../../../core/hooks/context-load.sh", claude_adapter.read_text(encoding="utf-8"))
 
     def test_context_agents_resolve_the_git_root(self) -> None:
         shared = _ROOT.joinpath("harness/claude/agents/tools/context.md").read_text(encoding="utf-8")
@@ -479,7 +479,7 @@ class AdapterContractTest(unittest.TestCase):
     def test_external_evals_documentation_uses_the_current_entry(self) -> None:
         readme = _ROOT.joinpath("README.md").read_text(encoding="utf-8")
         installer = _ROOT.joinpath(
-            "harness/claude/skills/harness/claude/SKILL.md"
+            "harness/claude/skills/claude-code/SKILL.md"
         ).read_text(encoding="utf-8")
 
         for document in (readme, installer):
@@ -529,7 +529,7 @@ class AdapterContractTest(unittest.TestCase):
     def test_operational_skills_keep_executable_boundaries(self) -> None:
         site = _ROOT.joinpath("core/skills/site-report/SKILL.md").read_text(encoding="utf-8")
         explorer = _ROOT.joinpath("core/skills/explorer/SKILL.md").read_text(encoding="utf-8")
-        hook = _ROOT.joinpath("hooks/context-load.sh").read_text(encoding="utf-8")
+        hook = _ROOT.joinpath("core/hooks/context-load.sh").read_text(encoding="utf-8")
         session = _ROOT.joinpath("core/skills/kb-session/SKILL.md").read_text(encoding="utf-8")
         infra = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text(encoding="utf-8")
 

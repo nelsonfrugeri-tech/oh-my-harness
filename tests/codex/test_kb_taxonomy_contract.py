@@ -93,7 +93,7 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertNotIn("one folder per entity type", readme)
 
     def test_exact_lookup_precedes_semantic_and_disambiguates(self) -> None:
-        retrieval = self._read("skills/kb-retrieval/SKILL.md")
+        retrieval = self._read("core/skills/kb-retrieval/SKILL.md")
         exact = retrieval.index("## Resolve exact entities and addresses first")
         semantic = retrieval.index("## Run the retrieval ladder")
 
@@ -104,11 +104,11 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("never select the first match", retrieval)
 
     def test_addressable_knowledge_survives_write_index_and_retrieval(self) -> None:
-        write = self._read("skills/kb-write/SKILL.md")
-        infra = self._read("skills/kb-infra/SKILL.md")
-        retrieval = self._read("skills/kb-retrieval/SKILL.md")
-        session = self._read("skills/kb-session/SKILL.md")
-        template = self._read("skills/kb-write/references/note-template.md")
+        write = self._read("core/skills/kb-write/SKILL.md")
+        infra = self._read("core/skills/kb-infra/SKILL.md")
+        retrieval = self._read("core/skills/kb-retrieval/SKILL.md")
+        session = self._read("core/skills/kb-session/SKILL.md")
+        template = self._read("core/skills/kb-write/references/note-template.md")
 
         source_fields = ("entities", "aliases", "entity_refs", "references", "temporal_refs")
         derived_fields = ("entity_kinds", "entity_keys", "reference_targets", "temporal_values")
@@ -142,9 +142,9 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
 
     def test_remote_values_fail_closed_across_context_write_and_retrieval(self) -> None:
         boundaries = {
-            "explorer": self._read("skills/explorer/SKILL.md"),
-            "writer": self._read("skills/kb-write/SKILL.md"),
-            "retrieval": self._read("skills/kb-retrieval/SKILL.md"),
+            "explorer": self._read("core/skills/explorer/SKILL.md"),
+            "writer": self._read("core/skills/kb-write/SKILL.md"),
+            "retrieval": self._read("core/skills/kb-retrieval/SKILL.md"),
         }
         required_policy = (
             "HTTP(S) userinfo",
@@ -175,8 +175,8 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("`git@example.com:team/repo.git`", boundaries["explorer"])
 
     def test_legacy_entity_metadata_remains_reindexable(self) -> None:
-        infra = " ".join(self._read("skills/kb-infra/SKILL.md").split())
-        session = " ".join(self._read("skills/kb-session/SKILL.md").split())
+        infra = " ".join(self._read("core/skills/kb-infra/SKILL.md").split())
+        session = " ".join(self._read("core/skills/kb-session/SKILL.md").split())
 
         self.assertIn("Project missing multi-value fields as `[]`", infra)
         self.assertIn("nullable scalar fields as `null`", infra)

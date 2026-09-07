@@ -123,7 +123,7 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("refinementUnknowns", adapter)
 
     def _canonical_contract(self) -> str:
-        path = _ROOT / "policies/software-evidence-contract.md"
+        path = _ROOT / "core/policies/software-evidence-contract.md"
         return path.read_text(encoding="utf-8").strip()
 
     def _embedded_contract(self, relative: str) -> str:
