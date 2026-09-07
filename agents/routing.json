@@ -916,35 +916,6 @@
       "expected_message": null
     }
   ],
-  "runtime_validation": {
-    "standard_gate": {
-      "status": "required",
-      "scope": "Canonical rendering, dependency contract validation, routing fixtures, degraded behavior, and mutation tests run without installed optional plugins."
-    },
-    "installed_catalog_probe": {
-      "status": "supplemental",
-      "environment_variable": "OMH_VALIDATE_INSTALLED_CATALOG",
-      "scope": "Checks whether the current runtime catalog exposes the versioned contract entries."
-    },
-    "main_agent_probe": {
-      "status": "diagnostic-only",
-      "environment_variable": "OMH_RUN_LIVE_MAIN_AGENT_PROBE",
-      "scope": "Observes a fresh main-agent trace. It cannot establish custom-agent routing or exclusive capability selection."
-    },
-    "native_activation_observation": {
-      "status": "unsupported",
-      "scope": "Shell commands that read SKILL.md files are instruction-file reads, not native activation events."
-    },
-    "custom_agent_invocation": {
-      "status": "unverified",
-      "evidence": [
-        "codex exec --help exposes no custom-agent selector.",
-        "codex agents --help browses agent sessions rather than selecting a custom role."
-      ],
-      "release_gate": "unsatisfied",
-      "requirement": "A runtime that can select a named custom agent must invoke each role in a fresh session and expose an authoritative native capability-selection event."
-    }
-  },
   "role_families": {
     "ai-engineer": "engineers",
     "architect": "engineers",

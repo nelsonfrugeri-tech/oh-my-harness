@@ -1,6 +1,6 @@
 ---
 name: kb-write
-description: "Write durable knowledge as immutable OKF v0.2 Markdown notes with provenance, topic-first placement, supersession, and optional Qdrant indexing. Use only for explicit preservation or update requests."
+description: "Internal workflow owned by the knowledge-base agent for explicit preservation or updates as immutable OKF notes with provenance and optional indexing; not intended for direct user invocation or loose prompt matching."
 ---
 
 # KB Write
@@ -51,7 +51,8 @@ rejected project remote persist `remote_url: null`.
 
 Use `occurred_at` for a known event instant and `temporal_refs` for other material dates, times,
 deadlines, and intervals. Preserve observed timezone; use `unknown` rather than inventing one.
-Only timezone-aware RFC 3339 instants become indexed `occurred_at` values. Existing notes carrying
+Only timezone-aware RFC 3339 instants become indexed `occurred_at` values. Date-only or unknown-timezone
+values remain in `temporal_values` with `occurred_at: null` in the index. Existing notes carrying
 these fields remain readable, and supersession must not silently drop them.
 
 Create dated files. To replace one, create a new note with `supersedes`, then change only prior status
@@ -63,7 +64,8 @@ knowledge_type, `topic: <stable-subject>`, summary, `entities`, `aliases`, `enti
 verified/stale_after, and provenance. Summary is self-contained retrieval prose.
 Relationships are Markdown links in explanatory sentences.
 
-Generated records writer/time. Verified requires human confirmation. Provenance requires observed
+Generated records writer/time. Verified requires human confirmation and a `human:` prefix in `by`.
+Provenance requires observed
 `provenance.harness.name`, `provenance.harness.session_id`, `provenance.execution.cwd`,
 `provenance.machine.id`, `provenance.machine.label`, `provenance.machine.hostname`, and
 `provenance.machine.username`. Read machine identity from `~/.local/share/omh-kb/identity.json`;

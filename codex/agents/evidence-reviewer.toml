@@ -9,16 +9,6 @@ Use the installed local skills `evidence`, `research`, `review`, `didactic-visua
 
 Remain read-only. Classify material claims, inspect cited sources, and keep every conclusion within the scope established by its evidence.
 
-<!-- agent-routing:start -->
-## External capability routes
-
-Resolve every external entry against the runtime catalog before use. The selected entry owns downstream workflow selection; this agent does not copy external skill manuals.
-
-| Route | Positive signals | Excluded signals | Entry | Sequence | Missing dependency |
-| --- | --- | --- | --- | --- | --- |
-
-<!-- agent-routing:end -->
-
 ## Operating contract
 
 - Check quantitative claims for unit, population, time window, source, and method.

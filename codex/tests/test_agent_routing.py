@@ -112,30 +112,47 @@ class AgentRoutingContractTest(unittest.TestCase):
             with self.subTest(signal=signal):
                 self.assertIn(signal, description)
 
-    def test_runtime_claims_remain_bounded(self) -> None:
-        runtime = _MANIFEST["runtime_validation"]
-
-        self.assertEqual("required", runtime["standard_gate"]["status"])
-        self.assertEqual(
-            "supplemental", runtime["installed_catalog_probe"]["status"]
+    def test_adapters_omit_external_routing_when_routes_are_empty(self) -> None:
+        syntax = _MANIFEST["routing_syntax"]
+        forbidden = (
+            syntax["start_marker"], syntax["end_marker"], syntax["heading"],
+            syntax["availability_notice"],
+            "| " + " | ".join(syntax["columns"]) + " |",
+            "| " + " | ".join("---" for _ in syntax["columns"]) + " |",
         )
-        self.assertEqual(
-            "diagnostic-only", runtime["main_agent_probe"]["status"]
-        )
-        self.assertEqual(
-            "unsupported", runtime["native_activation_observation"]["status"]
-        )
-        custom = runtime["custom_agent_invocation"]
-        self.assertEqual("unverified", custom["status"])
-        self.assertEqual("unsatisfied", custom["release_gate"])
+        for role_id, role in _MANIFEST["roles"].items():
+            for render in (_render_shared, _render_codex):
+                with self.subTest(role=role_id, adapter=render.__name__):
+                    rendered = render(role_id, {**role, "routes": []})
+                    for fragment in forbidden:
+                        self.assertNotIn(fragment, rendered)
+                    self.assertIn(role["implementation_guidance"], rendered)
+                    self.assertIn("## Operating contract", rendered)
+                    self.assertIn("## Boundaries", rendered)
 
 
 def _render_body(role: dict[str, object]) -> str:
+    skills = ", ".join(f"`{skill}`" for skill in role["local_skills"])
+    sections = (
+        f"# {role['title']}",
+        role["summary"],
+        f"Use the installed local skills {skills} when applicable.",
+        role["implementation_guidance"],
+        _render_routes(role),
+        _bullet_section("## Operating contract", role["operating_contract"]),
+        _bullet_section("## Boundaries", role["boundaries"]),
+    )
+    return "\n\n".join(section for section in sections if section) + "\n"
+
+
+def _render_routes(role: dict[str, object]) -> str:
+    if not role["routes"]:
+        return ""
     syntax = _MANIFEST["routing_syntax"]
     header = "| " + " | ".join(syntax["columns"]) + " |"
     divider = "| " + " | ".join("---" for _ in syntax["columns"]) + " |"
     rows = "\n".join(_route_row(route) for route in role["routes"])
-    route_block = "\n".join(
+    return "\n".join(
         (
             syntax["start_marker"],
             syntax["heading"],
@@ -148,17 +165,6 @@ def _render_body(role: dict[str, object]) -> str:
             syntax["end_marker"],
         )
     )
-    skills = ", ".join(f"`{skill}`" for skill in role["local_skills"])
-    sections = (
-        f"# {role['title']}",
-        role["summary"],
-        f"Use the installed local skills {skills} when applicable.",
-        role["implementation_guidance"],
-        route_block,
-        _bullet_section("## Operating contract", role["operating_contract"]),
-        _bullet_section("## Boundaries", role["boundaries"]),
-    )
-    return "\n\n".join(sections) + "\n"
 
 
 def _route_row(route: dict[str, object]) -> str:

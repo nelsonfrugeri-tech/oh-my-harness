@@ -57,8 +57,14 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         retrieval = self._read("skills/kb-retrieval/SKILL.md")
 
         self.assertIn("topic: <stable-subject>", write)
-        self.assertIn("`topic`", infra)
-        self.assertIn("`topic`", infra)
+        keyword_indexes = infra.split("Create keyword indexes for", 1)[1].split(
+            "with `PayloadSchemaType.KEYWORD`", 1
+        )[0]
+        note_payload = next(
+            line for line in infra.splitlines() if line.startswith('| Note point (`kind: "note"`)')
+        )
+        self.assertIn("`topic`", keyword_indexes)
+        self.assertIn("`topic`", note_payload)
         self.assertIn("`topic`", retrieval)
         self.assertIn("topic folder", retrieval)
 
@@ -129,6 +135,8 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
                 self.assertIn(mapping, infra_flat)
         self.assertIn("NFKC + Unicode casefold + whitespace collapse", infra_flat)
         self.assertIn("timezone-aware RFC 3339", infra_flat)
+        self.assertIn("Only timezone-aware RFC 3339 instants become indexed", " ".join(write.split()))
+        self.assertIn("values remain in `temporal_values` with `occurred_at: null`", write)
         self.assertIn("Live upsert and full reindex use this same mapping", infra_flat)
         self.assertIn("material address", template)
 
@@ -160,6 +168,11 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
             " ".join(boundaries["retrieval"].split()),
         )
         self.assertIn("Revalidate legacy stored remotes", boundaries["retrieval"])
+        self.assertIn(
+            "Fictitious example: `https://user:token@example.com/repo.git?signature=secret`",
+            boundaries["explorer"],
+        )
+        self.assertIn("`git@example.com:team/repo.git`", boundaries["explorer"])
 
     def test_legacy_entity_metadata_remains_reindexable(self) -> None:
         infra = " ".join(self._read("skills/kb-infra/SKILL.md").split())
@@ -171,6 +184,14 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("full reindex", infra)
         self.assertIn("Omission in the current update never deletes", session)
         self.assertIn("derive the flat lookup fields again", session)
+        merge_keys = (
+            "`entity_refs` by kind plus normalized canonical name",
+            "`references` by kind plus normalized target plus entity",
+            "`temporal_refs` by value plus timezone plus meaning",
+        )
+        for merge_key in merge_keys:
+            with self.subTest(merge_key=merge_key):
+                self.assertIn(merge_key, session)
 
     def test_disk_timeline_is_recursive_and_excludes_reserved_files(self) -> None:
         retrieval = self._read("skills/kb-retrieval/SKILL.md")

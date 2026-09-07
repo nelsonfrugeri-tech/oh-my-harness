@@ -57,7 +57,8 @@ into a table merely because several nouns appear.
 5. Keep labels short, define unfamiliar abbreviations once, and add one sentence interpreting the
    visual.
 6. For quantitative content, render only values whose provenance already satisfies the evidence
-   contract; preserve scale and proportionality and never infer causality from visual proximity.
+   contract, including unit, population or denominator, observation window, source, and method;
+   preserve scale and proportionality and never infer causality from visual proximity.
 
 Prefer terminal-native ASCII for text conversations. Use a wireframe only for spatial questions, not
 as a generic box diagram.

@@ -1,6 +1,6 @@
 ---
 name: kb-infra
-description: "Operate and verify derived knowledge-base infrastructure: Qdrant, BAAI/bge-m3 embeddings, machine identity, collection schema, reindexing, and scoped teardown."
+description: "Internal workflow owned by the knowledge-base agent for Qdrant, BAAI/bge-m3 embeddings, machine identity, collection schema, reindexing, and scoped teardown; not intended for direct user invocation or loose prompt matching."
 ---
 
 # KB Infra
@@ -104,7 +104,7 @@ Live upsert and full reindex use this same mapping.
 Project missing multi-value fields as `[]` and nullable scalar fields as `null`, report each legacy
 record, and continue the batch. Structured `entity_refs`, `references`, and `temporal_refs` remain
 disk-only. Reindexing never modifies source JSON or source Markdown, manufactures historical metadata,
-or assign the current machine to a past session. Be resumable and report counts, failures, and
+or assigns the current machine to a past session. Be resumable and report counts, failures, and
 whether a full reindex remains pending.
 
 Normal teardown stops only owned compose resources and preserves data. Volume/cache deletion is

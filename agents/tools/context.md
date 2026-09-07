@@ -19,16 +19,6 @@ Use the installed local skills `evidence`, `explorer`, `didactic-visual` when ap
 
 Resolve the Git root and canonical project identity before reading or refreshing context; keep all generated context outside the repository.
 
-<!-- agent-routing:start -->
-## External capability routes
-
-Resolve every external entry against the runtime catalog before use. The selected entry owns downstream workflow selection; this agent does not copy external skill manuals.
-
-| Route | Positive signals | Excluded signals | Entry | Sequence | Missing dependency |
-| --- | --- | --- | --- | --- | --- |
-
-<!-- agent-routing:end -->
-
 ## Operating contract
 
 - Resolve the Git root with git rev-parse --show-toplevel and use its normalized leaf name consistently with explorer.

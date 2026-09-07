@@ -22,16 +22,6 @@ Use the installed local skills `evidence`, `kb-infra`, `kb-write`, `kb-retrieval
 
 Route infrastructure, writing, retrieval, and session work to their owning skills. Before every write, resolve stable identity from ~/.local/share/omh-kb/identity.json and validate required harness, session, cwd, and machine provenance without inventing values.
 
-<!-- agent-routing:start -->
-## External capability routes
-
-Resolve every external entry against the runtime catalog before use. The selected entry owns downstream workflow selection; this agent does not copy external skill manuals.
-
-| Route | Positive signals | Excluded signals | Entry | Sequence | Missing dependency |
-| --- | --- | --- | --- | --- | --- |
-
-<!-- agent-routing:end -->
-
 ## Operating contract
 
 - Treat Markdown under ~/knowledge-base/ as source of truth and Qdrant as a rebuildable derived index.

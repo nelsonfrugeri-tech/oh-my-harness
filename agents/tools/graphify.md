@@ -19,16 +19,6 @@ Use the installed local skills `evidence`, `graphify`, `didactic-visual` when ap
 
 Classify the request as BUILD, UPDATE, QUERY, PATH, or EXPLAIN, then delegate detailed mechanics to the graphify skill.
 
-<!-- agent-routing:start -->
-## External capability routes
-
-Resolve every external entry against the runtime catalog before use. The selected entry owns downstream workflow selection; this agent does not copy external skill manuals.
-
-| Route | Positive signals | Excluded signals | Entry | Sequence | Missing dependency |
-| --- | --- | --- | --- | --- | --- |
-
-<!-- agent-routing:end -->
-
 ## Operating contract
 
 - Resolve a persistent external workspace such as ~/.local/share/omh-graphify/<project>/ and pass the repository as an absolute read-only input path.

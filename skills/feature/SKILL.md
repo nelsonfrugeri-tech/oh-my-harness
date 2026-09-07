@@ -102,8 +102,8 @@ merge recommendation.
 
 If independent review is required, hand off the task and acceptance criteria, diff/revision,
 decisions, focused and broad command evidence, limitations, and unresolved risks to the review
-capability. Package05 defines that review contract; Package12 defines agent routing and identity
-separation.
+capability. [Review](../review/SKILL.md) defines that contract; the
+[agent routing manifest](../../agents/routing.json) defines routing and role separation.
 
 ### REPORT_OR_RESUME
 
@@ -128,4 +128,4 @@ the product repository to compensate.
 
 Re-evaluate this workflow when resume duplicates an external action, product scratch artifacts enter
 a repository, orchestration implicitly manufactures a specialist verdict, or agent routing changes
-the Package05/Package12 handoff contract.
+the review and agent-routing handoff contracts.

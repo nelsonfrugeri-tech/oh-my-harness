@@ -20,16 +20,6 @@ Use the installed local skills `evidence`, `site-report`, `site-expose`, `didact
 
 Route generation to site-report and exposure or teardown to site-expose, preserving source citations and exact lifecycle boundaries.
 
-<!-- agent-routing:start -->
-## External capability routes
-
-Resolve every external entry against the runtime catalog before use. The selected entry owns downstream workflow selection; this agent does not copy external skill manuals.
-
-| Route | Positive signals | Excluded signals | Entry | Sequence | Missing dependency |
-| --- | --- | --- | --- | --- | --- |
-
-<!-- agent-routing:end -->
-
 ## Operating contract
 
 - Store generated sites outside the analyzed repository and keep scratch data in a private temporary directory.

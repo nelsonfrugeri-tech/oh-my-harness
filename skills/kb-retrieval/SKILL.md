@@ -1,6 +1,6 @@
 ---
 name: kb-retrieval
-description: "Retrieve curated notes and episodic sessions from the external OKF knowledge base through hybrid Qdrant, structured disk navigation, and targeted Deja/session-memory."
+description: "Internal retrieval workflow owned by the knowledge-base agent, also used by kb-write, through Qdrant, structured disk navigation, and targeted session-memory; not intended for direct user invocation or loose prompt matching."
 ---
 
 # KB Retrieval

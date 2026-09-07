@@ -1,6 +1,6 @@
 ---
 name: kb-session
-description: "Maintain live JSON session records for episodic memory and retrieve session history through Deja or a bounded transcript fallback."
+description: "Internal workflow owned by the knowledge-base agent for live JSON session records and session history, also used as kb-retrieval's third step; not intended for direct user invocation or loose prompt matching."
 ---
 
 # KB Session

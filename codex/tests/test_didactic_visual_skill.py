@@ -29,8 +29,19 @@ class DidacticVisualSkillTest(unittest.TestCase):
         for representation in ("table", "flow", "timeline", "tree", "wireframe"):
             with self.subTest(representation=representation):
                 self.assertIn(representation, normalized)
-        self.assertIn("quantitative content", normalized)
-        self.assertIn("preserve scale and proportionality", normalized)
+        self.assertNotIn("if either dependency is unavailable", normalized)
+        self.assertIn(
+            "in a plugin-only installation, the absence of a global evidence contract "
+            "is not a blocker when the evidence skill itself is available.",
+            normalized,
+        )
+        self.assertIn(
+            "for quantitative content, render only values whose provenance already satisfies "
+            "the evidence contract, including unit, population or denominator, observation "
+            "window, source, and method; preserve scale and proportionality and never infer "
+            "causality from visual proximity.",
+            normalized,
+        )
         self.assertIn("every visual element maps to established content", normalized)
 
 

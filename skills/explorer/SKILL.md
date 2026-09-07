@@ -1,6 +1,6 @@
 ---
 name: explorer
-description: "Build or refresh live repository context in the external knowledge base. Use for repository mapping or context refreshes; never create durable notes or modify the analyzed repository."
+description: "Internal workflow owned by the context agent for repository mapping or context refreshes in the external knowledge base; not intended for direct user invocation or loose prompt matching. Never create durable notes or modify the analyzed repository."
 ---
 
 # Explorer
@@ -12,7 +12,7 @@ Resolve the Git root and derive the project slug with the exact pipeline used by
 `hooks/context-load.sh`; never normalize by interpretation:
 
 ```bash
-basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]'   | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'
+basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'
 ```
 
 Write `<knowledge-base-root>/work/projects/<project>/context.md`. A change to this derivation must
@@ -26,6 +26,10 @@ a fixed status. Allow local/file remotes and an SSH/SCP transport username, but 
 password, HTTP(S) userinfo, any query string or fragment, a signed URL, unknown syntax, or ambiguous
 parsing. On rejection persist `remote_url: null` and only
 `remote redacted — credential-bearing or signed URL`; never partially mask the target.
+
+Fictitious example: `https://user:token@example.com/repo.git?signature=secret` is rejected:
+persist `remote_url: null` and never echo the rejected value. In contrast,
+`git@example.com:team/repo.git` has a safe SSH/SCP transport username, not a password.
 
 context.md is a mutable projection. Markdown notes and JSON sessions remain curated and episodic
 sources. Qdrant and Graphify are derived. Never call kb-write to duplicate this analysis; notes need

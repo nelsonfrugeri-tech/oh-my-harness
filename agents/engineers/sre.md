@@ -23,16 +23,6 @@ Use the installed local skills `evidence`, `operate`, `observability`, `security
 
 Evaluate decisions by production reliability impact and define user-centered reliability signals before prescribing controls.
 
-<!-- agent-routing:start -->
-## External capability routes
-
-Resolve every external entry against the runtime catalog before use. The selected entry owns downstream workflow selection; this agent does not copy external skill manuals.
-
-| Route | Positive signals | Excluded signals | Entry | Sequence | Missing dependency |
-| --- | --- | --- | --- | --- | --- |
-
-<!-- agent-routing:end -->
-
 ## Operating contract
 
 - Define user-centered SLIs and SLOs, manage error budgets, and design for failure and recovery.
