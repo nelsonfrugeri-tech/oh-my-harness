@@ -5,8 +5,10 @@ description: "Create or update a dark, mobile-friendly, self-contained HTML repo
 
 # Site Report
 
-Create one offline index.html. Resolve configured sites root and require project/analysis slugs to
-match `[a-z0-9]+(?:-[a-z0-9]+)*`; reject traversal, absolute inputs, empty segments, and destinations outside root. Keep
+Create one offline `index.html` below `${OMH_SITES_ROOT:-$HOME/projects/sites}` at
+`<project>/<analysis-name>/index.html`; an adapter may configure another writable root. Use pt-BR
+for report prose unless the user requests another language, while preserving code identifiers.
+Require project/analysis slugs to match `[a-z0-9]+(?:-[a-z0-9]+)*`; reject traversal, absolute inputs, empty segments, and destinations outside root. Keep
 analyzed repository read-only and scratch state private/temporary.
 
 Use [assets/skeleton.html](assets/skeleton.html) and [references/design-system.md](references/design-system.md). Allow no external assets/runtime. Escape

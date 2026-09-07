@@ -225,10 +225,12 @@ inventar uma resposta.
 
 ## Padrões de código obrigatórios
 
-Antes de escrever, modificar ou revisar código, siga integralmente os padrões invioláveis da skill
-`implement` e de `implement/references/code-craft.md`. Isso inclui tipagem total, defaults imutáveis,
-funções e arquivos pequenos e coesos, guard clauses, patterns em vez de cadeias condicionais longas,
-semântica explícita de ausência, comentários que expliquem o porquê e o quality gate final.
+Antes de escrever, modificar ou revisar código, siga integralmente as restrições obrigatórias e
+repository-first da skill `implement` e de `implement/references/code-craft.md`. Preserve o type
+system, os contratos públicos e os gates mensuráveis configurados no projeto; rejeite defaults
+mutáveis compartilhados, mantenha unidades coesas, valide entradas não confiáveis e represente
+ausência explicitamente. Não invente limites universais de linhas, nesting, parâmetros ou seleção
+automática de patterns quando o repositório não os definiu.
 
 ---
 

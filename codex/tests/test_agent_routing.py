@@ -22,6 +22,21 @@ class AgentRoutingContractTest(unittest.TestCase):
         self.assertEqual(set(roles), set(families))
         self.assertEqual(set(roles), set(codex))
 
+    def test_evals_dependency_requires_the_renamed_entry(self) -> None:
+        dependency = _MANIFEST["catalog_contract"]["dependencies"]["evals"]
+
+        self.assertEqual("0.3.1", dependency["minimum_version"])
+        self.assertEqual(["evals:evals-start"], dependency["entries"])
+        for role_id in ("ai-engineer", "qa"):
+            route = next(
+                route
+                for route in _MANIFEST["roles"][role_id]["routes"]
+                if route["id"] == "ai-evals"
+            )
+            with self.subTest(role=role_id):
+                self.assertEqual("evals:evals-start", route["entry"])
+                self.assertIn("claude plugin update evals@ai-evals-course", route["degraded_behavior"])
+
     def test_local_skill_order_preserves_evidence_and_presentation(self) -> None:
         for role_id, role in _MANIFEST["roles"].items():
             with self.subTest(role=role_id):

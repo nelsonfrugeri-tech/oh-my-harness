@@ -63,13 +63,25 @@ canonical spelling, merge only observed aliases, and never invent identity or ti
 merge, derive the flat lookup fields again: `entities`, `aliases`, `entity_kinds`, `entity_keys`,
 `reference_targets`, and `temporal_values`.
 
-Discover Codex rollouts from harness metadata and dated state inventory by session ID; never derive
-paths from project or cwd. Update atomically, preserving created_at. Session end is a final update,
+Discover transcripts by harness and session ID:
+
+- Codex: resolve `$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl` from
+  harness metadata and dated state inventory; never derive it from project or cwd.
+- Claude Code: resolve `~/.claude/projects/<cwd-munged>/<session-id>.jsonl`, where `<cwd-munged>`
+  is the absolute cwd with `/` and `.` replaced by `-`. If concurrent sessions make recency
+  ambiguous, verify the session ID/content; never select the newest file blindly.
+- Unknown harness: persist `transcript_path: null` and report degraded mode rather than inventing a
+  path.
+
+Update atomically, preserving created_at. Session end is a final update,
 not a note. Upsert kind: session. Qdrant failure leaves JSON durable and indexing pending;
 configured is not healthy.
 
 Prefer abstract session-memory for narrow topic or exact-file recall, combining file recall with Git
-history. Disclose useful recalls and revalidate mutable facts. Without it: select candidate JSON,
+history. When Deja provides this capability, require `DEJA_INCLUDE_SUBAGENTS=1` in an environment
+source visible to non-interactive shells, such as `~/.zshenv`; otherwise report that subagent
+transcripts are omitted instead of treating an empty recall as complete. Disclose useful recalls and
+revalidate mutable facts. Without it: select candidate JSON,
 verify transcript containment, parse JSONL, search bounded context, redact secrets/personal data,
 and never load/export a whole transcript. Report reduced coverage.
 

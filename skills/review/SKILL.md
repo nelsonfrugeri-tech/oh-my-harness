@@ -93,23 +93,27 @@ security claims, hypothetical scale problems without a relevant workload, and st
 must be verified, narrowed, downgraded, or omitted. Do not hide an uncertain claim inside confident
 language; retain its uncertainty and identify what observation would resolve it.
 
-Every finding uses this canonical shape:
+Every finding uses the stable external shape below. Standards/Spec and evidence remain explicit,
+but do not replace the established labels consumed by humans or automation.
 
 ```markdown
-[<SEVERITY>][<PRIMARY AXIS>] <short actionable title>
+[<SEVERITY>] <short actionable title>
 
+**Axis:** <Standards | Spec>
 **Related axis:** <Standards | Spec | None>
 **File:** <path>:<line or smallest inspectable range>
 **Evidence:** <diff/context/command/spec observation; distinguish observed from inferred>
 **Issue:** <specific defect or mismatch>
+**Current code:** <smallest relevant excerpt, observed state, or N/A when no code exists>
+**Suggested fix:** <minimal viable remediation>
 **Impact:** <observable consequence if it ships>
-**Smallest correction:** <minimal viable remediation>
+**Action:** <required disposition implied by severity>
 **Verify:** <test, inspection, or evidence that resolves the finding>
 ```
 
-Suggested code is optional and must be checked against surrounding context. Findings without an
-inspectable location, evidence, impact, correction, or verification are incomplete and cannot
-control the recommendation.
+Suggested code is optional and must be checked against surrounding context. Use `N/A` instead of
+inventing a code excerpt. Findings without an inspectable location, evidence, impact, correction, or
+verification are incomplete and cannot control the recommendation.
 
 ## Derive the recommendation mechanically
 
@@ -117,51 +121,65 @@ Apply these conditions in order:
 
 1. Any supported BLOCKER in either assessed axis: `BLOCK MERGE`.
 2. Otherwise, if a required diff/base is unavailable, or Spec is required but unavailable or
-   materially ambiguous: `INCOMPLETE — SPEC NOT ASSESSED`.
+   materially ambiguous: emit the incomplete exception state below and issue no merge recommendation.
 3. Otherwise, any MAJOR in either axis: `APPROVE WITH CAVEATS`; list the explicit disposition needed
    before production.
 4. Otherwise, when both required axes were assessed: `APPROVE`.
 5. In explicit Standards-only mode, apply the same severity rules to Standards and state
    `Scope: Standards only`; never imply Spec conformance.
 
-Keep each axis verdict visible even when an earlier condition determines the overall result. Count
-deduplicated findings once under their primary axis. Write `No findings.` only when every axis
-required by the declared scope was assessed.
+`BLOCK MERGE`, `APPROVE WITH CAVEATS`, and `APPROVE` are the only recommendations. Incomplete
+evidence is a review status, not a fourth recommendation. Keep each axis verdict visible. Count
+deduplicated findings once under their primary axis. Write `No findings.` only when every required
+axis was assessed.
 
 ## Emit the canonical result
+
+Keep analysis sections for traceability, then end every completed review with the stable final
+verdict block.
 
 ```markdown
 # Code Review
 
-**Recommendation:** <BLOCK MERGE | APPROVE WITH CAVEATS | APPROVE | INCOMPLETE — SPEC NOT ASSESSED>
-**Scope:** <Standards + Spec | Standards only | explicitly limited scope>
+**Scope:** <Standards + Spec | Standards only>
 **Comparison base:** <merge-base...head, staged/working-tree sets, or inspected artifact>
 **Evidence:** <diff, files, tests, commands, issue/spec inspected and unavailable artifacts>
 **Independence:** <independent reviewer identity or explicit limitation>
 
 ## Standards verdict
 
-<Pass, findings, or not assessed, with one-sentence reason>
+<Pass or findings, with one-sentence reason>
 
 ## Spec verdict
 
-<Pass, findings, not assessed, or not requested, with one-sentence reason>
+<Pass, findings, or not requested, with one-sentence reason>
 
 ## Findings
 
-<Findings ordered by BLOCKER, MAJOR, MINOR, NIT using the canonical finding template.
-Write “No findings.” only when every required axis was assessed.>
+<Findings ordered by BLOCKER, MAJOR, MINOR, NIT using the canonical finding template.>
 
-## Summary
+## Final verdict
 
-**Counts:** <n> BLOCKER, <n> MAJOR, <n> MINOR, <n> NIT
-**Required before merge:** <actions or “None”>
-**Required before production:** <actions or “None”>
-**Residual risk / unverified:** <material limitations or “None identified in assessed scope”>
+**Recommendation:** <BLOCK MERGE | APPROVE WITH CAVEATS | APPROVE>
+**Verdict:** <one sentence derived from the finding counts>
+**Blockers:** <`None` or a compact list of blocker + file:line>
+**Majors (fix before production):** <`None` or a compact list of major + file:line>
+**Action:** <required next action or `None`>
+**Summary:** <n> BLOCKER, <n> MAJOR, <n> MINOR, <n> NIT
+**Residual risk / unverified:** <material limitations or `None identified in assessed scope`>
 ```
 
-Positive highlights may follow the findings when useful, but never replace scope, axis verdicts,
-counts, limitations, or required actions.
+If the review is incomplete, do not emit `Recommendation` or imply approval. Replace the final
+verdict block with:
+
+```markdown
+## Review status
+
+**Review status:** INCOMPLETE — SPEC NOT ASSESSED
+**Reason:** <missing or ambiguous material required for review>
+**Required evidence:** <smallest artifact or clarification that unblocks assessment>
+**Summary:** <findings found so far, explicitly non-final>
+```
 
 ## Stop and report
 

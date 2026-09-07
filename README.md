@@ -36,7 +36,7 @@ machine capability mapping changes providers.
   - [Capabilities — the tool plug](#capabilities--the-tool-plug)
   - [Progressive disclosure](#progressive-disclosure)
   - [Evidence-driven decisions](#evidence-driven-decisions)
-  - [code-craft — inviolable rules](#code-craft--inviolable-rules)
+  - [code-craft — mandatory implementation constraints](#code-craft--mandatory-implementation-constraints)
   - [Language contract](#language-contract)
 - [Quick start](#quick-start)
 - [What's inside](#whats-inside)
@@ -136,9 +136,9 @@ alternatives, uncertainty, falsification, and rollback conditions. The `evidence
 the detailed protocol, while the read-only `evidence-reviewer` independently audits consequential
 claims without turning routine work into ceremony.
 
-### code-craft — inviolable rules
+### code-craft — mandatory implementation constraints
 
-The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
+The mandatory implementation constraints live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as the **single source of truth**, referenced by `implement` and reused by `review`. They are repository-first: preserve configured typing and public contracts, reject shared mutable defaults, keep units cohesive, validate untrusted boundaries, and run discovered quality gates. Universal line counts, nesting limits, parameter counts, and automatic pattern selection are intentionally not policy; repository tooling may define measurable limits for a specific codebase.
 
 ### Language contract
 
@@ -182,7 +182,7 @@ claude plugin install evals@ai-evals-course                # 8 skills, ~862 toke
 `architect`, and `developer`. `evals` backs the LLM-evaluation routing in `ai-engineer` and `qa`:
 error analysis from real traces, LLM-as-judge, judge calibration against human labels, and RAG
 evaluation. The two overlap on the word "eval" and not in method, so the agents say which is which
-— `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
+— `evals >= 0.3.1` is required because its entry skill is `evals:evals-start`. If an existing install still exposes `evals:start`, run `claude plugin update evals@ai-evals-course` and restart Claude Code. `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
 benchmark work, whatever framework the evaluated agent uses.
 
 The LangSmith plugins in the LangChain marketplace stay uninstalled by default: they need a

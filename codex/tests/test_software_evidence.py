@@ -73,6 +73,26 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("fals", shared.lower())
         self.assertIn("fals", codex.lower())
 
+    def test_review_preserves_the_stable_external_verdict_contract(self) -> None:
+        review = self._read("skills/review/SKILL.md")
+        final_block = review[review.index("## Final verdict"):]
+        labels = (
+            "**Recommendation:**",
+            "**Verdict:**",
+            "**Blockers:**",
+            "**Majors (fix before production):**",
+            "**Action:**",
+            "**Summary:**",
+        )
+
+        positions = [final_block.index(label) for label in labels]
+        self.assertEqual(sorted(positions), positions)
+        self.assertIn("[<SEVERITY>] <short actionable title>", review)
+        self.assertIn("**Current code:**", review)
+        self.assertIn("**Suggested fix:**", review)
+        self.assertIn("the only recommendations", review)
+        self.assertIn("issue no merge recommendation", review)
+
     def test_core_software_workflows_invoke_the_evidence_contract(self) -> None:
         paths = (
             "skills/feature/SKILL.md",

@@ -8,8 +8,15 @@ description: "Build or refresh live repository context in the external knowledge
 Maintain one evidence-backed context.md. The repository is read-only; the only output is the live
 context document. Durable notes belong to kb-write.
 
-Resolve Git root, normalize its basename to kebab-case, and write
-<knowledge-base-root>/work/projects/<project>/context.md. Resolve roots from the adapter; never embed
+Resolve the Git root and derive the project slug with the exact pipeline used by
+`hooks/context-load.sh`; never normalize by interpretation:
+
+```bash
+basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]'   | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'
+```
+
+Write `<knowledge-base-root>/work/projects/<project>/context.md`. A change to this derivation must
+update the hook and its parity test in the same commit. Resolve roots from the adapter; never embed
 personal paths. Verify existing domain identity from root/remote, then note/session provenance if
 needed. Conflict or ambiguity blocks writing; never invent an alias.
 

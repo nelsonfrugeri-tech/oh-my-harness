@@ -12,6 +12,59 @@ hardcode personal paths. Use this skill's [docker-compose.yml](docker-compose.ym
 The fixed model is BAAI/bge-m3: dense 1024-dimensional plus lexical sparse vectors from one pass.
 Changing it requires explicit decision, collection rebuild, and full reindex.
 
+## Bootstrap the runtime
+
+Keep the dedicated environment outside projects and the Markdown bundle. Resolve one runtime path
+and reuse it for every command:
+
+```bash
+KB_RUNTIME="${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}"
+KB_VENV="$KB_RUNTIME/venv"
+mkdir -p "$KB_RUNTIME"
+if command -v uv >/dev/null 2>&1; then
+  test -x "$KB_VENV/bin/python" || uv venv "$KB_VENV"
+  uv pip install --python "$KB_VENV/bin/python" FlagEmbedding qdrant-client PyYAML
+else
+  test -x "$KB_VENV/bin/python" || python3 -m venv "$KB_VENV"
+  "$KB_VENV/bin/python" -m pip install FlagEmbedding qdrant-client PyYAML
+fi
+```
+
+Resolve current compatible package versions from official package metadata when installation is
+required. Warn before the first network-backed model download and report its current published size
+rather than freezing that volatile value here.
+
+Smoke-test imports and the exact dense/sparse contract from the same interpreter:
+
+```bash
+"$KB_VENV/bin/python" - <<'PY'
+from FlagEmbedding import BGEM3FlagModel
+
+model = BGEM3FlagModel(
+    "BAAI/bge-m3",
+    use_fp16=False,
+    return_dense=True,
+    return_sparse=True,
+    return_colbert_vecs=False,
+)
+output = model.encode(["health"], return_dense=True, return_sparse=True)
+weights = output["lexical_weights"][0]
+indices = [int(token) for token in weights]
+values = [float(weight) for weight in weights.values()]
+assert len(output["dense_vecs"][0]) == 1024
+assert len(indices) == len(values) and len(indices) > 0
+PY
+```
+
+The production embedder lazy-loads one `BGEM3FlagModel` instance and converts each
+`lexical_weights` mapping into parallel integer `indices` and float `values` for Qdrant.
+
+Start Qdrant with `docker compose -f <resolved-skill-dir>/docker-compose.yml up -d`; resolve the
+skill directory from the installed plugin rather than a personal path. Diagnose in this order:
+`docker info`, the owned `oh-my-harness-qdrant` container via `docker ps`, `curl -fsS http://127.0.0.1:6333/healthz` with
+bounded retry, collection/vector/index schema, then a short embedding from the dedicated venv.
+Report the first failed boundary and its repair; never infer health from configuration.
+
 Maintain runtime identity.json with stable UUID, chosen label, and creation time. Create atomically
 with mode 0600, preserve UUID, reject invalid content, and never store MAC addresses. Invalid
 identity blocks writes because provenance cannot be reconstructed.

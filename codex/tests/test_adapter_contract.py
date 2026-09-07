@@ -441,6 +441,122 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("git rev-parse --show-toplevel", shared)
         self.assertIn("git rev-parse --show-toplevel", codex)
 
+    def test_code_craft_contract_is_consistently_repository_first(self) -> None:
+        paths = (
+            "README.md",
+            "claude-code/CLAUDE.md",
+            "codex/AGENTS.md",
+            "skills/implement/references/code-craft.md",
+        )
+        combined = chr(10).join(
+            _ROOT.joinpath(path).read_text(encoding="utf-8")
+            for path in paths
+        )
+
+        for path in paths[:3]:
+            with self.subTest(path=path):
+                document = _ROOT.joinpath(path).read_text(encoding="utf-8")
+                self.assertIn("repository-first", document)
+        self.assertNotIn("code-craft — inviolable rules", combined)
+        self.assertNotIn("design pattern instead of `if/elif` chains", combined)
+        self.assertIn("Do not split by a universal line or symbol count", combined)
+        self.assertIn("Project contracts override generic preferences", combined)
+
+    def test_external_evals_documentation_uses_the_current_entry(self) -> None:
+        readme = _ROOT.joinpath("README.md").read_text(encoding="utf-8")
+        installer = _ROOT.joinpath(
+            "claude-code/skills/claude-code/SKILL.md"
+        ).read_text(encoding="utf-8")
+
+        for document in (readme, installer):
+            self.assertIn("evals >= 0.3.1", document)
+            self.assertIn("evals:evals-start", document)
+            self.assertIn("claude plugin update evals@ai-evals-course", document)
+        self.assertNotIn("/evals:start` respondem", installer)
+
+    def test_qdrant_compose_binds_published_ports_to_loopback(self) -> None:
+        compose_path = _ROOT / "skills/kb-infra/docker-compose.yml"
+        compose = compose_path.read_text(encoding="utf-8")
+        expected_bindings = {
+            ("127.0.0.1", "6333", 6333),
+            ("127.0.0.1", "6334", 6334),
+        }
+
+        for host_ip, published, target in expected_bindings:
+            self.assertIn(
+                f'"{host_ip}:{published}:{target}"',
+                compose,
+            )
+        if shutil.which("docker") is None:
+            return
+
+        result = subprocess.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_path),
+                "config",
+                "--format",
+                "json",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        rendered = json.loads(result.stdout)
+        ports = rendered["services"]["qdrant"]["ports"]
+        actual_bindings = {
+            (port.get("host_ip"), port["published"], port["target"])
+            for port in ports
+        }
+        self.assertEqual(expected_bindings, actual_bindings)
+
+    def test_operational_skills_keep_executable_boundaries(self) -> None:
+        site = _ROOT.joinpath("skills/site-report/SKILL.md").read_text(encoding="utf-8")
+        explorer = _ROOT.joinpath("skills/explorer/SKILL.md").read_text(encoding="utf-8")
+        hook = _ROOT.joinpath("hooks/context-load.sh").read_text(encoding="utf-8")
+        session = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(encoding="utf-8")
+        infra = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("`${OMH_SITES_ROOT:-$HOME/projects/sites}`", site)
+        self.assertIn("Use pt-BR for report prose", " ".join(site.split()))
+        slug_pipeline = (
+            "tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\\n' '-' | "
+            "sed 's/--*/-/g; s/^-//; s/-$//'"
+        )
+        self.assertIn(slug_pipeline, " ".join(explorer.split()))
+        self.assertIn(slug_pipeline, " ".join(hook.split()))
+        self.assertIn("DEJA_INCLUDE_SUBAGENTS=1", session)
+        self.assertIn("~/.claude/projects/<cwd-munged>/<session-id>.jsonl", session)
+
+        bootstrap_contract = (
+            'KB_RUNTIME="${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}"',
+            'KB_VENV="$KB_RUNTIME/venv"',
+            'uv venv "$KB_VENV"',
+            'uv pip install --python "$KB_VENV/bin/python" FlagEmbedding qdrant-client PyYAML',
+            'python3 -m venv "$KB_VENV"',
+            '"$KB_VENV/bin/python" -m pip install FlagEmbedding qdrant-client PyYAML',
+            '"$KB_VENV/bin/python" - <<',
+            'BGEM3FlagModel(',
+            'return_colbert_vecs=False',
+            'len(output["dense_vecs"][0]) == 1024',
+            'len(indices) == len(values) and len(indices) > 0',
+            "docker compose -f <resolved-skill-dir>/docker-compose.yml up -d",
+        )
+        for contract in bootstrap_contract:
+            with self.subTest(contract=contract):
+                self.assertIn(contract, infra)
+        ordered_health = (
+            "docker info",
+            "docker ps",
+            "http://127.0.0.1:6333/healthz",
+            "collection/vector/index schema",
+            "short embedding",
+        )
+        positions = [infra.index(token) for token in ordered_health]
+        self.assertEqual(sorted(positions), positions)
+
     def _yaml_name(self, path: Path) -> str:
         match = re.search(r"^name:\s*([^\s]+)", path.read_text(encoding="utf-8"), re.MULTILINE)
         self.assertIsNotNone(match, str(path))

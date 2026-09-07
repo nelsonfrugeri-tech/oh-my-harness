@@ -164,7 +164,7 @@ repositório (`evals-skills`) — o ID de instalação usa o do marketplace.
 
 Verificação: `claude plugin list` mostra os três como `✔ enabled`; `claude plugin details <id>`
 lista as skills (22 e 8 na instalação de referência — o upstream pode somar mais); e numa sessão
-nova `/langchain-skills:ecosystem-primer` e `/evals:start` respondem.
+nova `/langchain-skills:ecosystem-primer` e `/evals:evals-start` respondem. O routing exige `evals >= 0.3.1`; instalações antigas que ainda expõem `/evals:start` devem executar `claude plugin update evals@ai-evals-course` e reiniciar o Claude Code.
 
 ## Passo 6 — Atualizar
 

@@ -5,6 +5,7 @@
     "dependencies": {
       "evals": {
         "distribution": "evals@ai-evals-course",
+        "minimum_version": "0.3.1",
         "tested_version": "0.3.1",
         "optional": true,
         "entries": [
@@ -295,7 +296,7 @@
             ]
           },
           "sequence": "Load after evidence. Let the entry skill select one focused evaluation workflow.",
-          "degraded_behavior": "Report integration pending: evals. Continue only with evidence, test, and research; do not invent an evaluation methodology or claim that the unavailable skill was used."
+          "degraded_behavior": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with evidence, test, and research until evals:evals-start is available."
         },
         {
           "id": "langchain-framework",
@@ -472,7 +473,7 @@
             ]
           },
           "sequence": "Load after evidence. Let the entry skill select one focused evaluation workflow.",
-          "degraded_behavior": "Report integration pending: evals. Continue only with evidence, test, and research; do not invent an evaluation methodology or claim that the unavailable skill was used."
+          "degraded_behavior": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with evidence, test, and research until evals:evals-start is available."
         },
         {
           "id": "langchain-framework",
@@ -843,7 +844,7 @@
       "expected_kind": "degraded",
       "expected_route": "ai-evals",
       "expected_entry": null,
-      "expected_message": "Report integration pending: evals. Continue only with evidence, test, and research; do not invent an evaluation methodology or claim that the unavailable skill was used.",
+      "expected_message": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with evidence, test, and research until evals:evals-start is available.",
       "repository_signals": []
     },
     {
