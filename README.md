@@ -378,9 +378,9 @@ links in the body. Paths remain stable because an OKF Concept ID is its relative
 
 ## Portability across harnesses
 
-`core/` contains reusable skills, hook implementations, policies, evals, and the reserved home
-for shared prompts. Claude-specific representation stays under `harness/claude/`; Codex-specific
-representation stays under `harness/codex/`. The root `agents/` and `hooks/hooks.json` remain
+`core/` contains reusable skills, hook implementations, policies, and evals. Claude-specific
+representation stays under `harness/claude/`; Codex-specific representation stays under
+`harness/codex/`. The root `agents/` and `hooks/hooks.json` remain
 platform-required discovery entrypoints, while their reusable implementation stays in the shared or
 harness-specific layer. Supporting another harness means adding an adapter, not forcing foreign
 syntax into the shared layer.
