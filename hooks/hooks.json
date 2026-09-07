@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/context-load.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/core/hooks/context-load.sh",
             "timeout": 15
           }
         ]
@@ -19,7 +19,7 @@
           {
             "type": "command",
             "if": "Bash(git commit*)",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/claude-code/hooks/quality-gate.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/harness/claude/hooks/quality-gate.sh",
             "timeout": 600
           }
         ]

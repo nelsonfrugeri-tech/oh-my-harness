@@ -1,0 +1,70 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+
+
+@dataclass(frozen=True)
+class InstallLayout:
+    source_root: Path
+    codex_home: Path
+    agents_home: Path
+
+    @property
+    def adapter(self) -> Path:
+        return self.source_root / "harness/codex"
+
+    @property
+    def global_agents_file(self) -> Path:
+        return self.codex_home / "AGENTS.md"
+
+    @property
+    def hooks_file(self) -> Path:
+        return self.codex_home / "hooks.json"
+
+    @property
+    def config_file(self) -> Path:
+        return self.codex_home / "config.toml"
+
+    @property
+    def installed_adapter(self) -> Path:
+        return self.codex_home / "oh-my-harness"
+
+    @property
+    def links_manifest(self) -> Path:
+        return self.codex_home / "oh-my-harness-links.json"
+
+    @property
+    def agents_manifest(self) -> Path:
+        return self.codex_home / "oh-my-harness-agents.json"
+
+    @property
+    def personal_skills(self) -> Path:
+        return self.agents_home / "skills"
+
+    @property
+    def custom_agents(self) -> Path:
+        return self.codex_home / "agents"
+
+    @property
+    def installed_hooks(self) -> Path:
+        return self.codex_home / "hooks"
+
+    def skill_sources(self) -> tuple[Path, ...]:
+        candidates = (
+            *self.source_root.glob("core/skills/**/SKILL.md"),
+            *self.adapter.glob("skills/**/SKILL.md"),
+        )
+        skills = sorted(path.parent for path in candidates)
+        by_name: dict[str, Path] = {}
+        for path in skills:
+            if path.name in by_name:
+                raise ValueError(f"nome de skill duplicado: {path.name}")
+            by_name[path.name] = path
+        return tuple(by_name.values())
+
+    def agent_sources(self) -> tuple[Path, ...]:
+        return tuple(sorted((self.adapter / "agents").glob("*.toml")))
+
+    def hook_sources(self) -> tuple[Path, ...]:
+        return ()

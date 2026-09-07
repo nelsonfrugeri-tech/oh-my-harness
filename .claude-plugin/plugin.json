@@ -18,6 +18,7 @@
     "capabilities"
   ],
   "skills": [
-    "./claude-code/skills/"
+    "./core/skills/",
+    "./harness/claude/skills/"
   ]
 }

@@ -40,9 +40,9 @@ Ao ser invocado, siga integralmente o runbook da skill `claude-code` (frontmatte
 claude-code`). Ela cobre:
 
 - Symlink temado de `agents/<theme>/<name>.md` → `~/.claude/agents/<theme>/<name>.md`
-- Achatamento de `skills/**/<leaf>/SKILL.md` → `~/.claude/skills/<leaf>/` (motivo técnico
+- Achatamento de `core/skills/**/<leaf>/SKILL.md` → `~/.claude/skills/<leaf>/` (motivo técnico
   documentado na skill: discovery de skills não é recursivo no destino)
-- Symlink de `claude-code/workflows/*.ts` → `~/.claude/workflows/`
+- Symlink de `harness/claude/workflows/*.ts` → `~/.claude/workflows/`
 - Detecção e limpeza de symlinks órfãos/quebrados do layout antigo
 - Diff interativo de `CLAUDE.md` e `settings.json` (merge/sobrescrever/manter)
 - Detecção de MCPs da máquina e proposta de mapeamento da tabela de capabilities

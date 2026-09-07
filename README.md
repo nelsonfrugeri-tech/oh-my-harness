@@ -58,11 +58,14 @@ harness. Capabilities are resolved through that harness's machine-local table.
 ┌───────────────────────────────────────────────────────────────────┐
 │  oh-my-harness · SOURCE (this git repo)                            │
 │                                                                     │
-│  shared behavior                 harness adapters                    │
-│  ├── skills/                     ├── claude-code/                    │
-│  ├── hooks/                      │   CLAUDE.md · settings · workflow │
-│  └── agents/ (Claude manifests)  └── codex/                          │
-│                                      AGENTS.md · TOML agents · hooks │
+│  required entrypoints            shared core                         │
+│  ├── agents/ (Claude)            ├── core/skills/                     │
+│  └── hooks/hooks.json            ├── core/hooks/                      │
+│                                  ├── core/policies/                   │
+│  harness adapters                └── core/evals/                      │
+│  ├── harness/claude/  CLAUDE.md · settings · workflows              │
+│  └── harness/codex/   AGENTS.md · TOML agents · integrations         │
+│  installers/codex/ · tests/codex/                                   │
 └──────────────────────────────┬──────────────────────────────────────┘
                                 │ harness-native installer
              ┌──────────────────┴──────────────────┐
@@ -88,10 +91,10 @@ harness. Capabilities are resolved through that harness's machine-local table.
 ```
 
 - **agents** share responsibilities and skill dependencies, while their executable manifests stay
-  harness-native: Claude Markdown under `agents/`, Codex TOML under `codex/agents/`.
+  harness-native: Claude Markdown under `agents/`, Codex TOML under `harness/codex/agents/`.
 - **skills** are the shared semantic layer and are flattened by each installer to the discovery
   location required by that harness.
-- **global guidance and capability tables** live in `claude-code/CLAUDE.md` and `codex/AGENTS.md`;
+- **global guidance and capability tables** live in `harness/claude/CLAUDE.md` and `harness/codex/AGENTS.md`;
   their common rules must remain semantically aligned, not byte-identical.
 - The agent **`claude-code`** (backed by the `claude-code` skill) is the runbook the harness
   runs to sync (see [Quick start](#quick-start)).
@@ -127,7 +130,7 @@ from optional `metadata.type`. Tool-skill descriptions identify the owning agent
 ### Capabilities — the tool plug
 
 Agents and skills reference **abstract capabilities**, never a concrete tool. Each harness adapter
-owns one machine-local capability table (`claude-code/CLAUDE.md` or `codex/AGENTS.md`). Change the
+owns one machine-local capability table (`harness/claude/CLAUDE.md` or `harness/codex/AGENTS.md`). Change the
 environment, change only the active harness's table.
 
 | Capability  | Role                                   | Example per machine        |
@@ -155,7 +158,7 @@ claims without turning routine work into ceremony.
 
 ### code-craft — mandatory implementation constraints
 
-The mandatory implementation constraints live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as the **single source of truth**, referenced by `implement`. They are repository-first: preserve configured typing and public contracts, reject shared mutable defaults, keep units cohesive, validate untrusted boundaries, and run discovered quality gates. Universal line counts, nesting limits, parameter counts, and automatic pattern selection are intentionally not policy; repository tooling may define measurable limits for a specific codebase.
+The mandatory implementation constraints live in [`core/skills/implement/references/code-craft.md`](core/skills/implement/references/code-craft.md) as the **single source of truth**, referenced by `implement`. They are repository-first: preserve configured typing and public contracts, reject shared mutable defaults, keep units cohesive, validate untrusted boundaries, and run discovered quality gates. Universal line counts, nesting limits, parameter counts, and automatic pattern selection are intentionally not policy; repository tooling may define measurable limits for a specific codebase.
 
 ### Language contract
 
@@ -179,8 +182,8 @@ Updates are a decision, not a side effect of `git pull`: users receive a new ver
 `version` in the manifest is bumped, and a marketplace entry can pin `ref` or an exact `sha`.
 
 Two surfaces a plugin cannot provide — global instructions and user preferences — still install
-by merge: `claude-code/CLAUDE.md` into `~/.claude/CLAUDE.md`, and the `permissions` block of
-`claude-code/settings.json`. Ask the `claude-code` agent to do it, or follow its skill.
+by merge: `harness/claude/CLAUDE.md` into `~/.claude/CLAUDE.md`, and the `permissions` block of
+`harness/claude/settings.json`. Ask the `claude-code` agent to do it, or follow its skill.
 
 Some agents route to skills that are not ours: where a domain already has an authoritative upstream
 plugin, they point at it instead of at guidance we would have to keep current ourselves. Install
@@ -245,8 +248,8 @@ adapter from a clone when you need those additional surfaces:
 ```bash
 git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
 cd oh-my-harness
-python3 codex/install.py
-python3 codex/install.py --check
+python3 installers/codex/install.py
+python3 installers/codex/install.py --check
 ```
 
 On a brand-new machine, [`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
@@ -263,7 +266,7 @@ when required, maintaining the living knowledge base at
 ### Agents
 
 Canonical Claude manifests are grouped under `agents/<theme>/`; Codex-native representations live
-under `codex/agents/`. Both adapters preserve the responsibilities in this catalog.
+under `harness/codex/agents/`. Both adapters preserve the responsibilities in this catalog.
 
 | Theme       | Agent         | Role                                                | Model  |
 | ----------- | ------------- | ---------------------------------------------------- | ------ |
@@ -282,7 +285,7 @@ under `codex/agents/`. Both adapters preserve the responsibilities in this catal
 
 ### Skills
 
-Skills live directly under `skills/<name>/` because that is the common native-plugin discovery
+Skills live directly under `core/skills/<name>/` because that is the common native-plugin discovery
 contract. The catalog below keeps the logical themes without adding another filesystem layer, and
 each skill name remains globally unique.
 
@@ -375,10 +378,12 @@ links in the body. Paths remain stable because an OKF Concept ID is its relative
 
 ## Portability across harnesses
 
-`skills/`, shared hooks, and agent responsibilities form the reusable base. Claude-specific
-representation stays under `agents/` and `claude-code/`; Codex-specific representation stays under
-`codex/`. Supporting another harness means adding an adapter, not forcing foreign syntax into the
-shared layer.
+`core/` contains reusable skills, hook implementations, policies, evals, and the reserved home
+for shared prompts. Claude-specific representation stays under `harness/claude/`; Codex-specific
+representation stays under `harness/codex/`. The root `agents/` and `hooks/hooks.json` remain
+platform-required discovery entrypoints, while their reusable implementation stays in the shared or
+harness-specific layer. Supporting another harness means adding an adapter, not forcing foreign
+syntax into the shared layer.
 
 | Primitive | Claude Code | Codex | Cursor |
 | --- | :---: | :---: | :---: |
@@ -390,22 +395,22 @@ shared layer.
 
 Codex native-plugin packaging is defined by [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
 and [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json). The adapter under
-[`codex/`](codex/README.md) adds custom agents, managed global guidance, and available MCP
+[`harness/codex/`](harness/codex/README.md) adds custom agents, managed global guidance, and available MCP
 integrations without overwriting unrelated personal configuration.
 
 ---
 
 ## Extending the library
 
-**Add a skill** → create `skills/<name>/SKILL.md` with `name` + `description` in the frontmatter;
+**Add a skill** → create `core/skills/<name>/SKILL.md` with `name` + `description` in the frontmatter;
 put deep content in `references/` and link it from the `## Reference Files` section. Keep `<name>`
 unique across the whole tree so both native plugin hosts expose the same stable namespace.
 
 **Add an agent** → define its shared responsibility and Claude manifest under `agents/<theme>/`,
-then add the equivalent Codex TOML under `codex/agents/`. Keep behavior aligned while preserving
+then add the equivalent Codex TOML under `harness/codex/agents/`. Keep behavior aligned while preserving
 each harness's native schema and tool-binding rules.
 
-**Add a workflow** → create `claude-code/workflows/<name>.ts` following the Workflow API (`meta`, phases, `agent()` / `parallel()` / `pipeline()`).
+**Add a workflow** → create `harness/claude/workflows/<name>.ts` following the Workflow API (`meta`, phases, `agent()` / `parallel()` / `pipeline()`).
 
 Then sync (see [Quick start](#quick-start)).
 

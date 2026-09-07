@@ -17,8 +17,8 @@
     "capabilities"
   ],
   "skills": [
-    "./skills/",
-    "./codex/skills/"
+    "./core/skills/",
+    "./harness/codex/skills/"
   ],
   "interface": {
     "displayName": "oh-my-harness",
