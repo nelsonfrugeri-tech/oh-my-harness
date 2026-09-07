@@ -1,121 +1,62 @@
-# Processo Sistemático de Correção de Bugs
+# Bug-Fix Workflow
 
-## REPRODUZIR > ISOLAR > ESCREVER TESTE > CORRIGIR > VALIDAR > PREVENIR
+Use this reference for `bug` mode. Keep observations, hypotheses, and claims distinct throughout.
 
-## Disciplina de evidência (skill `evidence`)
-
-Antes de mudar código, crie um registro de evidência com observações verificadas, hipóteses
-concorrentes, desconhecidos e o próximo teste falsificador. Reprodução é evidência de que o sintoma
-existe no ambiente observado; não é evidência de causa raiz. Uma correlação, uma mudança de código
-próxima ou um teste de regressão passando não estabelecem, por si sós, causalidade nem a ausência
-de defeitos relacionados.
-
-Para uma mitigação urgente, compare blast radius, reversibilidade, custo de atraso e telemetria
-disponível. Rotule o hotfix imediato separadamente da correção durável, diga qual hipótese ele
-endereça, e defina rollback e observações pós-deploy antes de subir.
-
-### Passo 1: REPRODUZIR
-
-**Objetivo:** Disparar o bug de forma confiável.
-
-Documente:
-```markdown
-## Bug Reproduction
-
-### Environment
-- OS: {os}
-- Version: {app version}
-- Database: {state}
-
-### Steps
-1. {step 1}
-2. {step 2}
-3. {step 3}
-
-### Expected
-{what should happen}
-
-### Actual
-{what actually happens}
-
-### Frequency
-{always / intermittent / specific conditions}
+```text
+OBSERVE -> REPRODUCE -> ISOLATE -> RED -> FIX -> VERIFY -> PREVENT
 ```
 
-**Se você não conseguir reproduzir:**
-- Verifique os logs em busca do erro
-- Verifique se é específico do ambiente
-- Verifique se depende dos dados
-- Peça mais detalhes a quem reportou
-- NÃO corrija por adivinhação sem reprodução
-- Preserve explicações não verificadas como hipóteses em vez de reportá-las como fatos
+## Observe and reproduce
 
-### Passo 2: ISOLAR
+Record the environment and revision, input or event sequence, expected behavior, actual behavior,
+frequency, and the smallest command or interaction that exhibits the defect. A report, log, or
+passing test may motivate investigation but does not by itself reproduce the behavior.
 
-**Técnicas:**
+If reproduction is unavailable, inspect the strongest existing evidence and vary one plausible
+dimension at a time. End as `unable-to-reproduce` when further progress would require guessing;
+report attempts, observations, remaining hypotheses, and the next discriminating input needed.
 
-**Busca binária no código:**
-```python
-# Comment out half the code path
-# Does the bug still happen?
-# If yes: bug is in the remaining half
-# If no: bug is in the commented-out half
-# Repeat until found
-```
+For an intermittent failure, preserve every attempt plus seed, order, timing, load, environment, and
+dependency state that could affect it. One pass cannot establish a flaky defect is fixed.
 
-**git bisect:**
-```bash
-git bisect start
-git bisect bad HEAD          # current: has bug
-git bisect good v1.2.0       # known good version
-# Git checks out a middle commit
-# Test it, then:
-git bisect good  # or git bisect bad
-# Repeat until found
-git bisect reset
-```
+## Isolate
 
-**Logging:**
-```python
-# Add strategic logging to narrow down
-logger.debug("checkpoint_1", data=data)
-# ... code ...
-logger.debug("checkpoint_2", result=result)
-```
+Form competing hypotheses and choose the cheapest safe observation that distinguishes them. Narrow
+the code path, data boundary, timing window, or dependency without changing multiple dimensions at
+once. Do not claim root cause until evidence rules out material alternatives at the scope of the
+claim.
 
-### Passo 3: ESCREVER TESTE
+If commit-history isolation is useful, run the predicate in a separate disposable worktree with
+bounded side effects and deterministic setup/teardown. Never stash, checkout, reset, or bisect the
+active shared worktree as a diagnostic shortcut.
 
-```python
-def test_order_total_does_not_overflow_with_large_quantities():
-    """Regression test for BUG-1234: overflow on large orders."""
-    order = Order(items=[Item(price=99999, quantity=99999)])
-    # This MUST fail on the current code (before fix)
-    assert order.total == Decimal("9999800001")
-```
+## Create red-capable regression evidence
 
-### Passo 4: CORRIGIR
+Prefer a regression check that fails on the affected revision for the intended reason and exercises
+the stable public seam. Keep the expected value independent of the implementation. Include the error,
+async, ordering, cancellation, or cleanup behavior when it is part of the defect.
 
-- Corrija a CAUSA RAIZ, não o sintoma
-- Alegue causa raiz apenas quando a evidência descarta as hipóteses concorrentes materiais
-- Faça a mudança mínima necessária
-- NÃO misture com refatoração ou novas funcionalidades
-- Se a correção for complexa, adicione um comentário no código explicando o porquê
+If a pre-fix red check is unsafe or infeasible, record why and use the strongest safe alternative:
+a captured reproduction, parser/build failure, invariant comparison, isolated runtime probe, or a
+test proven red against an equivalent fixture. A test that passes before the fix is not regression
+evidence for that defect.
 
-### Passo 5: VALIDAR
+## Fix and verify
 
-```bash
-# 1. Run the regression test
-pytest tests/test_order.py::test_order_total_does_not_overflow -v
+Change the smallest coherent cause supported by the evidence. Keep unrelated refactoring separate.
+Run the unchanged focused reproduction or regression check, then the applicable broader project
+gates. Re-run the original user-visible observation when it is safe and distinct from the automated
+check.
 
-# 2. Run the full suite
-pytest
+A passing command establishes only its exercised revision, environment, data, and assertions. Report
+the corrected observation; call it a root-cause fix only when the isolation evidence supports that
+causal scope.
 
-# 3. Test the original reproduction case manually
-```
+## Prevent recurrence
 
-### Passo 6: PREVENIR
+Retain the regression check when it is stable and proportionate. Inspect adjacent instances only
+when they share the evidenced mechanism. Consider a type, schema, lint, invariant, telemetry, or
+process guard when it prevents the same failure class more directly than duplicating tests.
 
-- Esse é um tipo de bug que pode ser detectado por uma regra de linter?
-- Devemos adicionar uma restrição de tipo para evitar isso?
-- Existem padrões semelhantes em outros lugares que precisam da mesma correção?
-- Devemos adicionar monitoramento/alertas para essa condição?
+For urgent mitigation, separate the reversible containment step from the durable correction. Define
+the rollback signal and post-change observation before applying any production-affecting action.

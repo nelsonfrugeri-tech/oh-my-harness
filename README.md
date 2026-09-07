@@ -36,7 +36,7 @@ machine capability mapping changes providers.
   - [Capabilities — the tool plug](#capabilities--the-tool-plug)
   - [Progressive disclosure](#progressive-disclosure)
   - [Evidence-driven decisions](#evidence-driven-decisions)
-  - [code-craft — inviolable rules](#code-craft--inviolable-rules)
+  - [code-craft — mandatory implementation constraints](#code-craft--mandatory-implementation-constraints)
   - [Language contract](#language-contract)
 - [Quick start](#quick-start)
 - [What's inside](#whats-inside)
@@ -107,6 +107,21 @@ harness. Capabilities are resolved through that harness's machine-local table.
 
 ---
 
+## Migration compatibility notes
+
+Both plugin manifests and marketplace metadata move to `2.0.0` for this behavioral migration.
+The version change in this PR does not itself create a release or publish a tag.
+
+The capability migration replaces the old `Triggers:`/`Gatilhos:` keyword lists with scoped
+skill descriptions. Slash-prefixed words in those lists were discovery hints, not alias
+registrations in this repository; use the canonical skill name exposed by your harness catalog.
+This change does not establish whether a particular runtime previously interpreted a hint as an
+alias. Runtime alias compatibility has not been tested.
+
+Native capability metadata is descriptive, not a routing discriminator. Some operational skills
+have only `name` and `description`; adapters must not infer ownership or invocation permissions
+from optional `metadata.type`. Tool-skill descriptions identify the owning agent explicitly.
+
 ## Core ideas
 
 ### Capabilities — the tool plug
@@ -125,7 +140,9 @@ environment, change only the active harness's table.
 
 ### Progressive disclosure
 
-Each skill is a lean `SKILL.md` (overview + when to use) that points to `references/` loaded **on demand**. Context only pays for the depth a task actually needs — the ~140 reference files stay out of the window until required.
+Each skill defines a bounded capability in `SKILL.md`: when it applies, the outcome it owns,
+its workflow, and the contracts it must preserve. Task-specific `references/` load **on demand**;
+general knowledge and volatile vendor documentation are not maintained as an embedded encyclopedia.
 
 ### Evidence-driven decisions
 
@@ -136,9 +153,9 @@ alternatives, uncertainty, falsification, and rollback conditions. The `evidence
 the detailed protocol, while the read-only `evidence-reviewer` independently audits consequential
 claims without turning routine work into ceremony.
 
-### code-craft — inviolable rules
+### code-craft — mandatory implementation constraints
 
-The non-negotiable code-quality rules — total typing, immutability, small cohesive units, guard clauses over nesting, a design pattern instead of `if/elif` chains, a final quality gate — live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as a **single source of truth**, referenced by `implement` and reused by `review`.
+The mandatory implementation constraints live in [`skills/implement/references/code-craft.md`](skills/implement/references/code-craft.md) as the **single source of truth**, referenced by `implement`. They are repository-first: preserve configured typing and public contracts, reject shared mutable defaults, keep units cohesive, validate untrusted boundaries, and run discovered quality gates. Universal line counts, nesting limits, parameter counts, and automatic pattern selection are intentionally not policy; repository tooling may define measurable limits for a specific codebase.
 
 ### Language contract
 
@@ -184,6 +201,9 @@ error analysis from real traces, LLM-as-judge, judge calibration against human l
 evaluation. The two overlap on the word "eval" and not in method, so the agents say which is which
 — `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
 benchmark work, whatever framework the evaluated agent uses.
+
+`evals >= 0.3.1` is required because its entry skill is `evals:evals-start`. If an existing install
+still exposes `evals:start`, run `claude plugin update evals@ai-evals-course` and restart Claude Code.
 
 The LangSmith plugins in the LangChain marketplace stay uninstalled by default: they need a
 LangSmith account and OAuth authorization. Nothing is vendored or translated here — upstream owns

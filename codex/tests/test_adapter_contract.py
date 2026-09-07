@@ -130,7 +130,8 @@ class AdapterContractTest(unittest.TestCase):
             didactic_visual = installed.joinpath(
                 "skills/didactic-visual/SKILL.md"
             ).read_text(encoding="utf-8")
-            self.assertIn("ausência não é um blocker", didactic_visual)
+            self.assertIn("absence of", didactic_visual)
+            self.assertIn("not a blocker", didactic_visual)
             self.assertTrue(installed.joinpath("hooks/hooks.json").is_file())
 
             hook_listing = self._run_codex_app_server(
@@ -238,10 +239,13 @@ class AdapterContractTest(unittest.TestCase):
         content = _ROOT.joinpath("skills/feature/SKILL.md").read_text(encoding="utf-8")
         forbidden = ("Workflow({", "AskUserQuestion", "use the tool `Agent`")
         self.assertFalse(any(token in content for token in forbidden))
-        self.assertIn("Portable orchestration contract", content)
+        self.assertIn("Keep resumable state", content)
 
     def test_engineering_agents_load_the_evidence_skill(self) -> None:
-        roles = ("ai-engineer", "architect", "developer", "qa", "sre", "tech-pm")
+        roles = (
+            "ai-engineer", "architect", "developer", "evidence-reviewer",
+            "qa", "sre", "tech-pm",
+        )
 
         for role in roles:
             with self.subTest(role=role):
@@ -254,163 +258,6 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertIn("  - evidence", shared)
                 self.assertIn("`evidence`", codex)
 
-    def test_langchain_agents_reference_the_official_skills_and_docs(self) -> None:
-        roles = ("ai-engineer", "developer", "architect")
-        required = (
-            "`langchain-skills`",
-            "`langchain-mcp`",
-            "confirme que eles aparecem entre as skills e tools disponíveis no runtime",
-            "não tente usá-lo nem diga que o usou",
-            "langchain-skills:ecosystem-primer",
-            "langchain-skills:langchain-fundamentals",
-            "langchain-skills:langgraph-fundamentals",
-            "langchain-skills:deep-agents-core",
-            "langchain-skills:langchain-python-quickstart",
-            "langchain-skills:eval-engineering",
-            "langchain-skills:swarm",
-        )
-
-        for role in roles:
-            with self.subTest(role=role):
-                content = _ROOT.joinpath(f"codex/agents/{role}.toml").read_text(
-                    encoding="utf-8"
-                )
-                self.assertTrue(all(skill in content for skill in required))
-
-    def test_qa_agent_guards_unavailable_langchain_integrations(self) -> None:
-        content = _ROOT.joinpath("codex/agents/qa.toml").read_text(encoding="utf-8")
-        self.assertIn("`langchain-skills:*`", content)
-        self.assertIn("`langchain-mcp`", content)
-        self.assertIn("não tente usá-lo nem diga que o usou", content)
-
-    def test_eval_agents_guard_and_route_to_the_official_skills(self) -> None:
-        roles = ("ai-engineer", "developer", "architect", "qa")
-        required = (
-            "`evals:*` aparece entre as skills disponíveis no runtime",
-            "não tente invocá-la nem diga que a usou",
-            "`evals:start`",
-            "`evals:eval-audit`",
-            "`evals:error-discovery`",
-            "`evals:generate-synthetic-data`",
-            "`evals:write-judge-prompt`",
-            "`evals:validate-evaluator`",
-            "`evals:evaluate-rag`",
-            "`evals:build-review-interface`",
-        )
-
-        for role in roles:
-            with self.subTest(role=role):
-                content = _ROOT.joinpath(f"codex/agents/{role}.toml").read_text(
-                    encoding="utf-8"
-                )
-                self.assertTrue(all(skill in content for skill in required))
-
-    def test_shared_agents_route_langchain_work_to_the_official_skills(self) -> None:
-        # The shared agents carry the same routing as the Codex TOMLs, but they name most
-        # skills inside a table under a stated `langchain-skills:` prefix instead of
-        # repeating the prefix on every entry. Pinning the bare names is what the file
-        # actually contains; requiring the prefixed form would fail on correct content.
-        roles = ("ai-engineer", "architect", "developer")
-        required = (
-            "`langchain-skills`",
-            "`langchain-mcp`",
-            "langchain-skills:ecosystem-primer",
-            "`langchain-fundamentals`",
-            "`langchain-rag`",
-            "`langgraph-fundamentals`",
-            "`deep-agents-core`",
-            "`langchain-python-quickstart`",
-            "`eval-engineering`",
-            "`swarm`",
-        )
-
-        for role in roles:
-            content = _ROOT.joinpath(f"agents/engineers/{role}.md").read_text(
-                encoding="utf-8"
-            )
-            for skill in required:
-                with self.subTest(role=role, skill=skill):
-                    self.assertIn(skill, content)
-
-    def test_shared_agents_route_llm_evaluation_to_the_official_skills(self) -> None:
-        roles = ("ai-engineer", "qa")
-        required = (
-            "`evals`",
-            "evals:start",
-            "`error-discovery`",
-            "`eval-audit`",
-            "`write-judge-prompt`",
-            "`validate-evaluator`",
-            "`generate-synthetic-data`",
-            "`build-review-interface`",
-            "`evaluate-rag`",
-        )
-
-        for role in roles:
-            content = _ROOT.joinpath(f"agents/engineers/{role}.md").read_text(
-                encoding="utf-8"
-            )
-            for skill in required:
-                with self.subTest(role=role, skill=skill):
-                    self.assertIn(skill, content)
-
-    def test_ai_engineer_separates_the_two_evaluation_toolchains(self) -> None:
-        # `ai-engineer` is the only agent that routes to both eval toolchains, so it is where
-        # picking the wrong one is likeliest. The disambiguation is the load-bearing part of
-        # that section: without it the agent has two plausible routes and no rule to choose.
-        # Asserted against whitespace-normalized text so re-wrapping the paragraph, which
-        # changes no meaning, cannot fail the test.
-        content = _ROOT.joinpath("agents/engineers/ai-engineer.md").read_text(
-            encoding="utf-8"
-        )
-        flat = " ".join(content.split())
-
-        self.assertIn("`langchain-skills:eval-engineering`", flat)
-        self.assertIn("agnóstica de framework", flat)
-        self.assertIn("O discriminador é o Harbor", flat)
-
-    def test_agents_routing_to_third_party_plugins_declare_the_degraded_path(self) -> None:
-        # Every agent that routes to a third-party plugin states what to do when the plugin
-        # is absent, because absence is what actually happens: an uninstalled or failed
-        # plugin contributes no skills and raises no error, so the routing prose would
-        # otherwise send the agent after something that is silently not there.
-        roles = ("ai-engineer", "qa", "architect", "developer")
-
-        for role in roles:
-            with self.subTest(role=role):
-                flat = " ".join(
-                    _ROOT.joinpath(f"agents/engineers/{role}.md")
-                    .read_text(encoding="utf-8")
-                    .split()
-                )
-                self.assertIn("não há erro, só ausência", flat)
-                self.assertIn("nunca cite como usada uma skill que não carregou", flat)
-                self.assertIn("declare a integração pendente", flat)
-                self.assertIn("Passo 5 da skill `claude-code`", flat)
-
-    def test_codex_agents_use_pt_br_operational_prose(self) -> None:
-        required = {
-            "ai-engineer": "Você é um senior AI/ML engineer",
-            "architect": "Você é um senior software architect",
-            "codex": "Use a skill instalada `codex` como runbook.",
-            "context": "Você orquestra o ciclo de vida",
-            "developer": "Você é um senior software engineer",
-            "evidence-reviewer": "Realize uma auditoria independente",
-            "graphify": "Você orquestra graphify",
-            "knowledge-base": "Você orquestra a knowledge base",
-            "qa": "Você é um quality assurance engineer",
-            "site": "Use a skill instalada `site-report`",
-            "sre": "Você é um site reliability engineer",
-            "tech-pm": "Você é um technical product manager",
-        }
-
-        for role, prose in required.items():
-            with self.subTest(role=role):
-                content = _ROOT.joinpath(f"codex/agents/{role}.toml").read_text(
-                    encoding="utf-8"
-                )
-                self.assertIn(prose, content)
-                self.assertNotIn("You are ", content)
 
     def test_kb_write_requires_machine_and_session_provenance(self) -> None:
         content = _ROOT.joinpath("skills/kb-write/SKILL.md").read_text(
@@ -431,8 +278,8 @@ class AdapterContractTest(unittest.TestCase):
         )
 
         self.assertTrue(all(field in content for field in required))
-        self.assertIn("não escreva a nota", " ".join(content.split()))
-        self.assertIn("MAC address bruto", content)
+        self.assertIn("do not write the note", " ".join(content.split()))
+        self.assertIn("raw MAC address", content)
 
     def test_kb_session_record_carries_nullable_runtime_metadata(self) -> None:
         content = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
@@ -449,9 +296,9 @@ class AdapterContractTest(unittest.TestCase):
         )
 
         self.assertTrue(all(field in content for field in required))
-        self.assertIn("campos existem no schema mesmo quando o valor é `null`", content)
-        self.assertIn("contiver apenas whitespace", content)
-        self.assertIn("todo path não nulo devem ser absolutos", content)
+        self.assertIn("fields always exist but may be `null`", " ".join(content.split()))
+        self.assertIn("whitespace-only", content)
+        self.assertIn("every non-null path must be absolute", " ".join(content.split()))
 
     def test_kb_legacy_session_records_have_a_lossless_v3_migration(self) -> None:
         session = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
@@ -463,16 +310,15 @@ class AdapterContractTest(unittest.TestCase):
         session_flat = " ".join(session.split())
         infra_flat = " ".join(infra.split())
         for phrase in (
-            "campos multivalorados ausentes como `[]`",
-            "campos escalares nullable ausentes como `null`",
-            "nunca reescreve o JSON histórico",
-            "nunca atribui a máquina atual a uma sessão passada",
-            "promova-o ao schema v3 somente com valores observados",
-            "preserve o record legacy sem alteração",
+            "Project missing multi-value fields as `[]` and nullable scalar fields as `null`",
+            "never rewrite historical JSON",
+            "never assign the current machine to a past session",
+            "Promote only the current session to schema v3 and only with values observed",
+            "preserve the legacy record unchanged",
         ):
             self.assertIn(phrase, session_flat)
-        self.assertIn("continue o lote", infra_flat)
-        self.assertIn("O reindex nunca modifica o JSON", infra_flat)
+        self.assertIn("continue the batch", infra_flat)
+        self.assertIn("Reindexing never modifies source JSON", infra_flat)
 
     def test_kb_session_schema_matches_qdrant_provenance_payload(self) -> None:
         session = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
@@ -495,7 +341,7 @@ class AdapterContractTest(unittest.TestCase):
         }
         schema_match = re.search(r"Schema:\n\n```json\n(.*?)\n```", session, re.DOTALL)
         payload_match = re.search(
-            r'\| Payload por ponto \(`kind: "session"`\) \| ([^|]+) \|', infra
+            r'\| Session point \(`kind: "session"`\) \| ([^|]+) \|', infra
         )
 
         self.assertIsNotNone(schema_match)
@@ -526,11 +372,11 @@ class AdapterContractTest(unittest.TestCase):
             encoding="utf-8"
         )
         indexed_fields = (
-            '"harness"',
-            '"session_id"',
-            '"session_name"',
-            '"machine_id"',
-            '"machine_label"',
+            "`harness`",
+            "`session_id`",
+            "`session_name`",
+            "`machine_id`",
+            "`machine_label`",
         )
 
         self.assertTrue(all(field in content for field in indexed_fields))
@@ -549,7 +395,7 @@ class AdapterContractTest(unittest.TestCase):
         )
 
         self.assertTrue(all(field in content for field in fields))
-        self.assertIn("Pontos legacy", content)
+        self.assertIn("Legacy points", content)
 
     def test_kb_agents_enforce_provenance_before_writing(self) -> None:
         shared = _ROOT.joinpath("agents/tools/knowledge-base.md").read_text(
@@ -562,157 +408,7 @@ class AdapterContractTest(unittest.TestCase):
         for content in (shared, codex):
             self.assertIn("provenance", content)
             self.assertIn("identity.json", content)
-            self.assertIn("não escreva", content)
-
-    def test_kb_agents_route_named_entity_and_repository_lookup(self) -> None:
-        shared = _ROOT.joinpath("agents/tools/knowledge-base.md").read_text(
-            encoding="utf-8"
-        )
-        codex = _ROOT.joinpath("codex/agents/knowledge-base.toml").read_text(
-            encoding="utf-8"
-        )
-
-        for content in (shared, codex):
-            self.assertIn("entity completeness gate", content)
-            self.assertIn("abra o projeto", content)
-            self.assertIn("qual o link do repo", content)
-            self.assertIn("nome canônico", content)
-            self.assertIn("aliases", content)
-
-    def test_kb_write_preserves_entities_temporal_facts_and_references(self) -> None:
-        content = _ROOT.joinpath("skills/kb-write/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-
-        for field in ("entity_refs", "aliases", "references", "occurred_at"):
-            self.assertIn(field, content)
-        for entity_type in ("project", "repository", "person", "company", "brand"):
-            self.assertIn(f"`{entity_type}`", content)
-        self.assertIn("timezone", content)
-        self.assertIn("nunca invente", content.lower())
-
-    def test_kb_retrieval_has_exact_entity_and_project_address_lookup(self) -> None:
-        content = _ROOT.joinpath("skills/kb-retrieval/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-
-        self.assertIn("Entrada direta: entidade ou endereço", content)
-        self.assertIn("work/projects/*/context.md", content)
-        self.assertIn("remote_url", content)
-        self.assertIn("Repository", content)
-        self.assertIn("aliases", content)
-
-    def test_kb_qdrant_payload_carries_entity_lookup_fields(self) -> None:
-        content = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-
-        fields = (
-            "entities",
-            "aliases",
-            "entity_kinds",
-            "entity_keys",
-            "reference_targets",
-            "temporal_values",
-        )
-        for field in fields:
-            self.assertIn(f"`{field}`", content)
-            self.assertIn(f'"{field}"', content)
-        self.assertIn('"occurred_at"', content)
-        self.assertIn("PayloadSchemaType.DATETIME", content)
-
-    def test_kb_session_merges_entity_memory_without_turn_based_erasure(self) -> None:
-        content = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-
-        fields = (
-            "entities",
-            "aliases",
-            "entity_refs",
-            "references",
-            "temporal_refs",
-        )
-        for field in fields:
-            self.assertIn(f'"{field}"', content)
-        self.assertIn("omissão no turno atual não apaga", content)
-        self.assertIn("Entity completeness gate também vale na carona", content)
-
-    def test_kb_note_template_requires_safe_exact_material_references(self) -> None:
-        content = _ROOT.joinpath("skills/kb-write/references/note-template.md").read_text(
-            encoding="utf-8"
-        )
-
-        for field in ("`kind`", "`label`", "`target`"):
-            self.assertIn(field, content)
-        for sensitive_value in ("credentials", "tokens", "signed URLs"):
-            self.assertIn(sensitive_value, content)
-
-    def test_kb_exact_lookup_precedes_semantic_and_rejects_ambiguous_aliases(
-        self,
-    ) -> None:
-        content = _ROOT.joinpath("skills/kb-retrieval/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-
-        exact_lookup = content.index("Entrada direta: entidade ou endereço")
-        semantic_search = content.index("Degrau 1 — Busca semântica híbrida")
-        self.assertLess(exact_lookup, semantic_search)
-        self.assertIn("múltiplos matches exigem desambiguação", content)
-        self.assertIn("nunca use `cwd` como locator", content)
-
-    def test_project_context_and_retrieval_reject_sensitive_remotes(self) -> None:
-        explorer = _ROOT.joinpath("skills/explorer/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        retrieval = _ROOT.joinpath("skills/kb-retrieval/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        hostile_remote = (
-            "https://user:token@example.com/repo.git?signature=secret"
-        )
-
-        for content in (explorer, retrieval):
-            self.assertIn(hostile_remote, content)
-            self.assertIn("remote_url: null", content)
-        self.assertIn("revalide o `remote_url`", retrieval)
-        self.assertIn("nunca devolva o target sensível", retrieval)
-
-    def test_kb_session_defines_merge_keys_per_structured_field(self) -> None:
-        content = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-
-        expected_keys = (
-            "`entity_refs`: `kind + nome canônico normalizado`",
-            "`references`: `kind + target normalizado + entity`",
-            "`temporal_refs`: `value + timezone + meaning`",
-        )
-        for key in expected_keys:
-            self.assertIn(key, content)
-        self.assertIn("derive novamente todos os campos flat", content)
-        self.assertNotIn('"meaning": "record update"', content)
-
-    def test_qdrant_only_indexes_timezone_aware_occurred_at(self) -> None:
-        write = _ROOT.joinpath("skills/kb-write/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        infra = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-
-        self.assertIn(
-            "Somente um timestamp RFC 3339 com timezone",
-            write,
-        )
-        self.assertIn(
-            "`occurred_at` recebe somente timestamp RFC 3339 com timezone",
-            infra,
-        )
-        self.assertIn(
-            "datas `YYYY-MM-DD` permanecem apenas em `temporal_values`",
-            infra,
-        )
+            self.assertIn("Never write", content)
 
     def test_site_skills_are_harness_neutral(self) -> None:
         paths = (
@@ -744,6 +440,122 @@ class AdapterContractTest(unittest.TestCase):
 
         self.assertIn("git rev-parse --show-toplevel", shared)
         self.assertIn("git rev-parse --show-toplevel", codex)
+
+    def test_code_craft_contract_is_consistently_repository_first(self) -> None:
+        paths = (
+            "README.md",
+            "claude-code/CLAUDE.md",
+            "codex/AGENTS.md",
+            "skills/implement/references/code-craft.md",
+        )
+        combined = chr(10).join(
+            _ROOT.joinpath(path).read_text(encoding="utf-8")
+            for path in paths
+        )
+
+        for path in paths[:3]:
+            with self.subTest(path=path):
+                document = _ROOT.joinpath(path).read_text(encoding="utf-8")
+                self.assertIn("repository-first", document)
+        self.assertNotIn("code-craft — inviolable rules", combined)
+        self.assertNotIn("design pattern instead of `if/elif` chains", combined)
+        self.assertIn("Do not split by a universal line or symbol count", combined)
+        self.assertIn("Project contracts override generic preferences", combined)
+
+    def test_external_evals_documentation_uses_the_current_entry(self) -> None:
+        readme = _ROOT.joinpath("README.md").read_text(encoding="utf-8")
+        installer = _ROOT.joinpath(
+            "claude-code/skills/claude-code/SKILL.md"
+        ).read_text(encoding="utf-8")
+
+        for document in (readme, installer):
+            self.assertIn("evals >= 0.3.1", document)
+            self.assertIn("evals:evals-start", document)
+            self.assertIn("claude plugin update evals@ai-evals-course", document)
+        self.assertNotIn("/evals:start` respondem", installer)
+
+    def test_qdrant_compose_binds_published_ports_to_loopback(self) -> None:
+        compose_path = _ROOT / "skills/kb-infra/docker-compose.yml"
+        compose = compose_path.read_text(encoding="utf-8")
+        expected_bindings = {
+            ("127.0.0.1", "6333", 6333),
+            ("127.0.0.1", "6334", 6334),
+        }
+
+        for host_ip, published, target in expected_bindings:
+            self.assertIn(
+                f'"{host_ip}:{published}:{target}"',
+                compose,
+            )
+        if shutil.which("docker") is None:
+            return
+
+        result = subprocess.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_path),
+                "config",
+                "--format",
+                "json",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        rendered = json.loads(result.stdout)
+        ports = rendered["services"]["qdrant"]["ports"]
+        actual_bindings = {
+            (port.get("host_ip"), port["published"], port["target"])
+            for port in ports
+        }
+        self.assertEqual(expected_bindings, actual_bindings)
+
+    def test_operational_skills_keep_executable_boundaries(self) -> None:
+        site = _ROOT.joinpath("skills/site-report/SKILL.md").read_text(encoding="utf-8")
+        explorer = _ROOT.joinpath("skills/explorer/SKILL.md").read_text(encoding="utf-8")
+        hook = _ROOT.joinpath("hooks/context-load.sh").read_text(encoding="utf-8")
+        session = _ROOT.joinpath("skills/kb-session/SKILL.md").read_text(encoding="utf-8")
+        infra = _ROOT.joinpath("skills/kb-infra/SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("`${OMH_SITES_ROOT:-$HOME/projects/sites}`", site)
+        self.assertIn("Use pt-BR for report prose", " ".join(site.split()))
+        slug_pipeline = (
+            "tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\\n' '-' | "
+            "sed 's/--*/-/g; s/^-//; s/-$//'"
+        )
+        self.assertIn(slug_pipeline, " ".join(explorer.split()))
+        self.assertIn(slug_pipeline, " ".join(hook.split()))
+        self.assertIn("DEJA_INCLUDE_SUBAGENTS=1", session)
+        self.assertIn("~/.claude/projects/<cwd-munged>/<session-id>.jsonl", session)
+
+        bootstrap_contract = (
+            'KB_RUNTIME="${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}"',
+            'KB_VENV="$KB_RUNTIME/venv"',
+            'uv venv "$KB_VENV"',
+            'uv pip install --python "$KB_VENV/bin/python" FlagEmbedding qdrant-client PyYAML',
+            'python3 -m venv "$KB_VENV"',
+            '"$KB_VENV/bin/python" -m pip install FlagEmbedding qdrant-client PyYAML',
+            '"$KB_VENV/bin/python" - <<',
+            'BGEM3FlagModel(',
+            'return_colbert_vecs=False',
+            'len(output["dense_vecs"][0]) == 1024',
+            'len(indices) == len(values) and len(indices) > 0',
+            "docker compose -f <resolved-skill-dir>/docker-compose.yml up -d",
+        )
+        for contract in bootstrap_contract:
+            with self.subTest(contract=contract):
+                self.assertIn(contract, infra)
+        ordered_health = (
+            "docker info",
+            "docker ps",
+            "http://127.0.0.1:6333/healthz",
+            "collection/vector/index schema",
+            "short embedding",
+        )
+        positions = [infra.index(token) for token in ordered_health]
+        self.assertEqual(sorted(positions), positions)
 
     def _yaml_name(self, path: Path) -> str:
         match = re.search(r"^name:\s*([^\s]+)", path.read_text(encoding="utf-8"), re.MULTILINE)

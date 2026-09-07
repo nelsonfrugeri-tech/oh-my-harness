@@ -193,7 +193,7 @@ e declara.
 
 ## Padrões de código — ativação obrigatória
 
-**Antes de escrever, modificar ou revisar qualquer linha de código**, siga os *Padrões de código — invioláveis* da skill `implement` (corpo + `references/code-craft.md`). Não são sugestões.
+**Antes de escrever, modificar ou revisar qualquer linha de código**, siga as restrições obrigatórias e repository-first da skill `implement` (corpo + `references/code-craft.md`). Preserve os padrões e gates mensuráveis do repositório; não invente limites universais que o projeto não definiu.
 
 ---
 

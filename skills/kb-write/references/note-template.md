@@ -1,140 +1,101 @@
-# Note body template
+# Note template
 
-Este arquivo define a **estrutura do corpo** de toda nota da knowledge base. Ele
-**não** define o `summary` — que é prosa escrita à parte, pelas regras do `SKILL.md`.
+Use this complete frontmatter shape; replace placeholders with observed values, use empty arrays
+when no material items exist, and omit optional `verified` and `stale_after` when inapplicable.
+`okf_version: "0.2"` belongs only in the bundle-root `index.md`, never in a note.
 
-O corpo é markdown puro. Seções marcadas **(required)** devem estar presentes; seções
-**(optional)** podem ser omitidas quando não se aplicam.
-
+```yaml
 ---
-
-## Seções comuns (toda nota tem)
-
-### Contexto (obrigatória)
-
-Um parágrafo curto: *por que esta nota existe?* Que situação, pergunta ou gatilho levou
-a registrar isso? Mantenha enxuto — poucas frases. Se o contexto é longo, provavelmente
-é uma nota separada — e então vira um link para ela.
-
-### Referências (obrigatória quando a fonte contém endereços materiais)
-
-Contextualize repository URLs, websites, documentos, issues e artifact paths que
-sustentam a nota. Cada target desta seção também deve aparecer no campo estruturado
-`references` do frontmatter com `kind`, `label`, `target`, entidade relacionada e
-status de verificação. Isso permite responder deterministicamente perguntas como
-"qual o link do repo X?" sem depender apenas do embedding.
-
-Preserve nomes canônicos e targets exatos; paths locais são absolutos. Nunca inclua
-credentials, tokens, signed URLs ou query params secretos. Se não houver endereço
-material na fonte, omita a seção em vez de inventar uma referência.
-
-> **Links internos entre notas não moram aqui.** Eles moram na frase que explica a
-> relação, dentro da seção onde a relação aparece — porque o OKF não tipa
-> relacionamentos: quem diz que a relação é "substitui", "foi causada por" ou "opera"
-> é a prosa em volta do link. Use caminho absoluto ao bundle:
-> `[rotação de chave KMS](/work/projects/api-gateway/security/2026-03-11--kms-rotation.md)`.
-> Uma lista de "ver também" no rodapé não carrega informação nenhuma.
-
+type: <entity-or-concept-noun>
+title: <short-specific-title>
+description: <one-sentence-description>
+tags: []
+status: stable
+generated:
+  by: <producer/version>
+  at: <ISO-8601-UTC>
+provenance:
+  harness:
+    name: <observed-harness>
+    session_id: <real-session-id>
+    session_name: null
+    app_name: null
+  execution:
+    cwd: /absolute/observed/cwd
+    transcript_path: null
+  machine:
+    id: <stable-machine-uuid>
+    label: <operational-label>
+    hostname: <observed-hostname>
+    username: <observed-username>
+verified:
+  - by: human:<id>
+    at: <ISO-8601-UTC>
+stale_after: <YYYY-MM-DD>
+id: <uuid4>
+distillation_key: null
+knowledge_type: reference
+domain: work/projects/<project>
+topic: <stable-subject>
+created_at: <ISO-8601-UTC>
+entities: [<canonical-name>]
+aliases: []
+entity_refs:
+  - kind: project
+    name: <canonical-name>
+    aliases: []
+references:
+  - kind: repository-url
+    label: <source-label>
+    target: https://example.com/team/repo
+    entity: <canonical-name>
+    status: observed
+occurred_at: null
+temporal_refs:
+  - value: <ISO-8601-date-time-or-interval>
+    timezone: unknown
+    meaning: <temporal-significance>
+supersedes: null
+summary: >-
+  <Self-contained retrieval prose of 200-800 characters, distinct from title and description.>
 ---
+```
 
-## Seções por tipo
+`type` is a free-form entity noun; `knowledge_type` selects one body contract below. Status is
+`stable | draft | deprecated`. `generated` identifies the actual writer and time; `verified` is a
+list added only after real human confirmation, with the mandatory `human:` prefix in each `by`.
+Never fill it from the example alone. `created_at` is immutable; do not add the old `timestamp` field.
+Preserve observed nullable provenance; missing required provenance blocks writing per `kb-write`.
+Use `distillation_key` only for session distillation, otherwise `null`; `supersedes` is the prior
+note's UUID or `null`. `stale_after` is optional when validity is known.
 
-Use o bloco que corresponde ao `type`. Não misture.
+Keep source `occurred_at` as an observed ISO 8601 instant, date, or `null`. Only timezone-aware
+RFC 3339 instants populate indexed `occurred_at`; date-only and unknown-timezone values remain
+retrievable through `temporal_values`, with `occurred_at: null` in the index.
 
-### `decision`
+## Body contracts
 
-#### Decisão (required)
+Select by knowledge_type, never free-form OKF type. Start with a brief context explaining why the
+note exists; retain the required content below and omit optional sections when inapplicable.
 
-A decisão em uma ou duas frases, no presente. "Adotamos X." Se um parágrafo não basta
-para enunciar a decisão, você provavelmente está registrando várias decisões — separe.
+- decision: context/choice, alternatives, evidence/trade-offs, owner/validation, rollback/review,
+  and a falsifying result.
+- event: time/actors, occurrence, impact, response/status, unresolved follow-up.
+- procedure: purpose/prerequisites, ordered steps, verification, failure handling, teardown/rollback.
+- reference: fact/constraint, scope/evidence, consequences, freshness/version boundary.
+- conversation: participants/context, positions, durable outcome, open questions.
 
-#### Alternativas consideradas (required)
+If conversation produced another class, use that stronger knowledge_type. Express relationships as
+Markdown links in sentences naming the relationship. Use bundle-rooted paths; omit related-link dumps.
 
-Lista curta das alternativas pesadas. Para cada uma, uma linha sobre o que era e por
-que não foi escolhida. O ponto é tornar o *trade-off* visível ao próximo leitor.
+A source with a material address also requires a structured `references` entry, even when the body
+mentions it. Preserve canonical entities and observed aliases in `entity_refs`. Never include
+credentials, HTTP(S) userinfo, secret query parameters, or signed URLs; a reference that cannot be
+made safe is `redacted` and has no target.
 
-#### Consequências (required)
-
-O que esta decisão implica agora: o que faremos, o que não faremos, o que precisará ser
-revisitado, quem é dono do follow-up. Dois a cinco bullets.
-
-### `event`
-
-#### O que aconteceu (required)
-
-Narrativa factual e datada. Quando, onde, o quê, quem estava envolvido. Passado. Sem
-interpretação nesta seção — mantenha neutro.
-
-#### Impacto (required)
-
-O que quebrou, o que atrasou, o que se perdeu, o que se aprendeu. Se o evento foi
-positivo (um launch, um marco), o que mudou por causa dele.
-
-#### Causa raiz (optional)
-
-Se a causa raiz é conhecida. Não especule — na dúvida, omita e linke a nota de
-investigação.
-
-#### Próximos passos (optional)
-
-Follow-ups concretos (com dono, se aplicável).
-
-### `procedure`
-
-#### Quando usar (required)
-
-A precondição para executar este procedimento. "Use quando o release do api-gateway
-tem menos de 30 minutos e a latência p99 passa de 500ms." Sem esta seção, leitores
-futuros executarão o procedimento na situação errada.
-
-#### Passos (required)
-
-Numerados, executáveis, copy-pasteable. Cada passo é um verbo no imperativo. Inclua
-comandos, paths de arquivo, outputs esperados.
-
-#### Validação (required)
-
-Como confirmar que o procedimento funcionou. A métrica, o dashboard, o comando cujo
-output prova o sucesso.
-
-#### Reversão (optional, quando aplicável)
-
-Como desfazer, ou link para o procedimento inverso.
-
-### `reference`
-
-#### Conteúdo (required)
-
-O fato, a definição, a restrição. Seja preciso — referências são citadas por outras
-notas. Se a referência pode driftar (versão, valor de configuração), inclua a data em
-que foi observada.
-
-#### Aplicabilidade (optional)
-
-Onde esta referência se aplica e onde não. Referências sem escopo tendem a ser mal
-aplicadas.
-
-### `conversation`
-
-#### Resumo do diálogo (required)
-
-Sobre o que foi a conversa e quem participou. Passado.
-
-#### Decisões / próximos passos (required)
-
-O que a conversa produziu. **Se há decisões concretas, escreva notas `decision`
-separadas para cada uma, linkando de volta para esta conversa.** A nota de conversa é o
-*rastro*; as notas de decisão são o *resultado*.
-
----
-
-## Regras duras
-
-1. **Não coloque o summary no corpo.** O summary é campo próprio do frontmatter e passa
-   pelo embedding; o corpo é para o leitor que já decidiu que a nota é relevante.
-2. **Não cole transcripts crus**, a menos que o transcript em si seja o conhecimento
-   (ex.: entrevista de postmortem). Fora isso, resuma.
-3. **Formatação mínima.** Headers markdown pelas seções acima, code blocks para
-   comandos, parágrafos normais no resto. Sem HTML, sem badges, sem emoji decorativo.
-4. **Date tudo que pode driftar.** Versões, custos, latências, valores de política —
-   inclua a data em que foram escritos, para o leitor futuro saber se ainda valem.
+Keep exact safe targets and absolute local paths; reference status is
+`verified | observed | unverified | redacted`, based on actual validation, not plausibility.
+Do not copy the summary into the body or paste raw transcripts unless the transcript itself is the
+knowledge. Date facts that can drift, such as versions, costs, and policy values. State an event's
+root cause only when established; otherwise link the investigation. Use executable procedure steps
+with expected outputs. Keep Markdown formatting minimal: headings, paragraphs, and code blocks.
