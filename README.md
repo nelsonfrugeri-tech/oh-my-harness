@@ -406,6 +406,11 @@ integrations without overwriting unrelated personal configuration.
 
 ## Extending the library
 
+Machine-specific paths, mDNS hostnames, and personal e-mail addresses never enter the repository: they
+belong to the capability table in your global harness configuration. `tests/codex/test_no_personal_data.py`
+scans every tracked text file and symlink for them, and allows the owner's name and handle only in the
+author/owner fields of the plugin manifests.
+
 **Add a skill** → create `core/skills/<name>/SKILL.md` with `name` + `description` in the frontmatter;
 put deep content in `references/` and link it from the `## Reference Files` section. Keep `<name>`
 unique across the whole tree so both native plugin hosts expose the same stable namespace.
