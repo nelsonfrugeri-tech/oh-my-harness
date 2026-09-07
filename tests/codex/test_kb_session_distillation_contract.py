@@ -24,7 +24,7 @@ class KnowledgeBaseSessionDistillationContractTests(unittest.TestCase):
         normalized = " ".join(session.split())
         write = self._read("core/skills/kb-write/SKILL.md")
         agents = (
-            self._read("agents/tools/knowledge-base.md"),
+            self._read("harness/claude/agents/tools/knowledge-base.md"),
             self._read("harness/codex/agents/knowledge-base.toml"),
         )
 

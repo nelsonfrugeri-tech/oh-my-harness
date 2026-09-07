@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 _ROOT = Path(__file__).resolve().parents[2]
-_GATE = _ROOT / "harness/claude/hooks/quality-gate.sh"
+_GATE = _ROOT / "core/hooks/quality-gate.sh"
 
 
 @unittest.skipUnless(shutil.which("jq"), "jq is required by the quality gate")

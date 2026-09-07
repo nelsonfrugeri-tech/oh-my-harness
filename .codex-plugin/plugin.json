@@ -36,5 +36,6 @@
       "Plan and implement this feature end to end.",
       "Investigate this codebase using the available experts."
     ]
-  }
+  },
+  "hooks": "./harness/codex/plugin-hooks/hooks.json"
 }

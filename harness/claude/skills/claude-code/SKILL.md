@@ -4,8 +4,8 @@ name: claude-code
 description: |
   Runbook de instalação da biblioteca oh-my-harness no Claude Code **como plugin nativo**.
   Cobre: o manifesto `.claude-plugin/plugin.json` (skills compartilhadas em `core/skills/` e
-  específicas em `harness/claude/skills/`), agents descobertos pelo entrypoint raiz `agents/`,
-  os hooks do plugin em `hooks/hooks.json`
+  específicas em `harness/claude/skills/`), agents declarados a partir de `harness/claude/agents/`,
+  os hooks do plugin em `harness/claude/hooks/hooks.json`
   com `${CLAUDE_PLUGIN_ROOT}`, o marketplace para distribuição versionada por git (version,
   ref, sha), as duas superfícies que o plugin **não** cobre (`CLAUDE.md` e `permissions` do
   `settings.json`), e a migração a partir do layout antigo de symlinks — inclusive a remoção
@@ -66,9 +66,8 @@ claude plugin details oh-my-harness@oh-my-harness
 O `details` imprime o inventário e o **custo de contexto projetado**. Duas leituras do output
 que evitam susto:
 
-- **`Agents (0)` é subcontagem, não ausência.** O inventário só conta agents na raiz de
-  `agents/`; os nossos vivem em subpastas temadas e **carregam normalmente**, com nome escopado
-  `oh-my-harness:<tema>:<nome>`. Verificado por execução, não por leitura do contador.
+- **Agents são declarados explicitamente.** Os manifests vivem em subpastas temadas de
+  `harness/claude/agents/` e carregam com nome escopado `oh-my-harness:<tema>:<nome>`.
 - **`Hooks` não custa contexto** — roda no harness, fora da janela do modelo.
 
 ## Passo 2 — O que o plugin NÃO cobre

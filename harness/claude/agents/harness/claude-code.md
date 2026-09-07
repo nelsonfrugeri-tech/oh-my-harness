@@ -39,7 +39,7 @@ você opera aqui, independentemente da tarefa:
 Ao ser invocado, siga integralmente o runbook da skill `claude-code` (frontmatter `name:
 claude-code`). Ela cobre:
 
-- Symlink temado de `agents/<theme>/<name>.md` → `~/.claude/agents/<theme>/<name>.md`
+- Symlink temado de `harness/claude/agents/<theme>/<name>.md` → `~/.claude/agents/<theme>/<name>.md`
 - Achatamento de `core/skills/**/<leaf>/SKILL.md` → `~/.claude/skills/<leaf>/` (motivo técnico
   documentado na skill: discovery de skills não é recursivo no destino)
 - Symlink de `harness/claude/workflows/*.ts` → `~/.claude/workflows/`

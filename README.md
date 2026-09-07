@@ -58,13 +58,11 @@ harness. Capabilities are resolved through that harness's machine-local table.
 ┌───────────────────────────────────────────────────────────────────┐
 │  oh-my-harness · SOURCE (this git repo)                            │
 │                                                                     │
-│  required entrypoints            shared core                         │
-│  ├── agents/ (Claude)            ├── core/skills/                     │
-│  └── hooks/hooks.json            ├── core/hooks/                      │
-│                                  ├── core/policies/                   │
-│  harness adapters                └── core/evals/                      │
-│  ├── harness/claude/  CLAUDE.md · settings · workflows              │
-│  └── harness/codex/   AGENTS.md · TOML agents · integrations         │
+│  shared core                    harness adapters                    │
+│  ├── core/skills/              ├── harness/claude/                  │
+│  ├── core/hooks/               │   agents · hooks · workflows       │
+│  ├── core/policies/            └── harness/codex/                   │
+│  └── core/evals/                   agents · hooks · integrations     │
 │  installers/codex/ · tests/codex/                                   │
 └──────────────────────────────┬──────────────────────────────────────┘
                                 │ harness-native installer
@@ -91,7 +89,7 @@ harness. Capabilities are resolved through that harness's machine-local table.
 ```
 
 - **agents** share responsibilities and skill dependencies, while their executable manifests stay
-  harness-native: Claude Markdown under `agents/`, Codex TOML under `harness/codex/agents/`.
+  harness-native: Claude Markdown under `harness/claude/agents/`, Codex TOML under `harness/codex/agents/`.
 - **skills** are the shared semantic layer and are flattened by each installer to the discovery
   location required by that harness.
 - **global guidance and capability tables** live in `harness/claude/CLAUDE.md` and `harness/codex/AGENTS.md`;
@@ -265,7 +263,7 @@ when required, maintaining the living knowledge base at
 
 ### Agents
 
-Canonical Claude manifests are grouped under `agents/<theme>/`; Codex-native representations live
+Canonical Claude manifests are grouped under `harness/claude/agents/<theme>/`; Codex-native representations live
 under `harness/codex/agents/`. Both adapters preserve the responsibilities in this catalog.
 
 | Theme       | Agent         | Role                                                | Model  |
@@ -380,9 +378,8 @@ links in the body. Paths remain stable because an OKF Concept ID is its relative
 
 `core/` contains reusable skills, hook implementations, policies, and evals. Claude-specific
 representation stays under `harness/claude/`; Codex-specific representation stays under
-`harness/codex/`. The root `agents/` and `hooks/hooks.json` remain
-platform-required discovery entrypoints, while their reusable implementation stays in the shared or
-harness-specific layer. Supporting another harness means adding an adapter, not forcing foreign
+`harness/codex/`. Plugin manifests declare their harness-owned component paths explicitly; operational components do not
+live at the repository root. Supporting another harness means adding an adapter, not forcing foreign
 syntax into the shared layer.
 
 | Primitive | Claude Code | Codex | Cursor |
@@ -406,7 +403,7 @@ integrations without overwriting unrelated personal configuration.
 put deep content in `references/` and link it from the `## Reference Files` section. Keep `<name>`
 unique across the whole tree so both native plugin hosts expose the same stable namespace.
 
-**Add an agent** → define its shared responsibility and Claude manifest under `agents/<theme>/`,
+**Add an agent** → define its shared responsibility and Claude manifest under `harness/claude/agents/<theme>/`,
 then add the equivalent Codex TOML under `harness/codex/agents/`. Keep behavior aligned while preserving
 each harness's native schema and tool-binding rules.
 

@@ -70,7 +70,7 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
 
     def test_agents_enforce_the_same_topic_first_routing(self) -> None:
         paths = (
-            "agents/tools/knowledge-base.md",
+            "harness/claude/agents/tools/knowledge-base.md",
             "harness/codex/agents/knowledge-base.toml",
         )
 

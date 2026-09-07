@@ -19,7 +19,7 @@
           {
             "type": "command",
             "if": "Bash(git commit*)",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/harness/claude/hooks/quality-gate.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/core/hooks/quality-gate.sh",
             "timeout": 600
           }
         ]

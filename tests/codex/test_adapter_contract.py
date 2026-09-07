@@ -37,9 +37,15 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual(claude["name"], codex["name"])
         self.assertEqual(claude["version"], codex["version"])
         self.assertEqual(claude["version"], marketplace["metadata"]["version"])
-        self.assertEqual(["./core/skills/", "./harness/codex/skills/"], codex["core/skills"])
-        self.assertEqual(["./core/skills/", "./harness/claude/skills/"], claude["core/skills"])
-        self.assertTrue(_ROOT.joinpath("hooks/hooks.json").is_file())
+        self.assertEqual(["./core/skills/", "./harness/codex/skills/"], codex["skills"])
+        self.assertEqual(["./core/skills/", "./harness/claude/skills/"], claude["skills"])
+        self.assertEqual("./harness/claude/hooks/hooks.json", claude["hooks"])
+        self.assertEqual("./harness/codex/plugin-hooks/hooks.json", codex["hooks"])
+        self.assertEqual(12, len(claude["agents"]))
+        self.assertTrue(_ROOT.joinpath("harness/claude/hooks/hooks.json").is_file())
+        self.assertTrue(_ROOT.joinpath("harness/codex/plugin-hooks/hooks.json").is_file())
+        self.assertFalse(_ROOT.joinpath("agents").exists())
+        self.assertFalse(_ROOT.joinpath("hooks").exists())
 
     def test_codex_marketplace_exposes_the_repository_plugin(self) -> None:
         marketplace = json.loads(
@@ -132,7 +138,7 @@ class AdapterContractTest(unittest.TestCase):
             ).read_text(encoding="utf-8")
             self.assertIn("absence of", didactic_visual)
             self.assertIn("not a blocker", didactic_visual)
-            self.assertTrue(installed.joinpath("hooks/hooks.json").is_file())
+            self.assertTrue(installed.joinpath("harness/codex/plugin-hooks/hooks.json").is_file())
 
             hook_listing = self._run_codex_app_server(
                 env,
@@ -161,10 +167,11 @@ class AdapterContractTest(unittest.TestCase):
             )
             self.assertEqual("Bash", quality_gate["matcher"])
             self.assertIn(str(installed), quality_gate["command"])
+            self.assertIn("core/hooks/quality-gate.sh", quality_gate["command"])
             self.assertNotIn("CLAUDE_PLUGIN_ROOT", quality_gate["command"])
 
     def test_plugin_hooks_use_the_codex_schema_and_standalone_instructions(self) -> None:
-        hooks = json.loads(_ROOT.joinpath("hooks/hooks.json").read_text(encoding="utf-8"))
+        hooks = json.loads(_ROOT.joinpath("harness/codex/plugin-hooks/hooks.json").read_text(encoding="utf-8"))
         handlers = [
             handler
             for groups in hooks["hooks"].values()
@@ -217,7 +224,7 @@ class AdapterContractTest(unittest.TestCase):
     def test_every_portable_agent_has_a_codex_adapter(self) -> None:
         shared = {
             self._yaml_name(path)
-            for path in _ROOT.glob("agents/**/*.md")
+            for path in _ROOT.glob("harness/claude/agents/**/*.md")
             if path.name != "claude-code.md"
         }
         adapters = {
@@ -249,7 +256,7 @@ class AdapterContractTest(unittest.TestCase):
 
         for role in roles:
             with self.subTest(role=role):
-                shared = _ROOT.joinpath(f"agents/engineers/{role}.md").read_text(
+                shared = _ROOT.joinpath(f"harness/claude/agents/engineers/{role}.md").read_text(
                     encoding="utf-8"
                 )
                 codex = _ROOT.joinpath(f"harness/codex/agents/{role}.toml").read_text(
@@ -398,7 +405,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("Legacy points", content)
 
     def test_kb_agents_enforce_provenance_before_writing(self) -> None:
-        shared = _ROOT.joinpath("agents/tools/knowledge-base.md").read_text(
+        shared = _ROOT.joinpath("harness/claude/agents/tools/knowledge-base.md").read_text(
             encoding="utf-8"
         )
         codex = _ROOT.joinpath("harness/codex/agents/knowledge-base.toml").read_text(
@@ -435,7 +442,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("../../hooks/context-load.sh", claude_adapter.read_text(encoding="utf-8"))
 
     def test_context_agents_resolve_the_git_root(self) -> None:
-        shared = _ROOT.joinpath("agents/tools/context.md").read_text(encoding="utf-8")
+        shared = _ROOT.joinpath("harness/claude/agents/tools/context.md").read_text(encoding="utf-8")
         codex = _ROOT.joinpath("harness/codex/agents/context.toml").read_text(encoding="utf-8")
 
         self.assertIn("git rev-parse --show-toplevel", shared)
