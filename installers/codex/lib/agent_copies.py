@@ -101,6 +101,7 @@ class ManagedAgentCopies:
             parsed_target = Path(target)
             if not self._safe_target(parsed_target) or len(digest) != 64:
                 raise self._invalid_manifest()
+            parsed_target = parsed_target.parent.resolve() / parsed_target.name
             try:
                 int(digest, 16)
             except ValueError as error:
@@ -126,7 +127,7 @@ class ManagedAgentCopies:
         return json.dumps({"version": 1, "agents": agents}, indent=2) + "\n"
 
     def _target(self, source: Path) -> Path:
-        return self._layout.custom_agents / source.name
+        return self._layout.codex_home.resolve() / "agents" / source.name
 
     def _check_parent_directory(self, target: Path) -> None:
         if target.parent.is_symlink():
@@ -141,13 +142,13 @@ class ManagedAgentCopies:
         return sha256(path.read_bytes()).hexdigest()
 
     def _safe_target(self, target: Path) -> bool:
-        return (
-            target.is_absolute()
-            and target.parent == self._layout.custom_agents
-            and target.suffix == ".toml"
-            and target.name not in {".", ".."}
-            and not target.parent.is_symlink()
-        )
+        if not target.is_absolute() or target.suffix != ".toml" or target.parent.is_symlink():
+            return False
+        try:
+            # Normalize home aliases, never the agent leaf or a redirected agents directory.
+            return target.parent.resolve() == self._layout.codex_home.resolve() / "agents"
+        except (OSError, RuntimeError) as error:
+            raise self._invalid_manifest() from error
 
     def _invalid_manifest(self) -> RuntimeError:
         return self._conflict(

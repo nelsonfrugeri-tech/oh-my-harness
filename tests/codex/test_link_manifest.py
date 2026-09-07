@@ -102,6 +102,56 @@ class ManagedLinkManifestTest(unittest.TestCase):
         with self.assertRaises(InstallConflict):
             self._manifest.stale(set())
 
+    def test_physical_paths_do_not_bypass_redirected_managed_directories(self) -> None:
+        for parent, name in (
+            (self._layout.personal_skills, "skill"),
+            (self._layout.installed_hooks, "hook.sh"),
+            (self._layout.custom_agents, "agent.toml"),
+        ):
+            with self.subTest(parent=parent):
+                outside = self._root / f"outside-{name}"
+                outside.mkdir()
+                parent.parent.mkdir(parents=True, exist_ok=True)
+                parent.symlink_to(outside)
+                source = self._root / "legacy-source"
+                target = outside / name
+                target.symlink_to(source)
+                self._write(((target, source),))
+                with self.assertRaises(InstallConflict):
+                    self._manifest.stale(set())
+                self.assertEqual(source, target.readlink())
+
+    def test_unconfigured_direct_parent_alias_does_not_authorize_removal(self) -> None:
+        self._layout.personal_skills.mkdir(parents=True)
+        alias = self._root / "skills-alias"
+        alias.symlink_to(self._layout.personal_skills)
+        source = self._root / "legacy-source"
+        target = alias / "example"
+        target.symlink_to(source)
+        self._write(((target, source),))
+        with self.assertRaises(InstallConflict):
+            self._manifest.stale(set())
+        self.assertEqual(source, target.readlink())
+
+    def test_expected_path_resolution_error_names_the_directory(self) -> None:
+        target = self._layout.installed_adapter
+        with mock.patch.object(Path, "resolve", side_effect=OSError(errno.ELOOP, "loop")):
+            with self.assertRaises(InstallConflict) as raised:
+                self._manifest.stale({(target, self._root / "source")})
+        self.assertIn(str(target.parent), str(raised.exception))
+        self.assertNotIn("manifesto", str(raised.exception))
+
+    def test_directory_containment_loop_reports_manifest_conflict(self) -> None:
+        self._layout.personal_skills.mkdir(parents=True)
+        self._layout.custom_agents.symlink_to(self._layout.custom_agents)
+        source = self._root / "legacy-source"
+        target = self._layout.personal_skills / "example"
+        target.symlink_to(source)
+        self._write(((target, source),))
+        with self.assertRaisesRegex(InstallConflict, "oh-my-harness-links.json"):
+            self._manifest.stale(set())
+        self.assertEqual(source, target.readlink())
+
     def test_corrupt_or_unreadable_manifest_reports_install_conflict(self) -> None:
         for content in (b"{", b"\xff", b'{"version": 2}', b'{"version": 1, "links": [null]}'):
             with self.subTest(content=content):

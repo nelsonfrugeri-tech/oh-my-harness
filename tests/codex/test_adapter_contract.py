@@ -61,10 +61,20 @@ class AdapterContractTest(unittest.TestCase):
                 r"`([^`]+)`", re.sub(r"\([^)]*\)", "", line.split("**", 2)[2])
             )
         }
+        manifests = tuple(_ROOT.glob(".*-plugin/plugin.json"))
+        self.assertTrue(manifests)
+        declared_roots = {
+            _ROOT / root
+            for manifest in manifests
+            for root in json.loads(manifest.read_text(encoding="utf-8"))["skills"]
+        }
+        existing_roots = {_ROOT / "core/skills", *_ROOT.glob("harness/*/skills")}
+        self.assertEqual(existing_roots, declared_roots)
+        self.assertTrue(all(root.is_dir() for root in declared_roots))
         packaged = {
             path.parent.name
-            for root in ("core/skills", "harness/claude/skills", "harness/codex/skills")
-            for path in _ROOT.joinpath(root).glob("*/SKILL.md")
+            for root in declared_roots
+            for path in root.glob("*/SKILL.md")
         }
 
         self.assertEqual(packaged, catalog)

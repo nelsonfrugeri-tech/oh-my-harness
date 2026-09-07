@@ -6,6 +6,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from hashlib import sha256
 from pathlib import Path
 from unittest import mock
 
@@ -320,12 +321,23 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertEqual(original_manifest, self._layout.links_manifest.read_bytes())
 
     def test_install_migrates_legacy_manifest_through_symlinked_homes(self) -> None:
+        self._assert_legacy_manifests_migrate(ancestor_alias=False)
+
+    def test_install_migrates_legacy_manifests_through_symlinked_ancestor(self) -> None:
+        self._assert_legacy_manifests_migrate(ancestor_alias=True)
+
+    def _assert_legacy_manifests_migrate(self, *, ancestor_alias: bool) -> None:
         self._codex_home.mkdir()
         self._layout.personal_skills.mkdir(parents=True)
         codex_alias = self._source.parent / "codex-alias"
         agents_alias = self._source.parent / "agents-alias"
         codex_alias.symlink_to(self._codex_home)
         agents_alias.symlink_to(self._agents_home)
+        if ancestor_alias:
+            ancestor = self._source.parent / "ancestor-alias"
+            ancestor.symlink_to(self._source.parent)
+            codex_alias = ancestor / self._codex_home.name
+            agents_alias = ancestor / self._agents_home.name
         legacy_adapter = self._source / "codex"
         legacy_skill = self._source / "skills/example"
         self._layout.installed_adapter.symlink_to(legacy_adapter)
@@ -336,6 +348,16 @@ class CodexInstallerTest(unittest.TestCase):
             {"target": str(agents_alias / "skills/example"), "source": str(legacy_skill)},
         ]
         self._layout.links_manifest.write_text(json.dumps({"version": 1, "links": links}))
+        agent = self._layout.custom_agents / "developer.toml"
+        agent.parent.mkdir()
+        old_content = b'name = "developer"\ndescription = "legacy"\n'
+        agent.write_bytes(old_content)
+        entries = [{
+            "target": str(codex_alias / "agents/developer.toml"),
+            "source": str(self._source / "codex/agents/developer.toml"),
+            "sha256": sha256(old_content).hexdigest(),
+        }]
+        self._layout.agents_manifest.write_text(json.dumps({"version": 1, "agents": entries}))
         layout = InstallLayout(self._source, codex_alias.resolve(), agents_alias.resolve())
         installer = CodexInstaller(layout)
 
@@ -343,9 +365,14 @@ class CodexInstallerTest(unittest.TestCase):
 
         self.assertEqual(layout.adapter, layout.installed_adapter.readlink())
         self.assertEqual(self._source / "core/skills/example", target_skill.readlink())
+        self.assertEqual(
+            (self._source / "harness/codex/agents/developer.toml").read_bytes(), agent.read_bytes()
+        )
         first_manifest = layout.links_manifest.read_bytes()
+        first_agents_manifest = layout.agents_manifest.read_bytes()
         installer.install()
         self.assertEqual(first_manifest, layout.links_manifest.read_bytes())
+        self.assertEqual(first_agents_manifest, layout.agents_manifest.read_bytes())
         self.assertTrue(all(result.startswith("ok:") for result in installer.validate()))
 
     def test_install_preserves_machine_capability_mappings(self) -> None:
@@ -431,6 +458,26 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertTrue(target.is_symlink())
         self.assertEqual(source.resolve(), target.resolve())
 
+    def test_install_preserves_retargeted_legacy_agent_symlink(self) -> None:
+        source = self._source / "harness/codex/agents/developer.toml"
+        target = self._layout.custom_agents / "developer.toml"
+        target.parent.mkdir(parents=True)
+        personal = self._source.parent / "personal-agent.toml"
+        personal.write_text('name = "personal"\n', encoding="utf-8")
+        target.symlink_to(personal)
+        manifest = {"version": 1, "links": [{"target": str(target), "source": str(source)}]}
+        self._layout.links_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+        original_link = target.readlink()
+        original_content = personal.read_bytes()
+        original_manifest = self._layout.links_manifest.read_bytes()
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+        self.assertEqual(original_link, target.readlink())
+        self.assertEqual(original_content, personal.read_bytes())
+        self.assertEqual(original_manifest, self._layout.links_manifest.read_bytes())
+
     def test_install_refuses_to_replace_a_modified_managed_agent_copy(self) -> None:
         self._installer.install()
         target = self._codex_home / "agents/developer.toml"
@@ -457,6 +504,35 @@ class CodexInstallerTest(unittest.TestCase):
 
         with self.assertRaises(InstallConflict):
             self._installer.install()
+
+    def test_install_rejects_duplicate_agent_targets_through_home_alias(self) -> None:
+        self._installer.install()
+        alias = self._source.parent / "codex-alias"
+        alias.symlink_to(self._codex_home)
+        manifest = json.loads(self._layout.agents_manifest.read_text(encoding="utf-8"))
+        duplicate = dict(manifest["agents"][0])
+        duplicate["target"] = str(alias / "agents" / Path(duplicate["target"]).name)
+        manifest["agents"].append(duplicate)
+        self._layout.agents_manifest.write_text(json.dumps(manifest), encoding="utf-8")
+        original_manifest = self._layout.agents_manifest.read_bytes()
+
+        with self.assertRaisesRegex(InstallConflict, "manifesto de agents"):
+            self._installer.install()
+
+        self.assertEqual(original_manifest, self._layout.agents_manifest.read_bytes())
+
+    def test_install_rejects_agent_manifest_inside_redirected_agents_directory(self) -> None:
+        self._installer.install()
+        external = self._source.parent / "personal-agents"
+        self._layout.custom_agents.rename(external)
+        self._layout.custom_agents.symlink_to(external)
+        original = (external / "developer.toml").read_bytes()
+
+        with self.assertRaises(InstallConflict):
+            self._installer.install()
+
+        self.assertEqual(external, self._layout.custom_agents.readlink())
+        self.assertEqual(original, (external / "developer.toml").read_bytes())
 
     def test_install_rejects_invalid_agent_manifest_json(self) -> None:
         self._codex_home.mkdir(parents=True)

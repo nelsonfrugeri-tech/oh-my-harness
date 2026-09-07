@@ -59,6 +59,8 @@ class ManagedLinkManifest:
         try:
             return self._parse_entries(json.loads(content))
         except (ValueError, OSError, RuntimeError) as error:
+            # Directory containment also calls Path.resolve, whose symlink-loop errors can
+            # be RuntimeError; malformed records must still fail as a conflict.
             raise self._invalid_manifest() from error
 
     def _parse_entries(self, data: object) -> tuple[tuple[Path, Path], ...]:
@@ -111,7 +113,9 @@ class ManagedLinkManifest:
             # Resolve home aliases, never the final link whose ownership is being checked.
             return target.parent.resolve() / target.name
         except (OSError, RuntimeError) as error:
-            raise self._invalid_manifest() from error
+            raise self._conflict(
+                f"não foi possível resolver diretório gerenciado: {target.parent}"
+            ) from error
 
     def _invalid_manifest(self) -> RuntimeError:
         return self._conflict(f"manifesto de links gerenciados inválido: {self._path}")
