@@ -50,6 +50,26 @@ class AdapterContractTest(unittest.TestCase):
         self.assertFalse(_ROOT.joinpath("agents").exists())
         self.assertFalse(_ROOT.joinpath("hooks").exists())
 
+    def test_readme_skill_catalog_matches_packaged_skills(self) -> None:
+        readme = _ROOT.joinpath("README.md").read_text(encoding="utf-8")
+        section = readme.split("### Skills\n", 1)[1].split("### Workflows\n", 1)[0]
+        catalog = {
+            name
+            for line in section.splitlines()
+            if line.startswith("**")
+            for name in re.findall(
+                r"`([^`]+)`", re.sub(r"\([^)]*\)", "", line.split("**", 2)[2])
+            )
+        }
+        packaged = {
+            path.parent.name
+            for root in ("core/skills", "harness/claude/skills", "harness/codex/skills")
+            for path in _ROOT.joinpath(root).glob("*/SKILL.md")
+        }
+
+        self.assertEqual(packaged, catalog)
+        self.assertIn(f"/badge/skills-{len(packaged)}-", readme)
+
     def test_codex_marketplace_exposes_the_repository_plugin(self) -> None:
         marketplace = json.loads(
             _ROOT.joinpath(".agents/plugins/marketplace.json").read_text(encoding="utf-8")

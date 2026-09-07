@@ -15,6 +15,7 @@ class ManagedLinkManifest:
         self._conflict = conflict
 
     def stale(self, expected: set[tuple[Path, Path]]) -> tuple[Path, ...]:
+        expected = {(self._canonical_target(target), source) for target, source in expected}
         return tuple(
             sorted(
                 target
@@ -25,12 +26,14 @@ class ManagedLinkManifest:
         )
 
     def owns_target(self, target: Path) -> bool:
+        target = self._canonical_target(target)
         return any(
             recorded_target == target and self._is_recorded_link(target, source)
             for recorded_target, source in self._entries()
         )
 
     def owns(self, target: Path, source: Path) -> bool:
+        target = self._canonical_target(target)
         return (target, source) in self._entries() and self._is_recorded_link(target, source)
 
     def write(self, entries: tuple[tuple[Path, Path], ...]) -> str:
@@ -55,7 +58,7 @@ class ManagedLinkManifest:
             raise self._invalid_manifest() from error
         try:
             return self._parse_entries(json.loads(content))
-        except (ValueError, OSError) as error:
+        except (ValueError, OSError, RuntimeError) as error:
             raise self._invalid_manifest() from error
 
     def _parse_entries(self, data: object) -> tuple[tuple[Path, Path], ...]:
@@ -83,29 +86,49 @@ class ManagedLinkManifest:
             raise self._invalid_manifest()
         if not self._safe_target(paths[0]):
             raise self._invalid_manifest()
-        return paths
+        return self._canonical_target(paths[0]), paths[1]
 
     def _safe_target(self, target: Path) -> bool:
-        if target == self._layout.installed_adapter:
+        canonical = self._canonical_target(target)
+        # A configured home may be an alias; child managed directories may not redirect writes.
+        if canonical == self._canonical_target(self._layout.installed_adapter):
             return True
         parents = (self._layout.personal_skills, self._layout.installed_hooks)
+        safe_parent = any(
+            canonical.parent == parent.resolve() and not parent.is_symlink()
+            for parent in parents
+        )
         # Older adapters recorded agent symlinks before switching to managed copies.
-        legacy_agent = target.parent == self._layout.custom_agents and target.suffix == ".toml"
-        return (target.parent in parents or legacy_agent) and not target.parent.is_symlink()
+        legacy_agent = (
+            canonical.parent == self._layout.custom_agents.resolve()
+            and not self._layout.custom_agents.is_symlink()
+            and target.suffix == ".toml"
+        )
+        return (safe_parent or legacy_agent) and not target.parent.is_symlink()
+
+    def _canonical_target(self, target: Path) -> Path:
+        try:
+            # Resolve home aliases, never the final link whose ownership is being checked.
+            return target.parent.resolve() / target.name
+        except (OSError, RuntimeError) as error:
+            raise self._invalid_manifest() from error
 
     def _invalid_manifest(self) -> RuntimeError:
         return self._conflict(f"manifesto de links gerenciados inválido: {self._path}")
 
     def _is_recorded_link(self, target: Path, source: Path) -> bool:
-        if not target.is_symlink():
-            return False
-        linked = target.readlink()
-        absolute = linked if linked.is_absolute() else target.parent / linked
         try:
-            return absolute.samefile(source)
-        except FileNotFoundError:
-            # Package moves leave dangling legacy links that still prove ownership.
-            return absolute.resolve() == source.resolve()
+            if not target.is_symlink():
+                return False
+            linked = target.readlink()
+            absolute = linked if linked.is_absolute() else target.parent / linked
+            try:
+                return absolute.samefile(source)
+            except FileNotFoundError:
+                # Package moves leave dangling legacy links that still prove ownership.
+                return absolute.resolve() == source.resolve()
+        except (OSError, RuntimeError) as error:
+            raise self._invalid_manifest() from error
 
     def _content(self, entries: tuple[tuple[Path, Path], ...]) -> str:
         links = [{"target": str(target), "source": str(source)} for target, source in entries]

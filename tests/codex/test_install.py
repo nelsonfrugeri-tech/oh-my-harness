@@ -12,6 +12,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "installers/codex"))
 
 from lib.layout import InstallLayout
+from lib.links import ManagedLinks
 from lib.skill_identity import graphify_distribution_matches
 from lib.sync import CodexInstaller, InstallConflict
 import install as install_module
@@ -293,6 +294,59 @@ class CodexInstallerTest(unittest.TestCase):
             self._installer.install()
         self.assertEqual(external, target.readlink())
         self.assertEqual(original_manifest, self._layout.links_manifest.read_bytes())
+
+    def test_links_preflight_preserves_user_retargeted_link(self) -> None:
+        self._assert_user_retargeted_link_preserved(preflight=True)
+
+    def test_links_install_without_preflight_preserves_user_retargeted_link(self) -> None:
+        self._assert_user_retargeted_link_preserved(preflight=False)
+
+    def _assert_user_retargeted_link_preserved(self, *, preflight: bool) -> None:
+        self._installer.install()
+        target = self._layout.personal_skills / "example"
+        external = self._source / "personal"
+        target.unlink()
+        target.symlink_to(external)
+        original_manifest = self._layout.links_manifest.read_bytes()
+        links = ManagedLinks(self._layout, InstallConflict)
+
+        with self.assertRaises(InstallConflict):
+            if preflight:
+                links.preflight()
+            else:
+                links.install()
+
+        self.assertEqual(external, target.readlink())
+        self.assertEqual(original_manifest, self._layout.links_manifest.read_bytes())
+
+    def test_install_migrates_legacy_manifest_through_symlinked_homes(self) -> None:
+        self._codex_home.mkdir()
+        self._layout.personal_skills.mkdir(parents=True)
+        codex_alias = self._source.parent / "codex-alias"
+        agents_alias = self._source.parent / "agents-alias"
+        codex_alias.symlink_to(self._codex_home)
+        agents_alias.symlink_to(self._agents_home)
+        legacy_adapter = self._source / "codex"
+        legacy_skill = self._source / "skills/example"
+        self._layout.installed_adapter.symlink_to(legacy_adapter)
+        target_skill = self._layout.personal_skills / "example"
+        target_skill.symlink_to(legacy_skill)
+        links = [
+            {"target": str(codex_alias / "oh-my-harness"), "source": str(legacy_adapter)},
+            {"target": str(agents_alias / "skills/example"), "source": str(legacy_skill)},
+        ]
+        self._layout.links_manifest.write_text(json.dumps({"version": 1, "links": links}))
+        layout = InstallLayout(self._source, codex_alias.resolve(), agents_alias.resolve())
+        installer = CodexInstaller(layout)
+
+        installer.install()
+
+        self.assertEqual(layout.adapter, layout.installed_adapter.readlink())
+        self.assertEqual(self._source / "core/skills/example", target_skill.readlink())
+        first_manifest = layout.links_manifest.read_bytes()
+        installer.install()
+        self.assertEqual(first_manifest, layout.links_manifest.read_bytes())
+        self.assertTrue(all(result.startswith("ok:") for result in installer.validate()))
 
     def test_install_preserves_machine_capability_mappings(self) -> None:
         self._installer.install()

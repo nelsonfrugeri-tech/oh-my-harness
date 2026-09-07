@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import json
 import os
 import sys
@@ -60,6 +61,47 @@ class ManagedLinkManifestTest(unittest.TestCase):
             self._manifest.stale(set())
         self.assertTrue((outside / "example").is_symlink())
 
+    def test_configured_codex_home_alias_is_an_authorized_root(self) -> None:
+        alias = self._root / "codex-home-alias"
+        alias.symlink_to(self._layout.codex_home)
+        layout = InstallLayout(self._layout.source_root, alias, self._layout.agents_home)
+        source = self._root / "legacy-source"
+        layout.installed_adapter.symlink_to(source)
+        self._write(((layout.installed_adapter, source),))
+
+        manifest = ManagedLinkManifest(layout, InstallConflict)
+
+        self.assertTrue(manifest.owns_target(layout.installed_adapter))
+        self.assertEqual((self._layout.installed_adapter,), manifest.stale(set()))
+
+    def test_hooks_and_agent_directory_aliases_cannot_authorize_removal(self) -> None:
+        outside = self._root / "outside"
+        outside.mkdir()
+        source = self._root / "legacy-source"
+        for parent, name in (
+            (self._layout.installed_hooks, "hook.sh"),
+            (self._layout.custom_agents, "agent.toml"),
+        ):
+            with self.subTest(parent=parent):
+                parent.symlink_to(outside)
+                target = parent / name
+                target.symlink_to(source)
+                self._write(((target, source),))
+                with self.assertRaises(InstallConflict):
+                    self._manifest.stale(set())
+                self.assertEqual(source, target.readlink())
+
+    def test_duplicate_targets_through_home_alias_are_rejected(self) -> None:
+        alias = self._root / "codex-alias"
+        alias.symlink_to(self._layout.codex_home)
+        source = self._root / "legacy-source"
+        self._write((
+            (self._layout.installed_adapter, source),
+            (alias / "oh-my-harness", source),
+        ))
+        with self.assertRaises(InstallConflict):
+            self._manifest.stale(set())
+
     def test_corrupt_or_unreadable_manifest_reports_install_conflict(self) -> None:
         for content in (b"{", b"\xff", b'{"version": 2}', b'{"version": 1, "links": [null]}'):
             with self.subTest(content=content):
@@ -79,6 +121,38 @@ class ManagedLinkManifestTest(unittest.TestCase):
         target.symlink_to(alias)
         self._write(((target, source),))
         self.assertTrue(self._manifest.owns_target(target))
+
+    def test_filesystem_identity_errors_fail_closed(self) -> None:
+        source = self._root / "source-file"
+        source.write_text("source")
+        target = self._layout.installed_adapter
+        target.symlink_to(source)
+        self._write(((target, source),))
+        for error_code in (errno.ENOTDIR, errno.ELOOP, errno.EACCES):
+            with self.subTest(error_code=error_code), mock.patch.object(
+                Path, "samefile", side_effect=OSError(error_code, "identity unavailable")
+            ):
+                with self.assertRaisesRegex(InstallConflict, "oh-my-harness-links.json"):
+                    self._manifest.stale(set())
+                self.assertEqual(source, target.readlink())
+
+    def test_legacy_home_aliases_normalize_only_target_parents(self) -> None:
+        self._layout.personal_skills.mkdir(parents=True)
+        codex_alias = self._root / "codex-alias"
+        agents_alias = self._root / "agents-alias"
+        codex_alias.symlink_to(self._layout.codex_home)
+        agents_alias.symlink_to(self._layout.agents_home)
+        source = self._root / "missing-legacy-source"
+        target = self._layout.personal_skills / "example"
+        target.symlink_to(source)
+        self._layout.installed_adapter.symlink_to(source)
+        self._write(((agents_alias / "skills/example", source), (codex_alias / "oh-my-harness", source)))
+
+        self.assertTrue(self._manifest.owns_target(target))
+        self.assertTrue(self._manifest.owns_target(self._layout.installed_adapter))
+        self.assertEqual(
+            {target, self._layout.installed_adapter}, set(self._manifest.stale(set()))
+        )
 
 
 if __name__ == "__main__":

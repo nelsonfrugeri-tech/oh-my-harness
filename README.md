@@ -11,7 +11,7 @@ library on Claude Code and Codex today.
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
 [![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-27-DC5F00?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -110,8 +110,10 @@ harness. Capabilities are resolved through that harness's machine-local table.
 
 ## Migration compatibility notes
 
-Both plugin manifests and marketplace metadata move to `2.0.0` for this behavioral migration.
-The version change in this PR does not itself create a release or publish a tag.
+The capability migration shipped in the `2.0.0` baseline. This package-layout migration advances
+both plugin manifests and marketplace metadata to `2.0.1`; it does not itself create a release or
+publish a tag. After upgrading, follow the harness runbook to verify plugin loading and hooks;
+Codex hook definitions require a new trust review.
 
 The capability migration replaces the old `Triggers:`/`Gatilhos:` keyword lists with scoped
 skill descriptions. Slash-prefixed words in those lists were discovery hints, not alias
@@ -286,7 +288,9 @@ and the native paths for both adapters.
 
 ### Skills
 
-Skills live under `core/skills/<name>/`, declared explicitly by both plugin manifests.
+Shared skills live under `core/skills/<name>/`; harness-owned skills live under
+`harness/<name>/skills/`. Each plugin manifest explicitly declares the shared root and its own
+harness root. The repository has 29 skills: 27 shared and one specific to each harness.
 The catalog below keeps the logical themes without adding another filesystem layer, and
 each skill name remains globally unique.
 
@@ -296,7 +300,7 @@ each skill name remains globally unique.
 
 **Command & workflow — `engineers`:** `feature`
 
-**Harness tooling — `harness`:** `claude-code` (the sync runbook behind the `claude-code` agent)
+**Harness tooling — `harness`:** `claude-code` (the Claude sync runbook) · `codex` (the Codex sync runbook)
 
 **Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
 

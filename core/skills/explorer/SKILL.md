@@ -9,7 +9,7 @@ Maintain one evidence-backed context.md. The repository is read-only; the only o
 context document. Durable notes belong to kb-write.
 
 Resolve the Git root and derive the project slug with the exact pipeline used by
-`hooks/context-load.sh`; never normalize by interpretation:
+`core/hooks/context-load.sh`; never normalize by interpretation:
 
 ```bash
 basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'

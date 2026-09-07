@@ -83,10 +83,12 @@ run the first installation with `--replace-global-agents`. The original file is 
 | `harness/codex/agents/*.toml` | `~/.codex/agents/*.toml` | Managed file copy |
 | `harness/codex/AGENTS.md` | managed block in `~/.codex/AGENTS.md` | Merge |
 | `harness/codex/adapter-hooks-removal.json` | removes obsolete adapter-owned context hook | Merge |
-| `harness/codex/hooks/hooks.json` | Native plugin hook definitions | Plugin manifest path |
 | generated permissions profile | `~/.codex/config.toml` | Managed sections |
 | `harness/codex/` | `~/.codex/oh-my-harness` | Directory symlink |
 | generated ownership manifest | `~/.codex/oh-my-harness-links.json` | Atomic rewrite |
+
+Separately, the native plugin manifest declares `harness/codex/hooks/hooks.json`. The installer
+does not install or trust these plugin hooks.
 
 The installer preserves unrelated hooks, machine-specific capability mappings, global
 instructions, MCP servers, plugins, and personal skills. It removes stale symlinks only when the
