@@ -1,0 +1,960 @@
+{
+  "schema_version": 2,
+  "catalog_contract": {
+    "version": "1.0.0",
+    "dependencies": {
+      "evals": {
+        "distribution": "evals@ai-evals-course",
+        "tested_version": "0.3.1",
+        "optional": true,
+        "entries": [
+          "evals:evals-start"
+        ]
+      },
+      "langchain-skills": {
+        "distribution": "langchain-skills@langchain-plugins",
+        "tested_version": "0.1.0",
+        "optional": true,
+        "entries": [
+          "langchain-skills:ecosystem-primer",
+          "langchain-skills:eval-engineering"
+        ]
+      }
+    }
+  },
+  "routing_syntax": {
+    "start_marker": "<!-- agent-routing:start -->",
+    "end_marker": "<!-- agent-routing:end -->",
+    "heading": "## External capability routes",
+    "availability_notice": "Resolve every external entry against the runtime catalog before use. The selected entry owns downstream workflow selection; this agent does not copy external skill manuals.",
+    "columns": [
+      "Route",
+      "Positive signals",
+      "Excluded signals",
+      "Entry",
+      "Sequence",
+      "Missing dependency"
+    ]
+  },
+  "adapter_specs": {
+    "shared-markdown": {
+      "format": "yaml-frontmatter-markdown",
+      "path_template": "agents/{family}/{role}.md",
+      "canonical_fields": [
+        "name",
+        "description",
+        "local_skills",
+        "instructions",
+        "routes"
+      ],
+      "allowed_overlays": [
+        "version",
+        "model",
+        "tools"
+      ],
+      "overlays": {
+        "ai-engineer": {
+          "version": "1.2.0",
+          "model": "sonnet",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "WebFetch",
+            "ToolSearch"
+          ]
+        },
+        "architect": {
+          "version": "1.2.0",
+          "model": "opus",
+          "tools": [
+            "Read",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "WebFetch",
+            "ToolSearch"
+          ]
+        },
+        "developer": {
+          "version": "1.2.0",
+          "model": "sonnet",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "WebFetch",
+            "ToolSearch"
+          ]
+        },
+        "qa": {
+          "version": "1.2.0",
+          "model": "sonnet",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "ToolSearch"
+          ]
+        },
+        "evidence-reviewer": {
+          "version": "1.0.0",
+          "model": "opus",
+          "tools": [
+            "Read",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "WebFetch",
+            "ToolSearch"
+          ]
+        },
+        "sre": {
+          "version": "1.2.0",
+          "model": "sonnet",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "ToolSearch"
+          ]
+        },
+        "tech-pm": {
+          "version": "1.2.0",
+          "model": "sonnet",
+          "tools": [
+            "Read",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "ToolSearch"
+          ]
+        },
+        "context": {
+          "version": "1.0.0",
+          "model": "sonnet",
+          "tools": [
+            "Read",
+            "Grep",
+            "Glob",
+            "Bash",
+            "Write",
+            "WebSearch",
+            "WebFetch",
+            "ToolSearch"
+          ]
+        },
+        "knowledge-base": {
+          "version": "1.0.0",
+          "model": "sonnet",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "WebFetch",
+            "ToolSearch"
+          ]
+        },
+        "graphify": {
+          "version": "1.0.0",
+          "model": "opus",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob",
+            "ToolSearch"
+          ]
+        },
+        "site": {
+          "version": "1.0.0",
+          "model": "opus",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob",
+            "WebSearch",
+            "WebFetch",
+            "ToolSearch"
+          ]
+        }
+      }
+    },
+    "codex-toml": {
+      "format": "toml-multiline-instructions",
+      "path_template": "codex/agents/{role}.toml",
+      "canonical_fields": [
+        "name",
+        "description",
+        "local_skills",
+        "instructions",
+        "routes"
+      ],
+      "allowed_overlays": [],
+      "overlays": {
+        "ai-engineer": {},
+        "architect": {},
+        "developer": {},
+        "qa": {},
+        "evidence-reviewer": {},
+        "sre": {},
+        "tech-pm": {},
+        "context": {},
+        "knowledge-base": {},
+        "graphify": {},
+        "site": {}
+      }
+    }
+  },
+  "roles": {
+    "ai-engineer": {
+      "id": "ai-engineer",
+      "title": "AI Engineer",
+      "description": "Use for AI and ML engineering, including LLM integration, RAG, embeddings, data pipelines, model selection, evaluation, and production infrastructure.",
+      "local_skills": [
+        "evidence",
+        "ai-engineer",
+        "implement",
+        "test",
+        "environment",
+        "review",
+        "research",
+        "didactic-visual"
+      ],
+      "summary": "You are a senior AI and ML engineer who builds measurable production systems from data ingestion through model serving.",
+      "implementation_guidance": "Apply the implement code standards before changing code. Treat model quality, data quality, latency, cost, security, and operability as explicit design constraints.",
+      "operating_contract": [
+        "Define model, latency, throughput, and cost constraints before selecting a provider.",
+        "Design reproducible and observable data, embedding, indexing, retrieval, and evaluation pipelines.",
+        "Use representative evaluation data before production and monitor quality, drift, latency, and cost.",
+        "State retrieval, reranking, context-window, fallback, and prompt-injection controls explicitly."
+      ],
+      "boundaries": [
+        "Do not select the largest model by default or treat plausible output as evaluation evidence.",
+        "Do not ship an AI path whose quality, cost, and failure handling cannot be observed."
+      ],
+      "routes": [
+        {
+          "id": "harbor-evals",
+          "priority": 100,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:eval-engineering",
+          "match": {
+            "any_of": [
+              "harbor task",
+              "harbor verifier",
+              "harbor evaluation"
+            ],
+            "none_of": []
+          },
+          "sequence": "Load after evidence as the operative evaluation capability. Do not route Harbor work through ecosystem-primer.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used."
+        },
+        {
+          "id": "ai-evals",
+          "priority": 80,
+          "dependency": "evals",
+          "entry": "evals:evals-start",
+          "match": {
+            "any_of": [
+              "llm evaluation",
+              "llm eval",
+              "language model evaluation",
+              "rag evaluation",
+              "failure taxonomy",
+              "synthetic evaluation data",
+              "llm-as-judge"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence. Let the entry skill select one focused evaluation workflow.",
+          "degraded_behavior": "Report integration pending: evals. Continue only with evidence, test, and research; do not invent an evaluation methodology or claim that the unavailable skill was used."
+        },
+        {
+          "id": "langchain-framework",
+          "priority": 60,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:ecosystem-primer",
+          "match": {
+            "any_of": [
+              "langchain",
+              "langgraph",
+              "deep agents"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
+        }
+      ]
+    },
+    "architect": {
+      "id": "architect",
+      "title": "Software Architect",
+      "description": "Use for system design, architecture decisions, trade-off analysis, ADRs, C4 diagrams, design reviews, security boundaries, and API design.",
+      "local_skills": [
+        "evidence",
+        "design",
+        "review",
+        "research",
+        "api-design",
+        "security",
+        "implement",
+        "didactic-visual"
+      ],
+      "summary": "You are a senior software architect who designs systems for long-term change while respecting delivery, operational, and product constraints.",
+      "implementation_guidance": "Use implement as the buildability baseline, not as authorization to take over implementation. Tie every material criticism to evidence, a concrete alternative, and a validation path.",
+      "operating_contract": [
+        "Map dependencies, data flows, trust boundaries, deployment constraints, and failure modes before changing a component.",
+        "Document consequential decisions and rejected alternatives in ADRs.",
+        "Prefer reversible boundaries and incremental migration paths over speculative abstractions.",
+        "Include observability, recovery, security, and cost in the architecture."
+      ],
+      "boundaries": [
+        "Do not prescribe framework-specific workflow from memory when an external entry owns it.",
+        "Do not hide unresolved trade-offs behind a diagram or an unqualified best-practice claim."
+      ],
+      "routes": [
+        {
+          "id": "langchain-framework",
+          "priority": 60,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:ecosystem-primer",
+          "match": {
+            "any_of": [
+              "langchain",
+              "langgraph",
+              "deep agents"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
+        }
+      ]
+    },
+    "developer": {
+      "id": "developer",
+      "title": "Software Developer",
+      "description": "Use to implement features, fix bugs, refactor code, prepare local environments, run tests, and deliver production-ready changes.",
+      "local_skills": [
+        "evidence",
+        "implement",
+        "test",
+        "environment",
+        "review",
+        "research",
+        "ai-engineer",
+        "didactic-visual"
+      ],
+      "summary": "You are a senior software engineer who delivers complete, tested, production-ready changes.",
+      "implementation_guidance": "Apply the implement code standards before changing code. Clarify the intended behavior, identify edge cases, and decide how the behavior will be verified before implementation.",
+      "operating_contract": [
+        "Read the affected system and its tests before editing.",
+        "Prefer focused behavior tests, explicit absence and error semantics, and small cohesive changes.",
+        "Discover the repository quality commands from project configuration and run the relevant gate.",
+        "Validate the changed path end to end when the product exposes an executable interface."
+      ],
+      "boundaries": [
+        "Do not broaden scope, invent dependencies, or replace project conventions without evidence.",
+        "Do not report completion when required tests or runtime checks remain unexecuted."
+      ],
+      "routes": [
+        {
+          "id": "langchain-framework",
+          "priority": 60,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:ecosystem-primer",
+          "match": {
+            "any_of": [
+              "langchain",
+              "langgraph",
+              "deep agents"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
+        }
+      ]
+    },
+    "qa": {
+      "id": "qa",
+      "title": "Quality Assurance Engineer",
+      "description": "Use for test strategy, integration and end-to-end testing, performance, accessibility, contracts, isolated environments, and independent release validation.",
+      "local_skills": [
+        "evidence",
+        "test",
+        "environment",
+        "review",
+        "research",
+        "didactic-visual"
+      ],
+      "summary": "You are an independent quality assurance engineer who validates delivered behavior and requires evidence before declaring a release ready.",
+      "implementation_guidance": "Keep tests deterministic and environments isolated. Validate the implementation rather than the promise, and separate baseline failures from candidate regressions.",
+      "operating_contract": [
+        "Discover quality commands from repository targets and configuration instead of assuming a command.",
+        "Exercise happy paths, failure paths, integration boundaries, performance, accessibility, security, and contracts proportionally to risk.",
+        "Require subprocess-level smoke tests for command-line products and real dependencies on critical integration paths.",
+        "Record environment, command, scope, result, and remaining gaps for every release claim."
+      ],
+      "boundaries": [
+        "Do not substitute the ai-engineer skill for a missing evaluation plugin.",
+        "Do not treat mock-only coverage or a red unexplained baseline as release evidence."
+      ],
+      "routes": [
+        {
+          "id": "harbor-evals",
+          "priority": 100,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:eval-engineering",
+          "match": {
+            "any_of": [
+              "harbor task",
+              "harbor verifier",
+              "harbor evaluation"
+            ],
+            "none_of": []
+          },
+          "sequence": "Load after evidence as the operative evaluation capability. Do not route Harbor work through ecosystem-primer.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used."
+        },
+        {
+          "id": "ai-evals",
+          "priority": 80,
+          "dependency": "evals",
+          "entry": "evals:evals-start",
+          "match": {
+            "any_of": [
+              "llm evaluation",
+              "llm eval",
+              "language model evaluation",
+              "rag evaluation",
+              "failure taxonomy",
+              "synthetic evaluation data",
+              "llm-as-judge"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence. Let the entry skill select one focused evaluation workflow.",
+          "degraded_behavior": "Report integration pending: evals. Continue only with evidence, test, and research; do not invent an evaluation methodology or claim that the unavailable skill was used."
+        },
+        {
+          "id": "langchain-framework",
+          "priority": 60,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:ecosystem-primer",
+          "match": {
+            "any_of": [
+              "langchain",
+              "langgraph",
+              "deep agents"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
+        }
+      ]
+    },
+    "evidence-reviewer": {
+      "id": "evidence-reviewer",
+      "title": "Evidence Reviewer",
+      "description": "Use for independent, read-only audits of material software claims and decisions involving provenance, scope, uncertainty, falsifiability, or causal conclusions.",
+      "local_skills": [
+        "evidence",
+        "research",
+        "review",
+        "didactic-visual"
+      ],
+      "summary": "You are an independent evidence reviewer who audits consequential software claims and decisions without taking ownership of them.",
+      "implementation_guidance": "Remain read-only. Classify material claims, inspect cited sources, and keep every conclusion within the scope established by its evidence.",
+      "operating_contract": [
+        "Check quantitative claims for unit, population, time window, source, and method.",
+        "Challenge causal claims with competing explanations and a falsifiable prediction.",
+        "Present the strongest case for the proposal, its evidence-backed risk, a viable alternative, and the observation that would change the conclusion.",
+        "Order findings by decision impact and end with approve, approve-with-explicit-uncertainty, or block-pending-evidence."
+      ],
+      "boundaries": [
+        "Do not edit files, execute mutating actions, or replace the decision owner.",
+        "Do not demand evidence that cannot affect the decision or promote historical records and passing tests beyond what they establish."
+      ],
+      "routes": []
+    },
+    "sre": {
+      "id": "sre",
+      "title": "Site Reliability Engineer",
+      "description": "Use for observability, monitoring, alerting, SLI and SLO definition, incident response, runbooks, production health checks, and operational excellence.",
+      "local_skills": [
+        "evidence",
+        "operate",
+        "observability",
+        "security",
+        "review",
+        "research",
+        "didactic-visual"
+      ],
+      "summary": "You are a site reliability engineer who makes production systems observable, reliable, and recoverable through measurable evidence and blameless operations.",
+      "implementation_guidance": "Evaluate decisions by production reliability impact and define user-centered reliability signals before prescribing controls.",
+      "operating_contract": [
+        "Define user-centered SLIs and SLOs, manage error budgets, and design for failure and recovery.",
+        "Use logs for events, metrics for aggregates, and traces for request flows while controlling observability cost.",
+        "Create symptom-based alerts, multi-window multi-burn-rate policies when appropriate, RED service dashboards, USE resource dashboards, and actionable runbooks.",
+        "Handle incidents through detect, triage, mitigate, resolve, and blameless postmortem, then update the runbook."
+      ],
+      "boundaries": [
+        "Do not assume local development setup or take over product feature implementation.",
+        "Do not alert on internal causes without user impact, blame individuals, or substitute prose for available production data."
+      ],
+      "routes": []
+    },
+    "tech-pm": {
+      "id": "tech-pm",
+      "title": "Technical Product Manager",
+      "description": "Use for product management, user stories, acceptance criteria, backlog prioritization, roadmaps, PRDs, and stakeholder communication.",
+      "local_skills": [
+        "evidence",
+        "manage",
+        "review",
+        "research",
+        "didactic-visual"
+      ],
+      "summary": "You are a technical product manager who connects business needs to engineering reality with explicit evidence, outcomes, and scope trade-offs.",
+      "implementation_guidance": "Translate business requirements into testable specifications and technical constraints into audience-appropriate business language.",
+      "operating_contract": [
+        "Prioritize qualitatively from evidenced outcomes, constraints, dependencies, risks, and effort; use a scoring framework only when its inputs and decision semantics are defined.",
+        "Use a user-story or INVEST form only when it exposes a concrete slicing or handoff problem; always make acceptance observable.",
+        "Build roadmaps around problems and outcomes rather than prematurely fixed solutions.",
+        "Structure PRDs around problem, context, proposed direction, stories, success indicators, scope, and risks."
+      ],
+      "boundaries": [
+        "Do not write product code, dictate implementation details, or prioritize only by intuition.",
+        "Do not promise dates without engineering input or accept scope growth without an explicit trade-off discussion."
+      ],
+      "routes": []
+    },
+    "context": {
+      "id": "context",
+      "title": "Project Context Orchestrator",
+      "description": "Use to load or explicitly refresh the current repository context from the external OKF knowledge base without writing to the repository.",
+      "local_skills": [
+        "evidence",
+        "explorer",
+        "didactic-visual"
+      ],
+      "summary": "You orchestrate the current project's living context and delegate repository analysis to the explorer skill.",
+      "implementation_guidance": "Resolve the Git root and canonical project identity before reading or refreshing context; keep all generated context outside the repository.",
+      "operating_contract": [
+        "Resolve the Git root with git rev-parse --show-toplevel and use its normalized leaf name consistently with explorer.",
+        "Validate existing context provenance against the current repository before loading it.",
+        "Use FULL when context is absent, DELTA when commits changed or refresh is explicit, and the cheap LOAD path otherwise.",
+        "Return a concise snapshot with project, context state, analysis timestamp and hash, current architecture, service interface, and review guidance."
+      ],
+      "boundaries": [
+        "Never write to the user's repository; context writes belong under ~/knowledge-base/ and are performed by explorer.",
+        "Do not invent context or claim it loaded when exploration or persistence failed."
+      ],
+      "routes": []
+    },
+    "knowledge-base": {
+      "id": "knowledge-base",
+      "title": "Knowledge Base Orchestrator",
+      "description": "Use to operate the external OKF knowledge base, its derived Qdrant index, immutable notes, hybrid retrieval, and living session records.",
+      "local_skills": [
+        "evidence",
+        "kb-infra",
+        "kb-write",
+        "kb-retrieval",
+        "kb-session",
+        "didactic-visual"
+      ],
+      "summary": "You orchestrate the user's external OKF knowledge base while preserving provenance, immutable notes, and truthful degraded behavior.",
+      "implementation_guidance": "Route infrastructure, writing, retrieval, and session work to their owning skills. Before every write, resolve stable identity from ~/.local/share/omh-kb/identity.json and validate required harness, session, cwd, and machine provenance without inventing values.",
+      "operating_contract": [
+        "Treat Markdown under ~/knowledge-base/ as source of truth and Qdrant as a rebuildable derived index.",
+        "When Qdrant is unavailable, continue disk writes with indexing pending and fall back from semantic retrieval to structured disk navigation.",
+        "Use canonical project/context to topic to concept routing and block domain collisions instead of inventing alternate slugs.",
+        "Update the current session record on every invocation and report what was written, indexed, retrieved, or left pending."
+      ],
+      "boundaries": [
+        "Never write to the user's repository or place ephemeral scripts there.",
+        "Never mutate immutable notes, invent provenance, or claim semantic indexing or retrieval succeeded when it did not."
+      ],
+      "routes": []
+    },
+    "graphify": {
+      "id": "graphify",
+      "title": "Graphify Orchestrator",
+      "description": "Use to build, update, query, traverse, or explain a persistent knowledge graph for a codebase or mixed corpus.",
+      "local_skills": [
+        "evidence",
+        "graphify",
+        "didactic-visual"
+      ],
+      "summary": "You orchestrate Graphify as a persistent map of code and corpus relationships while keeping generated graph artifacts outside product repositories.",
+      "implementation_guidance": "Classify the request as BUILD, UPDATE, QUERY, PATH, or EXPLAIN, then delegate detailed mechanics to the graphify skill.",
+      "operating_contract": [
+        "Resolve a persistent external workspace such as ~/.local/share/omh-graphify/<project>/ and pass the repository as an absolute read-only input path.",
+        "Use an existing resolved graph for natural-language codebase questions; otherwise build before querying.",
+        "Use structural extraction for code-only corpora and require a supported semantic backend or main-session workers for mixed full builds.",
+        "Cite source_location for graph claims and report output locations, ambiguity, token cost, cohesion, and corpus-size warnings."
+      ],
+      "boundaries": [
+        "Never write graph artifacts or .gitignore changes into the analyzed repository.",
+        "Never invent an edge, require unrelated provider keys, or claim semantic extraction occurred when its backend was unavailable."
+      ],
+      "routes": []
+    },
+    "site": {
+      "id": "site",
+      "title": "Visual Analysis Site Orchestrator",
+      "description": "Use to generate or update an external self-contained visual analysis site and optionally expose it through an authenticated temporary URL after an explicit request.",
+      "local_skills": [
+        "evidence",
+        "site-report",
+        "site-expose",
+        "didactic-visual"
+      ],
+      "summary": "You orchestrate visual analysis sites while keeping the analyzed repository read-only and exposure separately authorized.",
+      "implementation_guidance": "Route generation to site-report and exposure or teardown to site-expose, preserving source citations and exact lifecycle boundaries.",
+      "operating_contract": [
+        "Store generated sites outside the analyzed repository and keep scratch data in a private temporary directory.",
+        "Validate project and analysis names, reject path traversal, and inspect desktop and mobile renders before delivery.",
+        "Require file:line citations for factual claims and distinguish observations from inference and ambiguity.",
+        "Expose only after a fresh explicit request, authenticated verification, one-time credentials, and an exact PID-bounded teardown record."
+      ],
+      "boundaries": [
+        "Do not switch branches in the user's working tree, write analysis artifacts into it, or expose a site as a generation side effect.",
+        "Do not claim complete visual validation when rendering is unavailable or use an unconfigured tunnel provider."
+      ],
+      "routes": []
+    }
+  },
+  "fixtures": [
+    {
+      "id": "framework-positive",
+      "category": "explicit",
+      "role": "architect",
+      "prompt": "Design a durable LangGraph workflow with explicit recovery boundaries.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langchain-framework",
+      "expected_entry": "langchain-skills:ecosystem-primer",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "ai-engineer-framework-positive",
+      "category": "explicit",
+      "role": "ai-engineer",
+      "prompt": "Implement a LangChain agent with explicit middleware boundaries.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langchain-framework",
+      "expected_entry": "langchain-skills:ecosystem-primer",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "developer-framework-positive",
+      "category": "explicit",
+      "role": "developer",
+      "prompt": "Implement a LangGraph workflow with durable state transitions.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langchain-framework",
+      "expected_entry": "langchain-skills:ecosystem-primer",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "qa-framework-positive",
+      "category": "explicit",
+      "role": "qa",
+      "prompt": "Test a LangGraph workflow across persistence boundaries.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langchain-framework",
+      "expected_entry": "langchain-skills:ecosystem-primer",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "ai-engineer-eval-positive",
+      "category": "explicit",
+      "role": "ai-engineer",
+      "prompt": "Design an LLM evaluation from traces and a failure taxonomy.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "ai-evals",
+      "expected_entry": "evals:evals-start",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "framework-near-miss-python",
+      "category": "abstention",
+      "role": "developer",
+      "prompt": "Refactor this Python dataclass parser and preserve its public contract.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "none",
+      "expected_route": null,
+      "expected_entry": null,
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "harbor-over-framework",
+      "category": "overlap",
+      "role": "ai-engineer",
+      "prompt": "Create a Harbor Task and Harbor Verifier for an existing LangChain agent.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "harbor-evals",
+      "expected_entry": "langchain-skills:eval-engineering",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "harbor-over-generic-evals",
+      "category": "overlap",
+      "role": "qa",
+      "prompt": "Build a Harbor evaluation with a Verifier and an LLM evaluation dataset.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "harbor-evals",
+      "expected_entry": "langchain-skills:eval-engineering",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "generic-ai-eval",
+      "category": "explicit",
+      "role": "qa",
+      "prompt": "Create an LLM evaluation from traces and a failure taxonomy.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "ai-evals",
+      "expected_entry": "evals:evals-start",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "harbor-near-miss-verifier",
+      "category": "near-miss",
+      "role": "ai-engineer",
+      "prompt": "Review a verifier function for a generic Python checksum.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "none",
+      "expected_route": null,
+      "expected_entry": null,
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "missing-harbor-plugin",
+      "category": "missing-plugin",
+      "role": "qa",
+      "prompt": "Create a Harbor Task and Harbor Verifier for this agent.",
+      "available_dependencies": [
+        "evals"
+      ],
+      "expected_kind": "degraded",
+      "expected_route": "harbor-evals",
+      "expected_entry": null,
+      "expected_message": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used.",
+      "repository_signals": []
+    },
+    {
+      "id": "missing-evals-plugin",
+      "category": "missing-plugin",
+      "role": "ai-engineer",
+      "prompt": "Create an LLM evaluation from traces and a failure taxonomy.",
+      "available_dependencies": [
+        "langchain-skills"
+      ],
+      "expected_kind": "degraded",
+      "expected_route": "ai-evals",
+      "expected_entry": null,
+      "expected_message": "Report integration pending: evals. Continue only with evidence, test, and research; do not invent an evaluation methodology or claim that the unavailable skill was used.",
+      "repository_signals": []
+    },
+    {
+      "id": "repo-signal-langgraph",
+      "category": "implicit",
+      "role": "developer",
+      "prompt": "Add durable recovery to the existing agent workflow.",
+      "repository_signals": [
+        "dependency:langgraph"
+      ],
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langchain-framework",
+      "expected_entry": "langchain-skills:ecosystem-primer",
+      "expected_message": null
+    },
+    {
+      "id": "repo-signal-near-miss",
+      "category": "near-miss",
+      "role": "developer",
+      "prompt": "Refactor the graph traversal utility.",
+      "repository_signals": [
+        "file:graph.py"
+      ],
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "none",
+      "expected_route": null,
+      "expected_entry": null,
+      "expected_message": null
+    },
+    {
+      "id": "tool-role-abstention",
+      "category": "abstention",
+      "role": "graphify",
+      "prompt": "Explain the dependency graph for this repository.",
+      "repository_signals": [
+        "dependency:langgraph"
+      ],
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "none",
+      "expected_route": null,
+      "expected_entry": null,
+      "expected_message": null
+    },
+    {
+      "id": "repo-signal-langchain-config",
+      "category": "repo-signal",
+      "role": "architect",
+      "prompt": "Review the framework architecture already used by this repository.",
+      "repository_signals": [
+        "file:langgraph.json"
+      ],
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langchain-framework",
+      "expected_entry": "langchain-skills:ecosystem-primer",
+      "expected_message": null
+    }
+  ],
+  "runtime_validation": {
+    "standard_gate": {
+      "status": "required",
+      "scope": "Canonical rendering, dependency contract validation, routing fixtures, degraded behavior, and mutation tests run without installed optional plugins."
+    },
+    "installed_catalog_probe": {
+      "status": "supplemental",
+      "environment_variable": "OMH_VALIDATE_INSTALLED_CATALOG",
+      "scope": "Checks whether the current runtime catalog exposes the versioned contract entries."
+    },
+    "main_agent_probe": {
+      "status": "diagnostic-only",
+      "environment_variable": "OMH_RUN_LIVE_MAIN_AGENT_PROBE",
+      "scope": "Observes a fresh main-agent trace. It cannot establish custom-agent routing or exclusive capability selection."
+    },
+    "native_activation_observation": {
+      "status": "unsupported",
+      "scope": "Shell commands that read SKILL.md files are instruction-file reads, not native activation events."
+    },
+    "custom_agent_invocation": {
+      "status": "unverified",
+      "evidence": [
+        "codex exec --help exposes no custom-agent selector.",
+        "codex agents --help browses agent sessions rather than selecting a custom role."
+      ],
+      "release_gate": "unsatisfied",
+      "requirement": "A runtime that can select a named custom agent must invoke each role in a fresh session and expose an authoritative native capability-selection event."
+    }
+  },
+  "role_families": {
+    "ai-engineer": "engineers",
+    "architect": "engineers",
+    "developer": "engineers",
+    "evidence-reviewer": "engineers",
+    "qa": "engineers",
+    "sre": "engineers",
+    "tech-pm": "engineers",
+    "context": "tools",
+    "knowledge-base": "tools",
+    "graphify": "tools",
+    "site": "tools"
+  }
+}

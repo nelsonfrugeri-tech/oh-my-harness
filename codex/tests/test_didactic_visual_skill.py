@@ -14,33 +14,24 @@ class DidacticVisualSkillTest(unittest.TestCase):
 
     def test_skill_declares_discovery_and_visualization_contract(self) -> None:
         content = _SKILL.read_text(encoding="utf-8")
+        normalized = " ".join(content.split()).lower()
 
         self.assertIn("name: didactic-visual", content)
-        self.assertIn("Use ao explicar", content)
-        self.assertIn("progressive disclosure", content.lower())
-        self.assertIn("explainability", content.lower())
-        self.assertIn("mecanismo", content.lower())
-        self.assertIn(
-            "problema → componentes → método → evidência → resultados → limitações → próximos passos",
-            content.lower(),
-        )
-        self.assertIn("nomes oficiais", content.lower())
-        self.assertIn("conceitos de dados", content.lower())
-        self.assertIn("Prerequisite: evidence first", content)
-        self.assertIn("`oh-my-harness:evidence`", content)
-        self.assertIn("evidence contract ativo no harness", content)
-        self.assertIn("additional constraints", content)
-        self.assertIn("ausência não é um blocker", content)
-        self.assertNotIn("If either dependency is unavailable", content)
-        self.assertIn("pelo menos um visual útil", content)
-        self.assertIn("Um pedido explícito não elimina", content)
-        self.assertIn("responda sem visual", content)
-        self.assertIn("terminal-native chart", content)
-        self.assertIn("unidade, população ou denominador", content)
-        self.assertIn("ASCII", content)
-        self.assertIn("table", content.lower())
-        self.assertIn("idioma do usuário", content)
-        self.assertIn("Não use", content)
+        self.assertIn("prerequisite: evidence first", normalized)
+        self.assertIn("load `oh-my-harness:evidence`", normalized)
+        self.assertIn("presentation only", normalized)
+        self.assertIn("progressive disclosure", normalized)
+        self.assertIn("explainability", normalized)
+        self.assertIn("apply the visual guard", normalized)
+        self.assertIn("use prose when", normalized)
+        self.assertIn("request for a large diagram does not override this guard", normalized)
+        self.assertIn("prefer terminal-native ascii", normalized)
+        for representation in ("table", "flow", "timeline", "tree", "wireframe"):
+            with self.subTest(representation=representation):
+                self.assertIn(representation, normalized)
+        self.assertIn("quantitative content", normalized)
+        self.assertIn("preserve scale and proportionality", normalized)
+        self.assertIn("every visual element maps to established content", normalized)
 
 
 if __name__ == "__main__":

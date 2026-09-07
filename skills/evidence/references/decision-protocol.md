@@ -1,61 +1,18 @@
-# Protocolo de Decisão Orientado a Evidência
+# Evidence-Sensitive Decision Protocol
 
-Use este protocolo quando uma decisão de software tem impacto relevante no usuário, risco
-operacional, irreversibilidade ou custo não-trivial.
+Use this protocol only for material choices.
 
-## 1. Enquadre a decisão
+1. Define the decision, deadline, affected system and population, constraints, and cost of delay.
+2. Record verified facts, derived results, inferences, hypotheses, estimates, unknowns, viable
+   alternatives, and decision criteria. Every verified fact, derived result, and inference must point
+   to inspectable evidence.
+3. Select the cheapest observation that can distinguish competing hypotheses or change the choice.
+4. Compare each alternative's expected benefit, failure mode, reversibility, implementation cost,
+   blast radius, and supporting evidence. Include the status quo and a smaller reversible step.
+5. Preserve contradictory evidence. Do not average conflicts or hide them in a score.
+6. Choose and preregister the owner, success measure, guardrail, rollback or review condition, and a
+   result that would falsify the controlling premise.
 
-Escreva a decisão, o prazo, o sistema e a população afetados, e o custo do atraso. Liste as
-restrições separadamente das preferências.
-
-## 2. Monte o registro de evidência
-
-Capture:
-
-```yaml
-verified_facts: []
-derived_results: []
-inferences: []
-hypotheses: []
-estimates: []
-unknowns: []
-alternatives: []
-decision_criteria: []
-```
-
-Todo fato verificado, resultado derivado e inferência aponta para evidência inspecionável; sem essa
-sustentação, rerrotule. Hipóteses e estimativas citam a evidência disponível e registram
-explicitamente quando não existe nenhuma. Desconhecidos nomeiam a evidência que falta e seu impacto
-na decisão. Preserve evidência contraditória em vez de tirar a média dela.
-
-## 3. Escolha a observação decisiva mais barata
-
-Ranqueie as investigações possíveis por valor para a decisão, custo e latência. Prefira uma
-reprodução, um teste dirigido, uma medição pequena ou um experimento reversível que distinga
-hipóteses concorrentes. Pare de coletar evidência quando outra observação dificilmente mudaria a
-escolha o bastante para justificar seu custo.
-
-## 4. Compare alternativas
-
-Para cada alternativa viável, declare benefício esperado, modo de falha, reversibilidade, custo de
-implementação e a evidência que a sustenta. Não fabrique scores. Uma matriz ponderada só é válida
-quando seus pesos e notas têm evidência definida ou estão claramente rotulados como julgamento de
-stakeholder.
-
-Trate o conjunto de opções apresentado como uma alegação, não como uma fronteira. Cheque o status
-quo, passos graduais ou reversíveis e combinações de opções antes de aceitar uma escolha binária.
-
-## 5. Decida e pré-registre a validação
-
-Registre:
-
-- a alternativa selecionada e o dono;
-- a evidência e os critérios que controlaram a escolha;
-- as alternativas rejeitadas e os trade-offs materiais;
-- métricas leading e de guardrail com requisitos de proveniência;
-- um resultado que falsificaria as premissas escolhidas;
-- condições de rollback ou revisão e o momento da próxima observação.
-
-Quando a evidência é fraca e a falha é cara, reduza o blast radius, adicione instrumentação ou
-escolha um passo reversível. Para um hotfix urgente, distinga a mitigação imediata da correção
-durável e registre a evidência exigida antes de alegar causa raiz.
+Do not invent numeric weights or confidence. A weighted matrix is valid only when its values are
+measured or explicitly recorded as stakeholder judgments. For urgent hotfixes, distinguish immediate
+mitigation from durable correction and do not claim root cause until discriminating evidence exists.

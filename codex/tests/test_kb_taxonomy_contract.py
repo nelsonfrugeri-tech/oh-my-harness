@@ -14,35 +14,38 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
     def test_write_routes_project_knowledge_through_a_topic(self) -> None:
         contract = self._read("skills/kb-write/SKILL.md")
 
-        self.assertIn("scope → domain → topic → concept", contract)
+        self.assertIn("scope -> domain -> topic -> concept", contract)
         self.assertIn(
             "work/projects/<project>/<topic>/<YYYY-MM-DD>--<short-slug>.md",
             contract,
         )
-        self.assertIn("`type` não determina o diretório", contract)
+        self.assertIn(
+            "`type` does not select the directory",
+            " ".join(contract.split()),
+        )
         self.assertNotIn("Pasta nasce na **segunda** nota", contract)
 
     def test_project_resolution_asks_only_when_identity_is_unknown(self) -> None:
         contract = " ".join(self._read("skills/kb-write/SKILL.md").split())
 
-        self.assertIn("nome de projeto fornecido explicitamente", contract)
+        self.assertIn("explicit project name", contract)
         self.assertIn("`remote_url`", contract)
-        self.assertIn("raiz Git observados", contract)
-        self.assertIn("nunca procure outro slug", contract)
-        self.assertIn("não houver identidade Git estável", contract)
-        self.assertIn("pergunte uma vez qual nome e slug canônicos", contract)
-        self.assertIn("colisão bloqueia a escrita", contract)
-        self.assertIn("Artifact existente sem identidade suficiente", contract)
-        self.assertIn("falhe fechado", contract)
-        self.assertIn("`explorer`, `kb-session` e `context-load.sh`", contract)
+        self.assertIn("observed Git root", contract)
+        self.assertIn("never search for another slug", contract)
+        self.assertIn("stable Git identity is unavailable", contract)
+        self.assertIn("ask once for the canonical name and slug", contract)
+        self.assertIn("collision blocks writing", contract)
+        self.assertIn("existing artifact without sufficient identity", contract)
+        self.assertIn("fails closed", contract)
+        self.assertIn("`explorer`, `kb-session`, and `context-load.sh`", contract)
 
     def test_topic_path_and_short_filename_are_stable(self) -> None:
         contract = self._read("skills/kb-write/SKILL.md")
         normalized = " ".join(contract.split())
 
-        self.assertIn("2 a 6 termos substantivos", contract)
+        self.assertIn("2-6 substantive terms", contract)
         self.assertIn(
-            "Nunca mova ou renomeie uma nota durante uma escrita normal",
+            "never move or rename a note during a normal write",
             normalized,
         )
         self.assertIn("Concept ID", contract)
@@ -53,11 +56,11 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         infra = self._read("skills/kb-infra/SKILL.md")
         retrieval = self._read("skills/kb-retrieval/SKILL.md")
 
-        self.assertIn("topic: <assunto", write)
-        self.assertIn("Payload index | `topic`", infra)
-        self.assertIn('"topic"', infra)
+        self.assertIn("topic: <stable-subject>", write)
+        self.assertIn("`topic`", infra)
+        self.assertIn("`topic`", infra)
         self.assertIn("`topic`", retrieval)
-        self.assertIn("pasta de assunto", retrieval)
+        self.assertIn("topic folder", retrieval)
 
     def test_agents_enforce_the_same_topic_first_routing(self) -> None:
         paths = (
@@ -69,12 +72,11 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
             with self.subTest(path=path):
                 content = self._read(path)
                 normalized = " ".join(content.split()).lower()
-                self.assertIn("project/context → topic → concept", normalized)
-                self.assertIn("identidade git estável", normalized)
-                self.assertIn("colisão no domain canônico", normalized)
-                self.assertIn("nunca redirecionam um writer isolado", normalized)
-                self.assertIn("não determina o diretório", normalized)
-                self.assertNotIn("segunda nota", content)
+                self.assertIn("canonical project/context to topic to concept", normalized)
+                self.assertIn("block domain collisions", normalized)
+                self.assertIn("instead of inventing alternate slugs", normalized)
+                self.assertIn("writing, retrieval, and session work", normalized)
+                self.assertIn("owning skills", normalized)
 
     def test_readme_documents_topic_first_layout(self) -> None:
         readme = self._read("README.md")
@@ -116,7 +118,7 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         normalized = " ".join(retrieval.split())
 
         self.assertIn("yaml.safe_load", retrieval)
-        self.assertIn("somente o primeiro bloco YAML", normalized)
+        self.assertIn("only the first YAML frontmatter block", normalized)
         self.assertIn('lines.index("---", 1)', retrieval)
         self.assertIn("~/knowledge-base/<domain> type system", retrieval)
         self.assertNotIn('text.split("---", 2)', retrieval)

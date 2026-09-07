@@ -51,7 +51,11 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("name: evidence", content)
         self.assertGreaterEqual(len(references), 3)
         self.assertTrue(all(f"references/{path.name}" in content for path in references))
-        self.assertIn("Todo fato verificado, resultado derivado e inferência", decision)
+        self.assertIn(
+            "Every verified fact, derived result, and inference must point",
+            decision,
+        )
+        self.assertIn("to inspectable evidence", decision)
         self.assertNotIn("or states why no source exists", decision)
 
     def test_evidence_reviewer_is_read_only_and_has_codex_parity(self) -> None:
@@ -65,39 +69,37 @@ class SoftwareEvidenceContractTest(unittest.TestCase):
         self.assertIn("name: evidence-reviewer", shared)
         self.assertIn('name = "evidence-reviewer"', codex)
         self.assertIn("read-only", shared.lower())
-        self.assertIn("somente leitura", codex.lower())
+        self.assertIn("read-only", codex.lower())
         self.assertIn("fals", shared.lower())
         self.assertIn("fals", codex.lower())
 
     def test_core_software_workflows_invoke_the_evidence_contract(self) -> None:
-        # The expected token also pins each file's prose language to the library
-        # contract: pt-BR instructional prose says "hipótese", English says "hypothesis".
-        paths = {
-            "skills/feature/SKILL.md": "hypoth",
-            "skills/implement/references/workflow-bug-fix.md": "hipót",
-            "skills/manage/SKILL.md": "hipót",
-            "skills/research/SKILL.md": "hipót",
-            "skills/review/SKILL.md": "hipót",
-            "skills/design/SKILL.md": "hipót",
-            "claude-code/workflows/create-feature.ts": "hipót",
-        }
+        paths = (
+            "skills/feature/SKILL.md",
+            "skills/implement/references/workflow-bug-fix.md",
+            "skills/manage/SKILL.md",
+            "skills/research/SKILL.md",
+            "skills/review/SKILL.md",
+            "skills/design/SKILL.md",
+            "claude-code/workflows/create-feature.ts",
+        )
 
-        for relative, token in paths.items():
+        for relative in paths:
             with self.subTest(path=relative):
                 content = _ROOT.joinpath(relative).read_text(encoding="utf-8").lower()
                 self.assertIn("evidence", content)
-                self.assertIn(token, content)
-        research = _ROOT.joinpath("skills/research/SKILL.md").read_text()
+                self.assertRegex(content, r"hypoth|hipót")
+        research = " ".join(self._read("skills/research/SKILL.md").split()).lower()
         manage = _ROOT.joinpath("skills/manage/SKILL.md").read_text()
-        self.assertNotIn("Minimum 3 sources", research)
-        self.assertNotIn("Apresentar como fato", research)
+        self.assertIn("never use source counts", research)
+        self.assertIn("do not replace it with a weaker source presented as fact", research)
         self.assertNotIn("~30%", manage)
         self.assertNotIn("Buffer: 20%", manage)
-        feature = self._read("skills/feature/SKILL.md")
+        feature = " ".join(self._read("skills/feature/SKILL.md").split())
         adapter = self._read("claude-code/workflows/create-feature.ts")
-        self.assertIn("evidence-reviewer", feature)
-        self.assertIn("block-pending-evidence", feature)
-        self.assertIn("unknowns:", feature)
+        self.assertIn("independent review", feature)
+        self.assertIn("can never become a merge recommendation", feature)
+        self.assertIn("unknowns", feature)
         self.assertIn("refinementUnknowns", adapter)
 
     def _canonical_contract(self) -> str:

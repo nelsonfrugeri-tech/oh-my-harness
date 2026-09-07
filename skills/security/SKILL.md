@@ -1,610 +1,147 @@
 ---
-version: 1.0.0
 name: security
-description: |
-  Base de conhecimento de segurança de aplicações (2026). Cobre OWASP Top 10 (2021) com mitigações,
-  princípios de arquitetura zero trust, modelagem de ameaças STRIDE, validação de entrada e codificação de saída,
-  padrões de autenticação (JWT, OAuth2, OIDC, MFA), autorização (RBAC, ABAC, ReBAC),
-  gestão de segredos (vault, rotação, nunca hardcoded), padrões de criptografia (TLS 1.3,
-  AES-256-GCM, Argon2), segurança de dependências e cadeia de suprimentos, testes de segurança (SAST, DAST,
-  varredura de dependências) e fundamentos de resposta a incidentes.
-  Use quando: (1) Revisar código em busca de problemas de segurança, (2) Projetar autenticação/autorização,
-  (3) Configurar gestão de segredos, (4) Executar modelagem de ameaças, (5) Responder a vulnerabilidades.
-  Gatilhos: /security, OWASP, authentication, authorization, STRIDE, secrets, CVE, vulnerability.
-type: knowledge
+description: >-
+  Build or challenge a scoped application-security threat model by tracing assets, actors, trust
+  boundaries, abuse paths, controls, negative tests, and residual risk. Use for security design,
+  authn/authz boundaries, untrusted input, secrets, supply chain, SSRF, or incident remediation.
+  Do not use merely for a generic OWASP explanation or to replace an independent code review.
+metadata:
+  origin: native
+  last_verified: 2026-09-07
 ---
 
-# Security — Base de Conhecimento
+# Scoped Threat Modeling
 
-## Propósito
+Turn a concrete system change or exposure into testable abuse paths and controls without assuming
+that authentication, validation, or a scanner makes the system secure.
 
-Esta skill é a base de conhecimento para segurança de aplicações (2026).
-Cobre o cenário de ameaças, autenticação, autorização, segredos, criptografia
-e padrões de teste necessários para construir sistemas seguros.
+## Guard the boundary
 
-**O que esta skill contém:**
-- OWASP Top 10 (2021) com mitigações concretas
-- Princípios de arquitetura zero trust
-- Modelagem de ameaças STRIDE
-- Validação de entrada e codificação de saída
-- Autenticação (JWT, OAuth2/OIDC, MFA, gerenciamento de sessão)
-- Autorização (RBAC, ABAC, ReBAC)
-- Gestão de segredos (vault, política de rotação)
-- Padrões de criptografia (o que usar, o que evitar)
-- Segurança de dependências e cadeia de suprimentos
-- Testes de segurança (SAST, DAST, varredura de dependências)
-- Checklist de revisão de segurança
+- Establish the system, operation, data, environment, and attacker capability in scope. If scope is
+  materially ambiguous, inspect local evidence and ask one discriminating question.
+- Route structural trade-offs to `design` and consumer-visible auth/error behavior to `api-design`.
+- Supply security observations and evidence to `review`; do not duplicate its severity taxonomy,
+  finding format, or merge recommendation.
+- Do not provide exploit steps against systems without authorization. Use local fixtures or a
+  clearly authorized target for dynamic checks.
+- Do not read suspected secrets to verify them. Report location and rotate/revoke through the
+  authorized operational process.
 
----
+## Resolve evidence and freshness
 
-## Filosofia
+Inspect code, data flows, deployment configuration, identities, policies, dependency locks, CI
+workflows, tests, and runtime observations. Configuration proves intent, not enforcement.
 
-### Segurança é uma Restrição de Design, Não uma Reflexão Tardia
+Use `research` with current primary sources for standards, vulnerability records, cloud metadata
+behavior, OAuth/OIDC, cryptography, framework security defaults, scanners, actions, and dependency
+syntax. Record source, revision or inspection date, applicability, and limitation. Never copy a
+current algorithm, parameter, action tag, image tag, or scanner command from memory.
 
-Bugs de segurança são os mais caros de corrigir após o deploy. Princípios de design:
+If authoritative evidence or the required environment is unavailable, mark the control or test
+unverified and preserve the risk. Do not substitute a weaker check silently.
 
-1. **Defesa em profundidade** — múltiplas camadas independentes; uma falha não compromete o sistema
-2. **Menor privilégio** — cada componente tem apenas as permissões de que precisa
-3. **Assuma a violação** — projete para contenção, não apenas prevenção
-4. **Falhe de forma segura** — quando uma verificação de segurança falha, negue o acesso (nunca permita por padrão)
-5. **Seguro por padrão** — configurações inseguras exigem opt-in explícito, não o contrário
+## Build the threat model
 
----
+1. **Define impact.** Identify assets, sensitive operations, availability obligations, privacy or
+   integrity consequences, and who owns the risk.
+2. **Map exposure.** Trace actors, identities, entry points, interpreters, data stores, external
+   services, privileges, and trust-boundary crossings. Include logs, queues, build inputs, and client
+   bundles where relevant.
+3. **Construct abuse paths.** State attacker preconditions, controlled input, path across boundaries,
+   target asset, observable impact, and existing control. Use taxonomies such as STRIDE or OWASP only
+   as coverage prompts after tracing the actual flow.
+4. **Prioritize with evidence.** Compare reachability, required privilege, exploit preconditions,
+   impact, detectability, and evidence confidence. Do not invent likelihood or collapse incomparable
+   factors into an unsupported score.
+5. **Place controls.** Map prevention, detection, containment, and recovery to an explicit
+   enforcement point and owner. Prefer allowlists, parameterization, least privilege, bounded
+   resources, immutable provenance, and fail-closed behavior where the business failure mode allows.
+6. **Test negatively.** Attempt the abuse condition in an authorized fixture; verify denial,
+   absence of partial effects or secret leakage, and a useful audit signal. A scanner finding or
+   passing configuration check is not runtime proof.
+7. **Record residual risk.** State untested paths, bypass assumptions, operational dependencies,
+   accepted impact, decision owner, and the event that triggers reassessment.
 
-## 1. OWASP Top 10 (2021)
+Use [threat-model.md](references/threat-model.md) for a durable artifact.
 
-### A01 — Broken Access Control
+## High-risk boundary checks
 
-**Risco:** Usuários acessando recursos aos quais não deveriam ter acesso.
+### Object authorization
 
-```python
-# GOOD: verify ownership at every data access
-async def get_order(order_id: str, current_user: User) -> Order:
-    order = await order_repo.get(order_id)
-    if order is None:
-        raise NotFoundError("Order", order_id)
-    if order.user_id != current_user.id and not current_user.is_admin:
-        raise ForbiddenError("You do not own this order")
-    return order
+Authentication establishes identity, not permission on an object. Test a valid principal performing
+the same action against another tenant or owner's object, including indirect identifiers and batch
+operations. Enforce policy at the data access or authoritative operation boundary, not only in UI or
+route presence.
 
-# BAD: trust client-provided user_id in payload
-# order = await order_repo.get_by_user(request.body.user_id, order_id)
-```
+### Injection and interpretation
 
-**Mitigações:**
-- Aplique autorização na camada de dados, não apenas na camada de rotas
-- Nunca confie em claims de identidade fornecidos pelo cliente (`user_id` no body/query)
-- Use queries parametrizadas — nunca SQL cru com entrada do usuário
-- Registre todas as falhas de controle de acesso
+Trace where untrusted bytes become SQL, shell, template, path, query language, expression, markup,
+or generated code. Prefer structured APIs and parameter binding. Validate both the intended grammar
+and the downstream interpreter. Escaping for one context does not make data safe in another.
 
-### A02 — Cryptographic Failures
+### Secrets and supply chain
 
-**Risco:** Dados sensíveis expostos devido a criptografia fraca ou ausente.
+Check source, history, logs, traces, build output, client bundles, caches, and error responses without
+printing secret values. Treat exposure as an incident requiring revocation or rotation, not merely
+deletion.
 
-| Use | NÃO use |
-|-----|-----------|
-| AES-256-GCM para criptografia simétrica | AES-ECB (determinístico, revela padrões) |
-| Argon2id para senhas | MD5, SHA-1 para senhas |
-| TLS 1.3 para transporte | TLS 1.0/1.1, SSL |
-| ECDSA / RSA-2048 para assinaturas | RSA-512 |
-| HKDF / PBKDF2 para derivação de chaves | Hash direto para derivação de chaves |
-
-```python
-from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
-
-ph = PasswordHasher(
-    time_cost=3,      # iterations
-    memory_cost=65536, # 64 MB
-    parallelism=4,
-)
-
-# Hash password on registration
-hashed = ph.hash(plain_password)
-
-# Verify on login
-try:
-    ph.verify(hashed, plain_password)
-    if ph.check_needs_rehash(hashed):
-        hashed = ph.hash(plain_password)  # upgrade parameters
-except VerifyMismatchError:
-    raise AuthenticationError("Invalid credentials")
-```
-
-### A03 — Injection
-
-**Risco:** Dados controlados pelo atacante interpretados como código (SQL, comandos de SO, LDAP, etc.).
-
-```python
-# GOOD: parameterized queries
-async def get_user_by_email(email: str) -> User | None:
-    return await db.fetchrow(
-        "SELECT * FROM users WHERE email = $1",  # $1 is a parameter
-        email,
-    )
-
-# BAD: string interpolation → SQL injection
-# f"SELECT * FROM users WHERE email = '{email}'"
-
-# GOOD: command execution — never shell=True with user input
-import subprocess
-result = subprocess.run(
-    ["convert", "-resize", "800x600", input_path, output_path],
-    capture_output=True,
-    timeout=30,
-    check=True,
-)
-
-# BAD: shell=True allows injection
-# subprocess.run(f"convert {user_path}", shell=True)
-```
-
-### A04 — Insecure Design
-
-**Mitigações:**
-- Faça modelagem de ameaças de toda nova funcionalidade (veja a seção STRIDE)
-- Defina requisitos de segurança antes da implementação
-- Use padrões de design comprovados (não invente criptografia própria)
-- Inclua critérios de aceitação de segurança nas user stories
-
-### A05 — Security Misconfiguration
-
-```python
-# Checklist for production configuration
-assert settings.debug is False
-assert settings.secret_key != "development-key"
-assert settings.database_url.startswith("postgresql://")
-assert "sslmode=require" in settings.database_url
-
-# Disable verbose error messages in production
-@app.exception_handler(Exception)
-async def generic_error_handler(request: Request, exc: Exception):
-    if settings.debug:
-        raise exc  # show full traceback in dev
-    # In production: log the error, return generic message
-    logger.error("unhandled_exception", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content={"error": {"code": "INTERNAL_ERROR", "message": "An unexpected error occurred"}},
-    )
-```
-
-### A06 — Vulnerable and Outdated Components
-
-Veja a seção [Dependency Security](#6-dependency-and-supply-chain-security).
-
-### A07 — Identification and Authentication Failures
-
-Veja a seção [Authentication](#3-authentication).
-
-### A08 — Software and Data Integrity Failures
-
-```bash
-# Verify checksums when downloading artifacts
-curl -sL https://example.com/app.tar.gz | sha256sum -c expected.sha256
-
-# Pin dependencies to exact versions (prevent supply chain attacks)
-# requirements.txt
-requests==2.32.3
-# NOT requests>=2.32
-```
-
-### A09 — Security Logging and Monitoring Failures
-
-```python
-# Log all security events — structured, immutable, centralized
-security_logger = structlog.get_logger("security")
-
-def log_auth_attempt(email: str, success: bool, ip: str, user_agent: str) -> None:
-    security_logger.info(
-        "authentication_attempt",
-        email=email,
-        success=success,
-        ip=ip,
-        user_agent=user_agent,
-        # Never log the password or token
-    )
-
-def log_access_denied(user_id: str, resource: str, action: str) -> None:
-    security_logger.warning(
-        "access_denied",
-        user_id=user_id,
-        resource=resource,
-        action=action,
-    )
-```
+Resolve action and dependency revisions from current official sources. Pin executable CI actions and
+images to immutable revisions or digests, keep the human-readable release in update metadata, and
+use a reviewed update mechanism. Never use mutable `@main`, `@master`, or `latest` as an
+execution trust anchor.
 
 ### A10 — Server-Side Request Forgery (SSRF)
 
-```python
-import ipaddress
-from urllib.parse import urlparse
-
-ALLOWED_SCHEMES = {"https"}
-BLOCKED_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "169.254.169.254"}
-
-def validate_external_url(url: str) -> str:
-    """Validate URL is safe to fetch — prevents SSRF."""
-    parsed = urlparse(url)
-
-    if parsed.scheme not in ALLOWED_SCHEMES:
-        raise ValidationError(f"URL scheme {parsed.scheme!r} not allowed")
-
-    hostname = parsed.hostname or ""
-    if hostname in BLOCKED_HOSTS:
-        raise ValidationError("URL points to internal network")
-
-    # Block private IP ranges
-    try:
-        addr = ipaddress.ip_address(hostname)
-        if addr.is_private or addr.is_loopback or addr.is_link_local:
-            raise ValidationError("URL points to internal network")
-    except ValueError:
-        pass  # hostname is a domain name, not an IP — OK
-
-    return url
-```
-
----
-
-## 2. Modelagem de Ameaças STRIDE
-
-### Categorias STRIDE
-
-| Ameaça | Descrição | Mitigação |
-|--------|-------------|-----------|
-| **S**poofing | Personificar outro usuário ou sistema | Autenticação, MFA, tokens assinados |
-| **T**ampering | Modificar dados em trânsito ou em repouso | Assinaturas HMAC, TLS, verificações de integridade |
-| **R**epudiation | Negar que uma ação ocorreu | Log de auditoria, assinaturas digitais |
-| **I**nformation Disclosure | Vazar dados sensíveis | Criptografia, controle de acesso, mascaramento de dados |
-| **D**enial of Service | Esgotar recursos | Rate limiting, circuit breakers, CDN |
-| **E**levation of Privilege | Obter permissões não autorizadas | Menor privilégio, RBAC, validação de entrada |
-
-### Processo de Modelagem de Ameaças
-
-```
-1. IDENTIFY ASSETS
-   - What data is sensitive? (PII, credentials, payment data, health data)
-   - What operations are privileged? (admin actions, data deletion, payment)
-   - What external integrations exist?
-
-2. CREATE DATA FLOW DIAGRAM
-   - Map all entry points (APIs, webhooks, queues)
-   - Map all data stores (databases, caches, files)
-   - Map all trust boundaries (internet, internal network, DMZ)
-
-3. APPLY STRIDE PER COMPONENT
-   - For each data flow: which STRIDE threats apply?
-   - Rate each threat: Probability (H/M/L) × Impact (H/M/L)
-
-4. DEFINE MITIGATIONS
-   - One mitigation per identified threat
-   - Verify mitigation in acceptance criteria
-
-5. VALIDATE
-   - Security tests cover each mitigation
-   - Automated SAST/DAST in CI pipeline
-```
-
----
-
-## 3. Authentication
-
-### Boas Práticas de JWT
-
-```python
-from datetime import datetime, timedelta, timezone
-import jwt
-
-SECRET_KEY = settings.jwt_secret  # from env, min 256 bits
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE = timedelta(minutes=15)
-REFRESH_TOKEN_EXPIRE = timedelta(days=7)
-
-def create_access_token(user_id: str, roles: list[str]) -> str:
-    now = datetime.now(tz=timezone.utc)
-    payload = {
-        "sub": user_id,
-        "roles": roles,
-        "iat": now,
-        "exp": now + ACCESS_TOKEN_EXPIRE,
-        "jti": secrets.token_urlsafe(16),  # unique token ID (for revocation)
-    }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-def decode_and_validate_token(token: str) -> dict:
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationError("Token expired")
-    except jwt.InvalidTokenError as e:
-        raise AuthenticationError(f"Invalid token: {e}")
-
-    # Check revocation list (Redis)
-    if redis.exists(f"revoked:jti:{payload['jti']}"):
-        raise AuthenticationError("Token has been revoked")
-
-    return payload
-```
-
-### OAuth2 / OIDC
-
-```
-Flow selection:
-  Public web app (SPA)     → Authorization Code + PKCE
-  Server-side web app      → Authorization Code
-  Machine-to-machine       → Client Credentials
-  Native mobile app        → Authorization Code + PKCE
-  Device (TV, CLI)         → Device Authorization
-
-Scopes to request:
-  Minimum required: openid, email
-  Only request what you need
-  Never store access tokens longer than needed
-```
-
-### Requisitos de MFA
-
-```
-When MFA is required:
-- Admin panel access
-- Payment operations
-- Account settings changes (email, password)
-- Data export/deletion
-- API key creation
-
-Accepted MFA methods (order of strength):
-  FIDO2/WebAuthn (hardware key, passkey) — strongest
-  TOTP (authenticator app)
-  SMS OTP — weakest (SIM swap risk), avoid for high-value operations
-```
-
----
-
-## 4. Autorização
-
-### RBAC (Controle de Acesso Baseado em Papéis)
-
-```python
-from enum import Enum
-
-class Permission(Enum):
-    USERS_READ = "users:read"
-    USERS_WRITE = "users:write"
-    USERS_DELETE = "users:delete"
-    ORDERS_READ = "orders:read"
-    ORDERS_WRITE = "orders:write"
-    ADMIN = "admin:*"
-
-ROLE_PERMISSIONS: dict[str, set[Permission]] = {
-    "viewer": {Permission.USERS_READ, Permission.ORDERS_READ},
-    "editor": {Permission.USERS_READ, Permission.USERS_WRITE, Permission.ORDERS_READ, Permission.ORDERS_WRITE},
-    "admin": {p for p in Permission},  # all permissions
-}
-
-def has_permission(user: User, permission: Permission) -> bool:
-    user_permissions: set[Permission] = set()
-    for role in user.roles:
-        user_permissions |= ROLE_PERMISSIONS.get(role, set())
-    return permission in user_permissions or Permission.ADMIN in user_permissions
-```
-
-### Regras de Autorização
-
-```
-1. Authorization checks at every layer — route handler AND data access layer
-2. Deny by default — no permission means no access (never default-allow)
-3. Check ownership — user.id == resource.owner_id for non-admin operations
-4. Audit trail — log every denied access attempt
-5. Separate read from write permissions — read is cheap to grant, write is not
-```
-
----
-
-## 5. Gestão de Segredos
-
-### Regras (Não Negociáveis)
-
-```
-1. NEVER hardcode secrets in code
-2. NEVER commit secrets to git (even private repos)
-3. NEVER log secrets (API keys, tokens, passwords)
-4. NEVER pass secrets via URL parameters
-5. NEVER store secrets in client-side code (JavaScript bundle, mobile app)
-```
-
-### Hierarquia de Armazenamento de Segredos
-
-| Ambiente | Armazenamento | Padrão de Acesso |
-|-------------|-------|---------------|
-| Dev local | `.env` (no gitignore) + `.env.example` | Variáveis de ambiente diretas |
-| CI/CD | Segredos da plataforma (GitHub Actions secrets) | Injetados como variáveis de ambiente |
-| Produção | HashiCorp Vault / AWS Secrets Manager | SDK com tokens de curta duração |
-| Senhas de banco de dados | Segredos dinâmicos do Vault | Rotacionadas automaticamente |
-
-### Política de Rotação
-
-```
-API keys: rotate every 90 days
-JWT signing keys: rotate every 30 days
-Database passwords: rotate every 30 days (Vault dynamic secrets)
-TLS certificates: auto-rotate via cert-manager / Let's Encrypt
-After any suspected exposure: rotate immediately
-```
-
-### Python: pydantic-settings para Segredos
-
-```python
-from pydantic import Field, SecretStr
-from pydantic_settings import BaseSettings
-
-class Settings(BaseSettings):
-    # SecretStr: value is masked in logs/repr
-    database_password: SecretStr
-    api_key: SecretStr
-    jwt_secret: SecretStr = Field(min_length=32)
-
-    def get_database_url(self) -> str:
-        # .get_secret_value() only where needed
-        return f"postgresql://user:{self.database_password.get_secret_value()}@host/db"
-```
-
----
-
-## 6. Dependency and Supply Chain Security
-
-### Varredura Automatizada
-
-```yaml
-# .github/workflows/security.yml
-name: Security Scan
-on: [push, pull_request, schedule]
-  cron: "0 6 * * 1"  # weekly on Monday
-
-jobs:
-  dependency-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      # Python — pip-audit
-      - run: pip install pip-audit
-      - run: pip-audit --requirement requirements.txt --strict
-
-      # Node.js — pnpm audit
-      - run: pnpm audit --audit-level moderate
-
-      # Container images — Trivy
-      - name: Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: myapp:latest
-          exit-code: "1"
-          severity: "CRITICAL,HIGH"
-
-      # SAST — Semgrep
-      - name: Semgrep SAST
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: auto
-```
-
-### Regras de Dependências
-
-```
-1. Pin exact versions — never >=, ~=, or ^
-2. Audit new dependencies before adding (check CVE history, maintenance status)
-3. Prefer small, focused libraries over large frameworks (smaller attack surface)
-4. Check package name for typosquatting (requests vs requets)
-5. Verify checksums for downloaded artifacts
-6. Run dependency audit in CI on every PR and weekly schedule
-```
-
----
-
-## 7. Testes de Segurança
-
-### SAST (Análise Estática)
-
-```bash
-# Python
-bandit -r src/ -ll  # severity LOW+
-semgrep --config=auto src/
-
-# TypeScript/JavaScript
-eslint --plugin security src/
-
-# Multi-language
-semgrep --config=p/owasp-top-ten .
-```
-
-### DAST (Análise Dinâmica)
-
-```bash
-# OWASP ZAP — passive scan against running app
-docker run -t owasp/zap2docker-stable zap-baseline.py \
-  -t http://localhost:8000 \
-  -r zap-report.html \
-  -I  # ignore warnings for CI (exit 0)
-
-# For CI: fail on medium+ severity
-docker run -t owasp/zap2docker-stable zap-baseline.py \
-  -t http://localhost:8000 \
-  --exit-code 2  # fail on MEDIUM+
-```
-
-### Checklist de Testes de Segurança
-
-```markdown
-### Authentication
-- [ ] Test expired token → 401
-- [ ] Test invalid token signature → 401
-- [ ] Test token reuse after logout → 401
-- [ ] Test brute force (rate limiting kicks in)
-
-### Authorization
-- [ ] Test user A accessing user B's resource → 403
-- [ ] Test unauthorized role performing privileged action → 403
-- [ ] Test missing auth header → 401
-- [ ] Test elevated privilege after role downgrade
-
-### Injection
-- [ ] SQL injection in all text inputs
-- [ ] OS command injection in path/filename inputs
-- [ ] XSS in all user-controlled output
-
-### Secrets
-- [ ] No secrets in git history
-- [ ] No secrets in logs
-- [ ] No secrets in API responses
-- [ ] Secrets rotated in staging/production
-```
-
----
-
-## Checklist de Revisão de Segurança
-
-```markdown
-### Input Validation
-- [ ] All external inputs validated at boundaries (Pydantic, zod, etc.)
-- [ ] No SQL/command injection possible (parameterized queries, subprocess list)
-- [ ] File uploads validated (type, size, content inspection)
-- [ ] URL inputs validated against SSRF (private IP ranges blocked)
-
-### Authentication
-- [ ] Passwords hashed with Argon2id (never MD5/SHA-1)
-- [ ] JWTs short-lived (<= 15 min access, <= 7 day refresh)
-- [ ] MFA required for privileged operations
-- [ ] Brute force protection (rate limiting on auth endpoints)
-
-### Authorization
-- [ ] Every endpoint has an authorization check
-- [ ] Resource ownership verified (not just role)
-- [ ] Default-deny (no permission = no access)
-- [ ] Access denial logged
-
-### Secrets
-- [ ] No secrets in code or git
-- [ ] Secrets loaded from environment / vault
-- [ ] SecretStr used in Python settings
-- [ ] Rotation schedule defined
-
-### Cryptography
-- [ ] Argon2id for passwords
-- [ ] AES-256-GCM for encryption
-- [ ] TLS 1.3 for all transport
-- [ ] No custom crypto
-
-### Dependencies
-- [ ] Exact versions pinned
-- [ ] Dependency audit passes in CI
-- [ ] No known CVEs with CRITICAL or HIGH severity
-
-### Logging
-- [ ] Security events logged (auth, access denied, data export)
-- [ ] No sensitive data in logs (passwords, tokens, PII)
-- [ ] Logs are immutable and shipped to SIEM
-```
-
----
-
+Do not copy a hand-written hostname validator into production; URL validation alone is not an SSRF
+boundary. Use a maintained outbound-request policy and verify all of these controls together:
+
+1. Parse with a standards-compliant URL parser, allow only required schemes, reject credentials and
+   ambiguous host encodings, and constrain destination ports.
+2. Resolve every A and AAAA record before connecting. Reject the destination if any address is
+   unspecified, loopback, private, link-local, multicast, reserved, or in a cloud metadata range;
+   include IPv4-mapped IPv6 representations.
+3. Prevent DNS rebinding by pinning the validated resolution to the connection and perform a
+   post-connect peer-address check.
+4. Disable redirects by default. If redirects are required, apply the complete parse, DNS, address,
+   and post-connect validation to every hop and cap the redirect count.
+5. Enforce egress proxy or firewall rules that deny internal networks and metadata services even if
+   application validation fails.
+6. Test direct IPs, alternate numeric encodings, mixed A/AAAA answers, DNS rebinding, redirects to
+   private/link-local targets, and metadata endpoints. Fail closed on resolution or validation
+   errors.
+
+Redirect policy: DENY_BY_DEFAULT — redirects remain disabled unless every hop repeats the full
+validation policy and the client enforces a finite hop limit.
+Address policy: DENY — reject private, link-local, loopback, reserved, multicast, unspecified, and
+cloud metadata destinations for every resolved address and connected peer.
+DNS policy: PIN_AND_RECHECK — bind the validated resolution to the connection and fail closed when
+the connected peer is outside the validated address set.
+Egress policy: DENY_INTERNAL — enforce a separate network boundary for internal and metadata ranges.
+Source: [OWASP Server-Side Request Forgery Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)
+as_of: 2026-09-06
+Post-connect evidence: INFERENCE — OWASP establishes DNS-pinning and redirect risks, but does not
+prescribe the exact post-connect peer check. Resolution pinning and peer verification are
+defense-in-depth controls inferred to close the validation-to-connect time-of-check/time-of-use gap.
+Refresh trigger: revalidate when OWASP guidance, HTTP client redirect behavior, DNS resolution, or
+cloud metadata boundaries change.
+
+### Incident pressure
+
+Do not run destructive containment or remediation from a generic recommendation. Resolve the exact
+owned scope, inspect current state, preview effects where possible, preserve evidence, define
+recovery, and obtain authorization required by the active environment. Prefer reversible isolation,
+credential revocation, or traffic controls when they reduce exposure without destroying evidence.
+If the destructive target is broad or unresolved, refuse that action and report the safe next step.
+
+## Produce and verify
+
+Report scope, assets, trust boundaries, prioritized abuse paths, controls with enforcement points,
+negative tests and their exact outcomes, residual risks, assumptions, unknowns, and source
+provenance. Do not claim “secure” or absence of vulnerabilities.
+
+Before stopping, verify that every high-impact abuse path has a control, a negative check or explicit
+untested status, recovery ownership, and a reassessment event. Stop when the next risk decision is
+actionable; do not append a generic OWASP checklist.
+
+Refresh this skill when package evals fail or when relevant standards, advisories, dependencies,
+platform defaults, cloud metadata behavior, or threat assumptions change.

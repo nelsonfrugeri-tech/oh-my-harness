@@ -1,230 +1,131 @@
 ---
-version: 2.1.0
 name: feature
-description: |
-  Creates a feature end to end across Claude Code and Codex. Runs interactive technical
-  refinement with architect or ai-engineer, persists the approved refinement, and orchestrates
-  user history, implementation, parallel QA and SRE validation, fix iterations, and PR/MR creation.
-  Use when the user wants to start a new feature through refinement_tech, user_history,
-  development, validation, and PR/MR delivery.
-  Triggers: /feature, create feature, new feature, start feature.
-type: workflow
+description: >-
+  Orchestrates an end-to-end feature request by resolving material scope, preserving resumable
+  state, handing bounded implementation to implement and test, and coordinating explicit external
+  handoffs. Use when the user asks to build a feature across multiple phases or sessions. Do not use
+  for a single local edit, automatic QA/SRE certification, or an author-issued review verdict.
+metadata:
+  type: workflow
+  version: 3.0.0
+  origin: native
+  last_verified: 2026-09-06
 ---
 
-# Feature — End-to-End Feature Creation
+# Feature
 
-Orchestrate a new feature from technical refinement through PR/MR delivery. Preserve every phase
-and gate below. Do not invent names, technical decisions, or repositories; obtain missing choices
-from the user. Apply the `evidence` skill throughout the workflow.
+Coordinate feature state and handoffs without duplicating implementation, testing, product,
+operations, or review skills.
 
-## Portable orchestration contract
+## Guard the boundary
 
-This skill describes behavior, not literal tool calls. Resolve each primitive through the active
-harness:
+- Apply `evidence` to material claims and decisions.
+- Delegate repository change execution to `implement`; it invokes `test` where verification design
+  is material and produces the author self-check.
+- Use product, architecture, AI, QA, SRE, security, or independent review capabilities only when the
+  feature's scope and risk require them. Their absence does not authorize this workflow to invent
+  their verdicts.
+- Do not create planning directories, refinement drafts, validation reports, or workflow-state files
+  in the product repository unless the user or repository explicitly defines them as versioned
+  product artifacts. Keep temporary state in the harness scratch space.
+- Do not create an issue, branch, commit, pull request, deployment, or other external side effect
+  unless the user requested that outcome and the active capability is authorized.
 
-- **ask** — collect a user decision through the harness-native input mechanism; if none exists,
-  ask directly in the conversation.
-- **delegate(role, task, context)** — run the named installed agent/role through the harness-native
-  agent or subagent mechanism. If delegation is unavailable, load that role's instructions and
-  perform the bounded phase inline.
-- **parallel(tasks)** — schedule independent tasks concurrently when the harness supports it;
-  otherwise run them sequentially while preserving independent results.
-- **persist(path, content)** — write a product artifact to the declared feature path.
-- **code-host** — use the concrete tool mapped to this capability in the active global
-  instructions. If it is not configured, preserve the prepared issue or PR/MR content and report
-  the pending external action.
-- **memory** — index a summary only when this optional capability is configured. Persistence on
-  disk must still succeed when memory is unavailable.
+## Keep resumable state
 
-These names are conceptual primitives and must not be treated as concrete tool names.
+Maintain one compact feature record outside the product tree unless the repository defines an
+authoritative equivalent:
 
-### Harness adapters
+- feature identifier and requested outcome;
+- acceptance criteria and explicit non-goals;
+- verified evidence, hypotheses, unknowns, and decisions;
+- repository, revision, worktree, and authority boundary;
+- completed phases with evidence locators;
+- external side-effect identifiers such as issue, branch, or pull request;
+- current phase, blocker, and next safe action.
 
-- **Claude Code:** after refinement, prefer the bundled
-  [create-feature TypeScript adapter](../../../claude-code/workflows/create-feature.ts) when the
-  Workflow runtime is available. Pass the contract in **Workflow input** below.
-- **Codex:** execute **Portable pipeline** with native task delegation. Keep the orchestration loop
-  in the parent agent; delegate bounded role tasks, run QA and SRE concurrently when possible, and
-  collect their structured handoffs before advancing.
-- **Other harnesses:** execute the same portable pipeline using the contract above. Missing native
-  orchestration is a performance limitation, not permission to skip phases or gates.
+On resume, inspect the repository and every recorded external identifier. Reuse a completed phase
+only when its artifact and preconditions still hold. Verify before retrying any side effect so issue,
+branch, commit, or pull-request creation remains idempotent.
 
-## Initial setup
+## Orchestrate adaptively
 
-1. **Feature name** — if the user did not provide one, ask for it. Derive a kebab-case
-   `featureSlug` for directories and branches, then confirm it with the user.
-2. **Implementation track** — ask whether to use `developer` (default) or `ai-engineer`. Recommend
-   `ai-engineer` when the initial description involves LLMs, RAG, embeddings, agents, prompts,
-   models, NLP, classification, or recommendation; otherwise recommend `developer`.
-3. **Target repository** — ask which `owner/name` repository will receive the final PR/MR. If it is
-   not known yet, record `repo` as `null`; the tech-pm and implementer may later resolve it from the
-   Git remote.
-
-## Phase 1 — `refinement_tech` (interactive)
-
-Use `architect` by default. Use `ai-engineer` when the selected track is `ai-engineer` and the
-focus is AI architecture. Mixed features may consult both roles at different points.
-
-### Refinement loop
-
-1. Delegate one specialist round requesting an initial analysis and three to five critical
-   questions for the user.
-2. Ask the questions through **ask**, one at a time when dense or grouped when brief.
-3. Append the answers to the chronological refinement buffer.
-4. Ask whether the user wants to deepen a point, switch specialist, or consolidate the refinement.
-5. If more depth is requested, repeat with the complete accumulated context.
-6. If consolidation is approved, continue below.
-
-### Consolidation
-
-Delegate the final synthesis to the current specialist, using this structure:
-
-```markdown
-# Refinement Tech — <feature name>
-
-## Context and problem
-## Technical goals
-## Architecture decisions
-## Components and responsibilities
-## Evaluated trade-offs
-## Evidence and provenance
-## Hypotheses and unknowns
-## Decision criteria and falsification plan
-## Technical risks and mitigations
-## AI components (if applicable)
-## Open questions
-
----
-
-## Discussion history
-<chronological dump of refinement questions and answers in pt-BR>
+```text
+DISCOVER_EXISTING_STATE
+  -> CLARIFY_MATERIAL_SCOPE
+  -> DEFINE_EXECUTION_HANDOFF
+  -> IMPLEMENT_AND_TEST
+  -> COLLECT_EXPLICIT_HANDOFFS
+  -> REPORT_OR_RESUME
 ```
 
-Present the complete content or an accurate summary for user approval. Only after approval, persist
-it to `<featureSlug>/refinement_tech.md`. If **memory** is configured, index a summary too.
+### DISCOVER_EXISTING_STATE
 
-Before requesting approval for a material or hard-to-reverse decision, delegate a read-only audit
-to `evidence-reviewer`. Give it the refinement and cited sources, but not a preferred verdict.
-Handle its verdict explicitly:
+Resolve the current feature record, repository instructions, worktree state, related issue or design
+artifact, existing branch/PR identifiers, and completed implementation evidence. Treat historical
+records as leads and revalidate mutable state.
 
-- `approve` — continue to user approval;
-- `approve-with-explicit-uncertainty` — preserve the identified hypotheses and unknowns, then
-  continue to user approval;
-- `block-pending-evidence` — stop refinement until the named decisive evidence is obtained or the
-  user explicitly changes the decision scope to a safe, reversible alternative.
+### CLARIFY_MATERIAL_SCOPE
 
-Attach the audit outcome to the refinement. Do not require this extra delegation for trivial,
-reversible choices.
+Derive observable acceptance criteria and non-goals from the request and repository context. Ask one
+focused question only when an unresolved product or contract choice would materially change the
+implementation. Do not force a refinement ceremony, document template, fixed question count, or
+user approval checkpoint for facts already established.
 
-## Workflow input
+If a material decision needs architecture, product, AI, security, or evidence review, make a bounded
+handoff with the question, known facts, alternatives, and required output. Preserve returned
+uncertainty; a specialist response is evidence for its scope, not automatic implementation authority.
 
-The approved refinement produces this harness-neutral input:
+### DEFINE_EXECUTION_HANDOFF
 
-```yaml
-featureName: <human-readable name>
-featureSlug: <kebab-case slug>
-refinementContent: <complete refinement_tech.md content>
-evidence:
-  - <verified fact, derived result, or source reference>
-hypotheses:
-  - <falsifiable assumption or unresolved explanation>
-unknowns:
-  - <missing evidence and its decision impact>
-track: developer | ai-engineer
-repo: <owner/name | null>
-```
+Pass `implement` a self-contained task containing the requested outcome, acceptance criteria,
+non-goals, relevant artifacts, repository and authority boundary, known risks, and required external
+handoffs. Select `feature` mode plus any justified modifiers such as migration, generated, or async.
 
-Claude Code passes these fields to the `create-feature` adapter. Codex and other harnesses use them
-as the immutable input to the portable pipeline below.
+### IMPLEMENT_AND_TEST
 
-## Portable pipeline
+Let `implement` own discovery, red-capable observation, changes, focused and broad gates, author
+self-check, and execution report. Do not restate its procedure here and do not mark implementation
+complete when its status is `partially-completed`, `blocked`, or `unable-to-reproduce`.
 
-### Phase 2 — `user_history`
+There is no fixed iteration count. Repeat a bounded implementation step only while new evidence
+identifies an in-scope correction, the next attempt is safe, and a stop condition remains explicit.
+Stop on a material decision, unavailable authority, repeated unchanged failure, or user-defined
+budget rather than inventing a universal retry limit.
 
-Delegate to `tech-pm` with the workflow input. Require:
+### COLLECT_EXPLICIT_HANDOFFS
 
-- an INVEST user story with title, `As a / I want / So that`, three to six Given/When/Then
-  acceptance scenarios, and Definition of Done;
-- an issue/ticket created through **code-host** when available;
-- the complete Markdown persisted to `<featureSlug>/user_history/user_history.md`;
-- a structured handoff containing the Markdown, Definition of Done, and `issueUrl` (empty when the
-  external action could not be completed).
-- explicit evidence, hypotheses, unknowns, and success metrics with quantitative provenance.
+Request only the independent checks required by the task or repository. QA, SRE, security, product,
+and independent review each own their own evidence and verdict. Keep actor identity and execution
+evidence distinct from the author. The author self-check can prepare context but can never become a
+merge recommendation.
 
-Do not block local work solely because **code-host** is unavailable. Record the pending action.
+If independent review is required, hand off the task and acceptance criteria, diff/revision,
+decisions, focused and broad command evidence, limitations, and unresolved risks to the review
+capability. Package05 defines that review contract; Package12 defines agent routing and identity
+separation.
 
-### Phase 3 — `development`
+### REPORT_OR_RESUME
 
-Delegate to the selected implementation role (`developer` or `ai-engineer`) with the refinement,
-user history, acceptance criteria, and Definition of Done. Require the role to:
+Return the feature status, completed phases and evidence, changed files, implementation status,
+explicit independent handoffs and their real outcomes, blockers, residual risk, external side-effect
+identifiers, and next safe action. Do not fabricate missing validator, reviewer, CI, deployment, or
+release results.
 
-1. create `feature/<featureSlug>` when branch creation is appropriate and authorized;
-2. implement the feature and its tests according to the repository's engineering rules;
-3. discover and pass the repository quality gates;
-4. return a structured handoff with `verdict`, summary, changed files, verification commands,
-   branch name, evidence observed, hypotheses tested, remaining unknowns, and an explicit
-   `blockedReason` when blocked.
+Persist an updated resumable record only in the approved harness or project-defined location. A
+conversation summary is sufficient when no durable state capability is configured; do not pollute
+the product repository to compensate.
 
-If the verdict is `blocked`, stop with status `blocked_at_development` and ask the user how to
-resolve the stated blocker.
+## Terminal states
 
-### Phase 4 — `validation_loop`
+- `completed`: acceptance criteria are implemented, applicable gates passed, and every explicitly
+  required independent handoff returned its own satisfactory outcome.
+- `partially-completed`: useful implementation exists but named gates or handoffs remain.
+- `blocked`: a material decision, capability, authority, or dependency prevents safe progress.
+- `cancelled`: the user ended the workflow; preserve already completed evidence and side-effect IDs.
 
-Run at most three iterations. In each iteration:
+## Maintenance triggers
 
-1. Run these independent validations through **parallel**:
-   - `qa` validates functional and end-to-end behavior against every acceptance criterion;
-   - `sre` validates applicable infrastructure, performance, load/stress, observability, and SLOs.
-2. Each validator persists Markdown evidence under `<featureSlug>/validation/` and returns a
-   structured handoff with `verdict: pass | fail`, summary, evidence paths, and issues with
-   severity and reproduction details when applicable.
-   A pass proves only the executed scope; validators must preserve untested hypotheses and risks.
-3. Append both handoffs to the immutable validation history for that iteration.
-4. Advance only when both verdicts are `pass`.
-5. When either verdict is `fail`, delegate one bounded fix task to the implementer with both
-   reports, then repeat validation. If the fix task is blocked, stop with `blocked_at_fix`.
-
-After three unsuccessful iterations, stop with `failed_max_iterations`. Show the complete QA/SRE
-issue history and return control to the user; do not open a PR/MR.
-
-### Phase 5 — `open_pr`
-
-Only after both validators pass, delegate final preparation to the implementer. Require:
-
-- a concise title and standardized body summarizing the refinement, user story, implementation,
-  verification, and evidence paths;
-- creation of the PR/MR through **code-host** when available;
-- a structured handoff containing `prUrl`, title, and body.
-
-If **code-host** is unavailable, return `blocked_at_open_pr` with the prepared title and body so the
-user can complete the external action without repeating prior work. Otherwise return `success`.
-
-## Final report
-
-- `success` — show the PR/MR URL and evidence paths.
-- `blocked_at_development`, `blocked_at_fix`, or `blocked_at_open_pr` — show the exact reason and
-  the preserved handoff, then ask how the user wants to unblock it.
-- `failed_max_iterations` — show all three validation iterations and ask whether the user wants to
-  take over manually.
-
-## Interruption and resume
-
-At every phase boundary, retain the workflow input, completed handoffs, validation history, current
-iteration, and pending next phase. If the user interrupts, persist the current feature state outside
-the product repository unless the project explicitly defines a versioned feature-state artifact.
-On resume, verify persisted outputs and continue from the first incomplete gate instead of replaying
-completed external actions.
-
-## Invariants
-
-- Never persist `refinement_tech.md` before the user approves its content or an accurate summary.
-- Never create an issue or PR/MR before the approved refinement is persisted.
-- Never open a PR/MR unless development is complete and both QA and SRE pass in the same iteration.
-- Always obtain user choices through **ask**; do not silently select track, repository, slug, or
-  refinement approval.
-- Keep user interaction in pt-BR. Source code, comments, docstrings, schemas, and repository
-  documentation follow the repository language contract (English).
-- Do not duplicate an external side effect when resuming; verify issue, branch, and PR/MR state
-  before retrying.
-- Never convert an unsupported claim into a verified fact at a phase boundary. Preserve its evidence
-  classification and provenance through every handoff.
+Re-evaluate this workflow when resume duplicates an external action, product scratch artifacts enter
+a repository, orchestration implicitly manufactures a specialist verdict, or agent routing changes
+the Package05/Package12 handoff contract.

@@ -1,97 +1,26 @@
 ---
-version: 1.1.0
 name: codex
-description: |
-  Instala e sincroniza oh-my-harness no Codex. Cobre o plugin nativo com Git, agents customizados,
-  conteúdo gerenciado de AGENTS.md global, lifecycle hooks, verificações de integração MCP,
-  tratamento de conflitos e validação pós-instalação. Use para o primeiro setup do Codex,
-  sincronização após atualização do repositório ou diagnóstico de uma instalação parcial do Codex.
-type: capability
+description: "Install, synchronize, verify, or diagnose oh-my-harness Codex integration while preserving user configuration and authorization boundaries."
 ---
 
-# Codex — Instalação e sincronização global
+# Codex Integration
 
-Use o plugin nativo para skills compartilhadas, a skill de instalação exclusiva do Codex e lifecycle hooks.
-Use o adapter versionado em `codex/` para agents customizados, orientações globais e integrações locais
-da máquina; não reinterprete arquivos do Claude Code durante a instalação. O installer preserva a
-configuração global pertencente ao usuário.
+Repository content is source of truth; installed plugin/adapter copies are derived. Use plugin for
+shared skills/hooks and codex adapter for agents, managed instructions, and local integrations.
+Discover commands from checked-in installer help.
 
-## Instalar ou atualizar o plugin nativo
+Never overwrite unowned files. Stop with exact conflict and non-destructive choices. Backups do not
+grant replacement authority. Preserve unrelated hooks/configuration.
 
-```bash
-codex plugin marketplace add nelsonfrugeri-tech/oh-my-harness
-codex plugin add oh-my-harness@oh-my-harness
-codex plugin list
-```
+Graphify is vendored derived content; do not edit it here. Preserve a non-link installation only when
+marker/full tree match. Deja owns transcript index, MCP wiring, and hooks; preserve them and use Deja
+only for session-memory, never a second curated store.
 
-Use `codex plugin marketplace upgrade oh-my-harness` para atualizar o catálogo com Git antes de
-instalar uma versão mais nova do manifesto. Inicie uma nova sessão após a instalação ou upgrade. Abra
-`/hooks`, revise os comandos incluídos e confie em suas definições exatas; o Codex ignora hooks não
-gerenciados novos ou alterados até que essa revisão explícita seja concluída.
+Run installer check and report states independently: installed, configured, authorized, reachable,
+and healthy after a probe. Configured never proves authorization, reachability, or health. Missing
+optional providers are degraded capabilities, not failed filesystem installation.
 
-O quality gate de commit exige um segundo opt-in por repositório, pois executa comandos
-descobertos nele. Em um checkout cujo código você revisou, execute uma vez:
-
-```bash
-common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir)
-repo_sig=$(printf '%s' "$common_git_dir" | shasum -a 256 | cut -d' ' -f1 | cut -c1-12)
-trust_dir="${XDG_CACHE_HOME:-$HOME/.cache}/omh-quality-gate/trusted"
-mkdir -p "$trust_dir"
-touch "$trust_dir/$repo_sig"
-```
-
-Confiar via `/hooks` autoriza a definição do hook do plugin. O marcador acima autoriza separadamente
-os comandos de format, lint, typecheck e teste controlados pelo repositório. Sem ambos, o gate
-intencionalmente adia a execução em vez de executar código do projeto.
-
-O context hook exclusivo do plugin instrui o Codex a executar diretamente a skill `explorer` incluída.
-Quando o adapter global também estiver presente, seu agent customizado `context` pode orquestrar esse workflow.
-
-## Instalar ou sincronizar o adapter global
-
-Na raiz do repositório, execute:
-
-```bash
-python3 codex/install.py
-python3 codex/install.py --check
-```
-
-O installer:
-
-1. cria links das skills compartilhadas e exclusivas do Codex em `~/.agents/skills/<name>/`, excluindo a
-   skill de instalação exclusiva do Claude;
-2. copia os TOMLs de agents customizados do Codex para `~/.codex/agents/` com ownership registrado;
-3. cria o link do adapter completo em `~/.codex/oh-my-harness`;
-4. substitui somente o bloco `omh-managed` dentro de `~/.codex/AGENTS.md` global;
-5. remove o context hook legado do adapter em `~/.codex/hooks.json`, preservando hooks não relacionados,
-   porque o plugin nativo é o único owner desse lifecycle hook;
-6. configura Deja, Graphify, as integrações oficiais de skills e documentação LangChain e as skills oficiais AI Evals;
-7. reporta integrações vinculadas a conta que ainda exigem autorização humana.
-
-Execute com `--skip-integrations` quando somente os artefatos de filesystem precisarem ser sincronizados.
-Use `--replace-global-agents` apenas ao migrar um arquivo global legado confirmado de oh-my-harness;
-o installer cria `AGENTS.md.omh.bak` antes de substituí-lo.
-
-## Política de conflitos
-
-Nunca sobrescreva um arquivo ou diretório pertencente ao usuário onde for esperado um symlink gerenciado. Pare e mostre
-o path exato. O usuário deve decidir se quer preservá-lo, movê-lo ou substituí-lo. Blocos de texto gerenciados
-e entradas de hooks gerenciadas podem ser atualizados com segurança porque seus marcadores de posse são explícitos.
-
-Preserve uma instalação Graphify que não seja symlink somente quando seu `.graphify_version`
-corresponder à proveniência vendored e toda a árvore de arquivos for idêntica à distribuição do
-repositório. O marker upstream isolado não identifica patches do harness; qualquer drift de conteúdo
-é um conflito.
-
-Antes de alterar um arquivo global editável, o installer cria um sibling `.omh.bak` de uso único.
-
-## Validação
-
-`--check` é somente leitura e deve passar antes de reportar o setup como concluído. Em seguida, verifique o
-inventário MCP ativo pela superfície de configuração MCP do Codex. Providers vinculados a conta podem permanecer
-pending, mas o relatório deve distinguir software ausente de autorização ausente.
-
-## Conduta no repositório
-
-Este repositório é a fonte de verdade. A instalação escreve somente no estado global do Codex e no
-diretório pessoal de skills. Diagnósticos temporários pertencem a `/tmp`, nunca ao repositório.
+Markdown/JSON remain knowledge source of truth. Qdrant, Deja indexes, Graphify graphs, installed
+copies, and provider state are derived/provider-owned. Keep credentials, account IDs, executable
+paths, and personal directories out of repository. Keep diagnostics outside projects and do not
+modify Claude adapter files during Codex-only work.

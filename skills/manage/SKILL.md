@@ -1,391 +1,173 @@
 ---
-version: 1.1.0
 name: manage
-description: |
-  Base de conhecimento de Technical Product/Platform Management. Cobre user stories INVEST,
-  critérios de aceite (Given/When/Then), frameworks de priorização (RICE, MoSCoW,
-  matriz esforço-impacto), planejamento de roadmap (Now/Next/Later/Won't), template de PRD
-  (Problem/Context/Solution/Stories/SLIs/Scope/Risks), métricas AARRR, comunicação com
-  stakeholders por público e o fluxo Discovery-Definition-Delivery-Iteration.
-  Use quando: (1) Definir e priorizar backlog, (2) Escrever user stories com
-  critérios de aceite, (3) Planejar roadmaps e releases, (4) Comunicar decisões de produto
-  ao time, (5) Escrever PRDs.
-  Gatilhos: /manage, /pm, product management, backlog, user stories, roadmap, priorização, PRD.
-type: capability
+description: >-
+  Turn a product or platform problem into a decision-ready feature contract with evidenced outcomes,
+  explicit scope, relevant constraints, prioritization rationale, and observable acceptance. Use for
+  product refinement, backlog or sequencing decisions, acceptance criteria, and product handoff to
+  feature. Do not use for generic product-management teaching, technical design, implementation
+  planning, test strategy, or release execution.
+metadata:
+  origin: native
+  last_verified: 2026-09-07
 ---
 
-# Manage — Technical Product Management
-
-## Propósito
-
-Esta skill é a base de conhecimento para Technical Product/Platform Management.
-Ela foca em gerenciar produtos técnicos — conectando necessidades de negócio e a realidade de engenharia.
-
-**O que esta skill contém:**
-- User stories (critérios INVEST, formato de critérios de aceite)
-- Frameworks de priorização (RICE, MoSCoW, esforço-impacto)
-- Planejamento de roadmap (Now/Next/Later/Won't)
-- Template de planejamento de sprint/iteração
-- Template de PRD (Product Requirements Document)
-- Métricas de produto (framework AARRR)
-- Fluxo Discovery → Definition → Delivery → Iteration
-- Formatos de comunicação por público
-- Gestão de dívida técnica sob a perspectiva de produto
-
----
-
-## Filosofia
-
-### Produto é Sobre Valor, Não Features
-
-**Toda feature deve ter um "porquê" claro conectado ao valor de negócio.**
-As métricas de sucesso são definidas ANTES de iniciar o desenvolvimento.
-As decisões são orientadas por dados quando há dados disponíveis, e por hipóteses quando não há.
-Aplique a skill `evidence`: preserve cada hipótese como falsificável, mantenha os desconhecidos
-explícitos e nunca invente uma métrica para a priorização parecer objetiva.
-
-### Princípios
-
-1. **Foque no problema do usuário, não na solução técnica**
-2. **Critérios de aceite mensuráveis** — "pronto" não é subjetivo
-3. **Diga "não" com dados** — reduzir escopo é uma feature, não um fracasso
-4. **Roadmaps são compromissos com problemas, não com soluções**
-5. **Proteja o time do scope creep enquanto mantém os stakeholders informados**
-
----
-
-## 1. User Stories
-
-### Formato
-
-```markdown
-**As** [persona/user type],
-**I want** [action/functionality],
-**So that** [benefit/value].
-
-### Acceptance Criteria
-- [ ] Given [context], when [action], then [expected result]
-- [ ] Given [context], when [action], then [expected result]
-- [ ] Given [context], when [action], then [expected result]
-
-### Technical Notes
-- {relevant implementation considerations}
-- {known dependencies}
-- {identified risks}
-
-### Definition of Done
-- [ ] Code implemented and reviewed
-- [ ] Tests written (unit + integration)
-- [ ] Documentation updated
-- [ ] Deploy to staging validated
-- [ ] Acceptance criteria verified
-```
-
-### Critérios INVEST
-
-| Letra | Critério | Significado |
-|--------|-----------|---------|
-| **I** | Independent | Pode ser desenvolvida isoladamente |
-| **N** | Negotiable | Não é um contrato, é uma conversa |
-| **V** | Valuable | Entrega valor ao usuário |
-| **E** | Estimable | O time consegue estimar o esforço |
-| **S** | Small | Cabe em um sprint/iteração |
-| **T** | Testable | Critérios de aceite são verificáveis |
-
-### Anti-padrões Comuns
-
-- Stories que dependem umas das outras (viola I)
-- "Como um sistema, eu quero..." — não é uma user story
-- "Usuário pode criar, ler, atualizar e deletar" — grande demais, divida
-- Sem critérios de aceite — "pronto" se torna subjetivo
-- Especificações técnicas disfarçadas de user stories
-
----
-
-## 2. Frameworks de Priorização
-
-### RICE Score
-
-```markdown
-| Feature | Reach | Impact | Evidence factor | Effort | RICE Score |
-|---------|-------|--------|-----------------|--------|------------|
-| {name}  | {measured population} | {defined scale} | {calibrated factor} | {estimate with unit} | {calc} |
-
-Score = (Reach × Impact × Evidence factor) / Effort
-```
-
-- **Reach:** População medida e janela temporal, ou uma estimativa rotulada com suas premissas
-- **Impact:** Uma escala ordinal ou quantitativa definida, aplicada consistentemente a toda alternativa
-- **Evidence factor:** Use fator numérico apenas quando dados de calibração o definem; senão,
-  mantenha a força da evidência qualitativa e não calcule um score pseudo-preciso
-- **Effort:** Estimativa com unidade, escopo, premissas e input da engenharia responsável
-
-RICE é um apoio à decisão, não evidência. Preserve a fonte e o método de cada entrada, liste
-hipóteses e desconhecidos materiais ao lado do ranking, e compare o resultado com o status quo.
-Quando as entradas não são comensuráveis, use um review qualitativo de trade-offs em vez de
-aritmética fabricada.
-
-### MoSCoW
-
-```markdown
-### Must Have (P0) — Without this, we don't launch
-- {feature}
-
-### Should Have (P1) — Important, but workable without
-- {feature}
-
-### Could Have (P2) — Nice to have
-- {feature}
-
-### Won't Have (P3) — Explicitly out of scope this release
-- {feature} — {reason for deferral}
-```
-
-### Matriz Esforço × Impacto
-
-```
-|              | Low Effort | High Effort |
-|-------------|------------|-------------|
-| High Impact | Quick Wins | Big Bets    |
-| Low Impact  | Fill-ins   | Money Pits  |
-```
-
-**Quick Wins:** Faça primeiro — alto valor, baixo custo
-**Big Bets:** Avalie com cuidado — alto valor, alto investimento
-**Fill-ins:** Faça se houver tempo — baixo valor, baixo custo
-**Money Pits:** Evite — baixo valor, alto custo
-
----
-
-## 3. Roadmap
-
-### Formato Now / Next / Later / Won't
-
-```markdown
-## Roadmap — {Product}
-
-### Now (Current sprint/cycle)
-| Item | Status | Owner | ETA |
-|------|--------|-------|-----|
-| {item} | {status} | {who} | {when} |
-
-### Next (Next cycle)
-| Item | Priority | Estimate |
-|------|----------|----------|
-| {item} | {P0/P1/P2} | {estimate} |
-
-### Later (Prioritized backlog)
-| Item | Priority | Notes |
-|------|----------|-------|
-| {item} | {P1/P2/P3} | {context} |
-
-### Won't Do (Explicit decisions)
-| Item | Reason |
-|------|--------|
-| {item} | {justification} |
-```
-
-### Regras do Roadmap
-
-1. **Problemas, não soluções** — roadmaps se comprometem a resolver problemas, não a implementar soluções específicas
-2. **Períodos, não datas** — "Próximo trimestre" é mais honesto que "15 de março"
-3. **Won't Do explícito** — o que você NÃO vai construir é tão importante quanto o que vai
-4. **Revise mensalmente** — roadmaps são documentos vivos, não contratos
-
----
-
-## 4. Planejamento de Sprint/Iteração
-
-```markdown
-## Sprint {N} — {Theme/Goal}
-
-### Objective
-{One clear sentence of what we want to achieve}
-
-### Success Criteria
-- {measurable deliverable or metric}
-
-### Items
-| # | User Story | Estimate | Owner | Status |
-|---|-----------|----------|-------|--------|
-| 1 | {story}   | {points} | {dev} | {status} |
-
-### Risks and Dependencies
-- {identified risk/dependency}
-
-### Team Capacity
-- {N} devs × {M} days = {total} person-days available
-- Buffer: {historical unplanned-work rate and window, or an explicit trial assumption}
-- Net capacity: {net} person-days
-```
-
----
-
-## 5. Template de PRD
-
-```markdown
-# PRD: {Feature Name}
-
-## Problem
-{What problem are we solving? For whom?}
-
-## Context
-{Why now? Data, user feedback, market opportunity}
-
-## Proposed Solution
-{High-level description of the solution}
-
-## User Stories
-{List of user stories that compose the feature}
-
-## Success Metrics
-- {KPI 1}: {baseline} → {target}
-- {KPI 2}: {baseline} → {target}
-
-## Scope
-
-### In Scope
-- {item}
-
-### Out of Scope
-- {item} — {reason for exclusion}
-
-## Dependencies
-- {technical or product dependency}
-
-## Timeline
-- Discovery: {period}
-- Design: {period}
-- Development: {period}
-- QA/Staging: {period}
-- Release: {date}
-
-## Risks
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| {risk} | {H/M/L} | {H/M/L} | {action} |
-
-## SLIs (Service Level Indicators)
-- {metric that will measure if this feature is working correctly}
-```
-
----
-
-## 6. Métricas de Produto (AARRR)
-
-```markdown
-### Acquisition — How users arrive
-- {metric}: {definition and target}
-
-### Activation — First value delivered
-- {metric}: {definition and target}
-
-### Retention — Users return
-- {metric}: {definition and target}
-
-### Revenue — Monetization
-- {metric}: {definition and target}
-
-### Referral — Users bring others
-- {metric}: {definition and target}
-```
-
-### Boas Práticas de Métricas
-
-1. **Defina as métricas ANTES de construir** — não depois, para justificar a decisão
-2. **Indicadores leading em vez de lagging** — detecte problemas cedo
-3. **Uma única north star metric** — o que mais importa?
-4. **Evite vanity metrics** — page views sem contexto não significam nada
-5. **Instrumente desde o primeiro dia** — adicionar analytics depois é doloroso
-
----
-
-## 7. Fluxo de Produto
-
-### Discovery → Definition → Delivery → Iteration
-
-```
-1. DISCOVERY: Understand the problem
-   - Research context and data
-   - Map personas and needs
-   - Identify opportunities
-   - Validate hypotheses (user interviews, data analysis)
-
-2. DEFINITION: Define the solution
-   - Write PRD
-   - Create user stories with acceptance criteria
-   - Prioritize backlog (RICE/MoSCoW)
-   - Align with technical team (feasibility check)
-   - Get stakeholder sign-off
-
-3. DELIVERY: Manage execution
-   - Sprint planning with team
-   - Daily sync (blockers, decisions)
-   - Accept/reject deliveries vs criteria
-   - Communicate progress to stakeholders
-   - Unblock dependencies
-
-4. ITERATION: Measure and iterate
-   - Validate success metrics
-   - Collect user feedback
-   - Adjust backlog and priorities
-   - Document learnings
-   - Plan next cycle
-```
-
----
-
-## 8. Comunicação por Público
-
-### Para Desenvolvedores
-
-- User stories detalhadas com critérios de aceite
-- Contexto técnico e de negócio relevante
-- Decisões de trade-off documentadas
-- Disponibilidade para dúvidas e refinamento
-- Definição clara de "pronto"
-
-### Para Stakeholders
-
-- Status em formato executivo (resumo, riscos, próximos passos)
-- Métricas e progresso vs metas
-- Decisões pendentes com opções e recomendação
-- Impactos na timeline e no roadmap
-
-### Para Design
-
-- Problemas e contexto do usuário (não prescrições de solução)
-- Restrições técnicas relevantes
-- Fluxos de usuário e requisitos funcionais
-- Critérios de aceite de UX
-
----
-
-## 9. Dívida Técnica sob a Perspectiva de Produto
-
-### Quando Priorizar Dívida Técnica
-
-- Quando está desacelerando a entrega de features (a velocity está caindo)
-- Quando está causando incidentes em produção (a confiabilidade está sofrendo)
-- Quando está criando risco de segurança
-- Quando está bloqueando contratações-chave (engenheiros não querem trabalhar na base de código)
-
-### Como Apresentar Dívida Técnica aos Stakeholders
-
-```
-BAD: "We need to refactor the authentication module."
-
-GOOD: "Authentication code appears in {measured incident share} during {time window}
-       according to {incident query}. Our hypothesis is that {change} will improve
-       {defined outcome}; validate it with {observation}. Estimated investment:
-       {range and assumptions}."
-```
-
-### Orçamento de Dívida Técnica
-
-- Derive o orçamento da evidência de incidentes, entrega e capacidade. Sem histórico, rotule a
-  alocação inicial como premissa provisória e defina quando revisá-la
-- Acompanhe itens de dívida técnica com o mesmo rigor das features
-- Inclua o impacto na velocity ao construir o business case
-
----
+# Product Decision
+
+Produce the smallest product contract that lets downstream work proceed without inventing user
+needs, priority, scope, or acceptance.
+
+## Guard the boundary
+
+- Apply `evidence` to material claims and decisions. A stakeholder statement establishes that
+  person's judgment or request; it does not by itself establish user behavior, impact, effort, or
+  organizational consensus.
+- For a small, well-specified change, confirm the outcome and observable acceptance directly. Do not
+  force a user story, PRD, prioritization framework, roadmap, or refinement ceremony.
+- Use this capability when a product choice, outcome, scope boundary, sequencing decision, or
+  acceptance contract is missing. Abstain for generic concept explanations and purely technical
+  choices inside an already accepted contract.
+- Own product intent and acceptance only. Route architecture to `design`, implementation and test
+  execution to `feature` or `implement`, independent verification to `review`, and release or
+  operational execution to their owning capabilities.
+- Ask one focused question only when its answer can change scope, safety, architecture, acceptance,
+  or sequencing. Otherwise preserve the issue as an assumption or unknown and continue with the
+  next reversible decision.
+
+## Resolve inputs and authority
+
+Start with the user request, repository-defined product artifacts, observed behavior, and existing
+decisions. Separate:
+
+- **evidence:** observed user behavior, support records, telemetry, experiments, contractual or
+  regulatory constraints, and repository facts, each bounded by its actual source and scope;
+- **stakeholder judgment:** desired outcome, priority, risk tolerance, policy choice, or trade-off,
+  attributed to its speaker or decision owner;
+- **engineering input:** feasibility, dependencies, operational risk, reversibility, and effort
+  estimates with assumptions;
+- **unknowns and hypotheses:** missing evidence and falsifiable beliefs that could change the choice.
+
+For material quantities, retain metric and unit, population or denominator, observation window,
+source, and collection or derivation method. Never create a baseline, target, reach, impact, effort,
+confidence, cost, or date to complete a template.
+
+Resolve current public facts through `research` using primary sources. Resolve project facts from the
+repository, organizational policy and curated decisions from the knowledge base, and prior discussion
+from session memory; revalidate mutable facts before relying on them. If a required source or
+capability is unavailable, mark the affected claim unknown and state the degraded mode rather than
+substituting generic practice.
+
+## Frame the product decision
+
+1. **Problem and user.** State who is affected, what observable problem or opportunity exists, and
+   what evidence establishes it. Keep a requested solution separate from the problem it proposes to
+   solve.
+2. **Outcome.** Define the change in user or system behavior sought and the evidence that would show
+   progress. If no defensible success signal exists, record the measurement decision as unresolved.
+3. **Constraints.** Identify genuine limits on the solution: contracts, policy, safety, privacy,
+   compatibility, budget, operations, or other fixed boundaries. Do not promote preferences to hard
+   constraints without the decision owner's judgment.
+4. **Scope.** State the smallest coherent in-scope outcome and explicit non-goals. Acceptance criteria
+   confirm that scope; they must not silently add adjacent features.
+5. **Assumptions and unknowns.** Name each item that could alter the decision, its impact, and the
+   cheapest useful observation. Give a hypothesis a falsifier, not a confidence adjective.
+6. **Decision.** Attribute the choice and its status to the actual owner. Record alternatives only
+   when a real choice exists, including the status quo or a smaller reversible step when relevant.
+
+## Prioritize without manufactured precision
+
+Define criteria before comparing alternatives. Choose only criteria that matter to the stated
+outcome, such as expected outcome contribution, urgency or cost of delay, hard dependencies, risk,
+reversibility, evidence strength, and engineering investment.
+
+- Compare qualitatively by default. Numeric scoring is valid only when inputs are measured or
+  explicitly attributed stakeholder judgments, scales are defined and comparable, and the
+  calculation cannot hide a hard constraint or unresolved conflict.
+- Obtain effort and feasibility from responsible engineering input. Preserve ranges, assumptions,
+  and unknowns; never invent estimates or convert uncertainty into dates.
+- Test sensitivity by varying uncertain inputs or stakeholder weights across their defensible range.
+  If the preferred option changes, report the ranking as conditional and identify the deciding
+  evidence or judgment.
+- Do not average conflicting evidence or stakeholder priorities into apparent consensus. Name the
+  conflict and the owner who must decide.
+- Use `Now / Next / Later` only when communicating sequence under different confidence levels is
+  useful. It expresses intent and dependencies, not promised dates. Use INVEST or a user-story form
+  only when it exposes a concrete slicing or handoff problem; neither is a completion checklist.
+
+The output is a decision with rationale, not a RICE, MoSCoW, impact-effort, or other framework score.
+A framework may be used when the organization already defines its inputs and decision semantics, but
+the framework never supplies missing evidence or authority.
+
+## Write observable acceptance
+
+Acceptance criteria describe externally observable product behavior, including material failure
+paths and boundaries. Cover only behavior relevant to the feature:
+
+- initiating actor, precondition, action, and observable result;
+- invalid, unauthorized, unavailable, duplicate, cancelled, or partial outcomes when they affect the
+  contract;
+- state retained or changed after failure;
+- relevant limits and compatibility behavior;
+- evidence or signal that product acceptance can inspect.
+
+Use `Given / When / Then` when preconditions and state transitions would otherwise be ambiguous.
+Plain statements are better for simple invariants. Do not prescribe classes, endpoints, database
+shape, test layers, or deployment mechanics unless one is an actual product constraint.
+
+Add non-functional requirements only when they materially constrain acceptance or design. State the
+user journey or protected asset, operating condition, metric, threshold or policy source, and
+verification signal for relevant security, privacy, accessibility, latency, capacity, availability,
+compatibility, data retention, or operability requirements. If the threshold is undecided, keep it
+unknown instead of choosing a conventional value.
+
+Keep these contracts distinct:
+
+| Contract | Owner | Product handoff content |
+| --- | --- | --- |
+| Product acceptance | Product decision owner | Observable outcome, boundary, and failure behavior |
+| Technical design | Architecture or engineering | Constraints and unresolved questions only |
+| Implementation plan | `feature` / `implement` | Requested outcome and authority boundary |
+| Test strategy | Test or implementation capability | Behaviors and required evidence, not test structure |
+| Release verification | Operations or release owner | Product success signal and applicable guardrails |
+
+## Control scope and respond to new evidence
+
+Treat a newly requested behavior as a scope change unless it is necessary to satisfy an existing
+criterion. Record its outcome contribution, dependency and risk impact, displaced work, and decision
+owner; do not relabel it as acceptance to bypass prioritization.
+
+If implementation, testing, or operations falsifies an assumption, pause only the affected decision.
+Record the new evidence and its scope, identify which outcome, constraint, criterion, or priority is
+invalidated, and return the smallest decision to the product owner. The owner may preserve scope,
+revise acceptance, split or defer work, or stop it. Downstream agents must not silently choose a new
+product contract.
+
+## Produce the handoff
+
+Scale the artifact to the decision. A tiny change may need only the outcome, observable acceptance,
+and one material boundary. A material feature contract includes:
+
+- problem, affected user, and evidence with provenance;
+- desired outcome and success evidence;
+- scope and non-goals;
+- constraints and relevant non-functional requirements;
+- assumptions, unknowns, falsifiers, risks, and dependencies;
+- alternatives, prioritization criteria, decision status, rationale, and owner;
+- observable acceptance criteria with material failure paths;
+- product validation signal and release guardrails, when known;
+- a compact log of material decisions and superseding evidence.
+
+Hand this contract to `feature` as intent. Do not duplicate its repository discovery, resumable state,
+technical design, implementation, testing, review, or release orchestration. Mark omitted fields as
+not applicable only when that distinction matters; do not fill every heading for appearance.
+
+## Verify and stop
+
+Before handoff, verify that downstream agents can act without inventing a product requirement, every
+quantity has required provenance, stakeholder judgments are attributed, acceptance covers the
+important failure behavior, and no criterion expands the stated scope. Stop when remaining unknowns
+cannot change the next reversible step; otherwise return the unresolved decision and its owner.
+
+Re-evaluate this skill when product facts are stored as timeless doctrine, priority arithmetic hides
+uncertainty, small requests accumulate ceremony, acceptance repeatedly causes scope growth, or the
+`feature` input contract changes. Refresh volatile and organizational facts at use time rather than
+on a calendar.

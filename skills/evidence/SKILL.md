@@ -1,70 +1,91 @@
 ---
-version: 1.0.0
 name: evidence
-description: |
-  Raciocínio orientado a evidência para alegações e decisões de engenharia de software. Cobre a
-  taxonomia de alegações (fato verificado, resultado derivado, inferência, hipótese, estimativa,
-  desconhecido, decisão), proveniência quantitativa (unidade, população, janela temporal, fonte e
-  método), o protocolo de decisão para trade-offs materiais e hotfixes, e a rubrica de review
-  independente de evidência.
-  Use quando: (1) design de feature, diagnóstico de bug ou análise de causa raiz, (2) arquitetura,
-  priorização, implementação, review, entrega ou operações, (3) métricas, estimativas, benchmarks e
-  trade-offs — sempre que fatos precisarem ser separados de hipóteses ou uma escolha material
-  precisar de evidência defensável.
-  Gatilhos: evidence, evidência, fato vs hipótese, decisão orientada a dados, causa raiz.
-type: capability
+description: >-
+  Establishes status, provenance, uncertainty, conflicts, and decision consequences for material
+  claims. Use for factual or quantitative claims, diagnosis, causal reasoning, trade-offs, and
+  decisions. Apply as the primary reasoning contract; route missing external or current evidence to
+  research, and leave final representation to didactic-visual.
+metadata:
+  type: capability
+  version: 2.0.0
+  origin: native
+  last_verified: 2026-09-06
 ---
 
-# Engenharia de Software Orientada a Evidência
+# Evidence
 
-Torne alegações de software rastreáveis e decisões testáveis, sem bloquear progresso seguro quando a
-evidência é incompleta. Trate o contrato global de software-evidence como vinculante.
+Make every material claim supportable at the scope in which it will be used, while keeping routine
+answers free of ceremonial labels and unnecessary retrieval.
 
-## Aplique o workflow
+## Own this boundary
 
-1. **Enquadre a alegação ou decisão.** Defina escopo, população afetada, janela temporal e impacto.
-2. **Inventarie o registro atual.** Separe fatos verificados, resultados derivados, inferências,
-   hipóteses, estimativas, desconhecidos e decisões.
-3. **Inspecione a evidência mais forte disponível.** Prefira observações diretas do repositório,
-   testes executados, telemetria, comandos reprodutíveis e fontes primárias versionadas.
-4. **Cheque proveniência e escopo.** Rejeite ou rerrotule alegações que excedem o que a evidência
-   prova.
-5. **Reduza a incerteza relevante para a decisão.** Selecione a observação mais barata que distingue
-   hipóteses concorrentes ou muda materialmente o trade-off.
-6. **Decida proporcionalmente.** Compare alternativas, reversibilidade, blast radius, custo de
-   atraso e custo do erro. Evidência fraca pede passos menores, observáveis e reversíveis.
-7. **Pré-registre a validação.** Defina condições de sucesso, guardrail, falsificação, rollback e
-   revisão antes de observar o resultado.
-8. **Comunique o status.** Cite a evidência junto de cada alegação material e rotule o que permanece
-   incerto.
+Evidence owns claim status, quantitative provenance, uncertainty, conflict handling, material
+decisions, and the response contract. It does not acquire missing external evidence or choose the
+final presentation format.
 
-## Preserve a incerteza útil
+Apply it whenever claim status could change what the reader does. In a homogeneous passage of
+directly supported facts, state the shared support once and write naturally. Add explicit status
+labels at mixed-certainty boundaries, for material decisions, and wherever omission could make an
+inference look observed.
 
-Não fabrique certeza para uma resposta parecer completa. Uma hipótese segura pode sustentar um
-experimento ou uma implementação reversível quando inclui uma previsão falsificável. Uma estimativa
-pode sustentar planejamento quando suas premissas e incerteza estão visíveis. Um desconhecido se
-torna acionável quando seu impacto na decisão e a próxima observação estão declarados.
+## Resolve the evidence source
 
-Não alegue causa raiz a partir de correlação, bug corrigido a partir de um teste que passou, saúde
-de produção a partir de configuração, nem verdade atual a partir de histórico de sessão. Estreite a
-afirmação ou obtenha a observação que falta.
+| Claim condition | Required action |
+| --- | --- |
+| Stable and low risk | Model knowledge may be sufficient; retrieve only if verification could change the answer. |
+| Stable and high impact | Verify against an authoritative primary source before relying on it. |
+| Volatile or current | Use `research` to retrieve live official or otherwise primary evidence. |
+| Private repository fact | Inspect the repository, then use `code-graph` when relationships require it. |
+| Curated project knowledge | Use the project knowledge base and preserve its provenance. |
+| Prior discussion or episodic fact | Use `session-memory`, then revalidate anything that may have changed. |
+| Ambiguous entity | Inspect available context; ask one discriminating question only if ambiguity remains material. |
+| Runtime behavior | Probe the relevant runtime at the smallest safe scope; configuration alone is insufficient. |
+| Source unavailable | Report the claim as unknown and name the degraded capability; never substitute plausibility. |
 
-## Desafie decisões colaborativamente
+For example, resolve “DHH” from local context before researching it. If both David Heinemeier
+Hansson and a deployment-health-hypothesis acronym remain plausible and imply different work, ask
+one question that distinguishes them.
 
-Para uma proposta material, identifique o risco mais forte sustentado por evidência, apresente o
-caso razoável mais forte a favor dela, ofereça uma alternativa viável e diga que evidência mudaria a
-recomendação. Solicite um `evidence-reviewer` independente quando impacto, irreversibilidade ou
-incerteza tornarem o self-review insuficiente.
+## Build the claim record
 
-Trate uma decisão como material quando ela pode afetar usuários de produção, segurança, privacidade,
-integridade de dados, gasto significativo, múltiplos times ou um rollback difícil — ou quando uma
-métrica sem sustentação ou uma alegação causal controla o resultado. Escolhas rotineiras e
-reversíveis não exigem review independente.
+Use the narrowest status the evidence establishes. Load
+[claim-taxonomy.md](references/claim-taxonomy.md) when classification or quantitative provenance is
+material.
 
-## Carregue a referência relevante
+1. Frame the claim's scope, affected population, time window, and decision impact.
+2. Inventory verified facts, derived results, inferences, hypotheses, estimates, unknowns, and
+   decisions.
+3. Inspect the strongest available evidence selected by the source matrix.
+4. Narrow or relabel any claim that exceeds the observed revision, environment, population, or
+   time window.
+5. Preserve conflicting evidence. Reconcile differences in version, scope, method, and authority;
+   otherwise report the conflict as unresolved.
+6. Stop when every material claim has the authority and freshness its use requires, or is explicitly
+   unknown. Never stop or continue because of a source-count quota.
 
-- Use [claim-taxonomy.md](references/claim-taxonomy.md) para classificar alegações e validar
-  proveniência.
-- Use [decision-protocol.md](references/decision-protocol.md) para trade-offs materiais e decisões
-  de hotfix.
-- Use [review-rubric.md](references/review-rubric.md) para review independente de evidência.
+Every material quantity must identify its unit, population or denominator, observation window,
+source, and collection or derivation method. Record revision or inspection date and limitations
+where relevant. Numeric confidence is valid only when a cited calibration procedure gives it a
+defined empirical meaning.
+
+## Make material decisions testable
+
+Load [decision-protocol.md](references/decision-protocol.md) for a choice that can affect production
+users, security, privacy, data integrity, significant spend, multiple teams, or a difficult rollback.
+Measure a cheap discriminating observation before choosing when it can materially change the
+decision. With weak evidence and costly failure, prefer a smaller, observable, reversible step.
+
+Critique the proposal rather than the person: state its strongest case, the best evidenced risk, a
+viable alternative, and the observation that would change the recommendation. Keep mitigation
+separate from durable correction.
+
+## Output contract
+
+Lead with the bounded conclusion. Cite or identify support beside each material claim, including
+source, inspection date or revision, derivation method, and limitation when applicable. Label only
+certainty boundaries that affect action. State unresolved conflicts and unavailable-source degraded
+modes explicitly. A material decision must include the selected action, decisive evidence,
+trade-offs, owner, validation, rollback or review condition, and one falsifying result.
+
+Load [review-rubric.md](references/review-rubric.md) for independent review of unsupported claims or
+material decisions. Presentation begins only after this contract is complete.
