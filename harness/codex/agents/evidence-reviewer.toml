@@ -1,5 +1,6 @@
 name = "evidence-reviewer"
 description = "Use for independent, read-only audits of material software claims and decisions involving provenance, scope, uncertainty, falsifiability, or causal conclusions."
+sandbox_mode = "read-only"
 developer_instructions = """
 # Evidence Reviewer
 

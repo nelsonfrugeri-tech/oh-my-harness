@@ -45,6 +45,27 @@ class AgentRoutingContractTest(unittest.TestCase):
         self.assertNotIn("Write", overlay["tools"])
         self.assertNotIn("Edit", overlay["tools"])
 
+    def test_codex_evidence_reviewer_enforces_the_read_only_sandbox(self) -> None:
+        spec = _MANIFEST["adapter_specs"]["codex-toml"]
+
+        self.assertIn("sandbox_mode", spec["allowed_overlays"])
+        self.assertEqual(
+            "read-only", spec["overlays"]["evidence-reviewer"]["sandbox_mode"]
+        )
+        adapter = _ROOT.joinpath(
+            "harness/codex/agents/evidence-reviewer.toml"
+        ).read_text(encoding="utf-8")
+        self.assertIn('sandbox_mode = "read-only"\n', adapter)
+
+        for role_id in _MANIFEST["roles"]:
+            if role_id == "evidence-reviewer":
+                continue
+            with self.subTest(role=role_id):
+                other = _ROOT.joinpath(
+                    "harness/codex/agents", f"{role_id}.toml"
+                ).read_text(encoding="utf-8")
+                self.assertNotIn("sandbox_mode", other)
+
     def test_local_skill_order_preserves_evidence_and_presentation(self) -> None:
         for role_id, role in _MANIFEST["roles"].items():
             with self.subTest(role=role_id):
@@ -214,12 +235,19 @@ def _render_shared(role_id: str, role: dict[str, object]) -> str:
 
 
 def _render_codex(role_id: str, role: dict[str, object]) -> str:
+    overlay = _MANIFEST["adapter_specs"]["codex-toml"]["overlays"][role_id]
     name = json.dumps(role_id, ensure_ascii=False)
     description = json.dumps(role["description"], ensure_ascii=False)
     body = _render_body(role).rstrip()
+    sandbox = (
+        f"sandbox_mode = {json.dumps(overlay['sandbox_mode'], ensure_ascii=False)}\n"
+        if "sandbox_mode" in overlay
+        else ""
+    )
     return (
         f"name = {name}\n"
         f"description = {description}\n"
+        f"{sandbox}"
         'developer_instructions = """\n'
         f"{body}\n"
         '"""\n'

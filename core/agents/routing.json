@@ -162,12 +162,16 @@
         "instructions",
         "routes"
       ],
-      "allowed_overlays": [],
+      "allowed_overlays": [
+        "sandbox_mode"
+      ],
       "overlays": {
         "ai-engineer": {},
         "architect": {},
         "software-engineer": {},
-        "evidence-reviewer": {},
+        "evidence-reviewer": {
+          "sandbox_mode": "read-only"
+        },
         "tech-pm": {},
         "knowledge-base": {},
         "site": {}
