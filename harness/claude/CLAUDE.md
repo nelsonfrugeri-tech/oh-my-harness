@@ -206,11 +206,19 @@ arquitetura nem cobertura.
 
 Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin), em `gh pr create` e no
 tool de criação de PR do MCP do `code-host`: ele descobre e roda format, lint, typecheck e testes
-sobre o `HEAD` que vai para o PR, e bloqueia a abertura se algum falhar. Antes de rodar os checks,
-o hook também recusa (`ask`) árvore de trabalho suja ou `HEAD` local não enviado ao remoto — o PR
-carrega o que está no remoto, não o que está só no working tree. Só age em repositório
-explicitamente confiado; sem o marcador, defere sem executar nada. Mecânica e limites em
-`harness/claude/skills/claude-code`.
+sobre o `HEAD` que vai para o PR, e bloqueia a abertura se algum falhar.
+
+O hook **recusa (`deny`)**, antes de rodar qualquer check, árvore de trabalho suja, `HEAD` local
+não enviado ao remoto, head de outra branch ou fork, `owner/repo` que não corresponde ao remote
+`origin`, e remoto divergente ou não verificável — o PR carrega o que está no remoto, não o que
+está só no working tree. É `deny` e não `ask` porque `ask` não é portável: o Codex documenta que
+`permissionDecision: "ask"` é "parsed but not supported yet" e **segue com o tool call**, enquanto
+no Claude Code `ask` pergunta ao usuário — em `claude -p` sem permission host não há quem responda
+e o efeito é recusa, mas com `canUseTool` ou `--permission-prompt-tool` o prompt é roteado e a
+execução espera. `deny` é o único valor com bloqueio suportado nos dois harnesses.
+
+Só age em repositório explicitamente confiado; sem o marcador, defere sem executar nada. Mecânica
+e limites em `harness/claude/skills/claude-code`.
 
 
 ---

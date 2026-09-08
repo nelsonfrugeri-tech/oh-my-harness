@@ -63,7 +63,7 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("FAILED at test", decision["permissionDecisionReason"])
 
-    def test_dirty_working_tree_asks_instead_of_running_checks(self) -> None:
+    def test_dirty_working_tree_denies_instead_of_running_checks(self) -> None:
         self._configure_and_commit(test="false")
         self._push_current_head()
         self._trust_repository()
@@ -71,17 +71,17 @@ class QualityGateTest(unittest.TestCase):
 
         decision = self._decision(self._run_gate())
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("uncommitted changes", decision["permissionDecisionReason"])
 
-    def test_unpushed_head_asks_instead_of_running_checks(self) -> None:
+    def test_unpushed_head_denies_instead_of_running_checks(self) -> None:
         self._configure_and_commit(test="false")
         self._trust_repository()
         # No remote configured: the branch has no upstream at all.
 
         decision = self._decision(self._run_gate())
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("has not been pushed", decision["permissionDecisionReason"])
 
     def test_explicit_bypass_allows_without_repository_trust(self) -> None:
@@ -175,7 +175,7 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("allow", decision["permissionDecision"])
         self.assertIn("format lint typecheck test", decision["permissionDecisionReason"])
 
-    def test_mcp_pr_creation_tool_asks_on_dirty_working_tree(self) -> None:
+    def test_mcp_pr_creation_tool_denies_on_dirty_working_tree(self) -> None:
         self._configure_and_commit(test="false")
         self._push_current_head()
         self._trust_repository()
@@ -183,7 +183,7 @@ class QualityGateTest(unittest.TestCase):
 
         decision = self._decision(self._run_gate_mcp())
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("uncommitted changes", decision["permissionDecisionReason"])
 
     def test_mcp_pr_creation_tool_bypass_requires_the_environment_variable(self) -> None:
@@ -201,27 +201,27 @@ class QualityGateTest(unittest.TestCase):
 
     # ---- selected PR origin, review findings on #135 ---------------------------
 
-    def test_head_flag_for_another_branch_asks(self) -> None:
+    def test_head_flag_for_another_branch_denies(self) -> None:
         self._configure_and_commit(test="true")
         self._push_current_head()
         self._trust_repository()
 
         decision = self._decision(self._run_gate("gh pr create --head other-branch --fill"))
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("other-branch", decision["permissionDecisionReason"])
         self.assertIn(
             "differs from the branch currently checked out", decision["permissionDecisionReason"]
         )
 
-    def test_head_flag_cross_fork_asks(self) -> None:
+    def test_head_flag_cross_fork_denies(self) -> None:
         self._configure_and_commit(test="true")
         self._push_current_head()
         self._trust_repository()
 
         decision = self._decision(self._run_gate("gh pr create --head someone:other-branch --fill"))
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("another fork", decision["permissionDecisionReason"])
 
     def test_head_flag_matching_current_branch_runs_normally(self) -> None:
@@ -234,17 +234,17 @@ class QualityGateTest(unittest.TestCase):
 
         self.assertEqual("allow", decision["permissionDecision"])
 
-    def test_mcp_head_for_another_branch_asks(self) -> None:
+    def test_mcp_head_for_another_branch_denies(self) -> None:
         self._configure_and_commit(test="true")
         self._push_current_head()
         self._trust_repository()
 
         decision = self._decision(self._run_gate_mcp(head="other-branch"))
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("other-branch", decision["permissionDecisionReason"])
 
-    def test_mcp_owner_repo_mismatch_asks(self) -> None:
+    def test_mcp_owner_repo_mismatch_denies(self) -> None:
         self._configure_and_commit(test="true")
         self._push_current_head()
         self._trust_repository()
@@ -254,10 +254,10 @@ class QualityGateTest(unittest.TestCase):
 
         decision = self._decision(self._run_gate_mcp(owner="someone-else", repo="unrelated"))
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("someone-else/unrelated", decision["permissionDecisionReason"])
 
-    def test_remote_diverged_after_force_push_asks(self) -> None:
+    def test_remote_diverged_after_force_push_denies(self) -> None:
         self._configure_and_commit(test="true")
         self._push_current_head()
         self._trust_repository()
@@ -265,10 +265,10 @@ class QualityGateTest(unittest.TestCase):
 
         decision = self._decision(self._run_gate())
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("moved since the last local fetch", decision["permissionDecisionReason"])
 
-    def test_remote_unreachable_asks_without_running_checks(self) -> None:
+    def test_remote_unreachable_denies_without_running_checks(self) -> None:
         self._configure_and_commit(test="false")
         self._push_current_head()
         self._trust_repository()
@@ -278,8 +278,15 @@ class QualityGateTest(unittest.TestCase):
 
         decision = self._decision(self._run_gate())
 
-        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("could not be verified", decision["permissionDecisionReason"])
+
+    def test_no_guard_decision_uses_ask(self) -> None:
+        # `ask` is not portable: Codex parses it, marks the hook run as failed and
+        # continues the tool call, so an `ask` guard would open the PR there while
+        # blocking under Claude Code. The two hook descriptors are byte-identical and
+        # a contract test pins that equality, so the semantics must match too.
+        self.assertNotIn("decide ask", _GATE.read_text(encoding="utf-8"))
 
     # ---- helpers ----------------------------------------------------------------
 

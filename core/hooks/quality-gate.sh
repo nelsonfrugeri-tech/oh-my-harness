@@ -13,8 +13,21 @@
 # test suite must never be un-PR-able. If nothing is discovered, the gate allows.
 #
 # FAIL-OPEN BY CONSTRUCTION: every error path defers. A gate that blocks the user
-# because of its own bug is worse than no gate, so `deny` is reachable only from a
-# project command that actually exited non-zero.
+# because of its own bug is worse than no gate, so no internal failure ever produces
+# a decision: `deny` is reachable only from a project command that exited non-zero or
+# from a precondition the gate positively observed (dirty tree, unpushed or foreign
+# head, mismatched target repository, divergent or unverifiable remote).
+#
+# WHY `deny` AND NOT `ask`: the two harnesses do not agree on `ask`. Codex documents
+# that `permissionDecision: "ask"` is "parsed but not supported yet. Codex marks the
+# hook run as failed, reports the error, and continues the tool call" — so on Codex an
+# `ask` guard opens the pull request anyway. Claude Code prompts the user for `ask`,
+# and in `claude -p` without a permission host there is nobody to answer, while the
+# Agent SDK with `canUseTool` or `--permission-prompt-tool` routes the prompt and
+# waits. `deny` is the only value whose blocking behaviour is supported and documented
+# in both harnesses, and the two descriptors are byte-identical, so every guard uses
+# it and states in its reason exactly what to do. The explicit emergency bypass
+# remains the way through.
 #
 # TRUST: every command it runs comes from the repository (Makefile targets, config
 # strings, test suites). PreToolUse fires *before* the permission prompt, so running
@@ -34,7 +47,7 @@
 # or the MCP tool's own `head`/`owner`/`repo` fields, which its schema marks required
 # on every call. Validating the current checkout while a different origin is what
 # actually ships would be validation by proxy, so the gate resolves the selected
-# origin first and `ask`s whenever it cannot reconcile it with the current checkout:
+# origin first and denies whenever it cannot reconcile it with the current checkout:
 # a cross-fork head, a different local branch, or an MCP `owner/repo` that does not
 # match the `origin` remote. An unparsable `origin` URL fails that specific check
 # open (see `normalize_owner_repo`) rather than guessing.
@@ -46,9 +59,9 @@
 # budgeted to a hard ~10s wall-clock timeout (background job + poll + `kill -9`, never
 # a hang on credentials: `GIT_TERMINAL_PROMPT=0`, `GIT_ASKPASS=true`, `SSH_ASKPASS=true`)
 # and writing only to a `mktemp` file outside the repository. A reachable, divergent
-# remote asks; an unreachable remote also asks because the gate cannot establish what
-# the PR will contain. The caller may use the explicit emergency bypass when that risk
-# is understood.
+# remote is denied; an unreachable remote is denied too, because the gate cannot
+# establish what the PR will contain. The caller may use the explicit emergency bypass
+# when that risk is understood.
 #
 # Written for bash 3.2 (macOS default): no associative arrays, no mapfile.
 
@@ -334,11 +347,11 @@ CURRENT_BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null)
 if [ -n "$HEAD_ARG" ]; then
   case "$HEAD_ARG" in
     *:*)
-      decide ask "The pull request head ($HEAD_ARG) names another fork. The gate only validates the current checkout; verify $HEAD_ARG manually, then retry."
+      decide deny "The pull request head ($HEAD_ARG) names another fork. The gate only validates the current checkout; verify $HEAD_ARG manually, then retry."
       ;;
   esac
   if [ "$HEAD_ARG" != "$CURRENT_BRANCH" ]; then
-    decide ask "The pull request head ($HEAD_ARG) differs from the branch currently checked out (${CURRENT_BRANCH:-detached HEAD}). Check out $HEAD_ARG, or verify it manually, then retry."
+    decide deny "The pull request head ($HEAD_ARG) differs from the branch currently checked out (${CURRENT_BRANCH:-detached HEAD}). Check out $HEAD_ARG, or verify it manually, then retry."
   fi
 fi
 
@@ -348,7 +361,7 @@ if [ "$IS_MCP" = yes ] && [ -n "$MCP_OWNER" ] && [ -n "$MCP_REPO" ]; then
   if [ -n "$ORIGIN_OWNER_REPO" ]; then
     TARGET_OWNER_REPO=$(printf '%s/%s' "$MCP_OWNER" "$MCP_REPO" | tr '[:upper:]' '[:lower:]')
     if [ "$TARGET_OWNER_REPO" != "$(printf '%s' "$ORIGIN_OWNER_REPO" | tr '[:upper:]' '[:lower:]')" ]; then
-      decide ask "The pull request targets $MCP_OWNER/$MCP_REPO, which does not match the local origin remote ($ORIGIN_OWNER_REPO). Open the PR from a checkout of that repository, or verify it manually."
+      decide deny "The pull request targets $MCP_OWNER/$MCP_REPO, which does not match the local origin remote ($ORIGIN_OWNER_REPO). Open the PR from a checkout of that repository, or verify it manually."
     fi
   fi
   # ORIGIN_URL empty or in an unrecognized form: fail open, this specific check is skipped.
@@ -360,7 +373,7 @@ fi
 # from it, so a dirty tree must stop for a human decision rather than gate content
 # that will not actually be reviewed.
 if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-  decide ask "There are uncommitted changes that will not enter the pull request. Commit or discard them, then retry."
+  decide deny "There are uncommitted changes that will not enter the pull request. Commit or discard them, then retry."
 fi
 
 # The PR is built from the pushed remote branch, not from the local HEAD. Without a
@@ -368,12 +381,12 @@ fi
 # would be verifying content the PR will not actually contain.
 UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)
 if [ -z "$UPSTREAM" ]; then
-  decide ask "The local head has not been pushed: the current branch has no upstream. Push it, then retry."
+  decide deny "The local head has not been pushed: the current branch has no upstream. Push it, then retry."
 fi
 UPSTREAM_SHA=$(git rev-parse --verify -q "$UPSTREAM" 2>/dev/null)
 HEAD_SHA=$(git rev-parse HEAD 2>/dev/null)
 if [ -z "$HEAD_SHA" ] || [ "$UPSTREAM_SHA" != "$HEAD_SHA" ]; then
-  decide ask "The local head has not been pushed: HEAD differs from $UPSTREAM. Push it, then retry."
+  decide deny "The local head has not been pushed: HEAD differs from $UPSTREAM. Push it, then retry."
 fi
 
 # ---------------------------------------------------------------- remote reality check
@@ -417,10 +430,10 @@ REMOTE_REF=$(git config --get "branch.$CURRENT_BRANCH.merge" 2>/dev/null)
 if [ -n "$REMOTE_NAME" ] && [ -n "$REMOTE_REF" ]; then
   REMOTE_SHA=$(fetch_remote_sha "$REMOTE_NAME" "$REMOTE_REF")
   if [ -z "$REMOTE_SHA" ]; then
-    decide ask "The remote branch could not be verified. Restore access to $REMOTE_NAME, then retry, or use the explicit emergency bypass."
+    decide deny "The remote branch could not be verified. Restore access to $REMOTE_NAME, then retry, or use the explicit emergency bypass."
   fi
   if [ "$REMOTE_SHA" != "$HEAD_SHA" ]; then
-    decide ask "The remote branch has moved since the last local fetch: $REMOTE_NAME's $UPSTREAM is now $REMOTE_SHA, this checkout has $HEAD_SHA. Fetch, then retry."
+    decide deny "The remote branch has moved since the last local fetch: $REMOTE_NAME's $UPSTREAM is now $REMOTE_SHA, this checkout has $HEAD_SHA. Fetch, then retry."
   fi
 fi
 
