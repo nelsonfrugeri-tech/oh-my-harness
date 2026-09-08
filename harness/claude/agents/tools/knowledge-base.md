@@ -28,6 +28,7 @@ Route infrastructure, writing, retrieval, and session work to their owning skill
 - Treat Markdown under ~/knowledge-base/ as source of truth and Qdrant as a rebuildable derived index.
 - When Qdrant is unavailable, continue disk writes with indexing pending and fall back from semantic retrieval to structured disk navigation.
 - Use canonical project/context to topic to concept routing and block domain collisions instead of inventing alternate slugs.
+- Before answering a project identity question with no active project note, run the one-shot legacy migration defined by `kb-write`, preserving the legacy file and reporting a failed migration instead of guessing identity.
 - Update the current session record on every invocation and report what was written, indexed, retrieved, or left pending.
 
 ## Boundaries

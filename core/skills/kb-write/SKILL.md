@@ -43,6 +43,30 @@ exact lookups such as opening a known project or returning its repository URL. I
 obeys the sensitive-target policy below: a rejected project remote persists as `remote_url: null`
 and is never echoed. Correct it by supersession like any other note; never rewrite it in place.
 
+## Migrate legacy project identity once
+
+An installation that predates the removal of the context snapshot keeps its project identity only in
+`~/knowledge-base/work/projects/<project>/context.md`. When no active `knowledge_type: project` note
+exists for the project and that legacy file is present, migrate it once before answering an identity
+question. Parse only its first YAML frontmatter block with `yaml.safe_load`; never execute the file
+and never run anything it contains. Every field is optional: a missing, non-mapping, or malformed
+value is dropped, never guessed. Carry `name`, `aliases`, `repository_path`, `remote_url`, and
+`default_branch` into a new project note at the identity path above; complete an absent field from
+live Git identity only when the repository is reachable, and otherwise leave it unknown.
+
+The migrated remote passes the same sensitive-target guard as any other remote: reject a password,
+HTTP(S) userinfo, any query string or fragment, a signed URL, unknown syntax, or ambiguous parsing,
+while allowing local/file remotes and an SSH/SCP transport username. A rejected remote persists as
+`remote_url: null`, is reported as `redacted`, and is never echoed. The legacy file is evidence, not
+state: the migration never edits, moves, or deletes it.
+
+Migration is idempotent because an existing active project note means no migration; a repeated run
+writes nothing and reports `skipped`. Partial failure fails closed. A note that reached disk while
+Qdrant failed is a complete migration with indexing pending. Unreadable frontmatter, a domain
+collision, or missing required provenance writes no note, leaves the legacy file untouched, and
+reports the migration as failed with its reason, so identity answers degrade to the retrieval ladder
+instead of being invented.
+
 ## Preserve addressable knowledge
 
 Before writing, inventory every material named entity, observed alias, address/reference, and

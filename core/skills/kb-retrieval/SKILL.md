@@ -16,7 +16,7 @@ property; embeddings must never choose among homonyms.
 
 For project/repository lookup, inspect the active `knowledge_type: project` note under
 `work/projects/*/identity/` first. Match directory, `name`, `aliases`, and safe repository name; use
-`repository_path`, `remote_url`, and `default_branch` from its frontmatter only as candidates. Revalidate legacy stored remotes before responding. Reject a password, HTTP(S)
+`repository_path`, `remote_url`, and `default_branch` from its frontmatter only as candidates. When no active project note exists, run `kb-write`'s one-shot legacy migration of the project's legacy snapshot first, then answer from the migrated note. Revalidate legacy stored remotes before responding. Reject a password, HTTP(S)
 userinfo, any query string or fragment, signed URLs, or ambiguous parsing; an SSH/SCP transport
 username is allowed. Treat a rejected value as `remote_url: null`, report `redacted`, and never echo
 the sensitive target, even partially.
