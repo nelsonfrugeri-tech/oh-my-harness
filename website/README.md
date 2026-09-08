@@ -19,7 +19,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:4321/oh-my-harness/`. Fonts are packaged locally; no analytics, runtime API,
+Open `http://127.0.0.1:4321/oh-my-harness/`. Fonts (Onest and JetBrains Mono, via @fontsource) are packaged locally; no analytics, runtime API,
 remote font service, login, or external site-hosting provider is required.
 
 ## Verification
@@ -41,7 +41,8 @@ agent behavior. Review screenshots manually before changing the visual system.
 
 Choose **Apresentar** or open `?present=1#knowledge` for a chapter-specific retake. Left/right arrows
 navigate when focus is outside native controls. **R** reveals the diagram; **Escape** exits from any
-control. Buttons provide the same actions without shortcuts. Notes are **visible on the page and
+control. Buttons provide the same actions without shortcuts. The header theme control cycles
+automatic, light and dark; the choice is stored in the browser, so pick the theme before a take. Notes are **visible on the page and
 in screen recordings**; they are not a private presenter window. Camera space reserves the right
 side on desktop; it does not access a camera. The page remains scrollable for deep dives, smaller
 viewports, and enlarged text. Hide notes and camera guides before clean takes if needed.

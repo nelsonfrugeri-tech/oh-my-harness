@@ -29,7 +29,16 @@ const canonical = new URL(
       name="description"
       content="Seu sistema de engenharia, portátil entre Claude Code e Codex. Explore a arquitetura, as evidências e o conhecimento persistente do oh-my-harness."
     />
-    <meta name="theme-color" content="#081c18" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#fbfbfd"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#000000"
+    />
     <meta
       property="og:title"
       content="oh-my-harness — Troque de assistente. Não de método."
@@ -48,26 +57,69 @@ const canonical = new URL(
       type="image/svg+xml"
     />
     <title>oh-my-harness — Seu método, em qualquer harness suportado</title>
+    <script is:inline>
+      // Apply the stored theme before first paint so the page never flashes.
+      try {
+        const theme = localStorage.getItem("omh-theme");
+        if (theme === "light" || theme === "dark")
+          document.documentElement.dataset.theme = theme;
+      } catch {
+        /* storage unavailable: follow the system preference */
+      }
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Pular para o conteúdo</a>
     <header class="site-header">
-      <a class="wordmark" href="#origin" aria-label="oh-my-harness, início"
-        ><span class="brand-mark" aria-hidden="true">{`{↗}`}</span> oh-my-harness<span
-          class="edition">/ GUIA 01</span
-        ></a
-      >
-      <div class="header-actions">
-        <a class="repo-link" href={repository}
-          >GitHub <span aria-hidden="true">↗</span></a
-        ><button id="present" class="button" type="button" hidden
-          >Apresentar <span aria-hidden="true">↗</span></button
-        >
+      <div class="container">
+        <a class="wordmark" href="#origin" aria-label="oh-my-harness, início">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3">
+              <path
+                d="M6 18 18 6M9 6h9v9"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </span>
+          oh-my-harness<span class="edition">Guia 01</span>
+        </a>
+        <div class="header-actions">
+          <a class="repo-link" href={repository}>GitHub ↗</a>
+          <button
+            id="theme"
+            class="icon-button"
+            type="button"
+            aria-label="Tema: automático"
+            title="Alternar tema"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="8.5"></circle>
+              <path
+                d="M12 3.5a8.5 8.5 0 0 1 0 17z"
+                fill="currentColor"
+                stroke="none"></path>
+            </svg>
+          </button>
+          <button
+            id="present"
+            class="button primary small"
+            type="button"
+            hidden
+          >
+            Apresentar
+          </button>
+        </div>
       </div>
     </header>
-    <div class="page-layout">
-      <aside class="sidebar">
-        <span class="eyebrow">UM GUIA PARA EXPLORAR</span>
+    <div class="chapter-nav">
+      <div class="container">
+        <span class="eyebrow">Capítulos</span>
         <nav aria-label="Capítulos">
           {
             chapters.map((chapter) => (
@@ -80,30 +132,26 @@ const canonical = new URL(
             ))
           }
         </nav>
-        <div class="sidebar-note">
-          <span class="signal"></span> Open source · Apache 2.0<br /><span
-            >Contratos abertos à inspeção.</span
+      </div>
+    </div>
+    <main id="main" tabindex="-1">
+      {
+        chapters.map(({ Content, ...chapter }) => (
+          <section
+            id={chapter.id}
+            class="chapter"
+            aria-labelledby={`${chapter.id}-title`}
+            data-chapter
           >
-        </div>
-      </aside>
-      <main id="main" tabindex="-1">
-        {
-          chapters.map(({ Content, ...chapter }) => (
-            <section
-              id={chapter.id}
-              class="chapter"
-              aria-labelledby={`${chapter.id}-title`}
-              data-chapter
-            >
+            <div class="container">
               <div class="chapter-heading">
-                <>
-                  <span class="eyebrow">
-                    {String(chapter.order).padStart(2, "0")} / {chapter.label}
-                  </span>
-                  <span class="chapter-category">OH-MY-HARNESS</span>
-                </>
+                <span class="eyebrow">
+                  {String(chapter.order).padStart(2, "0")} — {chapter.label}
+                </span>
               </div>
-              <div class="chapter-stage">
+              <div
+                class:list={["chapter-stage", { hero: chapter.order === 1 }]}
+              >
                 <div class="chapter-intro">
                   {chapter.order === 1 ? (
                     <h1 id={`${chapter.id}-title`} tabindex="-1">
@@ -120,7 +168,7 @@ const canonical = new URL(
                   {chapter.order === 1 && (
                     <div class="hero-actions">
                       <a class="button primary" href="#architecture">
-                        Explore a arquitetura <span aria-hidden="true">↓</span>
+                        Explore a arquitetura
                       </a>
                       <a href={`${repository}#quick-start`}>Instale o OMH ↗</a>
                     </div>
@@ -139,58 +187,52 @@ const canonical = new URL(
                     class="source"
                     href={`${repository}/blob/${revision}/${chapter.source}`}
                   >
-                    Fonte do contrato{" "}
-                    <>
-                      <span aria-hidden="true">↗</span>
-                      <span class="mono">{revision.slice(0, 7)}</span>
-                    </>
+                    Fonte do contrato
+                    <span class="mono">{revision.slice(0, 7)}</span>
                   </a>
                 </div>
                 <Diagram kind={chapter.diagram} />
               </div>
               <details class="deep-dive" open>
-                <>
-                  <summary>
-                    Aprofundar{" "}
-                    <>
-                      <span>Conceitos, mecanismos e limites</span>
-                      <span aria-hidden="true">+</span>
-                    </>
-                  </summary>
-                  <div class="prose">
-                    <Content />
-                  </div>
-                </>
+                <summary>
+                  Aprofundar
+                  <span>Conceitos, mecanismos e limites</span>
+                  <span aria-hidden="true">+</span>
+                </summary>
+                <div class="prose">
+                  <Content />
+                </div>
               </details>
               <aside
                 class="speaker-note"
                 hidden
                 aria-label="Notas para gravação"
               >
-                <>
-                  <span class="eyebrow">
-                    NOTAS PARA GRAVAÇÃO · VISÍVEIS NA CAPTURA
-                  </span>
-                  <p>{chapter.note}</p>
-                </>
+                <span class="eyebrow">
+                  Notas para gravação · visíveis na captura
+                </span>
+                <p>{chapter.note}</p>
               </aside>
-            </section>
-          ))
-        }
-        <footer class="site-footer">
-          <span
-            >oh-my-harness <span class="muted"
-              >/ por {manifest.author.name}</span
-            ></span
-          ><span
-            >Contratos documentados em <a
-              href={`${repository}/tree/${revision}`}>{revision.slice(0, 7)}</a
-            > · <a href={`${repository}/blob/master/LICENSE`}>Apache 2.0</a
-            ></span
-          >
-        </footer>
-      </main>
-    </div>
+            </div>
+          </section>
+        ))
+      }
+      <footer class="site-footer">
+        <div class="container">
+          <span>
+            oh-my-harness <span class="muted">/ por {manifest.author.name}</span
+            >
+          </span>
+          <span>
+            Contratos documentados em{" "}
+            <a href={`${repository}/tree/${revision}`}>{revision.slice(0, 7)}</a
+            >
+            {" · "}
+            <a href={`${repository}/blob/master/LICENSE`}>Apache 2.0</a>
+          </span>
+        </div>
+      </footer>
+    </main>
     <div id="presentation-controls" class="presentation-controls" hidden>
       <button id="previous" type="button" aria-label="Capítulo anterior"
         >←</button
@@ -211,12 +253,12 @@ const canonical = new URL(
     <div id="camera-guide" hidden aria-hidden="true">
       <span>ÁREA LIVRE PARA CÂMERA<br />Ocupa espaço, não captura vídeo</span>
     </div>
-    <noscript
-      ><p class="no-script">
+    <noscript>
+      <p class="no-script">
         O guia completo funciona sem JavaScript. O modo de apresentação requer
         JavaScript.
-      </p></noscript
-    >
+      </p>
+    </noscript>
     <script src="../scripts/presentation.ts"></script>
   </body>
 </html>

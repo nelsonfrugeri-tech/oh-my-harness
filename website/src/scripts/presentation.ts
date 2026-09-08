@@ -167,3 +167,27 @@ const observer = new IntersectionObserver(
 );
 chapters.forEach((chapter) => observer.observe(chapter));
 restoreLocation();
+
+const themeButton = document.getElementById("theme");
+const themeOrder = ["auto", "light", "dark"] as const;
+const themeLabels = { auto: "automático", light: "claro", dark: "escuro" };
+function currentTheme(): (typeof themeOrder)[number] {
+  const stored = document.documentElement.dataset.theme;
+  return stored === "light" || stored === "dark" ? stored : "auto";
+}
+function applyTheme(theme: (typeof themeOrder)[number]): void {
+  if (theme === "auto") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
+  try {
+    if (theme === "auto") localStorage.removeItem("omh-theme");
+    else localStorage.setItem("omh-theme", theme);
+  } catch {
+    /* storage unavailable: the choice lasts for this page only */
+  }
+  themeButton?.setAttribute("aria-label", `Tema: ${themeLabels[theme]}`);
+}
+applyTheme(currentTheme());
+themeButton?.addEventListener("click", () => {
+  const index = themeOrder.indexOf(currentTheme());
+  applyTheme(themeOrder[(index + 1) % themeOrder.length] ?? "auto");
+});
