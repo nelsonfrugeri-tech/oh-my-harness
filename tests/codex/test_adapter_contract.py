@@ -241,7 +241,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("## Fluxo de PR", guidance)
         self.assertIn("## Como opero", guidance)
         portuguese_prose = (
-            "Na dúvida, busque — nunca responda de memória",
+            "Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado",
             "Antes de escrever, modificar ou revisar qualquer linha de código",
             "Commit e push são livres",
             "Delegue por padrão.",
