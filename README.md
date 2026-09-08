@@ -8,7 +8,6 @@ Keep the agents, skills, policies, evaluations, workflows, tools, and knowledge 
 work—even when you change AI coding assistants, machines, or providers.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/manifest-2.0.1-555555?style=flat-square)](.claude-plugin/plugin.json)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
 [![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#agents)
@@ -60,6 +59,16 @@ carry your way of working to the next assistant instead of starting over.
 | Preserve engineering quality | Repository-first implementation and a PR quality gate | Project-native checks run against the revision that will open the PR |
 | Reuse knowledge across machines | Markdown source of truth plus rebuildable Qdrant index | Memory is inspectable and not locked to one harness |
 | Use upstream expertise without owning its drift | Explicit routes to external plugins | Framework-specific knowledge stays with its maintainers |
+
+## Quick start
+
+| Goal | Path |
+| --- | --- |
+| Install on Claude Code | [Claude Code quick start](#claude-code) |
+| Install on Codex | [Codex quick start](#codex) |
+| Understand what remains portable | [Architecture](#architecture) |
+| Inspect the packaged capabilities | [Agents and skills](#whats-inside) |
+| Add another capability or harness | [Extending oh-my-harness](#extending-oh-my-harness) |
 
 ## Architecture
 
@@ -199,7 +208,7 @@ exist.
 | Knowledge base | `knowledge-base` agent | `knowledge-base` agent |
 | Behavioral evals | Fresh-session protocol | Fresh-session protocol |
 
-## Quick start
+## Installation
 
 ### Claude Code
 
@@ -245,9 +254,8 @@ Without `--skip-integrations`, the installer also attempts the declared LangChai
 setup plus available Deja/Graphify integration. Inspect
 [`harness/codex/README.md`](harness/codex/README.md) before choosing that broader path.
 
-The installer preserves unrelated user configuration and refuses ownership conflicts. Known
-hardening follow-ups remain tracked in [#122](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/122);
-passing installer tests does not erase those documented limits.
+The installer preserves unrelated user configuration and refuses ownership conflicts. Passing its
+test suite proves the exercised filesystem states, not every possible local configuration.
 
 For a new machine, [`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
 
@@ -378,7 +386,7 @@ Key properties:
   cited map to the knowledge-base owner; durable notes require a separate `kb-write` request.
 
 Today the agent invokes KB operations explicitly. Automatic just-in-time prompting and
-end-of-session distillation are roadmap items, not current runtime behavior.
+end-of-session distillation are not current runtime behavior.
 
 ## Optional ecosystem integrations
 
@@ -398,32 +406,13 @@ oh-my-harness does not vendor third-party expertise that has an active upstream 
 Unavailable optional integrations produce explicit degraded routing. Installation does not prove
 authentication, reachability, or health.
 
-## Current state and roadmap
+## Project status
 
-The manifest version is `2.0.1`, distributed from this Git repository. The current implementation
-supports Claude Code and Codex; it is not yet a general-purpose harness framework.
+The project is distributed from this Git repository. The current implementation supports Claude
+Code and Codex; it is not yet a general-purpose harness framework.
 
-Recently delivered:
-
-- portable role reorganization, including `software-engineer` and the read-only
-  `evidence-reviewer`;
-- removal of vendored Graphify and context snapshots in favor of capabilities and project notes;
-- evidence and didactic-visual behavioral eval corpora;
-- a remote-aware quality gate at PR creation;
-- guards against credentials, personal machine paths, and false provenance.
-
-Planned work is tracked publicly and should not be read as delivered functionality:
-
-| Work | Status | Outcome |
-| --- | --- | --- |
-| [#120](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/120) / [#131](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/131) | Planned | Artifact-specific language policy and shared guidance parity |
-| [#134](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/134) | Planned | Concrete just-in-time KB triggers, a lightweight session pointer, and richer project onboarding |
-| [#124](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/124) | Planned after #134 | Idempotent, asynchronous end-of-session knowledge distillation |
-| [#122](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/122) / [#128](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/128) | Paused | Additional Codex installer hardening and mutation coverage |
-| [#123](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/123) | Operational maintenance | Update the maintainer machine's plugin, Codex adapter, and `evals` installation |
-| [#138](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/138) | Planned | Consistent framework-documentation capability and LangSmith plugin routing |
-
-The evolution epic is [#113](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/113).
+Only behavior represented in the repository and bounded above is part of the current product.
+Future work remains outside this README until it becomes installable and verifiable.
 
 ## Extending oh-my-harness
 
