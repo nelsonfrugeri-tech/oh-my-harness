@@ -348,6 +348,11 @@ possíveis. Cada máquina acrescenta as suas linhas.
 | `web` | Busca e fetch na web | `WebSearch`, `WebFetch` |
 | `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` |
 | `session-memory` | Memória bruta de sessões passadas: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` |
+| `framework-docs` | Documentação viva de LangChain, LangGraph e Deep Agents, resolvida em runtime | `mcp__plugin_langchain-mcp_langchain-docs__*`, `mcp__plugin_langchain-mcp_langchain-reference__*` |
+
+**`framework-docs` não é automático no Codex.** No Claude Code os dois servidores vêm com o plugin
+`langchain-mcp`; no Codex, instalar o plugin **não** é prova de que os servidores foram registrados —
+confirme com `codex mcp list` antes de afirmar que a capability responde.
 
 `Read`, `Write`, `Edit`, `Bash`, `Grep` e `Glob` são primitivos e não precisam de provider. Se um
 MCP estiver deferido, carregue-o via `ToolSearch` antes de usá-lo.

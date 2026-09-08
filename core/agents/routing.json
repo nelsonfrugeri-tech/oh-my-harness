@@ -10,16 +10,110 @@
         "optional": true,
         "entries": [
           "evals:evals-start"
-        ]
+        ],
+        "installed_by_default": true,
+        "account_bound": false,
+        "entry_kind": "skill"
       },
       "langchain-skills": {
         "distribution": "langchain-skills@langchain-plugins",
+        "minimum_version": "0.1.0",
         "tested_version": "0.1.0",
         "optional": true,
+        "installed_by_default": true,
+        "account_bound": false,
+        "entry_kind": "skill",
         "entries": [
           "langchain-skills:ecosystem-primer",
-          "langchain-skills:eval-engineering"
+          "langchain-skills:eval-engineering",
+          "langchain-skills:langsmith-online-eval-engineering"
         ]
+      },
+      "langchain-mcp": {
+        "distribution": "langchain-mcp@langchain-plugins",
+        "minimum_version": "0.1.0",
+        "tested_version": "0.1.0",
+        "optional": true,
+        "installed_by_default": true,
+        "account_bound": false,
+        "capability": "framework-docs",
+        "entry_kind": "mcp-tool",
+        "entries": [
+          "search_docs_by_lang_chain",
+          "query_docs_filesystem_docs_by_lang_chain",
+          "submit_feedback",
+          "search_api",
+          "get_symbol"
+        ],
+        "servers": {
+          "langchain-docs": {
+            "url": "https://docs.langchain.com/mcp",
+            "transport": "http",
+            "auth": "none",
+            "harness_prefix": "mcp__plugin_langchain-mcp_langchain-docs__",
+            "tools": [
+              "search_docs_by_lang_chain",
+              "query_docs_filesystem_docs_by_lang_chain",
+              "submit_feedback"
+            ]
+          },
+          "langchain-reference": {
+            "url": "https://reference.langchain.com/mcp",
+            "transport": "http",
+            "auth": "none",
+            "harness_prefix": "mcp__plugin_langchain-mcp_langchain-reference__",
+            "tools": [
+              "search_api",
+              "get_symbol"
+            ]
+          }
+        },
+        "harness_support": {
+          "claude": "verified: the plugin installation registers both servers.",
+          "codex": "unverified: Installing the plugin is not established to register its MCP servers on Codex. Confirm with codex mcp list and register the two HTTP endpoints explicitly before claiming the capability."
+        },
+        "declaration_note": "Live documentation resolved at runtime, so the always-on cost is the tool schema only. Tool names above were read from the reference installation of 0.1.0; do not assume any other."
+      },
+      "langsmith-skills": {
+        "distribution": "langsmith-skills@langchain-plugins",
+        "minimum_version": "0.1.0",
+        "tested_version": "0.1.0",
+        "optional": true,
+        "installed_by_default": false,
+        "account_bound": false,
+        "entry_kind": "skill",
+        "entries": [
+          "langsmith-skills:langsmith-trace",
+          "langsmith-skills:langsmith-dataset",
+          "langsmith-skills:langsmith-evaluator"
+        ],
+        "declaration_note": "Declared and routed, not installed by any installer. The skills load without an account, but their workflows operate on a LangSmith workspace, so they are selected only when the tracing or the dataset already lives in LangSmith."
+      },
+      "langsmith-mcp": {
+        "distribution": "langsmith-mcp@langchain-plugins",
+        "minimum_version": "0.1.0",
+        "tested_version": "0.1.0",
+        "optional": true,
+        "installed_by_default": false,
+        "account_bound": true,
+        "entry_kind": "mcp-server",
+        "entries": [
+          "langsmith"
+        ],
+        "servers": {
+          "langsmith": {
+            "url": "https://api.smith.langchain.com/mcp",
+            "transport": "http",
+            "auth": "oauth",
+            "harness_prefix": null,
+            "tools": null
+          }
+        },
+        "harness_support": {
+          "claude": "not installed by default; the user installs and authorizes it.",
+          "codex": "not installed by default; Installing the plugin is not established to register its MCP servers on Codex. Confirm with codex mcp list and register the two HTTP endpoints explicitly before claiming the capability."
+        },
+        "declaration_note": "Declared and off by default because it is account-bound: it answers only for a LangSmith account after OAuth authorization. No installer installs it and no route depends on it. Its tool names are not verified here; enumerate them from the running server before use."
       }
     }
   },
@@ -238,6 +332,46 @@
           "degraded_behavior": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used."
         },
         {
+          "id": "langsmith-online-eval",
+          "priority": 85,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:langsmith-online-eval-engineering",
+          "match": {
+            "any_of": [
+              "langsmith online evaluator",
+              "langsmith online evaluators",
+              "online evaluator in langsmith",
+              "langsmith evaluator"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence. This entry ships with langchain-skills, which the installers install by default, so prefer it over langsmith-skills for evaluators that run inside LangSmith.",
+          "degraded_behavior": "Report integration pending: langchain-skills, which no installer installs by default. Continue with evals:evals-start for methodology and the web capability for the LangSmith product contract; never claim that the unavailable skill was used, and never assume a LangSmith account or its data exist."
+        },
+        {
+          "id": "langsmith-evaluation",
+          "priority": 75,
+          "dependency": "langsmith-skills",
+          "entry": "langsmith-skills:langsmith-trace",
+          "match": {
+            "any_of": [
+              "langsmith trace",
+              "langsmith traces",
+              "langsmith dataset",
+              "langsmith datasets",
+              "langsmith experiment",
+              "langsmith experiments"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence, and only when the tracing or the dataset already lives in LangSmith. The three LangSmith skills are peers, not an entry point: pick langsmith-trace for tracing and trace queries, langsmith-dataset for building evaluation datasets, langsmith-evaluator for evaluator definitions. For online evaluators inside LangSmith prefer langchain-skills:langsmith-online-eval-engineering, which ships with the installed plugin. Use evals:evals-start for tool-agnostic evaluation methodology and langchain-skills:eval-engineering for Harbor benchmark work.",
+          "degraded_behavior": "Report integration pending: langsmith-skills, which no installer installs by default. Continue with evals:evals-start for methodology and the web capability for the LangSmith product contract; never claim that the unavailable skill was used, and never assume a LangSmith account or its data exist."
+        },
+        {
           "id": "ai-evals",
           "priority": 80,
           "dependency": "evals",
@@ -274,8 +408,32 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
-          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
+          "sequence": "Load after evidence. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through framework-docs, falling back to the web capability when framework-docs does not answer; never claim that the unavailable integration was used."
+        },
+        {
+          "id": "framework-docs",
+          "priority": 70,
+          "dependency": "langchain-mcp",
+          "entry": "search_docs_by_lang_chain",
+          "match": {
+            "any_of": [
+              "langchain api",
+              "langgraph api",
+              "langchain sdk",
+              "langgraph sdk",
+              "langchain version",
+              "langgraph version",
+              "langchain release",
+              "langgraph release",
+              "deep agents api"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
+          "degraded_behavior": "Report integration pending: langchain-mcp, the framework-docs provider. Resolve the volatile fact from current official documentation through the web capability and record URL and inspection date, or return it as unknown; never claim that framework-docs answered when it did not."
         }
       ]
     },
@@ -322,8 +480,32 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
-          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
+          "sequence": "Load after evidence. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through framework-docs, falling back to the web capability when framework-docs does not answer; never claim that the unavailable integration was used."
+        },
+        {
+          "id": "framework-docs",
+          "priority": 70,
+          "dependency": "langchain-mcp",
+          "entry": "search_docs_by_lang_chain",
+          "match": {
+            "any_of": [
+              "langchain api",
+              "langgraph api",
+              "langchain sdk",
+              "langgraph sdk",
+              "langchain version",
+              "langgraph version",
+              "langchain release",
+              "langgraph release",
+              "deep agents api"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
+          "degraded_behavior": "Report integration pending: langchain-mcp, the framework-docs provider. Resolve the volatile fact from current official documentation through the web capability and record URL and inspection date, or return it as unknown; never claim that framework-docs answered when it did not."
         }
       ]
     },
@@ -370,8 +552,32 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
-          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
+          "sequence": "Load after evidence. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through framework-docs, falling back to the web capability when framework-docs does not answer; never claim that the unavailable integration was used."
+        },
+        {
+          "id": "framework-docs",
+          "priority": 70,
+          "dependency": "langchain-mcp",
+          "entry": "search_docs_by_lang_chain",
+          "match": {
+            "any_of": [
+              "langchain api",
+              "langgraph api",
+              "langchain sdk",
+              "langgraph sdk",
+              "langchain version",
+              "langgraph version",
+              "langchain release",
+              "langgraph release",
+              "deep agents api"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
+          "degraded_behavior": "Report integration pending: langchain-mcp, the framework-docs provider. Resolve the volatile fact from current official documentation through the web capability and record URL and inspection date, or return it as unknown; never claim that framework-docs answered when it did not."
         }
       ]
     },
@@ -672,6 +878,166 @@
       "expected_kind": "entry",
       "expected_route": "langchain-framework",
       "expected_entry": "langchain-skills:ecosystem-primer",
+      "expected_message": null
+    },
+    {
+      "id": "ai-engineer-framework-docs-positive",
+      "category": "explicit",
+      "role": "ai-engineer",
+      "prompt": "Confirm the current LangChain API surface before wiring the middleware.",
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "framework-docs",
+      "expected_entry": "search_docs_by_lang_chain",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "architect-framework-docs-positive",
+      "category": "explicit",
+      "role": "architect",
+      "prompt": "Check the current LangGraph API before choosing the durability boundary.",
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "framework-docs",
+      "expected_entry": "search_docs_by_lang_chain",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "software-engineer-framework-docs-positive",
+      "category": "explicit",
+      "role": "software-engineer",
+      "prompt": "Verify the LangGraph SDK behaviour against the pinned version.",
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "framework-docs",
+      "expected_entry": "search_docs_by_lang_chain",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "missing-framework-docs-plugin",
+      "category": "missing-plugin",
+      "role": "ai-engineer",
+      "prompt": "Confirm the current LangChain API surface before wiring the middleware.",
+      "available_dependencies": [
+        "langchain-skills",
+        "evals"
+      ],
+      "expected_kind": "degraded",
+      "expected_route": "framework-docs",
+      "expected_entry": null,
+      "expected_message": "Report integration pending: langchain-mcp, the framework-docs provider. Resolve the volatile fact from current official documentation through the web capability and record URL and inspection date, or return it as unknown; never claim that framework-docs answered when it did not.",
+      "repository_signals": []
+    },
+    {
+      "id": "ai-engineer-langsmith-positive",
+      "category": "explicit",
+      "role": "ai-engineer",
+      "prompt": "Build an evaluation dataset from the LangSmith traces already collected in the workspace.",
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "langsmith-skills",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langsmith-evaluation",
+      "expected_entry": "langsmith-skills:langsmith-trace",
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "missing-langsmith-plugin",
+      "category": "missing-plugin",
+      "role": "ai-engineer",
+      "prompt": "Build an evaluation dataset from the LangSmith traces already collected in the workspace.",
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "degraded",
+      "expected_route": "langsmith-evaluation",
+      "expected_entry": null,
+      "expected_message": "Report integration pending: langsmith-skills, which no installer installs by default. Continue with evals:evals-start for methodology and the web capability for the LangSmith product contract; never claim that the unavailable skill was used, and never assume a LangSmith account or its data exist.",
+      "repository_signals": []
+    },
+    {
+      "id": "framework-docs-near-miss-generic-api",
+      "category": "near-miss",
+      "role": "software-engineer",
+      "prompt": "Document the public API surface of this HTTP client library.",
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "none",
+      "expected_route": null,
+      "expected_entry": null,
+      "expected_message": null,
+      "repository_signals": []
+    },
+    {
+      "id": "overlap-llm-evaluation-mentions-langsmith",
+      "category": "overlap",
+      "role": "ai-engineer",
+      "prompt": "Design an llm evaluation for my agent using langsmith traces",
+      "repository_signals": [],
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "ai-evals",
+      "expected_entry": "evals:evals-start",
+      "expected_message": null
+    },
+    {
+      "id": "overlap-harbor-beats-langsmith",
+      "category": "overlap",
+      "role": "ai-engineer",
+      "prompt": "Run a harbor evaluation over the langsmith dataset",
+      "repository_signals": [],
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "harbor-evals",
+      "expected_entry": "langchain-skills:eval-engineering",
+      "expected_message": null
+    },
+    {
+      "id": "overlap-online-evaluator-uses-the-installed-plugin",
+      "category": "overlap",
+      "role": "ai-engineer",
+      "prompt": "Create a langsmith online evaluator for this chain",
+      "repository_signals": [],
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langsmith-online-eval",
+      "expected_entry": "langchain-skills:langsmith-online-eval-engineering",
       "expected_message": null
     }
   ],

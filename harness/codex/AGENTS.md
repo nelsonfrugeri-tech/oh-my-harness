@@ -363,7 +363,12 @@ agents ou skills.
 | `web` | Busca e recuperação de páginas web | Capability web do Codex |
 | `code-graph` | Query, path e explain sobre um knowledge graph de código | Graphify MCP com fallback para CLI |
 | `session-memory` | Busca em transcripts de sessões passadas por tópico ou arquivo | Deja CLI ou MCP quando instalado |
+| `framework-docs` | Documentação viva de LangChain, LangGraph e Deep Agents, resolvida em runtime | Servidores MCP `langchain-docs` e `langchain-reference` do plugin `langchain-mcp` |
 | `tunnel` | Exposição temporária de um site local por URL autenticada | _(opcional; configurar um provider aprovado)_ |
+
+**`framework-docs` não é automático no Codex.** No Claude Code os dois servidores vêm com o plugin
+`langchain-mcp`; no Codex, instalar o plugin **não** é prova de que os servidores foram registrados —
+confirme com `codex mcp list` antes de afirmar que a capability responde.
 
 Built-ins do Codex para acesso ao filesystem, busca no repositório, execução de shell e aplicação de
 patch não precisam de entradas no adapter.

@@ -10,6 +10,9 @@ _ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = json.loads(
     _ROOT.joinpath("core/agents/routing.json").read_text(encoding="utf-8")
 )
+_PLUGINS_FILE = _ROOT / "harness/codex/integrations/plugins.json"
+_RUNBOOK_FILE = _ROOT / "harness/claude/skills/claude-code/SKILL.md"
+_SELF_DISTRIBUTION = "oh-my-harness@oh-my-harness"
 
 
 class AgentRoutingContractTest(unittest.TestCase):
@@ -36,6 +39,143 @@ class AgentRoutingContractTest(unittest.TestCase):
             with self.subTest(role=role_id):
                 self.assertEqual("evals:evals-start", route["entry"])
                 self.assertIn("claude plugin update evals@ai-evals-course", route["degraded_behavior"])
+
+    def test_every_contracted_dependency_is_addressable(self) -> None:
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+
+        self.assertTrue(dependencies)
+        for name, dependency in dependencies.items():
+            with self.subTest(dependency=name):
+                self.assertEqual(
+                    name, dependency["distribution"].split("@", 1)[0]
+                )
+                self.assertRegex(dependency["distribution"], r"^[^@]+@[^@]+$")
+                self.assertRegex(dependency["minimum_version"], r"^\d+\.\d+\.\d+$")
+                self.assertIsInstance(dependency["installed_by_default"], bool)
+                self.assertTrue(dependency["entries"])
+                for entry in dependency["entries"]:
+                    self.assertTrue(entry.strip())
+
+    def test_entry_names_match_the_declared_provider_surface(self) -> None:
+        # A contract that only agrees with itself cannot catch the defect this contract
+        # exists to prevent: `evals:start` vs `evals:evals-start` was consistent in every
+        # place it appeared and still pointed at a skill that does not exist. Each entry
+        # is therefore checked against the provider surface declared beside it.
+        for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items():
+            with self.subTest(dependency=name):
+                entries = set(dependency["entries"])
+                kind = dependency["entry_kind"]
+                if kind == "skill":
+                    for entry in entries:
+                        self.assertTrue(
+                            entry.startswith(f"{name}:"),
+                            f"{entry} is not namespaced by its own plugin",
+                        )
+                elif kind == "mcp-tool":
+                    declared = {
+                        tool
+                        for server in dependency["servers"].values()
+                        for tool in server["tools"]
+                    }
+                    self.assertEqual(declared, entries)
+                elif kind == "mcp-server":
+                    self.assertEqual(set(dependency["servers"]), entries)
+                else:
+                    self.fail(f"unknown entry_kind {kind!r}")
+
+    def test_skill_entries_are_pinned_to_the_verified_upstream_names(self) -> None:
+        # A namespace check cannot catch a wrong leaf: `langsmith-dataset` vs
+        # `langsmith-datasets` is namespaced correctly and still points at nothing. The
+        # leaf lives upstream, so the verified names are pinned here, the same technique
+        # `test_evals_dependency_requires_the_renamed_entry` already uses. Each set was
+        # read from the published plugin, not inferred.
+        verified = {
+            "evals": {"evals:evals-start"},
+            "langchain-skills": {
+                "langchain-skills:ecosystem-primer",
+                "langchain-skills:eval-engineering",
+                "langchain-skills:langsmith-online-eval-engineering",
+            },
+            "langsmith-skills": {
+                "langsmith-skills:langsmith-trace",
+                "langsmith-skills:langsmith-dataset",
+                "langsmith-skills:langsmith-evaluator",
+            },
+        }
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+        skills = {
+            name
+            for name, dependency in dependencies.items()
+            if dependency["entry_kind"] == "skill"
+        }
+
+        self.assertEqual(skills, set(verified))
+        for name, entries in verified.items():
+            with self.subTest(dependency=name):
+                self.assertEqual(entries, set(dependencies[name]["entries"]))
+
+    def test_every_mcp_tool_entry_resolves_to_one_server_prefix(self) -> None:
+        # `entry: search_docs_by_lang_chain` is a bare tool name and the plugin exposes two
+        # servers, so the agent needs the prefix to call it without guessing.
+        for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items():
+            if dependency["entry_kind"] != "mcp-tool":
+                continue
+            for entry in dependency["entries"]:
+                owners = [
+                    server["harness_prefix"]
+                    for server in dependency["servers"].values()
+                    if entry in server["tools"]
+                ]
+                with self.subTest(dependency=name, entry=entry):
+                    self.assertEqual(1, len(owners))
+
+    def test_declared_capabilities_exist_in_both_guidance_tables(self) -> None:
+        # `capability` names an abstract provider that the guidance tables bind to a
+        # concrete tool. Declaring one that no table binds is the same "declared and not
+        # plugged" defect this contract exists to prevent, one level up.
+        claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
+        codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
+
+        for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items():
+            capability = dependency.get("capability")
+            if capability is None:
+                continue
+            with self.subTest(dependency=name, capability=capability):
+                self.assertIn(f"`{capability}`", claude)
+                self.assertIn(f"`{capability}`", codex)
+
+    def test_every_installed_plugin_is_declared_in_the_contract(self) -> None:
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+        contracted = {
+            dependency["distribution"]
+            for dependency in dependencies.values()
+            if dependency["installed_by_default"]
+        }
+
+        self.assertEqual(contracted, _codex_installed_plugins())
+        self.assertEqual(contracted, _claude_installed_plugins())
+
+    def test_plugins_left_out_are_declared_instead_of_omitted(self) -> None:
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+        excluded = json.loads(_PLUGINS_FILE.read_text(encoding="utf-8"))[
+            "declared_not_installed"
+        ]
+
+        self.assertTrue(excluded)
+        for name, reason in excluded.items():
+            with self.subTest(plugin=name):
+                self.assertFalse(dependencies[name]["installed_by_default"])
+                self.assertTrue(reason.strip())
+
+        # The loop above iterates over the declaration, so removing an entry from it
+        # shortens the loop instead of failing. The inverse assertion is what forbids the
+        # omission this test is named after.
+        uninstalled = {
+            name
+            for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items()
+            if not dependency["installed_by_default"]
+        }
+        self.assertEqual(uninstalled, set(excluded))
 
     def test_evidence_reviewer_executes_without_write_access(self) -> None:
         overlay = _MANIFEST["adapter_specs"]["shared-markdown"]["overlays"]["evidence-reviewer"]
@@ -181,6 +321,21 @@ class AgentRoutingContractTest(unittest.TestCase):
                     self.assertIn(role["implementation_guidance"], rendered)
                     self.assertIn("## Operating contract", rendered)
                     self.assertIn("## Boundaries", rendered)
+
+
+def _codex_installed_plugins() -> set[str]:
+    catalog = json.loads(_PLUGINS_FILE.read_text(encoding="utf-8"))
+    return {
+        f"{plugin}@{marketplace['marketplace']['name']}"
+        for marketplace in catalog["marketplaces"]
+        for plugin in marketplace["plugins"]
+    }
+
+
+def _claude_installed_plugins() -> set[str]:
+    runbook = _RUNBOOK_FILE.read_text(encoding="utf-8")
+    installed = set(re.findall(r"claude plugin install (\S+@\S+)", runbook))
+    return installed - {_SELF_DISTRIBUTION}
 
 
 def _render_body(role: dict[str, object]) -> str:

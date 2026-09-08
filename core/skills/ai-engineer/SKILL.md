@@ -35,19 +35,24 @@ Prefer a direct model call or deterministic workflow when no agent is needed.
 - OpenAI APIs, models, pricing, SDKs, Codex: openai-docs, using only official OpenAI sources.
 - LangChain, LangGraph, Deep Agents: langchain-skills:ecosystem-primer first, then only its selected
   focused skill, such as langchain-skills:langchain-rag or langchain-skills:langgraph-fundamentals.
+  The skills are frozen at their plugin version, so resolve every volatile fact about them, meaning
+  version, API surface, and SDK behavior, through the framework-docs capability before the web
+  capability, and record the answer with its inspection date.
 - General eval routing: evals:evals-start; RAG evaluation: evals:evaluate-rag.
 - Harbor tasks, environments, and verifiers: langchain-skills:eval-engineering.
 
-If a required skill is unavailable, use current official primary documentation. If neither is
-reachable, keep the provider/model/price/API/framework fact explicitly unknown and limit work to
-provider-neutral contracts and local checks. Never invent APIs, prices, capabilities, or results.
+If a required skill or framework-docs is unavailable, use current official primary documentation, and
+never report that framework-docs answered when it did not. If neither is reachable, keep the
+provider/model/price/API/framework fact explicitly unknown and limit work to provider-neutral
+contracts and local checks. Never invent APIs, prices, capabilities, or results.
 
 ## Shared contract
 
 1. Define input, output, error, data, latency, cost, and side-effect boundaries.
 2. Inspect pinned dependencies, runtime configuration, code, and traces before selecting technology.
 3. Retrieve volatile facts from current official sources; record URL, inspection date, SDK version,
-   model ID, and relevant region or tier.
+   model ID, and relevant region or tier. For LangChain, LangGraph, and Deep Agents prefer
+   framework-docs, and use the web capability when it does not answer.
 4. Validate schemas and tool arguments at boundaries. Distinguish refusal, truncation, malformed
    output, unsupported behavior, transport failure, and missing evidence.
 5. Pre-register representative success, failure, safety, freshness, latency, and cost checks.

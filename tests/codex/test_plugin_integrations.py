@@ -9,6 +9,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "installers/codex")
 
 from lib.plugin_integrations import PluginIntegrations
 
+# `codex mcp list` output with both langchain-mcp servers registered. The installer now
+# checks this before reporting a catalog whose capability depends on them as configured.
+_MCP_LIST = "langchain-docs  http  https://docs.langchain.com/mcp\nlangchain-reference  http  https://reference.langchain.com/mcp\n"
+
 
 class PluginIntegrationsTest(unittest.TestCase):
     def setUp(self) -> None:
@@ -21,7 +25,7 @@ class PluginIntegrationsTest(unittest.TestCase):
             Mock(returncode=0, stdout=output, stderr="")
             for output in (
                 '{"marketplaces": []}', "", self._langchain_marketplace_json(),
-                '{"installed": []}', "", "", '{"marketplaces": []}', "",
+                '{"installed": []}', "", "", _MCP_LIST, '{"marketplaces": []}', "",
                 self._evals_marketplace_json(), '{"installed": []}', "",
             )
         )
@@ -37,13 +41,31 @@ class PluginIntegrationsTest(unittest.TestCase):
         installed = self._installed_json()
         run.side_effect = tuple(
             Mock(returncode=0, stdout=output, stderr="")
-            for output in (marketplaces, installed, marketplaces, installed)
+            for output in (marketplaces, installed, _MCP_LIST, marketplaces, installed)
         )
 
         result = self._integrations.install()
 
         self.assertEqual(self._ok_results(), result)
-        self.assertEqual(4, run.call_count)
+        self.assertEqual(5, run.call_count)
+
+    @patch("lib.plugin_integrations.subprocess.run")
+    def test_unregistered_mcp_servers_report_pending_instead_of_configured(self, run: Mock) -> None:
+        # Installing the plugin is not proof that Codex registered its MCP servers. A
+        # capability whose provider never answers must not be reported as configured.
+        marketplaces = self._marketplaces_json()
+        installed = self._installed_json()
+        run.side_effect = tuple(
+            Mock(returncode=0, stdout=output, stderr="")
+            for output in (marketplaces, installed, "", marketplaces, installed)
+        )
+
+        result = self._integrations.install()
+
+        self.assertIn("pending:", result[0])
+        self.assertIn("langchain-docs", result[0])
+        self.assertIn("langchain-reference", result[0])
+        self.assertIn("ok:", result[1])
 
     @patch("lib.plugin_integrations.subprocess.run")
     def test_install_rejects_a_marketplace_with_the_wrong_source(self, run: Mock) -> None:

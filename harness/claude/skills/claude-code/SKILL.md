@@ -165,7 +165,14 @@ agents. Measured with `claude plugin details` in the reference installation:
 | Plugin | Provides | Always-on cost |
 | --- | --- | --- |
 | `langchain-skills` | 22 LangChain, LangGraph, and Deep Agents skills | ~2.1k tokens per session |
-| `langchain-mcp` | 2 MCP servers: `langchain-docs` and `langchain-reference` | ~0 (schema resolved at runtime) |
+| `langchain-mcp` | 2 MCP servers, `langchain-docs` and `langchain-reference`, behind the `framework-docs` capability | resolved at runtime, not measured as a session cost |
+
+`langchain-mcp` is the provider of the `framework-docs` capability declared in `catalog_contract`:
+live LangChain, LangGraph, and Deep Agents documentation resolved at runtime, which the routes consult
+for every volatile fact — version, API surface, SDK behaviour. Add the `framework-docs` row to your
+capability table only after `claude mcp list` confirms both servers respond. On Codex, installing the
+plugin is not proof of registration: confirm with `codex mcp list` and register the two HTTP endpoints
+explicitly if they are missing.
 
 The ~2.1k is the cost of keeping all 22 descriptions available for routing; each skill body loads
 only when invoked.

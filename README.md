@@ -426,6 +426,23 @@ runtime behavior.
 
 ## Optional ecosystem integrations
 
+Every plugin an installer installs is declared in `catalog_contract` of `core/agents/routing.json`,
+and so is every plugin deliberately left out. The always-on cost is paid on every session, whether or
+not the topic comes up:
+
+| Plugin | Brings | Always-on cost | Installed by default |
+| --- | --- | --- | --- |
+| `langchain-skills` | 22 skills for LangChain, LangGraph, and Deep Agents | ~2.1k tokens per session | yes |
+| `langchain-mcp` | 2 MCP servers, `langchain-docs` and `langchain-reference`, behind the `framework-docs` capability | resolved at runtime, not measured as a session cost | yes |
+| `evals` | 8 evaluation skills | ~862 tokens per session | yes |
+| `langsmith-skills` | 3 skills: `langsmith-trace`, `langsmith-dataset`, `langsmith-evaluator` | not measured, not installed | no |
+| `langsmith-mcp` | 1 OAuth MCP server for LangSmith traces, datasets, prompts, and experiments | not measured, not installed | no |
+
+`langchain-mcp` provides the `framework-docs` capability: live documentation the routes consult for
+every volatile LangChain fact — version, API surface, SDK behaviour — because the skills carry the
+knowledge frozen at their own release. On Codex, installing the plugin is not proof that its MCP
+servers were registered; confirm with `codex mcp list`.
+
 oh-my-harness does not vendor third-party expertise that has an active upstream owner.
 
 - **LangChain, LangGraph, and Deep Agents:** agents route relevant work to the official
