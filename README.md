@@ -2,214 +2,224 @@
 
 # oh-my-harness
 
-**A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.**
+**Your engineering system, portable across AI coding harnesses.**
 
-Share the behavior once. Keep harness-native adapters where representation differs. Run the same
-library on Claude Code and Codex today.
+Keep the agents, skills, policies, evaluations, workflows, tools, and knowledge that define how you
+work—even when you change AI coding assistants, machines, or providers.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/manifest-2.0.1-555555?style=flat-square)](.claude-plugin/plugin.json)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#whats-inside)
-[![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
+[![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#agents)
+[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#skills)
 
 </div>
 
 ---
 
-## The problem
+## Why this project exists
 
-Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` path there, a reference to a specific service somewhere else. Switch machines — GitHub at home, GitLab at work — or switch assistants, and it breaks. You re-wire the same plumbing on every setup.
+An AI coding harness becomes useful long before it becomes portable.
 
-**oh-my-harness decouples _what the agent does_ from _which tool it does it with._** The same
-`software-engineer` responsibility opens a Pull Request through GitHub on your personal machine and through
-GitLab on the company laptop. Harness-native manifests represent that behavior, while only the
-machine capability mapping changes providers.
+Here, a **harness** is the host runtime around a model: the application that discovers agents and
+skills, exposes tools, runs hooks and workflows, and injects global instructions.
 
----
+You tune agents, collect skills, define review standards, wire tools, add hooks, build workflows,
+and teach the model how to reason and communicate. Most of that investment ends up coupled to one
+harness's file format, one machine's paths, and one provider's tool names. Moving from Claude Code
+to Codex—or using both—means rebuilding the same operating system around the model.
 
-## Table of contents
+oh-my-harness makes that operating system a versioned project:
 
-- [How it works](#how-it-works)
-- [Core ideas](#core-ideas)
-  - [Capabilities — the tool plug](#capabilities--the-tool-plug)
-  - [Progressive disclosure](#progressive-disclosure)
-  - [Evidence-driven decisions](#evidence-driven-decisions)
-  - [code-craft — mandatory implementation constraints](#code-craft--mandatory-implementation-constraints)
-  - [Language contract](#language-contract)
-- [Quick start](#quick-start)
-- [What's inside](#whats-inside)
-- [Knowledge base](#knowledge-base)
-- [Portability across harnesses](#portability-across-harnesses)
-- [Extending the library](#extending-the-library)
-- [Why](#why)
-- [License](#license)
+- **Shared intent lives once.** Engineering methods, behavioral policies, eval cases, and role
+  contracts have one source of truth.
+- **Harness-native adapters preserve fidelity.** Claude Code uses its native Markdown agents and
+  Workflow API; Codex uses native TOML agents and its own installer. Portability does not mean
+  flattening every harness into the lowest common denominator.
+- **Tools are replaceable.** Agents ask for capabilities such as `code-host`, `ci`,
+  `code-graph`, or `session-memory`; each machine maps those capabilities to its installed
+  providers.
+- **Knowledge outlives sessions and assistants.** Curated knowledge is stored outside product
+  repositories in a readable, syncable bundle with provenance. Its vector index is derived state.
+- **Behavior has a shared contract.** The same evidence discipline and progressive-disclosure
+  response policy are designed for both supported harnesses; runtime equivalence remains something
+  to evaluate, not assume.
 
----
+The result is leverage: improve a shared capability once, adapt only what is harness-specific, and
+carry your way of working to the next assistant instead of starting over.
 
-## How it works
+## What you get
 
-This repository is the **source**. Shared skills and behavior stay harness-neutral; each sibling
-adapter owns the manifests, hooks, global guidance, and lifecycle integration required by its
-harness. Capabilities are resolved through that harness's machine-local table.
+| Benefit | Mechanism | Practical effect |
+| --- | --- | --- |
+| Change harnesses without rebuilding your setup | Shared contracts plus native adapters | Roles, standards, and knowledge remain familiar |
+| Change providers without rewriting agents | Abstract capability table | GitHub, GitLab, Graphify, Deja, and other providers stay machine-local |
+| Reduce unsupported model claims | Evidence status, provenance, and independent review | Facts, inference, uncertainty, and decisions remain distinguishable |
+| Keep prompts focused | Progressive disclosure in skills and responses | Deep references load only when the task needs them |
+| Preserve engineering quality | Repository-first implementation and a PR quality gate | Project-native checks run against the revision that will open the PR |
+| Reuse knowledge across machines | Markdown source of truth plus rebuildable Qdrant index | Memory is inspectable and not locked to one harness |
+| Use upstream expertise without owning its drift | Explicit routes to external plugins | Framework-specific knowledge stays with its maintainers |
 
+## Architecture
+
+```text
+                         oh-my-harness repository
+                  one versioned source for how you work
+                                      |
+          +---------------------------+---------------------------+
+          |                           |                           |
+          v                           v                           v
+   portable contracts          behavioral system          shared runtime pieces
+   core/agents/routing.json     core/skills/               core/hooks/
+   role responsibilities       core/policies/             core/evals/
+          |                           |                           |
+          +---------------------------+---------------------------+
+                                      |
+                         harness-native representation
+                    +-----------------+-----------------+
+                    |                                   |
+                    v                                   v
+             harness/claude/                     harness/codex/
+             Markdown agents                     TOML agents
+             Workflow TypeScript                 managed adapter
+             plugin manifest                     plugin manifest
+                    |                                   |
+                    +-----------------+-----------------+
+                                      |
+                         machine capability adapter
+             code-host · ci · web · code-graph · session-memory · tunnel
+                                      |
+                    +-----------------+-----------------+
+                    |                                   |
+                    v                                   v
+          provider-owned tools                  ~/knowledge-base/
+          and external plugins                  portable OKF bundle
 ```
-┌───────────────────────────────────────────────────────────────────┐
-│  oh-my-harness · SOURCE (this git repo)                           │
-│                                                                   │
-│  shared core                    harness adapters                  │
-│  ├── core/skills/                ├── harness/claude/              │
-│  ├── core/hooks/                 │   agents · hooks · workflows   │
-│  ├── core/policies/              └── harness/codex/               │
-│  └── core/evals/                     agents · hooks · integrations│
-│  installers/codex/ · tests/codex/                                 │
-└───────────────────────────────┬───────────────────────────────────┘
-                                │ harness-native installer
-             ┌──────────────────┴──────────────────┐
-             ▼                                     ▼
-   ~/.claude/ global state                ~/.codex/ + ~/.agents/
-   Markdown agents · workflows            TOML agents · shared skills
-   CLAUDE.md · settings/hooks              AGENTS.md · hooks · MCPs
-                                │  capability plug (per machine)
-                   ┌────────────┴─────────────┐
-                   ▼                           ▼
-          code-host → mcp__github__*   code-host → mcp__gitlab__*
-          (personal machine)           (work machine)
 
-┌───────────────────────────────────────────────────────────────────┐
-│  ~/knowledge-base/ · outside any repo · an OKF v0.2 bundle          │
-│  <domain>/<entity-type>/ — immutable notes (`knowledge-base` agent  │
-│    → kb-write/kb-retrieval), indexed in local Qdrant via BGE-M3     │
-│  <domain>/sessions/ — living session records (`kb-session`),        │
-│    pointing at the harness's raw transcripts for deep search        │
-└───────────────────────────────────────────────────────────────────┘
+The repository separates three kinds of state deliberately:
+
+1. **Portable source** belongs in `core/`: behavior and contracts that should survive a harness
+   switch.
+2. **Native representation** belongs in `harness/<name>/`: manifests, agents, hooks, workflows,
+   global guidance, and installer behavior required by that harness.
+3. **Machine and user state** stays outside the repository: credentials, provider mappings,
+   installed executables, transcripts, and the knowledge base.
+
+## Design principles
+
+### One source of intent, native execution
+
+The shared routing catalog defines portable roles and their skill dependencies. Each adapter renders
+that responsibility in the harness's native format. Shared semantics are aligned and tested;
+harness-specific capabilities remain explicit instead of being hidden behind a fictional universal
+schema.
+
+### Capabilities, not hardcoded tools
+
+Agents and skills refer to abstract capabilities. The active harness's global guidance is the only
+place that maps those capabilities to providers on a machine.
+
+| Capability | Purpose | Example provider |
+| --- | --- | --- |
+| `code-host` | Pull Requests, issues, and remote reviews | GitHub or GitLab |
+| `ci` | Pipeline inspection and operation | GitHub Actions or GitLab CI |
+| `web` | Current public research | Harness-native web access |
+| `code-graph` | Code graph query, path, and explanation | Graphify or another graph provider |
+| `session-memory` | Search past raw session transcripts | Deja or another transcript index |
+| `tunnel` | Temporary authenticated report exposure | An approved tunnel provider |
+
+An empty mapping is an honest degraded capability. The harness must report what remains unavailable;
+it must not invent a provider.
+
+### Progressive disclosure is an operating model
+
+A skill is a capability, not an encyclopedia. Its `SKILL.md` defines ownership, activation,
+workflow, boundaries, and output. Stable deep detail lives in task-specific references and loads on
+demand. Volatile vendor facts come from current primary sources instead of being copied into a skill
+and left to age.
+
+The same principle shapes responses: lead with the answer, reveal reasoning and edge cases in
+layers, and use a visual only when it materially reduces cognitive effort.
+
+### Evidence and provenance before presentation
+
+The project treats “anti-hallucination” as an engineering discipline, not a promise that a model can
+never be wrong.
+
+```text
+retrieve or observe
+        |
+        v
+classify the claim  --> fact · derived result · inference · hypothesis · estimate · unknown
+        |
+        v
+record provenance  --> source · revision · command · environment · time · limitation
+        |
+        v
+make the decision  --> alternatives · trade-off · falsifier · validation · rollback
+        |
+        v
+present clearly    --> progressive prose · table · flow · timeline · tree · wireframe
 ```
 
-- **agents** share responsibilities and skill dependencies, while their executable manifests stay
-  harness-native: Claude Markdown under `harness/claude/agents/`, Codex TOML under `harness/codex/agents/`.
-- **skills** are the shared semantic layer and are flattened by each installer to the discovery
-  location required by that harness.
-- **global guidance and capability tables** live in `harness/claude/CLAUDE.md` and `harness/codex/AGENTS.md`;
-  their common rules must remain semantically aligned, not byte-identical.
-- The agent **`claude-code`** (backed by the `claude-code` skill) is the runbook the harness
-  runs to sync (see [Quick start](#quick-start)).
-- The agent **`knowledge-base`** manages the persistent knowledge base: infra (local Qdrant +
-  BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`), 3-step retrieval
-  (`kb-retrieval`), the harness's session memory — living session records plus deep search
-  inside raw transcripts (`kb-session`) — and on-demand repository mapping (`explorer`); see
-  [Knowledge base](#knowledge-base).
-- The agent **`site`** turns cited technical analysis into a self-contained visual report outside
-  the source repository and exposes it only through an explicitly configured `tunnel` capability.
+The `evidence` skill governs claims, uncertainty, and decisions. The `evidence-reviewer`
+independently audits consequential work under a read-only contract. Codex enforces that boundary
+with `sandbox_mode = "read-only"`; Claude Code removes direct write/edit tools but still permits
+Bash, so its boundary is behavioral rather than equivalent filesystem isolation. The
+`didactic-visual` skill then chooses the smallest useful representation; it cannot turn weak
+evidence into a stronger claim.
 
----
+Knowledge writes follow the same rule. Notes and session records carry real harness, session,
+working-directory, and machine provenance. Missing required provenance blocks the write instead of
+being guessed.
 
-## Migration compatibility notes
+### Engineering standards are repository-first
 
-The capability migration shipped in the `2.0.0` baseline. This package-layout migration advances
-both plugin manifests and marketplace metadata to `2.0.1`; it does not itself create a release or
-publish a tag. After upgrading, follow the harness runbook to verify plugin loading and hooks;
-Codex hook definitions require a new trust review.
+The mandatory implementation constraints live in
+[`code-craft.md`](core/skills/implement/references/code-craft.md) and are applied through
+`implement`. They preserve the project's own contracts, type system, layout, and quality gates.
+Project contracts override generic preferences. Do not split by a universal line or symbol count,
+and do not force a pattern where the repository provides no evidence that it helps.
 
-The capability migration replaces the old `Triggers:`/`Gatilhos:` keyword lists with scoped
-skill descriptions. Slash-prefixed words in those lists were discovery hints, not alias
-registrations in this repository; use the canonical skill name exposed by your harness catalog.
-This change does not establish whether a particular runtime previously interpreted a hint as an
-alias. Runtime alias compatibility has not been tested.
+## Supported harnesses
 
-Native capability metadata is descriptive, not a routing discriminator. Some operational skills
-have only `name` and `description`; adapters must not infer ownership or invocation permissions
-from optional `metadata.type`. Tool-skill descriptions identify the owning agent explicitly.
+Claude Code and Codex are first-class today. The shared source is designed to admit more adapters,
+but a harness is not supported until its native representation, installer path, and contract tests
+exist.
 
-## Core ideas
-
-### Capabilities — the tool plug
-
-Agents and skills reference **abstract capabilities**, never a concrete tool. Each harness adapter
-owns one machine-local capability table (`harness/claude/CLAUDE.md` or `harness/codex/AGENTS.md`). Change the
-environment, change only the active harness's table.
-
-| Capability  | Role                                   | Example per machine        |
-| ----------- | -------------------------------------- | -------------------------- |
-| `code-host`  | Pull/Merge Requests, issues           | `mcp__github__*` / GitLab  |
-| `ci`         | CI/CD pipelines                       | GitHub Actions / GitLab CI |
-| `web`        | Search and fetch                      | `WebSearch`, `WebFetch`    |
-| `code-graph` | Query a built codebase knowledge graph | a code-graph MCP server   |
-| `tunnel`     | Temporary authenticated site exposure | cloudflared / ngrok / equivalent |
-
-### Progressive disclosure
-
-Each skill defines a bounded capability in `SKILL.md`: when it applies, the outcome it owns,
-its workflow, and the contracts it must preserve. Task-specific `references/` load **on demand**;
-general knowledge and volatile vendor documentation are not maintained as an embedded encyclopedia.
-
-### Evidence-driven decisions
-
-Software work uses a shared evidence contract across Claude Code and Codex. Material claims are
-classified as verified facts, derived results, inferences, hypotheses, estimates, unknowns, or
-decisions. Quantitative claims carry reproducible provenance, and material decisions record
-alternatives, uncertainty, falsification, and rollback conditions. The `evidence` skill provides
-the detailed protocol, while the read-only `evidence-reviewer` agent independently audits
-consequential claims, running the project's tests and gates without editing the repository.
-
-### code-craft — mandatory implementation constraints
-
-The mandatory implementation constraints live in [`core/skills/implement/references/code-craft.md`](core/skills/implement/references/code-craft.md) as the **single source of truth**, referenced by `implement`. They are repository-first: preserve configured typing and public contracts, reject shared mutable defaults, keep units cohesive, validate untrusted boundaries, and run discovered quality gates. Universal line counts, nesting limits, parameter counts, and automatic pattern selection are intentionally not policy; repository tooling may define measurable limits for a specific codebase.
-
-### Language contract
-
-Instructional prose is **pt-BR**; code, comments, docstrings, and technical terms stay **English**. You talk to the harness in your language; what ships to a codebase is written in the code's language.
-
----
+| Surface | Claude Code | Codex |
+| --- | --- | --- |
+| Shared skills | Native plugin | Native plugin |
+| Custom agents | Native Markdown agents in the plugin | Native TOML agents through the full adapter |
+| Global policy | Merge the managed `CLAUDE.md` guidance | Installer-managed `AGENTS.md` block |
+| Hooks | Native plugin descriptor | Native plugin descriptor; explicit hook trust required |
+| Feature workflow | Shared `feature` skill; TypeScript prototype is source-only | `feature` skill with Codex-native orchestration |
+| Tool providers | Machine capability table | Machine capability table |
+| Knowledge base | `knowledge-base` agent | `knowledge-base` agent |
+| Behavioral evals | Fresh-session protocol | Fresh-session protocol |
 
 ## Quick start
 
-**Claude Code** installs the library as a native plugin — no clone required:
+### Claude Code
+
+Install the native plugin:
 
 ```bash
 claude plugin marketplace add nelsonfrugeri-tech/oh-my-harness
 claude plugin install oh-my-harness@oh-my-harness
-claude plugin list        # Status: ✔ enabled
+claude plugin list
 ```
 
-Skills arrive namespaced (`/oh-my-harness:review`), agents as
-`oh-my-harness:<theme>:<name>`, and the PR-gate hook comes with them.
-Updates are a decision, not a side effect of `git pull`: users receive a new version only when
-`version` in the manifest is bumped, and a marketplace entry can pin `ref` or an exact `sha`.
+The plugin provides shared skills, Claude-native agents, and the PR quality-gate hook. Global
+instructions and user permissions are intentionally not plugin-owned. Merge
+[`harness/claude/CLAUDE.md`](harness/claude/CLAUDE.md) and the permissions from
+[`harness/claude/settings.json`](harness/claude/settings.json), or follow the
+[`claude-code` runbook](harness/claude/skills/claude-code/SKILL.md).
 
-Two surfaces a plugin cannot provide — global instructions and user preferences — still install
-by merge: `harness/claude/CLAUDE.md` into `~/.claude/CLAUDE.md`, and the `permissions` block of
-`harness/claude/settings.json`. Ask the `claude-code` agent to do it, or follow its skill.
+### Codex
 
-Some agents route to skills that are not ours: where a domain already has an authoritative upstream
-plugin, they point at it instead of at guidance we would have to keep current ourselves. Install
-those marketplaces too — the same agent does it as part of the runbook:
-
-```bash
-claude plugin marketplace add langchain-ai/langchain-plugins
-claude plugin install langchain-skills@langchain-plugins   # 22 skills, ~2.1k tokens always-on
-claude plugin install langchain-mcp@langchain-plugins      # live docs + API reference MCP servers
-
-claude plugin marketplace add ai-evals-course/evals-skills
-claude plugin install evals@ai-evals-course                # 8 skills, ~862 tokens always-on
-```
-
-`langchain-skills` backs the LangChain, LangGraph, and Deep Agents routing in `ai-engineer`,
-`architect`, and `software-engineer`. `evals` backs the LLM-evaluation routing in `ai-engineer`:
-error analysis from real traces, LLM-as-judge, judge calibration against human labels, and RAG
-evaluation. The two overlap on the word "eval" and not in method, so the agents say which is which
-— `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
-benchmark work, whatever framework the evaluated agent uses.
-
-`evals >= 0.3.1` is required because its entry skill is `evals:evals-start`. If an existing install
-still exposes `evals:start`, run `claude plugin update evals@ai-evals-course` and restart Claude Code.
-
-The LangSmith plugins in the LangChain marketplace stay uninstalled by default: they need a
-LangSmith account and OAuth authorization. Nothing is vendored or translated here — upstream owns
-the content, so it never drifts behind a release. The always-on cost is listed because it is paid
-on every session, whether or not the topic comes up.
-
-**Codex** also installs the shared library as a native plugin — no clone required:
+Install the native plugin:
 
 ```bash
 codex plugin marketplace add nelsonfrugeri-tech/oh-my-harness
@@ -217,218 +227,236 @@ codex plugin add oh-my-harness@oh-my-harness
 codex plugin list
 ```
 
-Start a new Codex session, open `/hooks`, review the plugin-bundled commands, and trust the exact
-definitions before relying on them. Codex skips new or changed non-managed hooks until this review
-is complete.
+Start a new session, open `/hooks`, inspect the bundled definitions, and trust them before relying
+on the PR gate. The plugin supplies shared skills, the Codex runbook, and hooks.
 
-The PR gate has an additional per-repository trust because its discovered quality commands are
-repository-controlled. From a checkout you have reviewed, opt in once:
-
-```bash
-common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir)
-repo_sig=$(printf '%s' "$common_git_dir" | shasum -a 256 | cut -d' ' -f1 | cut -c1-12)
-trust_dir="${XDG_CACHE_HOME:-$HOME/.cache}/omh-quality-gate/trusted"
-mkdir -p "$trust_dir"
-touch "$trust_dir/$repo_sig"
-```
-
-The `/hooks` decision trusts the plugin hook; this marker separately trusts the current Git
-repository. Without both, the gate deliberately defers and does not run project commands.
-
-The native plugin supplies shared skills, the Codex installation skill, and lifecycle hooks. Those
-shared skills include `explorer`, the on-demand repository mapping the `knowledge-base` agent
-requests. Codex custom agents, global `AGENTS.md` guidance, and machine-local MCP integrations
-are not plugin components, so install the adapter from a clone when you need those additional
-surfaces:
+For custom agents, managed global guidance, permissions, and optional local integrations, install
+the full adapter from a clone. It requires Codex `0.138.0+`, selects the managed oh-my-harness
+permission profile, and adds the knowledge-base runtime directories as writable roots.
 
 ```bash
 git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
 cd oh-my-harness
-python3 installers/codex/install.py
+python3 installers/codex/install.py --skip-integrations  # conservative first pass
 python3 installers/codex/install.py --check
 ```
 
-On a brand-new machine, [`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
+Without `--skip-integrations`, the installer also attempts the declared LangChain and Evals plugin
+setup plus available Deja/Graphify integration. Inspect
+[`harness/codex/README.md`](harness/codex/README.md) before choosing that broader path.
 
-Finally, configure the capability table in the active harness's managed global guidance. From then
-on, the `knowledge-base` agent answers project and repository questions from the knowledge base at
-`~/knowledge-base/`, on demand rather than on every session start.
+The installer preserves unrelated user configuration and refuses ownership conflicts. Known
+hardening follow-ups remain tracked in [#122](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/122);
+passing installer tests does not erase those documented limits.
 
----
+For a new machine, [`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
+
+## The PR quality gate
+
+The shared `PreToolUse` hook moves validation to the moment a Pull Request is opened, leaving
+commits and pushes free. In a trusted repository it:
+
+1. identifies the selected PR head and verifies that local `HEAD` matches the live remote branch;
+2. refuses dirty, foreign, unpushed, divergent, or unverifiable content;
+3. discovers format, lint, typecheck, and test commands from project configuration, Make targets,
+   or language manifests;
+4. runs those checks and denies PR creation when a discovered check fails.
+
+Repository trust is separate from hook trust because discovered commands are repository-controlled.
+The gate covers `gh pr create` and the configured GitHub MCP creation tool. It does not cover a PR
+opened in a browser, later pushes, or every possible provider API. `OMH_GATE=off` is an explicit,
+reported emergency bypass—not an access-control boundary.
 
 ## What's inside
 
 ### Agents
 
-Canonical Claude manifests are grouped under `harness/claude/agents/<theme>/`; Codex-native representations live
-under `harness/codex/agents/`. Both adapters preserve the responsibilities in this catalog.
+Seven portable roles are represented natively in both harnesses. Each adapter adds its own eighth,
+harness-specific installation agent:
 
-The shared routing contract lives in `core/agents/routing.json`; it defines the portable roles
-and the native paths for both adapters.
+| Theme | Agent | Responsibility |
+| --- | --- | --- |
+| Engineering | `architect` | System design, ADRs, C4, API design, and explicit trade-offs |
+| Engineering | `software-engineer` | End-to-end implementation with scalability, resilience, responsiveness, quality, and cost constraints |
+| Engineering | `ai-engineer` | LLM integration, RAG, embeddings, data pipelines, and AI evaluation |
+| Engineering | `tech-pm` | Product discovery, observable acceptance criteria, prioritization, roadmaps, and PRDs |
+| Policy | `evidence-reviewer` | Independent read-only audit of claims, metrics, decisions, and validation evidence |
+| Harness | `claude-code` / `codex` | Install and synchronize the active harness adapter |
+| Tool | `knowledge-base` | Operate persistent knowledge, retrieval, session records, and project onboarding |
+| Tool | `site` | Produce cited visual reports outside the analyzed repository and optionally expose them |
 
-| Theme       | Agent         | Role                                                | Model  |
-| ----------- | ------------- | ---------------------------------------------------- | ------ |
-| `engineers` | `architect`   | System design, ADRs, C4, trade-offs, API design       | opus   |
-| `engineers` | `software-engineer` | Implementation at altitude: scalability, resilience, responsiveness, quality, cost | opus   |
-| `engineers` | `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation         | sonnet |
-| `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
-| `policy`    | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions, with Bash for tests and gates | opus |
-| `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
-| `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search, on-demand repository mapping | sonnet |
-| `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
+The canonical routing contract is
+[`core/agents/routing.json`](core/agents/routing.json). Claude manifests live under
+`harness/claude/agents/`; Codex manifests live under `harness/codex/agents/`.
 
 ### Skills
 
-Shared skills live under `core/skills/<name>/`; harness-owned skills live under
-`harness/<name>/skills/`. Each plugin manifest explicitly declares the shared root and its own
-harness root. The repository has 28 skills: 26 shared and one specific to each harness.
-The catalog below keeps the logical themes without adding another filesystem layer, and
-each skill name remains globally unique.
+The package contains 28 skills: 26 shared skills and one adapter skill for each harness. The catalog
+below is intentionally complete and is checked against both plugin manifests.
 
-**Knowledge (languages & domains) — `engineers`:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
+**Reasoning and presentation:** `evidence` · `didactic-visual`
 
-**Capability (method & process) — `engineers`:** `evidence` · `didactic-visual` · `implement` · `design` · `test` · `review` · `research` · `operate` · `manage` · `environment` · `ci-cd`
+**Software delivery:** `implement` · `design` · `test` · `review` · `research` · `manage` · `environment` · `ci-cd` · `operate` · `feature`
 
-**Command & workflow — `engineers`:** `feature`
+**Engineering knowledge:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
-**Harness tooling — `harness`:** `claude-code` (the Claude sync runbook) · `codex` (the Codex sync runbook)
+**Knowledge and tool capabilities:** `explorer` · `kb-infra` · `kb-write` · `kb-retrieval` · `kb-session` · `site-report` · `site-expose`
 
-**Tools agents — `tools`:** `explorer` (on-demand repository mapping for the `knowledge-base` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
-
-Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
+**Harness adapters:** `claude-code` · `codex`
 
 ### Workflows
 
-| Workflow         | What it does                                                                       |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| `create-feature` | Shared feature contract with a Claude TypeScript adapter and Codex-native orchestration |
+The shared `feature` skill resolves material scope, keeps resumable state outside the product
+tree, delegates implementation and testing, and requests independent handoffs only when required.
+The repository also contains a more prescriptive Claude-native `create-feature.ts` prototype. It is
+source-only today: neither the native plugin manifest nor the synchronization runbook installs it,
+and there is no versioned runtime-discovery test. Treat the shared `feature` skill as the delivered
+contract, not the prototype as evidence of an equivalent cross-harness workflow runtime.
 
----
+### Policies
+
+Two shared policy blocks are embedded into each harness's global guidance:
+
+- `software-evidence-contract.md` defines claim status, uncertainty, provenance, and decision
+  discipline.
+- `response-format-contract.md` applies `evidence → didactic-visual → specific output format`
+  and enforces progressive disclosure without decorative formatting.
+
+### Evals
+
+`core/evals/` contains behavioral corpora for `evidence` and `didactic-visual`. They are manual,
+fresh-session protocols: repository tests validate corpus structure, while an evaluation run must
+record harness, model, configuration, commit, observation time, evaluator, and per-requirement
+evidence. A local test passing does not claim that a model behavior passed.
 
 ## Knowledge base
 
-Knowledge lives on disk at `~/knowledge-base/` — outside every repo, portable, readable by any
-Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
+The knowledge base is deliberately outside every product repository. This repository ships the
+operational skills, schemas, templates, and local Qdrant Compose contract; the
+`knowledge-base` agent executes that lifecycle. It is not a bundled always-running knowledge
+daemon or a finished cross-harness CLI.
 
-```
-~/knowledge-base/           # OKF v0.2 bundle — markdown only, syncable across machines
-  index.md                  # bundle root: declares okf_version, lists domains
-  person/                   # personal domain
-    health/  finances/      # topic-first folders
-  work/
-    ifood/                  # organizational domain
-      platform/  teams/  rituals/
-    projects/
-      <project>/            # project domain
-        identity/           # project note: name, aliases, repository path, remote, branch
-        <topic>/
-          index.md          # topic scope and progressive navigation
-          <date>--<short-slug>.md # immutable note: frontmatter + body
-        sessions/
-          <id>.json         # living records: session, app, machine, paths, and semantic resume
+```text
+~/knowledge-base/                 # OKF v0.2 Markdown bundle; source of truth
+  index.md
+  <scope>/
+    <domain>/
+      <topic>/
+        index.md
+        <date>--<short-slug>.md    # immutable note
+      sessions/
+        <session-id>.json          # living session record
 
-~/.local/share/omh-kb/      # runtime, OUTSIDE the bundle — derived and rebuildable
-  identity.json             # stable machine UUID + operator-facing label (m4, m1, ifood)
-  qdrant/                   # local Qdrant volume (docker, port 6333)
-  venv/                     # embedding environment
+~/.local/share/omh-kb/            # machine runtime; derived or local state
+  identity.json
+  qdrant/
+  venv/
 ```
 
-The directory tree uses topic-first routing: **scope → domain → topic → concept**. For
-software knowledge, every Git repository uses the shared normalized Git-root basename
-used by note and session writers. Remote and working-directory metadata only
-validate the identity at that canonical domain; they never redirect one writer alone. A
-project without stable Git identity triggers one request for its name and slug. A
-collision at the canonical domain blocks writes until one persistent resolver shared by
-note and session writers is defined; a local alias is never created. `type` (the domain noun required by OKF)
-and `knowledge_type` (`decision · event · procedure · reference · conversation · project`) remain
-filterable metadata and do not choose the directory. Relationships live as Markdown
-links in the body. Paths remain stable because an OKF Concept ID is its relative path.
+Routing is topic-first: scope → domain → topic → concept. Project identity is itself an immutable
+`knowledge_type: project` note; legacy `context.md` files can be migrated once and are preserved,
+not deleted.
 
-- **Named entities remain addressable** — every write inventories material projects,
-  repositories, people, companies, brands, systems, products, dates, times, URLs, and local
-  paths. Canonical names, observed aliases, typed references, and temporal facts are stored in
-  structured metadata and flattened into the derived Qdrant payload for exact lookup.
-- **Address lookup precedes semantic search** — prompts such as "open project X" or "what is the
-  repository URL for X?" first inspect the `knowledge_type: project` note under
-  `work/projects/*/identity/` and exact entity/reference fields. Ambiguous aliases require disambiguation instead of selecting the first semantic hit.
-- **Legacy `context.md` snapshots are never deleted** — machines installed before the context hook
-  was removed may still hold `~/knowledge-base/work/projects/*/context.md`. Those files are legacy:
-  the `knowledge-base` agent reads one once to create the project note under `identity/` and then
-  ignores it. Nothing is deleted on the user's machine.
-- **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
-  archived. The only edit ever allowed on an existing note is flipping its `status` to
-  `deprecated` during a supersede.
-- **Provenance is never faked** — every new note and session record identifies the harness,
-  session, absolute working directory, and stable machine identity. Harness-provided session/app
-  names and transcript paths are preserved or explicitly `null`; a missing required identity
-  blocks the write. Raw MAC addresses are not persisted. `verified: [{by: human:…}]` appears only
-  when the user actually confirmed the knowledge.
-- **Session records are living documents** — one JSON per harness session, rewritten in place
-  (a named exception to note immutability), pointing at the harness's raw transcript so
-  retrieval can deep-search what was actually said in past sessions.
-- **Search is hybrid, retrieval is a 3-step ladder** — note summaries and session resumes are
-  embedded with **`BAAI/bge-m3`** (dense 1024-dim + lexical sparse in one forward pass) and
-  queried in Qdrant with dense+sparse prefetch fused by Reciprocal Rank Fusion; no Qdrant means
-  structured disk navigation; and when neither answers, `kb-session` grep-dives the raw
-  transcript of the most relevant sessions.
-- **Infra is one command away** — the `kb-infra` skill ships a pinned `docker-compose.yml`
-  (`qdrant/qdrant:v1.18.0`, container `oh-my-harness-qdrant`) and the embedding setup.
+The collision at the canonical domain blocks writes until a persistent resolver shared by note and
+session writers is defined; a local alias is never created. This prevents two writers from silently
+creating different knowledge universes for the same project.
 
----
+Key properties:
 
-## Portability across harnesses
+- **Markdown is authoritative.** Qdrant is a rebuildable local index, not the knowledge source.
+- **Notes are immutable.** Corrections create a new note with `supersedes`; session records are
+  named mutable exceptions.
+- **Retrieval is address-first, then semantic.** Exact entities, aliases, paths, repository URLs,
+  and temporal fields are resolved before hybrid dense+sparse search.
+- **Search degrades truthfully.** Without Qdrant, retrieval falls back to structured disk
+  navigation; session-memory can then inspect relevant raw transcripts.
+- **Embeddings are fixed by contract.** `BAAI/bge-m3` produces the dense and lexical sparse
+  representations; changing it requires an explicit reindex decision.
+- **Secrets fail closed.** Credential-bearing or signed remote URLs persist as `remote_url: null`
+  and are never echoed.
+- **Project mapping is on demand.** `explorer` inspects a repository read-only and returns a
+  cited map to the knowledge-base owner; durable notes require a separate `kb-write` request.
 
-`core/` contains reusable skills, hook implementations, policies, and evals. Claude-specific
-representation stays under `harness/claude/`; Codex-specific representation stays under
-`harness/codex/`. Plugin manifests declare their harness-owned component paths explicitly; operational components do not
-live at the repository root. Supporting another harness means adding an adapter, not forcing foreign
-syntax into the shared layer.
+Today the agent invokes KB operations explicitly. Automatic just-in-time prompting and
+end-of-session distillation are roadmap items, not current runtime behavior.
 
-| Primitive | Claude Code | Codex | Cursor |
-| --- | :---: | :---: | :---: |
-| agents | ✅ native Markdown | ✅ custom-agent TOML adapter | ⚙️ rules + AGENTS.md |
-| skills | ✅ native | ✅ native shared skills | 📄 as docs |
-| workflows | ✅ Workflow TypeScript | ✅ portable `feature` orchestration | — |
-| hooks | ✅ native plugin | ✅ native plugin (trust required) | — |
-| global rules | ✅ `CLAUDE.md` | ✅ managed global `AGENTS.md` | ⚙️ rules |
+## Optional ecosystem integrations
 
-Codex native-plugin packaging is defined by [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json)
-and [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json). The adapter under
-[`harness/codex/`](harness/codex/README.md) adds custom agents, managed global guidance, and available MCP
-integrations without overwriting unrelated personal configuration.
+oh-my-harness does not vendor third-party expertise that has an active upstream owner.
 
----
+- **LangChain, LangGraph, and Deep Agents:** agents route relevant work to the official
+  `langchain-skills` plugin and its live documentation integrations when installed.
+- **AI evaluation:** `ai-engineer` routes framework-agnostic evaluation work to the external
+  `evals` plugin. `evals >= 0.3.1` is required because the entry skill is
+  `evals:evals-start`. If an old installation exposes `evals:start`, run
+  `claude plugin update evals@ai-evals-course`.
+- **Code graph:** Graphify can provide `code-graph`, but remains externally installed and
+  machine-configured.
+- **Session memory:** Deja can provide transcript retrieval; it does not become a second writer of
+  curated knowledge.
 
-## Extending the library
+Unavailable optional integrations produce explicit degraded routing. Installation does not prove
+authentication, reachability, or health.
 
-Machine-specific paths, mDNS hostnames, and personal e-mail addresses never enter the repository: they
-belong to the capability table in your global harness configuration. `tests/codex/test_no_personal_data.py`
-scans every tracked text file and symlink for them, and allows the owner's name and handle only in the
-author/owner fields of the plugin manifests.
+## Current state and roadmap
 
-**Add a skill** → create `core/skills/<name>/SKILL.md` with `name` + `description` in the frontmatter;
-put deep content in `references/` and link it from the `## Reference Files` section. Keep `<name>`
-unique across the whole tree so both native plugin hosts expose the same stable namespace.
+The manifest version is `2.0.1`, distributed from this Git repository. The current implementation
+supports Claude Code and Codex; it is not yet a general-purpose harness framework.
 
-**Add an agent** → define its shared responsibility and Claude manifest under `harness/claude/agents/<theme>/`,
-then add the equivalent Codex TOML under `harness/codex/agents/`. Keep behavior aligned while preserving
-each harness's native schema and tool-binding rules.
+Recently delivered:
 
-**Add a workflow** → create `harness/claude/workflows/<name>.ts` following the Workflow API (`meta`, phases, `agent()` / `parallel()` / `pipeline()`).
+- portable role reorganization, including `software-engineer` and the read-only
+  `evidence-reviewer`;
+- removal of vendored Graphify and context snapshots in favor of capabilities and project notes;
+- evidence and didactic-visual behavioral eval corpora;
+- a remote-aware quality gate at PR creation;
+- guards against credentials, personal machine paths, and false provenance.
 
-Then sync (see [Quick start](#quick-start)).
+Planned work is tracked publicly and should not be read as delivered functionality:
 
----
+| Work | Status | Outcome |
+| --- | --- | --- |
+| [#120](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/120) / [#131](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/131) | Planned | Artifact-specific language policy and shared guidance parity |
+| [#134](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/134) | Planned | Concrete just-in-time KB triggers, a lightweight session pointer, and richer project onboarding |
+| [#124](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/124) | Planned after #134 | Idempotent, asynchronous end-of-session knowledge distillation |
+| [#122](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/122) / [#128](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/128) | Paused | Additional Codex installer hardening and mutation coverage |
+| [#123](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/123) | Operational maintenance | Update the maintainer machine's plugin, Codex adapter, and `evals` installation |
+| [#138](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/138) | Planned | Consistent framework-documentation capability and LangSmith plugin routing |
 
-## Why
+The evolution epic is [#113](https://github.com/nelsonfrugeri-tech/oh-my-harness/issues/113).
 
-Most tooling promises a smarter assistant. oh-my-harness promises a **portable** one.
+## Extending oh-my-harness
 
-Your setup today is welded to one machine and one provider: an MCP tool hardcoded, a path assumed, a service named. Move, and you rebuild. oh-my-harness makes the config outlive the environment — the agents describe intent, the capability table describes the machine, and the two meet at runtime. Clone it on a new laptop, plug four tools into one table, and your whole engineering toolkit is back — same behavior, same standards, same voice.
+Add portable behavior to `core/`; add representation to a harness adapter only when its runtime
+requires it.
 
-The library is only as good as the discipline encoded in it. This one encodes portability, progressive disclosure, and a hard code-craft bar — so the investment compounds instead of resetting every time you switch context.
+- **Skill:** create `core/skills/<name>/SKILL.md`, keep the name globally unique, and put only
+  task-relevant stable detail in `references/`.
+- **Agent:** add the portable role to `core/agents/routing.json`, then provide both native
+  manifests and contract fixtures.
+- **Hook:** keep executable behavior in `core/hooks/` and use native descriptors under each
+  adapter.
+- **Workflow:** define the portable contract first, then implement the strongest native
+  representation each harness supports.
+- **Capability:** add abstract intent to global guidance; provider installation and credentials
+  remain machine-local.
+- **Eval:** define observable behaviors rather than reference wording, and scope every result to the
+  recorded harness, model, configuration, revision, and time.
 
----
+Machine paths, credentials, account identifiers, and personal configuration never belong in the
+repository. Third-party content remains upstream unless there is an explicit vendoring and
+provenance decision.
+
+## Boundaries
+
+- This project improves consistency; it does not guarantee identical model output across harnesses
+  or sessions.
+- A passing test proves the exercised cases on one revision and environment, not the absence of
+  defects.
+- A configured MCP or plugin does not prove authentication, reachability, or health.
+- The knowledge base is designed for a single user's cross-machine workflow; current plans do not
+  claim multi-user concurrency.
+- Provider-neutral roles still depend on the capabilities actually available on each machine.
 
 ## License
 
