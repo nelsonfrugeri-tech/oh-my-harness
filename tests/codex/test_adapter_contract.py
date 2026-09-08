@@ -217,10 +217,15 @@ class AdapterContractTest(unittest.TestCase):
         ]
         context_loader = _ROOT.joinpath("core/hooks/context-load.sh").read_text(encoding="utf-8")
 
+        # Two PreToolUse handlers now point at quality-gate.sh (Bash `gh pr create` and the
+        # GitHub MCP PR-creation tool); disambiguate on the Bash-only `if` condition instead
+        # of relying on handler order.
         quality_gate = next(
-            handler for handler in handlers if "quality-gate.sh" in handler["command"]
+            handler
+            for handler in handlers
+            if "quality-gate.sh" in handler["command"] and "if" in handler
         )
-        self.assertEqual("Bash(git commit*)", quality_gate["if"])
+        self.assertEqual("Bash(gh pr create*)", quality_gate["if"])
         self.assertIn("Execute a skill `explorer`", context_loader)
         self.assertIn("modo **FULL**", context_loader)
         self.assertNotIn("Run the `explorer` skill", context_loader)
@@ -236,12 +241,17 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("### Regras de conhecimento", guidance)
         self.assertIn("## Autoavaliação antes de responder", guidance)
         self.assertIn("## Padrões de código obrigatórios", guidance)
-        self.assertIn("## Fluxo de commit", guidance)
+        # Renamed by #126 (Group D, wave 1): the gate now runs before the pull request,
+        # not before the commit. Group E absorbs this heading when it rewrites AGENTS.md
+        # from CLAUDE.md in wave 2.
+        self.assertIn("## Fluxo de PR", guidance)
         self.assertIn("## Trabalho de longa duração", guidance)
         portuguese_prose = (
             "Na dúvida, busque antes de responder.",
             "Antes de escrever, modificar ou revisar código",
-            "Quando o usuário pedir um commit:",
+            # Renamed by #126 (Group D, wave 1) together with the heading above: commit
+            # and push are free, the gate now runs before the pull request is opened.
+            "Commit e push são livres",
             "Delegue uma tarefa substancial, bem delimitada e não interativa",
         )
         self.assertTrue(all(sentence in guidance for sentence in portuguese_prose))

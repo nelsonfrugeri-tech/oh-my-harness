@@ -177,7 +177,7 @@ claude plugin list        # Status: ✔ enabled
 ```
 
 Skills arrive namespaced (`/oh-my-harness:review`), agents as
-`oh-my-harness:<theme>:<name>`, and the `SessionStart` and commit-gate hooks come with them.
+`oh-my-harness:<theme>:<name>`, and the `SessionStart` and PR-gate hooks come with them.
 Updates are a decision, not a side effect of `git pull`: users receive a new version only when
 `version` in the manifest is bumped, and a marketplace entry can pin `ref` or an exact `sha`.
 
@@ -225,7 +225,7 @@ Start a new Codex session, open `/hooks`, review the plugin-bundled commands, an
 definitions before relying on them. Codex skips new or changed non-managed hooks until this review
 is complete.
 
-The commit gate has an additional per-repository trust because its discovered quality commands are
+The PR gate has an additional per-repository trust because its discovered quality commands are
 repository-controlled. From a checkout you have reviewed, opt in once:
 
 ```bash

@@ -197,14 +197,18 @@ e declara.
 
 ---
 
-## Fluxo de commit
+## Fluxo de PR
 
-Não commite sem **testes passando e review sem blocker**. O review é independente: um subagent
-sobre o diff *staged*, com a skill `review` — o hook não o substitui, porque ele roda checks e
-não julga corretude, arquitetura nem cobertura.
+Commit e push são livres: faça-os quando o usuário mandar, sem gate. Não abra o PR sem **testes
+passando e review sem blocker**. O review é independente: um subagent sobre o diff que vai para o
+PR, com a skill `review` — o hook não o substitui, porque ele roda checks e não julga corretude,
+arquitetura nem cobertura.
 
-Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin): ele descobre e roda
-format, lint, typecheck e testes, e bloqueia o commit se algum falhar. Só age em repositório
+Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin), em `gh pr create` e no
+tool de criação de PR do MCP do `code-host`: ele descobre e roda format, lint, typecheck e testes
+sobre o `HEAD` que vai para o PR, e bloqueia a abertura se algum falhar. Antes de rodar os checks,
+o hook também recusa (`ask`) árvore de trabalho suja ou `HEAD` local não enviado ao remoto — o PR
+carrega o que está no remoto, não o que está só no working tree. Só age em repositório
 explicitamente confiado; sem o marcador, defere sem executar nada. Mecânica e limites em
 `harness/claude/skills/claude-code`.
 

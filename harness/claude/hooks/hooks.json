@@ -18,7 +18,17 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git commit*)",
+            "if": "Bash(gh pr create*)",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/core/hooks/quality-gate.sh",
+            "timeout": 600
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__github__create_pull_request",
+        "hooks": [
+          {
+            "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/core/hooks/quality-gate.sh",
             "timeout": 600
           }

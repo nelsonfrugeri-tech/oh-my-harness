@@ -234,14 +234,15 @@ automática de patterns quando o repositório não os definiu.
 
 ---
 
-## Fluxo de commit
+## Fluxo de PR
 
-Quando o usuário pedir um commit:
+Commit e push são livres: faça-os quando o usuário mandar, sem gate. Antes de abrir o PR
+(`gh pr create` ou o tool de PR do MCP do `code-host`):
 
 1. Execute format e lint primeiro, pois eles podem modificar arquivos.
-2. Em paralelo, faça um subagent Codex revisar o diff staged usando a skill `review` e as regras de
-   code-craft, e execute a test suite do projeto.
-3. Faça o commit somente quando o review não tiver blocker e os testes passarem. Caso contrário,
+2. Em paralelo, faça um subagent Codex revisar o diff que vai para o PR usando a skill `review` e
+   as regras de code-craft, e execute a test suite do projeto.
+3. Abra o PR somente quando o review não tiver blocker e os testes passarem. Caso contrário,
    corrija os findings e repita.
 
 Descubra os comandos do projeto a partir de targets do Makefile, da configuração do projeto e então

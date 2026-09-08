@@ -19,7 +19,7 @@ hooks until that explicit review is complete.
 
 When upgrading from 2.0.0 to 2.0.1, review the hooks again: the descriptor and command paths
 move into `harness/codex/hooks/` and `core/hooks/`. Previous trust must not be assumed to carry
-over. Verify both `SessionStart` and the commit gate in `/hooks` before relying on them.
+over. Verify both `SessionStart` and the PR gate in `/hooks` before relying on them.
 `install.py --check` checks the global adapter files, not runtime hook trust.
 It checks expected and recorded OMH assets, not every third-party skill directory. If the link
 manifest is lost, restore a known-good backup or inspect conflicting links individually before
@@ -33,7 +33,7 @@ directory, and review each target and live symlink before converting those recor
 paths. If that directory is unknown, preserve the conflicting links for individual inspection.
 New CLI installations normalize both home arguments before recording ownership.
 
-The commit quality gate has a separate per-repository trust because it executes commands discovered
+The PR quality gate has a separate per-repository trust because it executes commands discovered
 from that repository. From a checkout you have reviewed, opt in once with:
 
 ```bash
@@ -45,7 +45,7 @@ touch "$trust_dir/$repo_sig"
 ```
 
 Hook trust authorizes the plugin hook definition; this repository trust authorizes the discovered
-project commands. Without both, the gate deliberately defers and the normal commit flow continues.
+project commands. Without both, the gate deliberately defers and the normal PR flow continues.
 
 The context hook works with the bundled `explorer` skill on a plugin-only installation. The global
 adapter additionally provides the custom `context` agent that can orchestrate the same workflow.
