@@ -10,7 +10,7 @@ _START = "<!-- software-evidence:start -->"
 _END = "<!-- software-evidence:end -->"
 
 
-class SoftwareEvidenceContractTest(unittest.TestCase):
+class EvidenceContractTest(unittest.TestCase):
     def test_global_adapters_embed_the_canonical_contract(self) -> None:
         canonical = self._canonical_contract()
 

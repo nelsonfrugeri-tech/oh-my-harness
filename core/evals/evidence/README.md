@@ -1,7 +1,9 @@
-# Software Evidence Eval Protocol
+# Evidence Eval Protocol
 
 Use these cases to detect regressions in the evidence contract across harnesses and model updates.
 The corpus defines expected behaviors, not reference wording.
+Evaluation runs are manual; `tests/codex/test_evidence_corpus.py` validates only the corpus format
+and does not execute the cases.
 
 ## Run an evaluation
 
