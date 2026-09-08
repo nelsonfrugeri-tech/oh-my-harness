@@ -42,8 +42,9 @@ health requires a probe.
 2. **`CLAUDE.md` proposal.** In the spirit of the Claude Code `/init` command, propose only what is
    not derivable by re-reading the code: commands absent from the Makefile or scripts, conventions
    that diverge from the language's or framework's default, and known pitfalls. Present the full
-   proposal to the user and require explicit approval before writing it; never write the proposal,
-   or any part of it, without that approval. Absent approval, keep the proposal in the response only.
+   proposal to the user and require explicit approval before it is written; the calling thread
+   writes the approved proposal, this skill never does — it has no write access to the analyzed
+   repository, only to the external site. Absent approval, keep the proposal in the response only.
 3. **Handoff to `knowledge-base`.** Return the project identity (the same fields as the project
    note: name, aliases, repository path, remote, default branch, with the remote guard above) and
    any candidate decision/procedure notes found during mapping, in one explicit block, to the main

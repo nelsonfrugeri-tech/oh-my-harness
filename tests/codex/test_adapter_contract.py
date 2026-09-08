@@ -80,6 +80,13 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual(packaged, catalog)
         self.assertIn(f"/badge/skills-{len(packaged)}-", readme)
 
+        # The agent badge drifts the same way the skill badge would: derive it from
+        # the manifest instead of trusting the number written in the README.
+        agents = json.loads(
+            _ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8")
+        )["agents"]
+        self.assertIn(f"/badge/agents-{len(agents)}-", readme)
+
     def test_codex_marketplace_exposes_the_repository_plugin(self) -> None:
         marketplace = json.loads(
             _ROOT.joinpath(".agents/plugins/marketplace.json").read_text(encoding="utf-8")
