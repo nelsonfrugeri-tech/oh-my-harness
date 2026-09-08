@@ -117,18 +117,28 @@ O plugin traz o comportamento; a **tabela de capabilities** é da máquina e viv
 
 ### Opcional — provider de `code-graph`
 
-A capability `code-graph` continua na tabela, mas o provider **não** é vendorizado aqui. Quem
-quiser usá-la instala o upstream e só então registra a tool concreta:
+A capability `code-graph` continua na tabela, mas o provider **não** é vendorizado aqui. A linha
+da tabela é uma alegação sobre um **servidor MCP instalado e registrado**, nunca sobre a skill: o
+`graphify install --platform claude` copia a skill e escreve instruções no `CLAUDE.md`, e não
+registra servidor MCP nenhum. São três passos distintos:
 
 ```bash
-pipx install graphifyy
+pipx install 'graphifyy[mcp]'
 graphify install --platform claude
+claude mcp add --env GRAPHIFY_PROJECT_DIR=. graphify -- graphify-mcp
 ```
 
-O `graphify install` **escreve no `CLAUDE.md`**, arquivo onde o `omh` também mantém um bloco
-gerenciado. Depois de rodá-lo, reconcilie: releia `~/.claude/CLAUDE.md`, confirme que o bloco do
-`omh` continua íntegro e reaplique o Passo 2 se ele tiver sido deslocado. Só então acrescente a
-linha do provider (`mcp__graphify__*`) à tabela de capabilities.
+O extra `[mcp]` não é decorativo: em `graphifyy` 0.9.27 a dependência `mcp` entra só por ele, e o
+executável publicado do servidor é `graphify-mcp` — `graphify-mcp-server` não existe.
+
+O `graphify install --platform claude` **escreve no `CLAUDE.md`**, arquivo onde o `omh` também
+mantém um bloco gerenciado. Depois de rodá-lo, reconcilie: releia `~/.claude/CLAUDE.md`, confirme
+que o bloco do `omh` continua íntegro e reaplique o Passo 2 se ele tiver sido deslocado.
+
+Acrescente a linha do provider (`mcp__graphify__*`) à tabela de capabilities **somente** depois que
+o servidor estiver registrado e responder: confirme com `claude mcp list` e uma chamada real. Linha
+na tabela sem servidor registrado é provider fantasma — o `code-graph` falha enquanto a
+configuração afirma que ele existe.
 
 ## Passo 5 — Plugins de terceiro que os agents roteiam
 
