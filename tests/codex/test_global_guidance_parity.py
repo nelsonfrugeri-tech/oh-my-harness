@@ -47,6 +47,77 @@ _CODEX_DELTA_HEADINGS = (
     "### Destinos de instalação do Codex",
 )
 
+_EXPECTED_CLAUDE_DELTA = """
+## Delta do Claude Code
+
+### Bindings e primitivos do Claude Code
+
+Esta tabela lista apenas os providers conectados nesta máquina, não o catálogo de capabilities
+possíveis. Cada máquina acrescenta as suas linhas.
+
+| Capability | Papel | Provider Claude Code nesta máquina |
+| --- | --- | --- |
+| `web` | Busca e fetch na web | `WebSearch`, `WebFetch` |
+| `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` |
+| `session-memory` | Memória bruta de sessões passadas: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` |
+
+`Read`, `Write`, `Edit`, `Bash`, `Grep` e `Glob` são primitivos e não precisam de provider. Se um
+MCP estiver deferido, carregue-o via `ToolSearch` antes de usá-lo.
+
+### Destino de sincronização do Claude Code
+
+A sincronização da biblioteca escreve apenas em `~/.claude/` e preserva skills e hooks instalados
+por outras ferramentas.
+"""
+
+_EXPECTED_CODEX_DELTA = """
+## Delta do Codex
+
+### Limite de confirmação humana
+
+Peça confirmação ao usuário somente antes de:
+
+1. excluir, sobrescrever de forma irrecuperável ou destruir um artefato; ou
+2. ler ou escrever um arquivo que provavelmente contenha credentials, tokens, senhas, private keys
+   ou material equivalente de autenticação.
+
+Não peça confirmação para leitura, escrita, execução de comandos, testes ou acesso à rede que sejam
+rotineiros e estejam dentro das permissões efetivas da sessão. Uma negação técnica do sandbox não
+transforma uma operação rotineira em decisão sensível: use primeiro os roots e profiles configurados
+pelo adapter. Se uma restrição de maior precedência ainda exigir aprovação, explique que o prompt é
+imposto pelo runtime e não pela política comportamental do oh-my-harness.
+
+### Bindings e primitivos do Codex
+
+A tabela é o adapter desta máquina. O installer pode preencher providers configuráveis sem alterar
+agents ou skills.
+
+| Capability | Finalidade | Provider Codex nesta máquina |
+| --- | --- | --- |
+| `code-host` | Pull Requests, issues e reviews remotos | _(configurar durante a instalação)_ |
+| `ci` | Pipelines de CI/CD | _(configurar durante a instalação)_ |
+| `web` | Busca e recuperação de páginas web | Capability web do Codex |
+| `code-graph` | Query, path e explain sobre um knowledge graph de código | Graphify MCP com fallback para CLI |
+| `session-memory` | Busca em transcripts de sessões passadas por tópico ou arquivo | Deja CLI ou MCP quando instalado |
+| `tunnel` | Exposição temporária de um site local por URL autenticada | _(opcional; configurar um provider aprovado)_ |
+
+Built-ins do Codex para acesso ao filesystem, busca no repositório, execução de shell e aplicação de
+patch não precisam de entradas no adapter.
+
+### Transcripts do Codex
+
+O Codex armazena transcripts ativos em
+`$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; o `CODEX_HOME` default é
+`~/.codex`. A lógica de session memory deve descobrir o rollout correspondente em vez de assumir um
+diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, escreva o session
+record com `transcript_path: null` e informe o modo degradado.
+
+### Destinos de instalação do Codex
+
+A instalação do adapter Codex escreve apenas em `$CODEX_HOME` e `~/.agents/`. Ela preserva
+providers, hooks, skills e outros arquivos que não pertencem ao oh-my-harness.
+"""
+
 
 def _normalize(text: str) -> str:
     normalized_newlines = text.replace("\r\n", "\n").replace("\r", "\n")
@@ -82,8 +153,22 @@ class GlobalGuidanceParityTest(unittest.TestCase):
         _, claude_delta = self._document(self._claude, _CLAUDE_PREAMBLE)
         _, codex_delta = self._document(self._codex, _CODEX_PREAMBLE)
 
+        self.assertEqual(_EXPECTED_CLAUDE_DELTA.encode("utf-8"), claude_delta)
+        self.assertEqual(_EXPECTED_CODEX_DELTA.encode("utf-8"), codex_delta)
         self.assertEqual(_CLAUDE_DELTA_HEADINGS, _headings(claude_delta.decode("utf-8")))
         self.assertEqual(_CODEX_DELTA_HEADINGS, _headings(codex_delta.decode("utf-8")))
+
+    def test_unenumerated_runtime_delta_text_is_detected(self) -> None:
+        _, codex_delta = self._document(self._codex, _CODEX_PREAMBLE)
+        mutated = codex_delta.replace(
+            b"### Limite de confirma\xc3\xa7\xc3\xa3o humana\n",
+            b"### Limite de confirma\xc3\xa7\xc3\xa3o humana\n\nTexto de delta n\xc3\xa3o enumerado.\n",
+            1,
+        )
+
+        self.assertNotEqual(codex_delta, mutated)
+        with self.assertRaises(AssertionError):
+            self.assertEqual(_EXPECTED_CODEX_DELTA.encode("utf-8"), mutated)
 
     def test_codex_delta_retains_machine_capability_rows(self) -> None:
         _, codex_delta = self._document(self._codex, _CODEX_PREAMBLE)
