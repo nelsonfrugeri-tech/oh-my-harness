@@ -305,18 +305,34 @@ fi
 
 # ---------------------------------------------------------------- selected PR origin
 
-# Extract the value of -H/--head from a single-line `gh pr create` command. Supports
-# `--head=X`, `--head X`, and `-H X`; the last occurrence wins, matching how argument
-# parsers resolve a repeated flag. Prints nothing when the flag is absent.
-parse_head_flag() {
-  line="$1"
-  value=$(printf '%s' "$line" | grep -oE '(^|[[:space:]])--head=[^[:space:]]+' | tail -1 | sed -E 's/^[[:space:]]*--head=//')
-  if [ -n "$value" ]; then
-    printf '%s' "$value"
-    return
-  fi
-  printf '%s' "$line" | grep -oE '(^|[[:space:]])(--head|-H)[[:space:]]+[^[:space:]]+' | tail -1 |
-    sed -E 's/^[[:space:]]*(--head|-H)[[:space:]]+//'
+# Read -H/--head out of the arguments `scan_command` already tokenized. Supports
+# `--head=X`, `--head X` and `-H X`; the last occurrence wins, as an argument parser
+# resolves a repeated flag. The values of the flags that carry free text are skipped,
+# so a `--head` mentioned inside a title or body is never read as the flag: scanning
+# the raw line with a regex extracted `support'` — dangling quote included — from
+# `gh pr create --title 'add --head support' --fill`, and refused to open a pull
+# request whose title merely mentioned the flag.
+parse_head_argument() {
+  index=0
+  head_value=""
+  while [ "$index" -lt "$PR_ARGC" ]; do
+    argument=${PR_ARGV[$index]}
+    case "$argument" in
+      --head=*)
+        head_value=${argument#--head=}
+        ;;
+      --head | -H)
+        index=$((index + 1))
+        [ "$index" -lt "$PR_ARGC" ] && head_value=${PR_ARGV[$index]}
+        ;;
+      --title | -t | --body | -b | --body-file | -F | --base | -B | --label | -l | \
+        --assignee | -a | --reviewer | -r | --milestone | -m | --project | -p | --template | -T)
+        index=$((index + 1))
+        ;;
+    esac
+    index=$((index + 1))
+  done
+  printf '%s' "$head_value"
 }
 
 # Best-effort owner/repo from a remote URL. Only the two forms git/GitHub actually
@@ -339,7 +355,7 @@ normalize_owner_repo() {
 if [ "$IS_MCP" = yes ]; then
   HEAD_ARG="$MCP_HEAD"
 else
-  HEAD_ARG=$(parse_head_flag "$(printf '%s' "$TOOL_CMD" | sed -n '1p')")
+  HEAD_ARG=$(parse_head_argument)
 fi
 
 CURRENT_BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null)

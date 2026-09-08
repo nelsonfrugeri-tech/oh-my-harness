@@ -253,6 +253,47 @@ class QualityGateTest(unittest.TestCase):
 
         self.assertEqual("allow", decision["permissionDecision"])
 
+    #: `--head` mentioned inside another flag's value is not the head flag. A regex
+    #: over the raw command line extracted `support'` from the first row — dangling
+    #: quote included — and refused to open a PR whose title mentions the flag.
+    _HEAD_MENTIONING_COMMANDS = (
+        "gh pr create --title 'add --head support' --fill",
+        "gh pr create --body 'use -H to pick the head' --fill",
+        "gh pr create --body-file '--head notes.md' --fill",
+        "gh pr create -t 'about --head' -b 'and -H too' --fill",
+        'gh pr create --title "quoted --head other" --fill',
+    )
+
+    def test_head_mentioned_inside_a_quoted_argument_is_not_the_head_flag(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+
+        for command in self._HEAD_MENTIONING_COMMANDS:
+            with self.subTest(command=command):
+                decision = self._decision(self._run_gate(command))
+
+                # The reason may be the pass cache from a previous subtest; the
+                # decision is what this case is about.
+                self.assertEqual("allow", decision["permissionDecision"])
+
+    def test_head_flag_forms_are_all_recognised(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+
+        for command in (
+            "gh pr create --head other-branch --fill",
+            "gh pr create --head=other-branch --fill",
+            "gh pr create -H other-branch --fill",
+            "gh pr create --title 'mentions --head' --head other-branch --fill",
+        ):
+            with self.subTest(command=command):
+                decision = self._decision(self._run_gate(command))
+
+                self.assertEqual("deny", decision["permissionDecision"])
+                self.assertIn("other-branch", decision["permissionDecisionReason"])
+
     def test_mcp_head_for_another_branch_denies(self) -> None:
         self._configure_and_commit(test="true")
         self._push_current_head()
