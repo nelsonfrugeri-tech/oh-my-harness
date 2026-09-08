@@ -192,7 +192,7 @@ class AdapterContractTest(unittest.TestCase):
             self.assertEqual([], entry["warnings"])
             self.assertEqual([], entry["errors"])
             self.assertEqual(
-                {"preToolUse"},
+                {"preToolUse", "sessionStart"},
                 {hook["eventName"] for hook in plugin_hooks},
             )
             quality_gate = next(

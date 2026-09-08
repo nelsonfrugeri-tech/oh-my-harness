@@ -10,7 +10,7 @@ work—even when you change AI coding assistants, machines, or providers.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#agents)
+[![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#agents)
 [![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#skills)
 
 </div>
@@ -313,7 +313,7 @@ reported emergency bypass—not an access-control boundary.
 
 ### Agents
 
-Seven portable roles are represented natively in both harnesses. Each adapter adds its own eighth,
+Eight portable roles are represented natively in both harnesses. Each adapter adds its own ninth,
 harness-specific installation agent:
 
 | Theme | Agent | Responsibility |
@@ -324,8 +324,9 @@ harness-specific installation agent:
 | Engineering | `tech-pm` | Product discovery, observable acceptance criteria, prioritization, roadmaps, and PRDs |
 | Policy | `evidence-reviewer` | Independent read-only audit of claims, metrics, decisions, and validation evidence |
 | Harness | `claude-code` / `codex` | Install and synchronize the active harness adapter |
-| Tool | `knowledge-base` | Operate persistent knowledge, retrieval, session records, and project onboarding |
+| Tool | `knowledge-base` | Operate persistent knowledge, retrieval, session records, and project identity |
 | Tool | `site` | Produce cited visual reports outside the analyzed repository and optionally expose them |
+| Tool | `explorer` | Onboard into unfamiliar repositories with a site report, a CLAUDE.md proposal, and a knowledge handoff |
 
 The canonical routing contract is
 [`core/agents/routing.json`](core/agents/routing.json). Claude manifests live under
@@ -416,7 +417,7 @@ Key properties:
   representations; changing it requires an explicit reindex decision.
 - **Secrets fail closed.** Credential-bearing or signed remote URLs persist as `remote_url: null`
   and are never echoed.
-- **Project mapping is on demand.** `explorer` inspects a repository read-only and returns a
+- **Project mapping is on demand.** The `explorer` agent inspects a repository read-only and returns a
   cited map to the knowledge-base owner; durable notes require a separate `kb-write` request.
 
 Today the agent invokes KB operations explicitly. Automatic just-in-time prompting and
