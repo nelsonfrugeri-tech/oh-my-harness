@@ -87,5 +87,6 @@ certainty boundaries that affect action. State unresolved conflicts and unavaila
 modes explicitly. A material decision must include the selected action, decisive evidence,
 trade-offs, owner, validation, rollback or review condition, and one falsifying result.
 
-Load [review-rubric.md](references/review-rubric.md) for independent review of unsupported claims or
+Request the `evidence-reviewer` agent, which applies
+[review-rubric.md](references/review-rubric.md), for independent review of unsupported claims or
 material decisions. Presentation begins only after this contract is complete.

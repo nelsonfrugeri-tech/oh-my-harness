@@ -10,8 +10,8 @@ library on Claude Code and Codex today.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -23,7 +23,7 @@ library on Claude Code and Codex today.
 Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` path there, a reference to a specific service somewhere else. Switch machines — GitHub at home, GitLab at work — or switch assistants, and it breaks. You re-wire the same plumbing on every setup.
 
 **oh-my-harness decouples _what the agent does_ from _which tool it does it with._** The same
-`developer` responsibility opens a Pull Request through GitHub on your personal machine and through
+`software-engineer` responsibility opens a Pull Request through GitHub on your personal machine and through
 GitLab on the company laptop. Harness-native manifests represent that behavior, while only the
 machine capability mapping changes providers.
 
@@ -79,8 +79,6 @@ harness. Capabilities are resolved through that harness's machine-local table.
 
 ┌───────────────────────────────────────────────────────────────────┐
 │  ~/knowledge-base/ · outside any repo · an OKF v0.2 bundle          │
-│  <domain>/context.md — living context (`context` agent on each      │
-│    session start; `explorer` runs only on FULL/DELTA)               │
 │  <domain>/<entity-type>/ — immutable notes (`knowledge-base` agent  │
 │    → kb-write/kb-retrieval), indexed in local Qdrant via BGE-M3     │
 │  <domain>/sessions/ — living session records (`kb-session`),        │
@@ -96,13 +94,11 @@ harness. Capabilities are resolved through that harness's machine-local table.
   their common rules must remain semantically aligned, not byte-identical.
 - The agent **`claude-code`** (backed by the `claude-code` skill) is the runbook the harness
   runs to sync (see [Quick start](#quick-start)).
-- The agent **`context`**, invoked on every `SessionStart`, keeps a living knowledge base of
-  the *current* project at `~/knowledge-base/work/projects/{project}/context.md` — built and updated by the
-  `explorer` skill, entirely outside the project's own working tree.
 - The agent **`knowledge-base`** manages the persistent knowledge base: infra (local Qdrant +
   BGE-M3 embeddings via `kb-infra`), immutable notes (`kb-write`), 3-step retrieval
-  (`kb-retrieval`) and the harness's session memory — living session records plus deep search
-  inside raw transcripts (`kb-session`) — see [Knowledge base](#knowledge-base).
+  (`kb-retrieval`), the harness's session memory — living session records plus deep search
+  inside raw transcripts (`kb-session`) — and on-demand repository mapping (`explorer`); see
+  [Knowledge base](#knowledge-base).
 - The agent **`site`** turns cited technical analysis into a self-contained visual report outside
   the source repository and exposes it only through an explicitly configured `tunnel` capability.
 
@@ -138,7 +134,7 @@ environment, change only the active harness's table.
 | `code-host`  | Pull/Merge Requests, issues           | `mcp__github__*` / GitLab  |
 | `ci`         | CI/CD pipelines                       | GitHub Actions / GitLab CI |
 | `web`        | Search and fetch                      | `WebSearch`, `WebFetch`    |
-| `code-graph` | Query a built codebase knowledge graph | `mcp__graphify__*`        |
+| `code-graph` | Query a built codebase knowledge graph | a code-graph MCP server   |
 | `tunnel`     | Temporary authenticated site exposure | cloudflared / ngrok / equivalent |
 
 ### Progressive disclosure
@@ -153,8 +149,8 @@ Software work uses a shared evidence contract across Claude Code and Codex. Mate
 classified as verified facts, derived results, inferences, hypotheses, estimates, unknowns, or
 decisions. Quantitative claims carry reproducible provenance, and material decisions record
 alternatives, uncertainty, falsification, and rollback conditions. The `evidence` skill provides
-the detailed protocol, while the read-only `evidence-reviewer` independently audits consequential
-claims without turning routine work into ceremony.
+the detailed protocol, while the read-only `evidence-reviewer` agent independently audits
+consequential claims, running the project's tests and gates without editing the repository.
 
 ### code-craft — mandatory implementation constraints
 
@@ -177,7 +173,7 @@ claude plugin list        # Status: ✔ enabled
 ```
 
 Skills arrive namespaced (`/oh-my-harness:review`), agents as
-`oh-my-harness:<theme>:<name>`, and the `SessionStart` and PR-gate hooks come with them.
+`oh-my-harness:<theme>:<name>`, and the PR-gate hook comes with them.
 Updates are a decision, not a side effect of `git pull`: users receive a new version only when
 `version` in the manifest is bumped, and a marketplace entry can pin `ref` or an exact `sha`.
 
@@ -199,7 +195,7 @@ claude plugin install evals@ai-evals-course                # 8 skills, ~862 toke
 ```
 
 `langchain-skills` backs the LangChain, LangGraph, and Deep Agents routing in `ai-engineer`,
-`architect`, and `developer`. `evals` backs the LLM-evaluation routing in `ai-engineer` and `qa`:
+`architect`, and `software-engineer`. `evals` backs the LLM-evaluation routing in `ai-engineer`:
 error analysis from real traces, LLM-as-judge, judge calibration against human labels, and RAG
 evaluation. The two overlap on the word "eval" and not in method, so the agents say which is which
 — `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
@@ -239,11 +235,11 @@ touch "$trust_dir/$repo_sig"
 The `/hooks` decision trusts the plugin hook; this marker separately trusts the current Git
 repository. Without both, the gate deliberately defers and does not run project commands.
 
-The native plugin supplies shared skills, the Codex installation skill, and lifecycle hooks. The
-context hook can run the shared `explorer` skill directly; installing the optional adapter adds the
-custom `context` agent that can orchestrate it. Codex custom agents, global
-`AGENTS.md` guidance, and machine-local MCP integrations are not plugin components, so install the
-adapter from a clone when you need those additional surfaces:
+The native plugin supplies shared skills, the Codex installation skill, and lifecycle hooks. Those
+shared skills include `explorer`, the on-demand repository mapping the `knowledge-base` agent
+requests. Codex custom agents, global `AGENTS.md` guidance, and machine-local MCP integrations
+are not plugin components, so install the adapter from a clone when you need those additional
+surfaces:
 
 ```bash
 git clone https://github.com/nelsonfrugeri-tech/oh-my-harness.git
@@ -255,9 +251,8 @@ python3 installers/codex/install.py --check
 On a brand-new machine, [`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
 
 Finally, configure the capability table in the active harness's managed global guidance. From then
-on, every session start loads the project snapshot and requests `context` FULL or DELTA analysis
-when required, maintaining the living knowledge base at
-`~/knowledge-base/work/projects/{project}/context.md`.
+on, the `knowledge-base` agent answers project and repository questions from the knowledge base at
+`~/knowledge-base/`, on demand rather than on every session start.
 
 ---
 
@@ -274,23 +269,19 @@ and the native paths for both adapters.
 | Theme       | Agent         | Role                                                | Model  |
 | ----------- | ------------- | ---------------------------------------------------- | ------ |
 | `engineers` | `architect`   | System design, ADRs, C4, trade-offs, API design       | opus   |
-| `engineers` | `developer`   | Implementation, bug fixes, refactoring, testing       | sonnet |
+| `engineers` | `software-engineer` | Implementation at altitude: scalability, resilience, responsiveness, quality, cost | opus   |
 | `engineers` | `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation         | sonnet |
-| `engineers` | `qa`          | Test strategy, E2E, performance, accessibility        | sonnet |
-| `engineers` | `sre`         | Observability, SLO/SLI, incident response              | sonnet |
 | `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
-| `engineers` | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions | opus |
+| `policy`    | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions, with Bash for tests and gates | opus |
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
-| `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/work/projects/{project}/context.md` | sonnet |
-| `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |
-| `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
+| `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search, on-demand repository mapping | sonnet |
 | `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
 
 ### Skills
 
 Shared skills live under `core/skills/<name>/`; harness-owned skills live under
 `harness/<name>/skills/`. Each plugin manifest explicitly declares the shared root and its own
-harness root. The repository has 29 skills: 27 shared and one specific to each harness.
+harness root. The repository has 28 skills: 26 shared and one specific to each harness.
 The catalog below keeps the logical themes without adding another filesystem layer, and
 each skill name remains globally unique.
 
@@ -302,7 +293,7 @@ each skill name remains globally unique.
 
 **Harness tooling — `harness`:** `claude-code` (the Claude sync runbook) · `codex` (the Codex sync runbook)
 
-**Tools agents — `tools`:** `explorer` (deep repo analysis behind the `context` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (on-demand repository mapping for the `knowledge-base` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 
@@ -329,7 +320,7 @@ Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
       platform/  teams/  rituals/
     projects/
       <project>/            # project domain
-        context.md          # living context: snapshot (rewritten) + append-only timeline
+        identity/           # project note: name, aliases, repository path, remote, branch
         <topic>/
           index.md          # topic scope and progressive navigation
           <date>--<short-slug>.md # immutable note: frontmatter + body
@@ -344,12 +335,12 @@ Markdown tool. Qdrant is only a derived index, rebuilt from disk at any time.
 
 The directory tree uses topic-first routing: **scope → domain → topic → concept**. For
 software knowledge, every Git repository uses the shared normalized Git-root basename
-used by note, context, and session writers. Remote and working-directory metadata only
-validate the context at that canonical domain; they never redirect one writer alone. A
+used by note and session writers. Remote and working-directory metadata only
+validate the identity at that canonical domain; they never redirect one writer alone. A
 project without stable Git identity triggers one request for its name and slug. A
 collision at the canonical domain blocks writes until one persistent resolver shared by
-note, context, and session writers is defined; a local alias is never created. `type` (the domain noun required by OKF)
-and `knowledge_type` (`decision · event · procedure · reference · conversation`) remain
+note and session writers is defined; a local alias is never created. `type` (the domain noun required by OKF)
+and `knowledge_type` (`decision · event · procedure · reference · conversation · project`) remain
 filterable metadata and do not choose the directory. Relationships live as Markdown
 links in the body. Paths remain stable because an OKF Concept ID is its relative path.
 
@@ -358,8 +349,12 @@ links in the body. Paths remain stable because an OKF Concept ID is its relative
   paths. Canonical names, observed aliases, typed references, and temporal facts are stored in
   structured metadata and flattened into the derived Qdrant payload for exact lookup.
 - **Address lookup precedes semantic search** — prompts such as "open project X" or "what is the
-  repository URL for X?" first inspect `work/projects/*/context.md` and exact entity/reference
-  fields. Ambiguous aliases require disambiguation instead of selecting the first semantic hit.
+  repository URL for X?" first inspect the `knowledge_type: project` note under
+  `work/projects/*/identity/` and exact entity/reference fields. Ambiguous aliases require disambiguation instead of selecting the first semantic hit.
+- **Legacy `context.md` snapshots are never deleted** — machines installed before the context hook
+  was removed may still hold `~/knowledge-base/work/projects/*/context.md`. Those files are legacy:
+  the `knowledge-base` agent reads one once to create the project note under `identity/` and then
+  ignores it. Nothing is deleted on the user's machine.
 - **Notes are immutable** — corrections are new notes carrying `supersedes`; the old note stays
   archived. The only edit ever allowed on an existing note is flipping its `status` to
   `deprecated` during a supersede.

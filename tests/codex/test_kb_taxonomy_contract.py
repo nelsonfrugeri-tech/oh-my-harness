@@ -37,7 +37,7 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("collision blocks writing", contract)
         self.assertIn("existing artifact without sufficient identity", contract)
         self.assertIn("fails closed", contract)
-        self.assertIn("`explorer`, `kb-session`, and `context-load.sh`", contract)
+        self.assertIn("`explorer` and `kb-session`", contract)
 
     def test_topic_path_and_short_filename_are_stable(self) -> None:
         contract = self._read("core/skills/kb-write/SKILL.md")
@@ -140,7 +140,128 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("Live upsert and full reindex use this same mapping", infra_flat)
         self.assertIn("material address", template)
 
-    def test_remote_values_fail_closed_across_context_write_and_retrieval(self) -> None:
+    def test_project_identity_lives_in_a_project_note(self) -> None:
+        write = " ".join(self._read("core/skills/kb-write/SKILL.md").split())
+        retrieval = " ".join(self._read("core/skills/kb-retrieval/SKILL.md").split())
+
+        self.assertIn("`knowledge_type: project`", write)
+        self.assertIn(
+            "`work/projects/<project>/identity/<YYYY-MM-DD>--project-identity.md`",
+            write,
+        )
+        for field in ("name", "aliases", "repository_path", "remote_url", "default_branch"):
+            with self.subTest(field=field):
+                self.assertIn(f"`{field}`", write)
+        self.assertIn("never rewrite it in place", write)
+        self.assertIn("`knowledge_type: project` note under", retrieval)
+        self.assertIn("`work/projects/*/identity/` first", retrieval)
+
+    def test_note_template_carries_project_identity_in_the_frontmatter(self) -> None:
+        template = self._read("core/skills/kb-write/references/note-template.md")
+        marker = "```yaml\nknowledge_type: project\n"
+        self.assertIn(marker, template)
+        block = template.split(marker, 1)[1].split("```", 1)[0]
+
+        fields = ("name", "aliases", "repository_path", "remote_url", "default_branch")
+        for field in fields:
+            with self.subTest(field=field):
+                self.assertIn(f"\n{field}: ", f"\n{block}")
+
+        prose = " ".join(
+            template.split("## Project identity frontmatter", 1)[1]
+            .split("\n## ", 1)[0]
+            .split()
+        )
+        self.assertIn(
+            "`null` when the sensitive-target guard of `kb-write` rejects it", prose
+        )
+        self.assertIn("never echoed", prose)
+        self.assertIn("`redacted`", prose)
+
+        write = " ".join(self._read("core/skills/kb-write/SKILL.md").split())
+        retrieval = " ".join(self._read("core/skills/kb-retrieval/SKILL.md").split())
+        for field in fields:
+            with self.subTest(surface="kb-write", field=field):
+                self.assertIn(f"`{field}`", write)
+        for field in ("repository_path", "remote_url", "default_branch"):
+            with self.subTest(surface="kb-retrieval", field=field):
+                self.assertIn(f"`{field}`", retrieval)
+        self.assertIn("from its frontmatter", retrieval)
+
+    def test_no_kb_surface_still_depends_on_the_context_snapshot(self) -> None:
+        surfaces = (
+            "core/skills/kb-retrieval/SKILL.md",
+            "core/skills/kb-infra/SKILL.md",
+            "core/skills/kb-session/SKILL.md",
+            "core/skills/explorer/SKILL.md",
+        )
+        for surface in surfaces:
+            with self.subTest(surface=surface):
+                contract = self._read(surface)
+                self.assertNotIn("context.md", contract)
+                self.assertNotIn("context-load", contract)
+                self.assertNotIn("last_hash", contract)
+
+        writer = self._read("core/skills/kb-write/SKILL.md")
+        self.assertNotIn("context-load", writer)
+        self.assertNotIn("last_hash", writer)
+        self.assertEqual(1, writer.count("context.md"))
+        self.assertIn("context.md", self._migration_section(writer))
+
+    def _migration_section(self, writer: str) -> str:
+        heading = "## Migrate legacy project identity once"
+        self.assertIn(heading, writer)
+        return writer.split(heading, 1)[1].split("\n## ", 1)[0]
+
+    def test_legacy_project_identity_migrates_once_and_fails_closed(self) -> None:
+        writer = self._read("core/skills/kb-write/SKILL.md")
+        migration = " ".join(self._migration_section(writer).split())
+
+        self.assertIn("no active `knowledge_type: project` note", migration)
+        self.assertIn("`~/knowledge-base/work/projects/<project>/context.md`", migration)
+        self.assertIn("Parse only its first YAML frontmatter block with `yaml.safe_load`", migration)
+        self.assertIn("never execute the file", migration)
+        self.assertIn("missing, non-mapping, or malformed value is dropped, never guessed", migration)
+        for field in ("name", "aliases", "repository_path", "remote_url", "default_branch"):
+            with self.subTest(field=field):
+                self.assertIn(f"`{field}`", migration)
+
+        guard = (
+            "HTTP(S) userinfo",
+            "query string",
+            "fragment",
+            "signed URL",
+            "ambiguous parsing",
+            "SSH/SCP transport username",
+            "`remote_url: null`",
+            "`redacted`",
+            "never echoed",
+        )
+        for rule in guard:
+            with self.subTest(rule=rule):
+                self.assertIn(rule, migration)
+
+        self.assertIn("never edits, moves, or deletes it", migration)
+        self.assertIn("an existing active project note means no migration", migration)
+        self.assertIn("writes nothing and reports `skipped`", migration)
+        self.assertIn("indexing pending", migration)
+        self.assertIn("writes no note, leaves the legacy file untouched", migration)
+        self.assertIn("reports the migration as failed", migration)
+
+    def test_retrieval_and_agent_request_the_one_shot_migration(self) -> None:
+        retrieval = " ".join(self._read("core/skills/kb-retrieval/SKILL.md").split())
+        self.assertIn("one-shot legacy migration", retrieval)
+
+        for path in (
+            "harness/claude/agents/tools/knowledge-base.md",
+            "harness/codex/agents/knowledge-base.toml",
+        ):
+            with self.subTest(path=path):
+                agent = " ".join(self._read(path).split())
+                self.assertIn("one-shot legacy migration defined by `kb-write`", agent)
+                self.assertIn("preserving the legacy file", agent)
+
+    def test_remote_values_fail_closed_across_project_note_write_and_retrieval(self) -> None:
         boundaries = {
             "explorer": self._read("core/skills/explorer/SKILL.md"),
             "writer": self._read("core/skills/kb-write/SKILL.md"),
@@ -168,6 +289,10 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
             " ".join(boundaries["retrieval"].split()),
         )
         self.assertIn("Revalidate legacy stored remotes", boundaries["retrieval"])
+        self.assertIn(
+            "a rejected project remote persists as `remote_url: null`",
+            " ".join(boundaries["writer"].split()),
+        )
         self.assertIn(
             "Fictitious example: `https://user:token@example.com/repo.git?signature=secret`",
             boundaries["explorer"],

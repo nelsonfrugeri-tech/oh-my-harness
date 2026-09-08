@@ -73,6 +73,30 @@ Keep source `occurred_at` as an observed ISO 8601 instant, date, or `null`. Only
 RFC 3339 instants populate indexed `occurred_at`; date-only and unknown-timezone values remain
 retrievable through `temporal_values`, with `occurred_at: null` in the index.
 
+## Project identity frontmatter
+
+A `knowledge_type: project` note carries the identity in the same frontmatter block, because
+`kb-retrieval` reads `repository_path`, `remote_url`, and `default_branch` from there for exact
+lookup. Add these keys to the shape above, replacing the placeholder values:
+
+```yaml
+knowledge_type: project
+domain: work/projects/<project>
+topic: identity
+name: <canonical-project-name>
+aliases: [<observed-alias>]
+repository_path: /absolute/observed/repository/root
+remote_url: git@example.com:team/repo.git
+default_branch: <observed-default-branch>
+```
+
+`name` is the canonical project name and `aliases` holds the observed alternatives; both feed exact
+lookup, so never invent either. `repository_path` is the absolute observed Git root.
+`default_branch` is the observed branch, never an assumed `main`. `remote_url` is the safe remote or
+`null` when the sensitive-target guard of `kb-write` rejects it; a rejected remote is never echoed,
+and its `references` entry is `redacted` with no target. A field that was not observed stays absent
+rather than guessed.
+
 ## Body contracts
 
 Select by knowledge_type, never free-form OKF type. Start with a brief context explaining why the
@@ -84,6 +108,8 @@ note exists; retain the required content below and omit optional sections when i
 - procedure: purpose/prerequisites, ordered steps, verification, failure handling, teardown/rollback.
 - reference: fact/constraint, scope/evidence, consequences, freshness/version boundary.
 - conversation: participants/context, positions, durable outcome, open questions.
+- project: name and observed aliases, repository_path, remote_url or null when the guard rejects it,
+  default_branch, and the supersession pointer when a later note replaces it.
 
 If conversation produced another class, use that stronger knowledge_type. Express relationships as
 Markdown links in sentences naming the relationship. Use bundle-rooted paths; omit related-link dumps.

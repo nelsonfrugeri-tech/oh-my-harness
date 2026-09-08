@@ -86,7 +86,7 @@ destructive recreation.
 | Note point (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `topic`, `distillation_key`, `created_at`, `summary`, `path`, `supersedes`, `archived`, `entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `occurred_at`, `temporal_values`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
 | Session point (`kind: "session"`) | `kind`, `harness`, `session_id`, `session_name`, `app_name`, `domain`, `name`, `created_at`, `updated_at`, `entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `temporal_values`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
 
-Reconcile from disk: safely parse YAML/JSON; exclude indexes, logs, and `context.md` from notes;
+Reconcile from disk: safely parse YAML/JSON; exclude indexes and logs from notes;
 validate fields; resolve supersession; embed; upsert deterministic IDs; remove stale points only
 after proving no disk source. Derive payload fields deterministically from source metadata:
 

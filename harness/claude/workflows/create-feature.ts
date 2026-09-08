@@ -1,13 +1,13 @@
 export const meta = {
   name: 'create-feature',
-  description: 'Pipeline de criação de feature após refinamento técnico: user_history (tech-pm) → development (developer ou ai-engineer) → validation_loop[qa+sre] (max 3 iterações) → open_pr (ou escalação ao usuário). Refinamento técnico interativo é feito antes pelo skill /feature.',
-  whenToUse: 'Após o refinamento técnico interativo estar consolidado. Recebe args: { featureName, featureSlug, refinementContent, evidence, hypotheses, unknowns, track }. Track = "developer" ou "ai-engineer" decide quem implementa.',
+  description: 'Pipeline de criação de feature após refinamento técnico: user_history (tech-pm) → development (software-engineer ou ai-engineer) → validation_loop[evidence-reviewer] (max 3 iterações) → open_pr (ou escalação ao usuário). Refinamento técnico interativo é feito antes pelo skill /feature.',
+  whenToUse: 'Após o refinamento técnico interativo estar consolidado. Recebe args: { featureName, featureSlug, refinementContent, evidence, hypotheses, unknowns, track }. Track = "software-engineer" ou "ai-engineer" decide quem implementa.',
   phases: [
     { title: 'user_history', detail: 'tech-pm escreve user story e abre item no sistema de gerenciamento (GitHub Issues por padrão); salva cópia em <feature>/user_history/user_history.md' },
-    { title: 'development', detail: 'developer ou ai-engineer (conforme track) implementa a feature seguindo refinamento + user_history' },
-    { title: 'validation', detail: 'qa (funcional + e2e) e sre (infra + load + stress) em paralelo, gravam evidências em <feature>/validation/*.md; loop até pass ou max 3 iterações' },
-    { title: 'fix_iteration', detail: 'developer/ai-engineer corrige problemas reportados por qa/sre, então re-valida' },
-    { title: 'open_pr', detail: 'Se validação passou: developer/ai-engineer abre PR no GitHub com template padronizado. Se 3 loops falharem: retorna estado para o usuário resolver.' },
+    { title: 'development', detail: 'software-engineer ou ai-engineer (conforme track) implementa a feature seguindo refinamento + user_history' },
+    { title: 'validation', detail: 'evidence-reviewer valida a implementação em modo somente-leitura: roda os testes e gates do projeto e reporta comando e saída de cada verificação; loop até pass ou max 3 iterações' },
+    { title: 'fix_iteration', detail: 'software-engineer/ai-engineer corrige os problemas reportados pelo evidence-reviewer, então re-valida' },
+    { title: 'open_pr', detail: 'Se validação passou: software-engineer/ai-engineer abre PR no GitHub com template padronizado. Se 3 loops falharem: retorna estado para o usuário resolver.' },
   ],
 }
 
@@ -17,12 +17,12 @@ const refinementContent = args?.refinementContent
 const refinementEvidence = Array.isArray(args?.evidence) ? args.evidence : []
 const refinementHypotheses = Array.isArray(args?.hypotheses) ? args.hypotheses : []
 const refinementUnknowns = Array.isArray(args?.unknowns) ? args.unknowns : []
-const track = args?.track === 'ai-engineer' ? 'ai-engineer' : 'developer'
+const track = args?.track === 'ai-engineer' ? 'ai-engineer' : 'software-engineer'
 const repo = args?.repo
 const docsBase = featureSlug
 
 if (!featureName || !featureSlug || !refinementContent) {
-  throw new Error('create-feature precisa de args: { featureName: string, featureSlug: string, refinementContent: string, track?: "developer"|"ai-engineer", repo?: "owner/name" }')
+  throw new Error('create-feature precisa de args: { featureName: string, featureSlug: string, refinementContent: string, track?: "software-engineer"|"ai-engineer", repo?: "owner/name" }')
 }
 
 const MAX_ITERATIONS = 3
@@ -73,26 +73,26 @@ const IMPLEMENTATION_SCHEMA = {
   },
 }
 
-const QA_RESULT_SCHEMA = {
+const VALIDATION_RESULT_SCHEMA = {
   type: 'object',
-  required: ['verdict', 'evidenceFiles', 'hypotheses', 'unknowns', 'issues'],
+  required: ['verdict', 'checks', 'hypotheses', 'unknowns', 'issues'],
   properties: {
     verdict: { type: 'string', enum: ['pass', 'fail'] },
     summary: { type: 'string' },
-    evidenceFiles: {
+    checks: {
       type: 'array',
       items: {
         type: 'object',
-        required: ['name', 'path', 'content'],
+        required: ['command', 'output', 'proves'],
         properties: {
-          name: { type: 'string', description: 'Nome do teste (ex: e2e_checkout_happy_path)' },
-          path: { type: 'string', description: 'Path relativo dentro de <feature>/validation/' },
-          content: { type: 'string', description: 'Conteúdo markdown completo da evidência' },
+          command: { type: 'string', description: 'Comando exato executado, com cwd quando não for a raiz do repositório' },
+          output: { type: 'string', description: 'Saída literal e status de saída do comando' },
+          proves: { type: 'string', description: 'O que essa execução estabelece, e em que escopo' },
         },
       },
     },
-    hypotheses: { type: 'array', items: { type: 'string' }, description: 'Causal or behavioral explanations not established by the executed tests' },
-    unknowns: { type: 'array', items: { type: 'string' }, description: 'Material cases or environments not validated' },
+    hypotheses: { type: 'array', items: { type: 'string' }, description: 'Causal or behavioral explanations not established by the executed checks' },
+    unknowns: { type: 'array', items: { type: 'string' }, description: 'Material cases, environments, or gates left unexecuted' },
     issues: {
       type: 'array',
       items: {
@@ -102,40 +102,6 @@ const QA_RESULT_SCHEMA = {
           severity: { type: 'string', enum: ['blocker', 'major', 'minor', 'nit'] },
           description: { type: 'string' },
           reproSteps: { type: 'string' },
-        },
-      },
-    },
-  },
-}
-
-const SRE_RESULT_SCHEMA = {
-  type: 'object',
-  required: ['verdict', 'evidenceFiles', 'hypotheses', 'unknowns', 'issues'],
-  properties: {
-    verdict: { type: 'string', enum: ['pass', 'fail'] },
-    summary: { type: 'string' },
-    evidenceFiles: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['name', 'path', 'content'],
-        properties: {
-          name: { type: 'string' },
-          path: { type: 'string' },
-          content: { type: 'string' },
-        },
-      },
-    },
-    hypotheses: { type: 'array', items: { type: 'string' }, description: 'Operational or causal explanations not established by telemetry' },
-    unknowns: { type: 'array', items: { type: 'string' }, description: 'Material production conditions not observed' },
-    issues: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['severity', 'description'],
-        properties: {
-          severity: { type: 'string', enum: ['blocker', 'major', 'minor', 'nit'] },
-          description: { type: 'string' },
         },
       },
     },
@@ -174,11 +140,11 @@ Desconhecidos: ${JSON.stringify(refinementUnknowns)}
 
 # Tarefas
 1. Escreva uma user history no formato INVEST: título, "As a / I want / So that", critérios de aceitação Given/When/Then (3-6 cenários), Definition of Done.
-2. Crie um issue/ticket no repositório ${repo || '<descobrir via git remote>'} via a capability `code-host` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Se `code-host` não estiver plugada ou falhar, deixe issueUrl como string vazia e prossiga.
-3. Use a skill `evidence`. Preserve evidência verificada, hipóteses falsificáveis, desconhecidos e a proveniência quantitativa; nunca invente uma métrica.
+2. Crie um issue/ticket no repositório ${repo || '<descobrir via git remote>'} via a capability \`code-host\` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Se \`code-host\` não estiver plugada ou falhar, deixe issueUrl como string vazia e prossiga.
+3. Use a skill \`evidence\`. Preserve evidência verificada, hipóteses falsificáveis, desconhecidos e a proveniência quantitativa; nunca invente uma métrica.
 4. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${docsBase}/user_history/user_history.md.
 
-Grave o markdown final em disco em `${docsBase}/user_history/user_history.md`. Peça ao agent `knowledge-base` para registrar um resumo; se a knowledge base não estiver disponível, siga sem ela.`,
+Grave o markdown final em disco em \`${docsBase}/user_history/user_history.md\`. Peça ao agent \`knowledge-base\` para registrar um resumo; se a knowledge base não estiver disponível, siga sem ela.`,
   { agentType: 'tech-pm', label: 'tech-pm:user_history', phase: 'user_history', schema: USER_HISTORY_SCHEMA },
 )
 
@@ -203,7 +169,7 @@ ${(userHistory.definitionOfDone || []).map((d, i) => `${i + 1}. ${d}`).join('\n'
 1. Crie um branch git: feature/${featureSlug}
 2. Implemente o código necessário, com testes mínimos.
 3. Garanta que o build/lint/tests locais passam.
-4. Use a skill `evidence`. Retorne observações executadas com escopo, hipóteses testadas e desconhecidos restantes; testes passando provam apenas os casos exercitados.
+4. Use a skill \`evidence\`. Retorne observações executadas com escopo, hipóteses testadas e desconhecidos restantes; testes passando provam apenas os casos exercitados.
 5. Retorne resumo, arquivos alterados, comandos de verificação, nome do branch.
 
 Se houver bloqueio que exige decisão do usuário, retorne verdict="blocked" com blockedReason claro.`,
@@ -224,20 +190,17 @@ if (implementation.verdict === 'blocked') {
 }
 
 let iteration = 0
-let qaResult = null
-let sreResult = null
+let validationResult = null
 let validationPassed = false
 const validationHistory = []
 
 while (iteration < MAX_ITERATIONS) {
   iteration++
   phase('validation')
-  log(`Iteração ${iteration}/${MAX_ITERATIONS} — qa + sre em paralelo`)
+  log(`Iteração ${iteration}/${MAX_ITERATIONS} — evidence-reviewer`)
 
-  ;[qaResult, sreResult] = await parallel([
-    () =>
-      agent(
-        `Você é o qa. Valide a implementação abaixo: testes funcionais e e2e cobrindo os critérios de aceitação. Execute os testes (use Bash). Para cada teste produza um arquivo .md de evidência (steps, expected, actual, screenshots se aplicável, verdict).
+  validationResult = await agent(
+    `Você é o evidence-reviewer. Valide a implementação abaixo em modo **somente-leitura**.
 
 # Feature
 ${featureName}
@@ -245,47 +208,29 @@ ${featureName}
 # User history
 ${userHistory.markdown}
 
-# Implementação (iteração ${iteration})
-${JSON.stringify(implementation, null, 2)}
-
-# Salvar evidências
-Cada evidência deve ter path do tipo `${docsBase}/validation/qa_<nome_teste>.md`. Grave cada arquivo em disco; peça ao agent `knowledge-base` para registrar um resumo, se disponível.
-
-# Veredito
-Use a skill `evidence`. Preserve explicações sem sustentação como hipóteses e escope toda alegação ao ambiente e aos casos executados.
-pass apenas se TODOS os critérios de aceitação foram validados sem blockers. Caso contrário fail + lista de issues com severidade e repro.`,
-        { agentType: 'qa', label: `qa:iter${iteration}`, phase: 'validation', schema: QA_RESULT_SCHEMA },
-      ),
-    () =>
-      agent(
-        `Você é o sre. Valide infraestrutura, performance, carga e stress da implementação abaixo. Verifique se o ambiente está saudável e dimensionado, rode load test e stress test (k6/Locust ou equivalente), valide observabilidade (logs, métricas, traces, alertas relevantes).
-
-# Feature
-${featureName}
-
 # Refinamento técnico
 ${refinementContent}
 
 # Implementação (iteração ${iteration})
 ${JSON.stringify(implementation, null, 2)}
 
-# Salvar evidências
-Cada evidência deve ter path do tipo `${docsBase}/validation/sre_<nome_teste>.md`. Grave cada arquivo em disco; peça ao agent `knowledge-base` para registrar um resumo, se disponível.
+# Tarefas
+1. Descubra os comandos de qualidade do projeto (build, lint, typecheck, testes, gates) na configuração do repositório; não presuma um comando.
+2. Execute-os com Bash e registre comando, saída literal e o que cada execução estabelece. Experimentos que exijam mutação rodam numa cópia descartável fora do repositório.
+3. Confronte cada critério de aceitação da user history com uma verificação executada. Critério sem verificação vira \`unknowns\`, nunca pass.
+4. Nunca edite arquivos, commite, faça push ou merge; você não é o dono da mudança.
 
 # Veredito
-Use a skill `evidence`. Toda métrica precisa de unidade, população, janela temporal, fonte e método. Trate explicações causais como hipóteses falsificáveis.
-pass se infra/performance/observabilidade estão dentro de SLO e sem blockers. Caso contrário fail + lista de issues com severidade.`,
-        { agentType: 'sre', label: `sre:iter${iteration}`, phase: 'validation', schema: SRE_RESULT_SCHEMA },
-      ),
-  ])
+Use a skill \`evidence\`. Preserve explicações sem sustentação como hipóteses e escope toda alegação ao ambiente e aos casos executados; teste passando prova os casos exercitados, não ausência de defeito.
+pass apenas se TODOS os critérios de aceitação foram verificados por execução e sem blockers. Caso contrário fail + lista de issues com severidade e repro.`,
+    { agentType: 'evidence-reviewer', label: `evidence-reviewer:iter${iteration}`, phase: 'validation', schema: VALIDATION_RESULT_SCHEMA },
+  )
 
-  validationHistory.push({ iteration, qa: qaResult, sre: sreResult })
+  validationHistory.push({ iteration, validation: validationResult })
 
-  const qaPass = qaResult?.verdict === 'pass'
-  const srePass = sreResult?.verdict === 'pass'
-  validationPassed = qaPass && srePass
+  validationPassed = validationResult?.verdict === 'pass'
 
-  log(`Iteração ${iteration}: qa=${qaResult?.verdict ?? 'erro'} sre=${sreResult?.verdict ?? 'erro'}`)
+  log(`Iteração ${iteration}: evidence-reviewer=${validationResult?.verdict ?? 'erro'}`)
 
   if (validationPassed) break
 
@@ -294,8 +239,7 @@ pass se infra/performance/observabilidade estão dentro de SLO e sem blockers. C
   phase('fix_iteration')
   log(`Iteração ${iteration} falhou. ${implementerLabel} vai corrigir.`)
 
-  const qaIssues = (qaResult?.issues || []).map(i => `[${i.severity}] ${i.description}${i.reproSteps ? ` (repro: ${i.reproSteps})` : ''}`).join('\n')
-  const sreIssues = (sreResult?.issues || []).map(i => `[${i.severity}] ${i.description}`).join('\n')
+  const validationIssues = (validationResult?.issues || []).map(i => `[${i.severity}] ${i.description}${i.reproSteps ? ` (repro: ${i.reproSteps})` : ''}`).join('\n')
 
   implementation = await agent(
     `Você é o ${implementerAgentType}. A iteração ${iteration} de validação falhou. Corrija os problemas abaixo.
@@ -303,11 +247,8 @@ pass se infra/performance/observabilidade estão dentro de SLO e sem blockers. C
 # Implementação atual
 ${JSON.stringify(implementation, null, 2)}
 
-# Problemas reportados pelo qa
-${qaIssues || '(nenhum)'}
-
-# Problemas reportados pelo sre
-${sreIssues || '(nenhum)'}
+# Problemas reportados pelo evidence-reviewer
+${validationIssues || '(nenhum)'}
 
 # Tarefa
 Corrija no mesmo branch. Re-rode build/lint/tests. Retorne summary atualizado com o que mudou nesta correção, lista de arquivos alterados (todos, não só os desta correção), comandos.
@@ -342,7 +283,7 @@ if (!validationPassed) {
     implementation,
     validationHistory,
     iterationsUsed: iteration,
-    nextStep: `Após ${MAX_ITERATIONS} iterações qa+sre ainda reportam issues. Revisar manualmente.`,
+    nextStep: `Após ${MAX_ITERATIONS} iterações o evidence-reviewer ainda reporta issues. Revisar manualmente.`,
   }
 }
 
@@ -365,7 +306,7 @@ ${implementation.branch || `feature/${featureSlug}`}
 ${userHistory.issueUrl || '(sem issue link)'}
 
 # Iterações de validação
-qa: ${qaResult?.verdict}, sre: ${sreResult?.verdict}, iterações usadas: ${iteration}/${MAX_ITERATIONS}
+evidence-reviewer: ${validationResult?.verdict}, iterações usadas: ${iteration}/${MAX_ITERATIONS}
 
 # Padrão de descrição do PR (use este template exato)
 ## Resumo
@@ -380,8 +321,7 @@ qa: ${qaResult?.verdict}, sre: ${sreResult?.verdict}, iterações usadas: ${iter
 ${(userHistory.acceptanceCriteria || []).map(ac => `  - ${ac.scenario}`).join('\n')}
 
 ## Evidências
-- QA: ${docsBase}/validation/qa_*.md
-- SRE: ${docsBase}/validation/sre_*.md
+${(validationResult?.checks || []).map(c => `- \`${c.command}\` — ${c.proves}`).join('\n')}
 
 ## Status da evidência
 - Observações verificadas: <cite os paths de validação exatos e os comandos executados>
@@ -391,14 +331,12 @@ ${(userHistory.acceptanceCriteria || []).map(ac => `  - ${ac.scenario}`).join('\
 ${(implementation.commands || []).map(c => `\`\`\`\n${c}\n\`\`\``).join('\n')}
 
 ## Checklist
-- [x] Testes funcionais (qa)
-- [x] Testes e2e (qa)
-- [x] Load test (sre)
-- [x] Stress test (sre)
-- [x] Observabilidade validada (sre)
+- [x] Gates do projeto executados pelo evidence-reviewer
+- [x] Critérios de aceitação confrontados com verificação executada
+- [x] Hipóteses e desconhecidos preservados no relatório de validação
 
 # Tarefa
-Abra o Pull/Merge Request via a capability `code-host` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Faça push do branch antes se necessário. Retorne prUrl, title e body usados.`,
+Abra o Pull/Merge Request via a capability \`code-host\` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Faça push do branch antes se necessário. Retorne prUrl, title e body usados.`,
   { agentType: implementerAgentType, label: `${implementerLabel}:open_pr`, phase: 'open_pr', schema: PR_SCHEMA },
 )
 

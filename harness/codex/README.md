@@ -19,7 +19,7 @@ hooks until that explicit review is complete.
 
 When upgrading from 2.0.0 to 2.0.1, review the hooks again: the descriptor and command paths
 move into `harness/codex/hooks/` and `core/hooks/`. Previous trust must not be assumed to carry
-over. Verify both `SessionStart` and the PR gate in `/hooks` before relying on them.
+over. Verify the PR gate in `/hooks` before relying on it.
 `install.py --check` checks the global adapter files, not runtime hook trust.
 It checks expected and recorded OMH assets, not every third-party skill directory. If the link
 manifest is lost, restore a known-good backup or inspect conflicting links individually before
@@ -47,8 +47,6 @@ touch "$trust_dir/$repo_sig"
 Hook trust authorizes the plugin hook definition; this repository trust authorizes the discovered
 project commands. Without both, the gate deliberately defers and the normal PR flow continues.
 
-The context hook works with the bundled `explorer` skill on a plugin-only installation. The global
-adapter additionally provides the custom `context` agent that can orchestrate the same workflow.
 
 ## Install the global adapter
 
@@ -101,13 +99,8 @@ requests are routed through Codex auto-review; the global `AGENTS.md` remains re
 the user before destructive operations or access to credential-bearing files. The installer stops
 instead of replacing an existing user-owned sandbox or permissions selection.
 
-The native plugin is the sole owner of the context lifecycle hook. The global adapter removes its
-legacy managed registration so an installation that uses both surfaces injects context once.
-
-An externally installed Graphify skill is preserved only when its upstream marker and complete
-file tree match the repository copy. `upstream_version` records provenance; it is not proof of
-distribution identity. A local or upstream copy with the same version marker but different content
-is reported as a conflict instead of silently bypassing harness patches.
+The global adapter removes the legacy managed `SessionStart` registration of earlier versions, so
+an installation that uses both surfaces no longer carries a hook this library stopped shipping.
 
 Custom-agent TOMLs are copied instead of symlinked because current Codex releases do not discover
 symlinked files reliably. A content manifest permits safe upgrades while refusing to overwrite a
@@ -115,8 +108,7 @@ managed copy that the user changed locally.
 
 ## MCP integrations
 
-The installer wires Deja when its CLI is present and registers Graphify when its MCP executable can
-be resolved. It also installs the official LangChain marketplace and its `langchain-skills` and
+The installer wires Deja when its CLI is present. It also installs the official LangChain marketplace and its `langchain-skills` and
 `langchain-mcp` plugins. They cover LangChain, LangGraph, and Deep Agents skills plus live
 documentation and API reference. The optional LangSmith plugins are not installed because they
 require a LangSmith account and OAuth authorization.
@@ -124,11 +116,11 @@ require a LangSmith account and OAuth authorization.
 It also installs the official AI Evals Course marketplace and its `evals` plugin. It provides
 eight skills for error discovery, eval-pipeline audits, synthetic data, RAG evaluation, human
 review interfaces, LLM-as-Judge prompts, and judge calibration. The local `ai-engineer`,
-`developer`, `architect`, and `qa` agents first verify that `evals:*` is available at runtime;
+`software-engineer`, and `architect` agents first verify that `evals:*` is available at runtime;
 when installation is pending, they report that state and do not claim to use unavailable skills.
 
 The upstream marketplace publishes skills and MCP servers, not Codex custom agents. The local
-`ai-engineer`, `developer`, and `architect` agents route matching framework work through
+`ai-engineer`, `software-engineer`, and `architect` agents route matching framework work through
 `langchain-skills:ecosystem-primer` and the relevant official skills; they do not copy or fork
 upstream guidance.
 

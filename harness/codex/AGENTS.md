@@ -79,9 +79,7 @@ Um tool agent opera infraestrutura compartilhada consumida por outros agents.
 
 | Agent | Responsabilidade | Skills |
 | --- | --- | --- |
-| `context` | Manter o contexto vivo do projeto atual em `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
-| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas e session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
-| `graphify` | Criar ou atualizar um code graph fora da árvore do produto e então consultá-lo ou explicá-lo | `graphify` |
+| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas, session records e o mapeamento sob demanda de um repositório | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session`, `explorer` |
 | `site` | Criar sites visuais com fontes e expô-los opcionalmente após aprovação | `site-report`, `site-expose` |
 
 O routing pertence às descriptions dos agents, e a mecânica pertence às skills. Não duplique nenhum
@@ -100,8 +98,8 @@ dos dois aqui.
 4. O Deja controla seu próprio wiring de MCP e hooks. A sincronização do harness deve preservar
    hooks gerenciados pelo Deja e sua skill de histórico instalada. Use o Deja apenas para retrieval;
    seus recursos de escrita de notas não podem criar um segundo repositório de conhecimento curado.
-5. A skill Graphify é *vendored* do upstream e instalada em `~/.agents/skills/graphify/`. Reconcilie
-   upgrades do upstream antes de sincronizar novamente a cópia *vendored*.
+5. Providers externos de capability, como o de `code-graph`, são instalados pelas próprias
+   ferramentas e vivem fora deste repositório. A sincronização do harness os preserva.
 6. A biblioteca é agnóstica a contas. Client IDs, secrets, tokens, handles e paths de executáveis
    específicos da máquina nunca entram no repositório.
 
@@ -126,8 +124,8 @@ record com `transcript_path: null` e informe o modo degradado.
    `~/knowledge-base/`; a instalação do adapter Codex escreve apenas em `$CODEX_HOME` e `~/.agents/`.
 2. Sem Qdrant, escritas em disco continuam e a indexação permanece pendente. O retrieval usa
    navegação estruturada em disco como fallback e informa explicitamente o modo degradado.
-3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records e
-   `context.md` são documentos mutáveis nomeados e reescritos in-place.
+3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records são
+   documentos mutáveis nomeados e reescritos in-place.
 4. Toda nova nota e todo session record carregam provenance real de harness, sessão, cwd e máquina
    conforme `kb-write`/`kb-session`. A identidade estável vem de
    `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente bloqueia a escrita, enquanto

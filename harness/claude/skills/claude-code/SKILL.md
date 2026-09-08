@@ -11,8 +11,8 @@ description: |
   `settings.json`), e a migração a partir do layout antigo de symlinks — inclusive a remoção
   dos hooks duplicados que dispariam duas vezes. Cobre também os plugins de terceiro que os
   agents roteiam e que não são vendorizados aqui: `langchain-skills` e `langchain-mcp` (marketplace
-  `langchain-ai/langchain-plugins`), roteados por `ai-engineer`, `architect` e `developer`; e
-  `evals` (marketplace `ai-evals-course`), roteado por `ai-engineer` e `qa`.
+  `langchain-ai/langchain-plugins`), roteados por `ai-engineer`, `architect` e `software-engineer`; e
+  `evals` (marketplace `ai-evals-course`), roteado por `ai-engineer`.
   Use quando: (1) instalar a biblioteca numa máquina, (2) atualizar depois de um push,
   (3) migrar do sync por symlink para o plugin, (4) diagnosticar skill/agent/hook que não
   carrega, (5) instalar ou diagnosticar os plugins de terceiro.
@@ -91,15 +91,17 @@ duplica. Diagnostique antes de remover:
 find ~/.claude/agents ~/.claude/skills ~/.claude/hooks -maxdepth 2 -type l -exec ls -l {} \; 2>/dev/null
 ```
 
-1. **Hooks duplicados são o sintoma mais visível.** Se `~/.claude/settings.json` ainda tem os
-   handlers `SessionStart → context-load.sh` ou `PreToolUse → quality-gate.sh`, eles disparam
-   **junto** com os do plugin — o snapshot de contexto aparece duas vezes e o quality gate roda
-   duas vezes. Remova **apenas** esses dois handlers; preserve handlers de terceiros no mesmo
-   evento (o Deja instala `SessionStart`, `PreCompact` e `UserPromptSubmit`).
+1. **Hooks duplicados são o sintoma mais visível.** Se `~/.claude/settings.json` ainda tem o
+   handler `PreToolUse → quality-gate.sh`, ele dispara **junto** com o do plugin e o quality gate
+   roda duas vezes. Remova **apenas** esse handler; preserve handlers de terceiros no mesmo
+   evento (o Deja instala `SessionStart`, `PreCompact` e `UserPromptSubmit`). Um handler
+   `SessionStart` apontando para esta biblioteca vem de uma instalação antiga e também deve
+   sair: ela não entrega mais nenhum hook de abertura de sessão.
 2. **Symlinks de agents e skills** que apontam para este repositório viraram redundantes: o
    plugin fornece os mesmos componentes, com namespace. Remova-os, **um a um e com
-   confirmação** — nunca em massa. Skills e agents de terceiros (`deja-history`, a cópia
-   externa do `graphify`) **não** são órfãos e não podem ser removidos.
+   confirmação** — nunca em massa. Skills e agents instalados por outras ferramentas
+   (`deja-history`, e qualquer provider externo de capability) **não** são órfãos e não podem
+   ser removidos.
 3. **`~/.claude/CLAUDE.md` e `permissions` permanecem** — são o Passo 2, não resíduo.
 
 ## Passo 4 — Capabilities / MCP
@@ -112,6 +114,31 @@ O plugin traz o comportamento; a **tabela de capabilities** é da máquina e viv
    memória de sessão → `session-memory`; sem provider → deixe **vazia**.
 3. Mostre como diff e aplique após confirmação.
 4. Use o prefixo do server (`mcp__github__*`), nunca uma tool individual.
+
+### Opcional — provider de `code-graph`
+
+A capability `code-graph` continua na tabela, mas o provider **não** é vendorizado aqui. A linha
+da tabela é uma alegação sobre um **servidor MCP instalado e registrado**, nunca sobre a skill: o
+`graphify install --platform claude` copia a skill e escreve instruções no `CLAUDE.md`, e não
+registra servidor MCP nenhum. São três passos distintos:
+
+```bash
+pipx install 'graphifyy[mcp]'
+graphify install --platform claude
+claude mcp add --env GRAPHIFY_PROJECT_DIR=. graphify -- graphify-mcp
+```
+
+O extra `[mcp]` não é decorativo: em `graphifyy` 0.9.27 a dependência `mcp` entra só por ele, e o
+executável publicado do servidor é `graphify-mcp` — `graphify-mcp-server` não existe.
+
+O `graphify install --platform claude` **escreve no `CLAUDE.md`**, arquivo onde o `omh` também
+mantém um bloco gerenciado. Depois de rodá-lo, reconcilie: releia `~/.claude/CLAUDE.md`, confirme
+que o bloco do `omh` continua íntegro e reaplique o Passo 2 se ele tiver sido deslocado.
+
+Acrescente a linha do provider (`mcp__graphify__*`) à tabela de capabilities **somente** depois que
+o servidor estiver registrado e responder: confirme com `claude mcp list` e uma chamada real. Linha
+na tabela sem servidor registrado é provider fantasma — o `code-graph` falha enquanto a
+configuração afirma que ele existe.
 
 ## Passo 5 — Plugins de terceiro que os agents roteiam
 
@@ -131,7 +158,7 @@ claude plugin install langchain-skills@langchain-plugins
 claude plugin install langchain-mcp@langchain-plugins
 ```
 
-Roteados pela seção *Ecossistema LangChain* dos agents `ai-engineer`, `architect` e `developer`.
+Roteados pela seção *Ecossistema LangChain* dos agents `ai-engineer`, `architect` e `software-engineer`.
 Medido com `claude plugin details` na instalação de referência:
 
 | Plugin | Traz | Custo always-on |
@@ -153,7 +180,7 @@ claude plugin marketplace add ai-evals-course/evals-skills
 claude plugin install evals@ai-evals-course
 ```
 
-Roteado pela seção *Avaliação de LLM (evals)* dos agents `ai-engineer` e `qa`. Traz **8 skills**
+Roteado pela seção *Avaliação de LLM (evals)* do agent `ai-engineer`. Traz **8 skills**
 de error analysis, LLM-as-judge, calibração de evaluator e avaliação de RAG, a **~862 tokens**
 always-on e nenhum MCP server. O nome do marketplace (`ai-evals-course`) difere do nome do
 repositório (`evals-skills`) — o ID de instalação usa o do marketplace.
@@ -201,7 +228,6 @@ Depois abra uma **sessão nova** e confirme por observação, não por suposiç�
 
 - uma skill do plugin responde por `/oh-my-harness:<nome>`;
 - um agent aparece como `oh-my-harness:<tema>:<nome>`;
-- o `SessionStart` injetou snapshot ou pedido FULL/DELTA — **uma vez só**;
 - `/context` lista o `CLAUDE.md` sob **Memory files**.
 
 > `claude plugin validate` valida os manifestos, **não** o carregamento. Erro de hook duplicado

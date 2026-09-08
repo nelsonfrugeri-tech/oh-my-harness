@@ -59,7 +59,7 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertNotIn("or states why no source exists", decision)
 
     def test_evidence_reviewer_is_read_only_and_has_codex_parity(self) -> None:
-        shared = _ROOT.joinpath("harness/claude/agents/engineers/evidence-reviewer.md").read_text(
+        shared = _ROOT.joinpath("harness/claude/agents/policy/evidence-reviewer.md").read_text(
             encoding="utf-8"
         )
         codex = _ROOT.joinpath("harness/codex/agents/evidence-reviewer.toml").read_text(
@@ -72,6 +72,11 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertIn("read-only", codex.lower())
         self.assertIn("fals", shared.lower())
         self.assertIn("fals", codex.lower())
+
+    def test_orchestration_skills_name_the_evidence_reviewer_agent(self) -> None:
+        for skill in ("core/skills/feature/SKILL.md", "core/skills/evidence/SKILL.md"):
+            with self.subTest(skill=skill):
+                self.assertIn("`evidence-reviewer` agent", self._read(skill))
 
     def test_review_preserves_the_stable_external_verdict_contract(self) -> None:
         review = self._read("core/skills/review/SKILL.md")

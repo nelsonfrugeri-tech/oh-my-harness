@@ -192,7 +192,7 @@ class AdapterContractTest(unittest.TestCase):
             self.assertEqual([], entry["warnings"])
             self.assertEqual([], entry["errors"])
             self.assertEqual(
-                {"preToolUse", "sessionStart"},
+                {"preToolUse"},
                 {hook["eventName"] for hook in plugin_hooks},
             )
             quality_gate = next(
@@ -215,7 +215,7 @@ class AdapterContractTest(unittest.TestCase):
             for group in groups
             for handler in group["hooks"]
         ]
-        context_loader = _ROOT.joinpath("core/hooks/context-load.sh").read_text(encoding="utf-8")
+        self.assertEqual({"PreToolUse"}, set(hooks["hooks"]))
 
         # Two PreToolUse handlers now point at quality-gate.sh (Bash `gh pr create` and the
         # GitHub MCP PR-creation tool); disambiguate on the Bash-only `if` condition instead
@@ -226,9 +226,6 @@ class AdapterContractTest(unittest.TestCase):
             if "quality-gate.sh" in handler["command"] and "if" in handler
         )
         self.assertEqual("Bash(gh pr create*)", quality_gate["if"])
-        self.assertIn("Execute a skill `explorer`", context_loader)
-        self.assertIn("modo **FULL**", context_loader)
-        self.assertNotIn("Run the `explorer` skill", context_loader)
 
     def test_codex_global_guidance_is_pt_br_and_below_the_default_limit(self) -> None:
         guidance = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
@@ -297,8 +294,7 @@ class AdapterContractTest(unittest.TestCase):
 
     def test_engineering_agents_load_the_evidence_skill(self) -> None:
         roles = (
-            "ai-engineer", "architect", "developer", "evidence-reviewer",
-            "qa", "sre", "tech-pm",
+            "ai-engineer", "architect", "software-engineer", "tech-pm",
         )
 
         for role in roles:
@@ -312,6 +308,18 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertIn("  - evidence", shared)
                 self.assertIn("`evidence`", codex)
 
+
+    def test_policy_agents_load_the_evidence_skill(self) -> None:
+        for role in ("evidence-reviewer",):
+            with self.subTest(role=role):
+                shared = _ROOT.joinpath(f"harness/claude/agents/policy/{role}.md").read_text(
+                    encoding="utf-8"
+                )
+                codex = _ROOT.joinpath(f"harness/codex/agents/{role}.toml").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn("  - evidence", shared)
+                self.assertIn("`evidence`", codex)
 
     def test_kb_write_requires_machine_and_session_provenance(self) -> None:
         content = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text(
@@ -480,20 +488,12 @@ class AdapterContractTest(unittest.TestCase):
         data = json.loads(_ROOT.joinpath("harness/codex/adapter-hooks-removal.json").read_text(encoding="utf-8"))
         self.assertEqual({}, data["hooks"])
 
-    def test_context_loader_is_shared_and_executable(self) -> None:
-        loader = _ROOT / "core/hooks/context-load.sh"
-        claude_adapter = _ROOT / "harness/claude/hooks/context-load.sh"
+    def test_quality_gate_is_the_only_shared_hook(self) -> None:
+        gate = _ROOT / "core/hooks/quality-gate.sh"
 
-        self.assertTrue(loader.is_file())
-        self.assertTrue(loader.stat().st_mode & 0o111)
-        self.assertIn("../../../core/hooks/context-load.sh", claude_adapter.read_text(encoding="utf-8"))
-
-    def test_context_agents_resolve_the_git_root(self) -> None:
-        shared = _ROOT.joinpath("harness/claude/agents/tools/context.md").read_text(encoding="utf-8")
-        codex = _ROOT.joinpath("harness/codex/agents/context.toml").read_text(encoding="utf-8")
-
-        self.assertIn("git rev-parse --show-toplevel", shared)
-        self.assertIn("git rev-parse --show-toplevel", codex)
+        self.assertEqual([gate], sorted(_ROOT.glob("core/hooks/*.sh")))
+        self.assertTrue(gate.stat().st_mode & 0o111)
+        self.assertEqual([], list(_ROOT.glob("harness/*/hooks/*.sh")))
 
     def test_code_craft_contract_is_consistently_repository_first(self) -> None:
         paths = (
@@ -568,8 +568,7 @@ class AdapterContractTest(unittest.TestCase):
 
     def test_operational_skills_keep_executable_boundaries(self) -> None:
         site = _ROOT.joinpath("core/skills/site-report/SKILL.md").read_text(encoding="utf-8")
-        explorer = _ROOT.joinpath("core/skills/explorer/SKILL.md").read_text(encoding="utf-8")
-        hook = _ROOT.joinpath("core/hooks/context-load.sh").read_text(encoding="utf-8")
+        writer = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text(encoding="utf-8")
         session = _ROOT.joinpath("core/skills/kb-session/SKILL.md").read_text(encoding="utf-8")
         infra = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text(encoding="utf-8")
 
@@ -579,8 +578,7 @@ class AdapterContractTest(unittest.TestCase):
             "tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\\n' '-' | "
             "sed 's/--*/-/g; s/^-//; s/-$//'"
         )
-        self.assertIn(slug_pipeline, " ".join(explorer.split()))
-        self.assertIn(slug_pipeline, " ".join(hook.split()))
+        self.assertIn(slug_pipeline, " ".join(writer.split()))
         self.assertIn("DEJA_INCLUDE_SUBAGENTS=1", session)
         self.assertIn("~/.claude/projects/<cwd-munged>/<session-id>.jsonl", session)
 

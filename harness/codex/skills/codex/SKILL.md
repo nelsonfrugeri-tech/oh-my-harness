@@ -12,15 +12,25 @@ Discover commands from checked-in installer help.
 Never overwrite unowned files. Stop with exact conflict and non-destructive choices. Backups do not
 grant replacement authority. Preserve unrelated hooks/configuration.
 
-Graphify is vendored derived content; do not edit it here. Preserve a non-link installation only when
-marker/full tree match. Deja owns transcript index, MCP wiring, and hooks; preserve them and use Deja
-only for session-memory, never a second curated store.
+External capability providers install themselves outside this repository; preserve whatever they
+placed under the personal skill and MCP roots. Deja owns transcript index, MCP wiring, and hooks;
+preserve them and use Deja only for session-memory, never a second curated store.
+
+Optional `code-graph` provider: MCP is an optional extra, so install `pipx install 'graphifyy[mcp]'`;
+a bare `graphifyy` install omits the `mcp` dependency. `graphify install --platform codex` then
+copies the skill, writes the AGENTS section, and installs the hook in one command, but registers no
+MCP server. Register it yourself with the published entrypoint `graphify-mcp`:
+`codex mcp add --env GRAPHIFY_PROJECT_DIR=. graphify -- graphify-mcp`. Add the `mcp__graphify__*` row
+to the capability table of the managed global `AGENTS.md` only after that server is registered and a
+real call answers: the row claims an installed server, never an installed skill.
+The `claude` platform variant of that installer writes to `CLAUDE.md`, where omh keeps a managed
+block; reconcile that block afterwards and rerun `install.py --check` before trusting the result.
 
 Run installer check and report states independently: installed, configured, authorized, reachable,
 and healthy after a probe. Configured never proves authorization, reachability, or health. Missing
 optional providers are degraded capabilities, not failed filesystem installation.
 
-Markdown/JSON remain knowledge source of truth. Qdrant, Deja indexes, Graphify graphs, installed
+Markdown/JSON remain knowledge source of truth. Qdrant, Deja indexes, code graphs, installed
 copies, and provider state are derived/provider-owned. Keep credentials, account IDs, executable
 paths, and personal directories out of repository. Keep diagnostics outside projects and do not
 modify Claude adapter files during Codex-only work.
@@ -28,8 +38,8 @@ modify Claude adapter files during Codex-only work.
 ## Package migration to 2.0.1
 
 The hook descriptor and commands move to `harness/codex/hooks/` and `core/hooks/`.
-After upgrading from the old layout, open `/hooks` and review both `SessionStart` and the pull
-request gate again. Previous approval does not authorize changed definitions. Verify runtime trust before
-reporting either hook as active; `install.py --check` validates adapter files, not hook trust.
+After upgrading from the old layout, open `/hooks` and review the pull request gate again.
+Previous approval does not authorize changed definitions. Verify runtime trust before
+reporting the hook as active; `install.py --check` validates adapter files, not hook trust.
 The installer does not grant trust on the user's behalf. Use `installers/codex/install.py` from
 the repository root to synchronize the global adapter.
