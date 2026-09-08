@@ -37,6 +37,14 @@ class AgentRoutingContractTest(unittest.TestCase):
                 self.assertEqual("evals:evals-start", route["entry"])
                 self.assertIn("claude plugin update evals@ai-evals-course", route["degraded_behavior"])
 
+    def test_evidence_reviewer_executes_without_write_access(self) -> None:
+        overlay = _MANIFEST["adapter_specs"]["shared-markdown"]["overlays"]["evidence-reviewer"]
+
+        self.assertEqual("policy", _MANIFEST["role_families"]["evidence-reviewer"])
+        self.assertIn("Bash", overlay["tools"])
+        self.assertNotIn("Write", overlay["tools"])
+        self.assertNotIn("Edit", overlay["tools"])
+
     def test_local_skill_order_preserves_evidence_and_presentation(self) -> None:
         for role_id, role in _MANIFEST["roles"].items():
             with self.subTest(role=role_id):

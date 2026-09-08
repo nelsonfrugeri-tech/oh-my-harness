@@ -297,7 +297,7 @@ class AdapterContractTest(unittest.TestCase):
 
     def test_engineering_agents_load_the_evidence_skill(self) -> None:
         roles = (
-            "ai-engineer", "architect", "software-engineer", "evidence-reviewer", "tech-pm",
+            "ai-engineer", "architect", "software-engineer", "tech-pm",
         )
 
         for role in roles:
@@ -311,6 +311,18 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertIn("  - evidence", shared)
                 self.assertIn("`evidence`", codex)
 
+
+    def test_policy_agents_load_the_evidence_skill(self) -> None:
+        for role in ("evidence-reviewer",):
+            with self.subTest(role=role):
+                shared = _ROOT.joinpath(f"harness/claude/agents/policy/{role}.md").read_text(
+                    encoding="utf-8"
+                )
+                codex = _ROOT.joinpath(f"harness/codex/agents/{role}.toml").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn("  - evidence", shared)
+                self.assertIn("`evidence`", codex)
 
     def test_kb_write_requires_machine_and_session_provenance(self) -> None:
         content = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text(

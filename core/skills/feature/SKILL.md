@@ -101,8 +101,8 @@ evidence distinct from the author. The author self-check can prepare context but
 merge recommendation.
 
 If independent review is required, hand off the task and acceptance criteria, diff/revision,
-decisions, focused and broad command evidence, limitations, and unresolved risks to the review
-capability. [Review](../review/SKILL.md) defines that contract; the
+decisions, focused and broad command evidence, limitations, and unresolved risks by requesting the
+`evidence-reviewer` agent. [Review](../review/SKILL.md) defines that contract; the
 [agent routing manifest](../../agents/routing.json) defines routing and role separation.
 
 ### REPORT_OR_RESUME

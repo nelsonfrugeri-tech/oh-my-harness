@@ -153,8 +153,8 @@ Software work uses a shared evidence contract across Claude Code and Codex. Mate
 classified as verified facts, derived results, inferences, hypotheses, estimates, unknowns, or
 decisions. Quantitative claims carry reproducible provenance, and material decisions record
 alternatives, uncertainty, falsification, and rollback conditions. The `evidence` skill provides
-the detailed protocol, while the read-only `evidence-reviewer` independently audits consequential
-claims without turning routine work into ceremony.
+the detailed protocol, while the read-only `evidence-reviewer` agent independently audits
+consequential claims, running the project's tests and gates without editing the repository.
 
 ### code-craft — mandatory implementation constraints
 
@@ -277,7 +277,7 @@ and the native paths for both adapters.
 | `engineers` | `software-engineer` | Implementation at altitude: scalability, resilience, responsiveness, quality, cost | opus   |
 | `engineers` | `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation         | sonnet |
 | `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
-| `engineers` | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions | opus |
+| `policy`    | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions, with Bash for tests and gates | opus |
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
 | `tools`     | `context`     | Loads/refreshes the project's living knowledge base at `~/knowledge-base/work/projects/{project}/context.md` | sonnet |
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search | sonnet |

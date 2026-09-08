@@ -24,10 +24,10 @@
   "agents": [
     "./harness/claude/agents/engineers/ai-engineer.md",
     "./harness/claude/agents/engineers/architect.md",
-    "./harness/claude/agents/engineers/evidence-reviewer.md",
     "./harness/claude/agents/engineers/software-engineer.md",
     "./harness/claude/agents/engineers/tech-pm.md",
     "./harness/claude/agents/harness/claude-code.md",
+    "./harness/claude/agents/policy/evidence-reviewer.md",
     "./harness/claude/agents/tools/context.md",
     "./harness/claude/agents/tools/graphify.md",
     "./harness/claude/agents/tools/knowledge-base.md",
