@@ -10,6 +10,9 @@ _ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = json.loads(
     _ROOT.joinpath("core/agents/routing.json").read_text(encoding="utf-8")
 )
+_PLUGINS_FILE = _ROOT / "harness/codex/integrations/plugins.json"
+_RUNBOOK_FILE = _ROOT / "harness/claude/skills/claude-code/SKILL.md"
+_SELF_DISTRIBUTION = "oh-my-harness@oh-my-harness"
 
 
 class AgentRoutingContractTest(unittest.TestCase):
@@ -36,6 +39,45 @@ class AgentRoutingContractTest(unittest.TestCase):
             with self.subTest(role=role_id):
                 self.assertEqual("evals:evals-start", route["entry"])
                 self.assertIn("claude plugin update evals@ai-evals-course", route["degraded_behavior"])
+
+    def test_every_contracted_dependency_is_addressable(self) -> None:
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+
+        self.assertTrue(dependencies)
+        for name, dependency in dependencies.items():
+            with self.subTest(dependency=name):
+                self.assertEqual(
+                    name, dependency["distribution"].split("@", 1)[0]
+                )
+                self.assertRegex(dependency["distribution"], r"^[^@]+@[^@]+$")
+                self.assertRegex(dependency["minimum_version"], r"^\d+\.\d+\.\d+$")
+                self.assertIsInstance(dependency["installed_by_default"], bool)
+                self.assertTrue(dependency["entries"])
+                for entry in dependency["entries"]:
+                    self.assertTrue(entry.strip())
+
+    def test_every_installed_plugin_is_declared_in_the_contract(self) -> None:
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+        contracted = {
+            dependency["distribution"]
+            for dependency in dependencies.values()
+            if dependency["installed_by_default"]
+        }
+
+        self.assertEqual(contracted, _codex_installed_plugins())
+        self.assertEqual(contracted, _claude_installed_plugins())
+
+    def test_plugins_left_out_are_declared_instead_of_omitted(self) -> None:
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+        excluded = json.loads(_PLUGINS_FILE.read_text(encoding="utf-8"))[
+            "declared_not_installed"
+        ]
+
+        self.assertTrue(excluded)
+        for name, reason in excluded.items():
+            with self.subTest(plugin=name):
+                self.assertFalse(dependencies[name]["installed_by_default"])
+                self.assertTrue(reason.strip())
 
     def test_evidence_reviewer_executes_without_write_access(self) -> None:
         overlay = _MANIFEST["adapter_specs"]["shared-markdown"]["overlays"]["evidence-reviewer"]
@@ -181,6 +223,21 @@ class AgentRoutingContractTest(unittest.TestCase):
                     self.assertIn(role["implementation_guidance"], rendered)
                     self.assertIn("## Operating contract", rendered)
                     self.assertIn("## Boundaries", rendered)
+
+
+def _codex_installed_plugins() -> set[str]:
+    catalog = json.loads(_PLUGINS_FILE.read_text(encoding="utf-8"))
+    return {
+        f"{plugin}@{marketplace['marketplace']['name']}"
+        for marketplace in catalog["marketplaces"]
+        for plugin in marketplace["plugins"]
+    }
+
+
+def _claude_installed_plugins() -> set[str]:
+    runbook = _RUNBOOK_FILE.read_text(encoding="utf-8")
+    installed = set(re.findall(r"claude plugin install (\S+@\S+)", runbook))
+    return installed - {_SELF_DISTRIBUTION}
 
 
 def _render_body(role: dict[str, object]) -> str:
