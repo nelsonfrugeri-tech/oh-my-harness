@@ -56,6 +56,94 @@ class AgentRoutingContractTest(unittest.TestCase):
                 for entry in dependency["entries"]:
                     self.assertTrue(entry.strip())
 
+    def test_entry_names_match_the_declared_provider_surface(self) -> None:
+        # A contract that only agrees with itself cannot catch the defect this contract
+        # exists to prevent: `evals:start` vs `evals:evals-start` was consistent in every
+        # place it appeared and still pointed at a skill that does not exist. Each entry
+        # is therefore checked against the provider surface declared beside it.
+        for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items():
+            with self.subTest(dependency=name):
+                entries = set(dependency["entries"])
+                kind = dependency["entry_kind"]
+                if kind == "skill":
+                    for entry in entries:
+                        self.assertTrue(
+                            entry.startswith(f"{name}:"),
+                            f"{entry} is not namespaced by its own plugin",
+                        )
+                elif kind == "mcp-tool":
+                    declared = {
+                        tool
+                        for server in dependency["servers"].values()
+                        for tool in server["tools"]
+                    }
+                    self.assertEqual(declared, entries)
+                elif kind == "mcp-server":
+                    self.assertEqual(set(dependency["servers"]), entries)
+                else:
+                    self.fail(f"unknown entry_kind {kind!r}")
+
+    def test_skill_entries_are_pinned_to_the_verified_upstream_names(self) -> None:
+        # A namespace check cannot catch a wrong leaf: `langsmith-dataset` vs
+        # `langsmith-datasets` is namespaced correctly and still points at nothing. The
+        # leaf lives upstream, so the verified names are pinned here, the same technique
+        # `test_evals_dependency_requires_the_renamed_entry` already uses. Each set was
+        # read from the published plugin, not inferred.
+        verified = {
+            "evals": {"evals:evals-start"},
+            "langchain-skills": {
+                "langchain-skills:ecosystem-primer",
+                "langchain-skills:eval-engineering",
+                "langchain-skills:langsmith-online-eval-engineering",
+            },
+            "langsmith-skills": {
+                "langsmith-skills:langsmith-trace",
+                "langsmith-skills:langsmith-dataset",
+                "langsmith-skills:langsmith-evaluator",
+            },
+        }
+        dependencies = _MANIFEST["catalog_contract"]["dependencies"]
+        skills = {
+            name
+            for name, dependency in dependencies.items()
+            if dependency["entry_kind"] == "skill"
+        }
+
+        self.assertEqual(skills, set(verified))
+        for name, entries in verified.items():
+            with self.subTest(dependency=name):
+                self.assertEqual(entries, set(dependencies[name]["entries"]))
+
+    def test_every_mcp_tool_entry_resolves_to_one_server_prefix(self) -> None:
+        # `entry: search_docs_by_lang_chain` is a bare tool name and the plugin exposes two
+        # servers, so the agent needs the prefix to call it without guessing.
+        for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items():
+            if dependency["entry_kind"] != "mcp-tool":
+                continue
+            for entry in dependency["entries"]:
+                owners = [
+                    server["harness_prefix"]
+                    for server in dependency["servers"].values()
+                    if entry in server["tools"]
+                ]
+                with self.subTest(dependency=name, entry=entry):
+                    self.assertEqual(1, len(owners))
+
+    def test_declared_capabilities_exist_in_both_guidance_tables(self) -> None:
+        # `capability` names an abstract provider that the guidance tables bind to a
+        # concrete tool. Declaring one that no table binds is the same "declared and not
+        # plugged" defect this contract exists to prevent, one level up.
+        claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
+        codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
+
+        for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items():
+            capability = dependency.get("capability")
+            if capability is None:
+                continue
+            with self.subTest(dependency=name, capability=capability):
+                self.assertIn(f"`{capability}`", claude)
+                self.assertIn(f"`{capability}`", codex)
+
     def test_every_installed_plugin_is_declared_in_the_contract(self) -> None:
         dependencies = _MANIFEST["catalog_contract"]["dependencies"]
         contracted = {
@@ -78,6 +166,16 @@ class AgentRoutingContractTest(unittest.TestCase):
             with self.subTest(plugin=name):
                 self.assertFalse(dependencies[name]["installed_by_default"])
                 self.assertTrue(reason.strip())
+
+        # The loop above iterates over the declaration, so removing an entry from it
+        # shortens the loop instead of failing. The inverse assertion is what forbids the
+        # omission this test is named after.
+        uninstalled = {
+            name
+            for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items()
+            if not dependency["installed_by_default"]
+        }
+        self.assertEqual(uninstalled, set(excluded))
 
     def test_evidence_reviewer_executes_without_write_access(self) -> None:
         overlay = _MANIFEST["adapter_specs"]["shared-markdown"]["overlays"]["evidence-reviewer"]

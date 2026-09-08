@@ -15,6 +15,7 @@ class PluginCatalog:
     marketplace_source: str
     marketplace_remote_url: str
     plugins: tuple[str, ...]
+    mcp_servers: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -37,12 +38,44 @@ class PluginIntegrations:
         installed = self._installed_plugins()
         missing = tuple(plugin for plugin in catalog.plugins if self._plugin_id(plugin, catalog) not in installed)
         if not missing:
-            return f"ok: {catalog.summary}"
+            return self._verified(catalog, f"ok: {catalog.summary}")
         for plugin in missing:
             result = self._run(["codex", "plugin", "add", self._plugin_id(plugin, catalog)])
             if result.returncode != 0:
                 return f"pending: a instalação do plugin {catalog.label} falhou: {result.stderr.strip()}"
-        return f"configured: {catalog.summary}"
+        return self._verified(catalog, f"configured: {catalog.summary}")
+
+    def _mcp_servers(self, entry: Mapping[str, object]) -> tuple[str, ...]:
+        declared = entry.get("mcp_servers")
+        if declared is None:
+            return ()
+        servers = self._object(declared, "mcp_servers deve mapear cada plugin aos seus servidores")
+        names: list[str] = []
+        for value in servers.values():
+            if not isinstance(value, list) or not all(isinstance(name, str) and name for name in value):
+                raise ValueError("mcp_servers deve listar nomes de servidor não vazios")
+            names.extend(value)
+        return tuple(names)
+
+    def _unregistered_servers(self, catalog: PluginCatalog) -> tuple[str, ...]:
+        # Installing a plugin does not prove that Codex registered its MCP servers, so a
+        # capability backed by them stays pending until `codex mcp list` shows them.
+        if not catalog.mcp_servers:
+            return ()
+        result = self._run(["codex", "mcp", "list"])
+        if result.returncode != 0:
+            return catalog.mcp_servers
+        return tuple(name for name in catalog.mcp_servers if name not in result.stdout)
+
+    def _verified(self, catalog: PluginCatalog, success: str) -> str:
+        unregistered = self._unregistered_servers(catalog)
+        if not unregistered:
+            return success
+        return (
+            f"pending: {catalog.label} instalado, mas os MCP servers "
+            f"{', '.join(unregistered)} não aparecem em `codex mcp list`; "
+            "registre-os antes de contar com a capability que depende deles"
+        )
 
     def _catalogs(self) -> tuple[PluginCatalog, ...]:
         content = json.loads(self._catalog_file.read_text(encoding="utf-8"))
@@ -64,6 +97,7 @@ class PluginIntegrations:
             self._string(marketplace, "source"),
             self._string(marketplace, "remote_url"),
             self._plugins(entry),
+            self._mcp_servers(entry),
         )
 
     def _object(self, value: object, message: str) -> Mapping[str, object]:

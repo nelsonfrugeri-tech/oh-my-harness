@@ -13,7 +13,6 @@
         ],
         "installed_by_default": true,
         "account_bound": false,
-        "capability": "llm-evaluation",
         "entry_kind": "skill"
       },
       "langchain-skills": {
@@ -23,11 +22,11 @@
         "optional": true,
         "installed_by_default": true,
         "account_bound": false,
-        "capability": "framework-workflows",
         "entry_kind": "skill",
         "entries": [
           "langchain-skills:ecosystem-primer",
-          "langchain-skills:eval-engineering"
+          "langchain-skills:eval-engineering",
+          "langchain-skills:langsmith-online-eval-engineering"
         ]
       },
       "langchain-mcp": {
@@ -82,7 +81,6 @@
         "optional": true,
         "installed_by_default": false,
         "account_bound": false,
-        "capability": "llm-evaluation",
         "entry_kind": "skill",
         "entries": [
           "langsmith-skills:langsmith-trace",
@@ -98,7 +96,6 @@
         "optional": true,
         "installed_by_default": false,
         "account_bound": true,
-        "capability": "llm-evaluation",
         "entry_kind": "mcp-server",
         "entries": [
           "langsmith"
@@ -335,22 +332,43 @@
           "degraded_behavior": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used."
         },
         {
-          "id": "langsmith-evaluation",
-          "priority": 90,
-          "dependency": "langsmith-skills",
-          "entry": "langsmith-skills:langsmith-trace",
+          "id": "langsmith-online-eval",
+          "priority": 85,
+          "dependency": "langchain-skills",
+          "entry": "langchain-skills:langsmith-online-eval-engineering",
           "match": {
             "any_of": [
-              "langsmith",
-              "langsmith trace",
-              "langsmith dataset",
-              "langsmith experiment"
+              "langsmith online evaluator",
+              "langsmith online evaluators",
+              "online evaluator in langsmith",
+              "langsmith evaluator"
             ],
             "none_of": [
               "harbor"
             ]
           },
-          "sequence": "Load after evidence, and only when the tracing or the dataset already lives in LangSmith. Use evals:evals-start for tool-agnostic evaluation methodology and langchain-skills:eval-engineering for Harbor benchmark work; this entry owns nothing beyond the LangSmith workspace. Let the selected skill choose between langsmith-trace, langsmith-dataset, and langsmith-evaluator.",
+          "sequence": "Load after evidence. This entry ships with langchain-skills, which the installers install by default, so prefer it over langsmith-skills for evaluators that run inside LangSmith.",
+          "degraded_behavior": "Report integration pending: langchain-skills, which no installer installs by default. Continue with evals:evals-start for methodology and the web capability for the LangSmith product contract; never claim that the unavailable skill was used, and never assume a LangSmith account or its data exist."
+        },
+        {
+          "id": "langsmith-evaluation",
+          "priority": 75,
+          "dependency": "langsmith-skills",
+          "entry": "langsmith-skills:langsmith-trace",
+          "match": {
+            "any_of": [
+              "langsmith trace",
+              "langsmith traces",
+              "langsmith dataset",
+              "langsmith datasets",
+              "langsmith experiment",
+              "langsmith experiments"
+            ],
+            "none_of": [
+              "harbor"
+            ]
+          },
+          "sequence": "Load after evidence, and only when the tracing or the dataset already lives in LangSmith. The three LangSmith skills are peers, not an entry point: pick langsmith-trace for tracing and trace queries, langsmith-dataset for building evaluation datasets, langsmith-evaluator for evaluator definitions. For online evaluators inside LangSmith prefer langchain-skills:langsmith-online-eval-engineering, which ships with the installed plugin. Use evals:evals-start for tool-agnostic evaluation methodology and langchain-skills:eval-engineering for Harbor benchmark work.",
           "degraded_behavior": "Report integration pending: langsmith-skills, which no installer installs by default. Continue with evals:evals-start for methodology and the web capability for the LangSmith product contract; never claim that the unavailable skill was used, and never assume a LangSmith account or its data exist."
         },
         {
@@ -973,6 +991,54 @@
       "expected_entry": null,
       "expected_message": null,
       "repository_signals": []
+    },
+    {
+      "id": "overlap-llm-evaluation-mentions-langsmith",
+      "category": "overlap",
+      "role": "ai-engineer",
+      "prompt": "Design an llm evaluation for my agent using langsmith traces",
+      "repository_signals": [],
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "ai-evals",
+      "expected_entry": "evals:evals-start",
+      "expected_message": null
+    },
+    {
+      "id": "overlap-harbor-beats-langsmith",
+      "category": "overlap",
+      "role": "ai-engineer",
+      "prompt": "Run a harbor evaluation over the langsmith dataset",
+      "repository_signals": [],
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "harbor-evals",
+      "expected_entry": "langchain-skills:eval-engineering",
+      "expected_message": null
+    },
+    {
+      "id": "overlap-online-evaluator-uses-the-installed-plugin",
+      "category": "overlap",
+      "role": "ai-engineer",
+      "prompt": "Create a langsmith online evaluator for this chain",
+      "repository_signals": [],
+      "available_dependencies": [
+        "langchain-skills",
+        "langchain-mcp",
+        "evals"
+      ],
+      "expected_kind": "entry",
+      "expected_route": "langsmith-online-eval",
+      "expected_entry": "langchain-skills:langsmith-online-eval-engineering",
+      "expected_message": null
     }
   ],
   "role_families": {
