@@ -101,13 +101,8 @@ requests are routed through Codex auto-review; the global `AGENTS.md` remains re
 the user before destructive operations or access to credential-bearing files. The installer stops
 instead of replacing an existing user-owned sandbox or permissions selection.
 
-The native plugin is the sole owner of the context lifecycle hook. The global adapter removes its
-legacy managed registration so an installation that uses both surfaces injects context once.
-
-An externally installed Graphify skill is preserved only when its upstream marker and complete
-file tree match the repository copy. `upstream_version` records provenance; it is not proof of
-distribution identity. A local or upstream copy with the same version marker but different content
-is reported as a conflict instead of silently bypassing harness patches.
+The global adapter removes the legacy managed `SessionStart` registration of earlier versions, so
+an installation that uses both surfaces no longer carries a hook this library stopped shipping.
 
 Custom-agent TOMLs are copied instead of symlinked because current Codex releases do not discover
 symlinked files reliably. A content manifest permits safe upgrades while refusing to overwrite a
@@ -115,8 +110,7 @@ managed copy that the user changed locally.
 
 ## MCP integrations
 
-The installer wires Deja when its CLI is present and registers Graphify when its MCP executable can
-be resolved. It also installs the official LangChain marketplace and its `langchain-skills` and
+The installer wires Deja when its CLI is present. It also installs the official LangChain marketplace and its `langchain-skills` and
 `langchain-mcp` plugins. They cover LangChain, LangGraph, and Deep Agents skills plus live
 documentation and API reference. The optional LangSmith plugins are not installed because they
 require a LangSmith account and OAuth authorization.

@@ -166,9 +166,9 @@ dono em vez de duplicar aqui. Duas regras transversais não têm outro dono:
 1. **Tool agent nunca escreve no repositório do usuário.** Conhecimento vai para
    `~/knowledge-base/`, sempre fora do repo; o sync da biblioteca, para `~/.claude/`.
 2. **Nada de terceiro é órfão, nada de segredo entra no repo.** Skills e hooks instalados por
-   outras ferramentas (`deja-history`, a cópia externa do `graphify`) não podem ser removidos por
-   nenhum sync; e nenhum token, secret ou handle entra no repositório — um agent reporta o *estado*
-   da auth, nunca o valor.
+   outras ferramentas (`deja-history`, os providers externos das capabilities) não podem ser
+   removidos por nenhum sync; e nenhum token, secret ou handle entra no repositório — um agent
+   reporta o *estado* da auth, nunca o valor.
 
 ### Memória — o agent `knowledge-base`
 

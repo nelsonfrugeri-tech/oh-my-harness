@@ -12,15 +12,20 @@ Discover commands from checked-in installer help.
 Never overwrite unowned files. Stop with exact conflict and non-destructive choices. Backups do not
 grant replacement authority. Preserve unrelated hooks/configuration.
 
-Graphify is vendored derived content; do not edit it here. Preserve a non-link installation only when
-marker/full tree match. Deja owns transcript index, MCP wiring, and hooks; preserve them and use Deja
-only for session-memory, never a second curated store.
+External capability providers install themselves outside this repository; preserve whatever they
+placed under the personal skill and MCP roots. Deja owns transcript index, MCP wiring, and hooks;
+preserve them and use Deja only for session-memory, never a second curated store.
+
+Optional `code-graph` provider: run `pipx install graphifyy` and `graphify install --platform codex`,
+then register the resulting MCP server in the capability table of the managed global `AGENTS.md`.
+The `claude` platform variant of that installer writes to `CLAUDE.md`, where omh keeps a managed
+block; reconcile that block afterwards and rerun `install.py --check` before trusting the result.
 
 Run installer check and report states independently: installed, configured, authorized, reachable,
 and healthy after a probe. Configured never proves authorization, reachability, or health. Missing
 optional providers are degraded capabilities, not failed filesystem installation.
 
-Markdown/JSON remain knowledge source of truth. Qdrant, Deja indexes, Graphify graphs, installed
+Markdown/JSON remain knowledge source of truth. Qdrant, Deja indexes, code graphs, installed
 copies, and provider state are derived/provider-owned. Keep credentials, account IDs, executable
 paths, and personal directories out of repository. Keep diagnostics outside projects and do not
 modify Claude adapter files during Codex-only work.

@@ -80,7 +80,6 @@ Um tool agent opera infraestrutura compartilhada consumida por outros agents.
 | Agent | Responsabilidade | Skills |
 | --- | --- | --- |
 | `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas, session records e o mapeamento sob demanda de um repositório | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session`, `explorer` |
-| `graphify` | Criar ou atualizar um code graph fora da árvore do produto e então consultá-lo ou explicá-lo | `graphify` |
 | `site` | Criar sites visuais com fontes e expô-los opcionalmente após aprovação | `site-report`, `site-expose` |
 
 O routing pertence às descriptions dos agents, e a mecânica pertence às skills. Não duplique nenhum
@@ -99,8 +98,8 @@ dos dois aqui.
 4. O Deja controla seu próprio wiring de MCP e hooks. A sincronização do harness deve preservar
    hooks gerenciados pelo Deja e sua skill de histórico instalada. Use o Deja apenas para retrieval;
    seus recursos de escrita de notas não podem criar um segundo repositório de conhecimento curado.
-5. A skill Graphify é *vendored* do upstream e instalada em `~/.agents/skills/graphify/`. Reconcilie
-   upgrades do upstream antes de sincronizar novamente a cópia *vendored*.
+5. Providers externos de capability, como o de `code-graph`, são instalados pelas próprias
+   ferramentas e vivem fora deste repositório. A sincronização do harness os preserva.
 6. A biblioteca é agnóstica a contas. Client IDs, secrets, tokens, handles e paths de executáveis
    específicos da máquina nunca entram no repositório.
 

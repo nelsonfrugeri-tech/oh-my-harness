@@ -99,8 +99,9 @@ find ~/.claude/agents ~/.claude/skills ~/.claude/hooks -maxdepth 2 -type l -exec
    sair: ela não entrega mais nenhum hook de abertura de sessão.
 2. **Symlinks de agents e skills** que apontam para este repositório viraram redundantes: o
    plugin fornece os mesmos componentes, com namespace. Remova-os, **um a um e com
-   confirmação** — nunca em massa. Skills e agents de terceiros (`deja-history`, a cópia
-   externa do `graphify`) **não** são órfãos e não podem ser removidos.
+   confirmação** — nunca em massa. Skills e agents instalados por outras ferramentas
+   (`deja-history`, e qualquer provider externo de capability) **não** são órfãos e não podem
+   ser removidos.
 3. **`~/.claude/CLAUDE.md` e `permissions` permanecem** — são o Passo 2, não resíduo.
 
 ## Passo 4 — Capabilities / MCP
@@ -113,6 +114,21 @@ O plugin traz o comportamento; a **tabela de capabilities** é da máquina e viv
    memória de sessão → `session-memory`; sem provider → deixe **vazia**.
 3. Mostre como diff e aplique após confirmação.
 4. Use o prefixo do server (`mcp__github__*`), nunca uma tool individual.
+
+### Opcional — provider de `code-graph`
+
+A capability `code-graph` continua na tabela, mas o provider **não** é vendorizado aqui. Quem
+quiser usá-la instala o upstream e só então registra a tool concreta:
+
+```bash
+pipx install graphifyy
+graphify install --platform claude
+```
+
+O `graphify install` **escreve no `CLAUDE.md`**, arquivo onde o `omh` também mantém um bloco
+gerenciado. Depois de rodá-lo, reconcilie: releia `~/.claude/CLAUDE.md`, confirme que o bloco do
+`omh` continua íntegro e reaplique o Passo 2 se ele tiver sido deslocado. Só então acrescente a
+linha do provider (`mcp__graphify__*`) à tabela de capabilities.
 
 ## Passo 5 — Plugins de terceiro que os agents roteiam
 

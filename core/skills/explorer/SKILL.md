@@ -24,8 +24,8 @@ Fictitious example: `https://user:token@example.com/repo.git?signature=secret` i
 persist `remote_url: null` and never echo the rejected value. In contrast,
 `git@example.com:team/repo.git` has a safe SSH/SCP transport username, not a password.
 
-Markdown notes and JSON sessions remain curated and episodic sources. Qdrant and Graphify are
-derived, not sources. Never call kb-write to duplicate this analysis; notes need a separate explicit
+Markdown notes and JSON sessions remain curated and episodic sources; derived indexes such as the
+vector index and the code graph are not sources. Never call kb-write to duplicate this analysis; notes need a separate explicit
 request.
 
 Inspect identity/scope, interfaces, entry points, architecture/flows, persistence/integrations,

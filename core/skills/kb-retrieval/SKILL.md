@@ -6,7 +6,7 @@ description: "Internal retrieval workflow owned by the knowledge-base agent, als
 # KB Retrieval
 
 Curated memory is Markdown notes. Episodic memory is raw transcripts plus
-mutable JSON sessions. Qdrant and Graphify are derived, not sources.
+mutable JSON sessions. Derived indexes such as the vector index and the code graph are not sources.
 
 ## Resolve exact entities and addresses first
 

@@ -5,7 +5,6 @@ from typing import Type
 
 from lib.layout import InstallLayout
 from lib.link_manifest import ManagedLinkManifest
-from lib.skill_identity import graphify_distribution_matches
 
 
 class ManagedLinks:
@@ -31,9 +30,7 @@ class ManagedLinks:
         for source in self._layout.hook_sources():
             self._check_available(source, self._layout.installed_hooks / source.name)
         for source in self._layout.skill_sources():
-            target = self._layout.personal_skills / source.name
-            if not self._is_compatible_external_graphify(source, target):
-                self._check_available(source, target)
+            self._check_available(source, self._layout.personal_skills / source.name)
 
     def validate(self) -> tuple[str, ...]:
         orphans = self._managed_orphans()
@@ -87,16 +84,10 @@ class ManagedLinks:
         )
 
     def _install_skill(self, source: Path) -> str:
-        target = self._layout.personal_skills / source.name
-        if self._is_compatible_external_graphify(source, target):
-            return f"preservada: skill Graphify externa compatível em {target}"
-        return self._link(source, target)
+        return self._link(source, self._layout.personal_skills / source.name)
 
     def _check_skill(self, source: Path) -> str:
-        target = self._layout.personal_skills / source.name
-        if self._is_compatible_external_graphify(source, target):
-            return f"ok: skill Graphify externa compatível em {target}"
-        return self._check_link(target, source)
+        return self._check_link(self._layout.personal_skills / source.name, source)
 
     def _link(self, source: Path, target: Path) -> str:
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -127,26 +118,3 @@ class ManagedLinks:
         if not target.is_symlink() or target.resolve() != source.resolve():
             raise self._conflict(f"link gerenciado inválido ou ausente: {target}")
         return f"ok: {target}"
-
-    def _is_compatible_external_graphify(self, source: Path, target: Path) -> bool:
-        if source.name != "graphify" or target.is_symlink() or not target.is_dir():
-            return False
-        version_file = target / ".graphify_version"
-        if version_file.is_symlink() or not version_file.is_file():
-            return False
-        expected = self._upstream_version(source / "SKILL.md")
-        try:
-            actual = version_file.read_text(encoding="utf-8").strip()
-        except (OSError, UnicodeError):
-            return False
-        return (
-            bool(expected)
-            and actual == expected
-            and graphify_distribution_matches(source, target)
-        )
-
-    def _upstream_version(self, skill_file: Path) -> str:
-        for line in skill_file.read_text(encoding="utf-8").splitlines():
-            if line.startswith("upstream_version:"):
-                return line.partition(":")[2].strip()
-        return ""

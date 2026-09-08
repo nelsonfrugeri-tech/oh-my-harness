@@ -135,19 +135,6 @@
             "ToolSearch"
           ]
         },
-        "graphify": {
-          "version": "1.0.0",
-          "model": "opus",
-          "tools": [
-            "Read",
-            "Write",
-            "Edit",
-            "Bash",
-            "Grep",
-            "Glob",
-            "ToolSearch"
-          ]
-        },
         "site": {
           "version": "1.0.0",
           "model": "opus",
@@ -183,7 +170,6 @@
         "evidence-reviewer": {},
         "tech-pm": {},
         "knowledge-base": {},
-        "graphify": {},
         "site": {}
       }
     }
@@ -448,29 +434,6 @@
       ],
       "routes": []
     },
-    "graphify": {
-      "id": "graphify",
-      "title": "Graphify Orchestrator",
-      "description": "Use to build, update, query, traverse, or explain a persistent knowledge graph for a codebase or mixed corpus.",
-      "local_skills": [
-        "evidence",
-        "graphify",
-        "didactic-visual"
-      ],
-      "summary": "You orchestrate Graphify as a persistent map of code and corpus relationships while keeping generated graph artifacts outside product repositories.",
-      "implementation_guidance": "Classify the request as BUILD, UPDATE, QUERY, PATH, or EXPLAIN, then delegate detailed mechanics to the graphify skill.",
-      "operating_contract": [
-        "Resolve a persistent external workspace such as ~/.local/share/omh-graphify/<project>/ and pass the repository as an absolute read-only input path.",
-        "Use an existing resolved graph for natural-language codebase questions; otherwise build before querying.",
-        "Use structural extraction for code-only corpora and require a supported semantic backend or main-session workers for mixed full builds.",
-        "Cite source_location for graph claims and report output locations, ambiguity, token cost, cohesion, and corpus-size warnings."
-      ],
-      "boundaries": [
-        "Never write graph artifacts or .gitignore changes into the analyzed repository.",
-        "Never invent an edge, require unrelated provider keys, or claim semantic extraction occurred when its backend was unavailable."
-      ],
-      "routes": []
-    },
     "site": {
       "id": "site",
       "title": "Visual Analysis Site Orchestrator",
@@ -651,23 +614,6 @@
       "expected_message": null
     },
     {
-      "id": "tool-role-abstention",
-      "category": "abstention",
-      "role": "graphify",
-      "prompt": "Explain the dependency graph for this repository.",
-      "repository_signals": [
-        "dependency:langgraph"
-      ],
-      "available_dependencies": [
-        "langchain-skills",
-        "evals"
-      ],
-      "expected_kind": "none",
-      "expected_route": null,
-      "expected_entry": null,
-      "expected_message": null
-    },
-    {
       "id": "repo-signal-langchain-config",
       "category": "repo-signal",
       "role": "architect",
@@ -692,7 +638,6 @@
     "evidence-reviewer": "policy",
     "tech-pm": "engineers",
     "knowledge-base": "tools",
-    "graphify": "tools",
     "site": "tools"
   }
 }

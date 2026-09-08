@@ -10,8 +10,8 @@ library on Claude Code and Codex today.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#whats-inside)
-[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-8-2496ED?style=flat-square)](#whats-inside)
+[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
 </div>
@@ -134,7 +134,7 @@ environment, change only the active harness's table.
 | `code-host`  | Pull/Merge Requests, issues           | `mcp__github__*` / GitLab  |
 | `ci`         | CI/CD pipelines                       | GitHub Actions / GitLab CI |
 | `web`        | Search and fetch                      | `WebSearch`, `WebFetch`    |
-| `code-graph` | Query a built codebase knowledge graph | `mcp__graphify__*`        |
+| `code-graph` | Query a built codebase knowledge graph | a code-graph MCP server   |
 | `tunnel`     | Temporary authenticated site exposure | cloudflared / ngrok / equivalent |
 
 ### Progressive disclosure
@@ -275,14 +275,13 @@ and the native paths for both adapters.
 | `policy`    | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions, with Bash for tests and gates | opus |
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |
 | `tools`     | `knowledge-base` | Manages the knowledge base: infra (Qdrant + BGE-M3), immutable notes, 3-step retrieval, session memory + deep search, on-demand repository mapping | sonnet |
-| `tools`     | `graphify`    | Builds and queries a codebase knowledge graph (`graphify-out/`) | opus   |
 | `tools`     | `site`        | Creates cited visual analysis sites; exposure requires explicit approval | opus |
 
 ### Skills
 
 Shared skills live under `core/skills/<name>/`; harness-owned skills live under
 `harness/<name>/skills/`. Each plugin manifest explicitly declares the shared root and its own
-harness root. The repository has 29 skills: 27 shared and one specific to each harness.
+harness root. The repository has 28 skills: 26 shared and one specific to each harness.
 The catalog below keeps the logical themes without adding another filesystem layer, and
 each skill name remains globally unique.
 
@@ -294,7 +293,7 @@ each skill name remains globally unique.
 
 **Harness tooling — `harness`:** `claude-code` (the Claude sync runbook) · `codex` (the Codex sync runbook)
 
-**Tools agents — `tools`:** `explorer` (on-demand repository mapping for the `knowledge-base` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `graphify` (build/query the codebase knowledge graph) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
+**Tools agents — `tools`:** `explorer` (on-demand repository mapping for the `knowledge-base` agent) · `kb-infra` (Qdrant + embedding infra) · `kb-write` (the scribe — immutable notes) · `kb-retrieval` (3-step retrieval: hybrid semantic search → disk navigation → session deep search) · `kb-session` (living session records + deep search inside raw transcripts) · `site-report` and `site-expose` (cited visual reports and opt-in authenticated exposure). Invoked by the corresponding tool agents, not directly by the user.
 
 Each skill ships a `SKILL.md` and, where applicable, a `references/` folder with the deep dives.
 
