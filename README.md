@@ -23,7 +23,7 @@ library on Claude Code and Codex today.
 Harness config is born coupled. One MCP tool hardcoded here, a `~/.config/...` path there, a reference to a specific service somewhere else. Switch machines — GitHub at home, GitLab at work — or switch assistants, and it breaks. You re-wire the same plumbing on every setup.
 
 **oh-my-harness decouples _what the agent does_ from _which tool it does it with._** The same
-`developer` responsibility opens a Pull Request through GitHub on your personal machine and through
+`software-engineer` responsibility opens a Pull Request through GitHub on your personal machine and through
 GitLab on the company laptop. Harness-native manifests represent that behavior, while only the
 machine capability mapping changes providers.
 
@@ -199,7 +199,7 @@ claude plugin install evals@ai-evals-course                # 8 skills, ~862 toke
 ```
 
 `langchain-skills` backs the LangChain, LangGraph, and Deep Agents routing in `ai-engineer`,
-`architect`, and `developer`. `evals` backs the LLM-evaluation routing in `ai-engineer`:
+`architect`, and `software-engineer`. `evals` backs the LLM-evaluation routing in `ai-engineer`:
 error analysis from real traces, LLM-as-judge, judge calibration against human labels, and RAG
 evaluation. The two overlap on the word "eval" and not in method, so the agents say which is which
 — `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
@@ -274,7 +274,7 @@ and the native paths for both adapters.
 | Theme       | Agent         | Role                                                | Model  |
 | ----------- | ------------- | ---------------------------------------------------- | ------ |
 | `engineers` | `architect`   | System design, ADRs, C4, trade-offs, API design       | opus   |
-| `engineers` | `developer`   | Implementation, bug fixes, refactoring, testing       | sonnet |
+| `engineers` | `software-engineer` | Implementation at altitude: scalability, resilience, responsiveness, quality, cost | opus   |
 | `engineers` | `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation         | sonnet |
 | `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
 | `engineers` | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions | opus |

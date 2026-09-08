@@ -1,13 +1,13 @@
 export const meta = {
   name: 'create-feature',
-  description: 'Pipeline de criação de feature após refinamento técnico: user_history (tech-pm) → development (developer ou ai-engineer) → validation_loop[evidence-reviewer] (max 3 iterações) → open_pr (ou escalação ao usuário). Refinamento técnico interativo é feito antes pelo skill /feature.',
-  whenToUse: 'Após o refinamento técnico interativo estar consolidado. Recebe args: { featureName, featureSlug, refinementContent, evidence, hypotheses, unknowns, track }. Track = "developer" ou "ai-engineer" decide quem implementa.',
+  description: 'Pipeline de criação de feature após refinamento técnico: user_history (tech-pm) → development (software-engineer ou ai-engineer) → validation_loop[evidence-reviewer] (max 3 iterações) → open_pr (ou escalação ao usuário). Refinamento técnico interativo é feito antes pelo skill /feature.',
+  whenToUse: 'Após o refinamento técnico interativo estar consolidado. Recebe args: { featureName, featureSlug, refinementContent, evidence, hypotheses, unknowns, track }. Track = "software-engineer" ou "ai-engineer" decide quem implementa.',
   phases: [
     { title: 'user_history', detail: 'tech-pm escreve user story e abre item no sistema de gerenciamento (GitHub Issues por padrão); salva cópia em <feature>/user_history/user_history.md' },
-    { title: 'development', detail: 'developer ou ai-engineer (conforme track) implementa a feature seguindo refinamento + user_history' },
+    { title: 'development', detail: 'software-engineer ou ai-engineer (conforme track) implementa a feature seguindo refinamento + user_history' },
     { title: 'validation', detail: 'evidence-reviewer valida a implementação em modo somente-leitura: roda os testes e gates do projeto e reporta comando e saída de cada verificação; loop até pass ou max 3 iterações' },
-    { title: 'fix_iteration', detail: 'developer/ai-engineer corrige os problemas reportados pelo evidence-reviewer, então re-valida' },
-    { title: 'open_pr', detail: 'Se validação passou: developer/ai-engineer abre PR no GitHub com template padronizado. Se 3 loops falharem: retorna estado para o usuário resolver.' },
+    { title: 'fix_iteration', detail: 'software-engineer/ai-engineer corrige os problemas reportados pelo evidence-reviewer, então re-valida' },
+    { title: 'open_pr', detail: 'Se validação passou: software-engineer/ai-engineer abre PR no GitHub com template padronizado. Se 3 loops falharem: retorna estado para o usuário resolver.' },
   ],
 }
 
@@ -17,12 +17,12 @@ const refinementContent = args?.refinementContent
 const refinementEvidence = Array.isArray(args?.evidence) ? args.evidence : []
 const refinementHypotheses = Array.isArray(args?.hypotheses) ? args.hypotheses : []
 const refinementUnknowns = Array.isArray(args?.unknowns) ? args.unknowns : []
-const track = args?.track === 'ai-engineer' ? 'ai-engineer' : 'developer'
+const track = args?.track === 'ai-engineer' ? 'ai-engineer' : 'software-engineer'
 const repo = args?.repo
 const docsBase = featureSlug
 
 if (!featureName || !featureSlug || !refinementContent) {
-  throw new Error('create-feature precisa de args: { featureName: string, featureSlug: string, refinementContent: string, track?: "developer"|"ai-engineer", repo?: "owner/name" }')
+  throw new Error('create-feature precisa de args: { featureName: string, featureSlug: string, refinementContent: string, track?: "software-engineer"|"ai-engineer", repo?: "owner/name" }')
 }
 
 const MAX_ITERATIONS = 3

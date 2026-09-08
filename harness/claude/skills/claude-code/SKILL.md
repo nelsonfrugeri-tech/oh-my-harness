@@ -11,7 +11,7 @@ description: |
   `settings.json`), e a migração a partir do layout antigo de symlinks — inclusive a remoção
   dos hooks duplicados que dispariam duas vezes. Cobre também os plugins de terceiro que os
   agents roteiam e que não são vendorizados aqui: `langchain-skills` e `langchain-mcp` (marketplace
-  `langchain-ai/langchain-plugins`), roteados por `ai-engineer`, `architect` e `developer`; e
+  `langchain-ai/langchain-plugins`), roteados por `ai-engineer`, `architect` e `software-engineer`; e
   `evals` (marketplace `ai-evals-course`), roteado por `ai-engineer`.
   Use quando: (1) instalar a biblioteca numa máquina, (2) atualizar depois de um push,
   (3) migrar do sync por symlink para o plugin, (4) diagnosticar skill/agent/hook que não
@@ -131,7 +131,7 @@ claude plugin install langchain-skills@langchain-plugins
 claude plugin install langchain-mcp@langchain-plugins
 ```
 
-Roteados pela seção *Ecossistema LangChain* dos agents `ai-engineer`, `architect` e `developer`.
+Roteados pela seção *Ecossistema LangChain* dos agents `ai-engineer`, `architect` e `software-engineer`.
 Medido com `claude plugin details` na instalação de referência:
 
 | Plugin | Traz | Custo always-on |

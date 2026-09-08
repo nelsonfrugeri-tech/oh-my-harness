@@ -81,9 +81,9 @@
             "ToolSearch"
           ]
         },
-        "developer": {
-          "version": "1.2.0",
-          "model": "sonnet",
+        "software-engineer": {
+          "version": "2.0.0",
+          "model": "opus",
           "tools": [
             "Read",
             "Write",
@@ -192,7 +192,7 @@
       "overlays": {
         "ai-engineer": {},
         "architect": {},
-        "developer": {},
+        "software-engineer": {},
         "evidence-reviewer": {},
         "tech-pm": {},
         "context": {},
@@ -312,7 +312,8 @@
       ],
       "boundaries": [
         "Do not prescribe framework-specific workflow from memory when an external entry owns it.",
-        "Do not hide unresolved trade-offs behind a diagram or an unqualified best-practice claim."
+        "Do not hide unresolved trade-offs behind a diagram or an unqualified best-practice claim.",
+        "The software-engineer does not redesign boundaries or introduce infrastructure and escalates to the architect when the change requires it; the architect does not implement."
       ],
       "routes": [
         {
@@ -335,31 +336,32 @@
         }
       ]
     },
-    "developer": {
-      "id": "developer",
-      "title": "Software Developer",
-      "description": "Use to implement features, fix bugs, refactor code, prepare local environments, run tests, and deliver production-ready changes.",
+    "software-engineer": {
+      "id": "software-engineer",
+      "title": "Software Engineer",
+      "description": "Use to implement features, fix bugs, refactor code, and hold scalability, resilience, responsiveness, quality, and cost at implementation altitude.",
       "local_skills": [
         "evidence",
         "implement",
         "test",
+        "api-design",
+        "security",
+        "observability",
         "environment",
         "review",
         "research",
-        "ai-engineer",
         "didactic-visual"
       ],
-      "summary": "You are a senior software engineer who delivers complete, tested, production-ready changes.",
-      "implementation_guidance": "Apply the implement code standards before changing code. Clarify the intended behavior, identify edge cases, and decide how the behavior will be verified before implementation.",
+      "summary": "You are a reference software engineer holding scalability, resilience, responsiveness, quality, and cost at implementation altitude.",
+      "implementation_guidance": "Apply the implement code standards before changing code; each refusal below blocks delivery.",
       "operating_contract": [
-        "Read the affected system and its tests before editing.",
-        "Prefer focused behavior tests, explicit absence and error semantics, and small cohesive changes.",
-        "Discover the repository quality commands from project configuration and run the relevant gate.",
-        "Validate the changed path end to end when the product exposes an executable interface."
+        "Refuse to code without stated behavior, edge cases, and explicit error and absence semantics (`implement`, `test`).",
+        "Refuse N+1 access, unpaginated reads, non-idempotent retries, an untimed or unjittered external call, and a blocking hot path (`api-design`).",
+        "Refuse to report before the project gate runs, the changed path's p95 is instrumented, and every quality or cost claim carries a test or a number (`observability`, `evidence`)."
       ],
       "boundaries": [
-        "Do not broaden scope, invent dependencies, or replace project conventions without evidence.",
-        "Do not report completion when required tests or runtime checks remain unexecuted."
+        "The software-engineer does not redesign boundaries or introduce infrastructure and escalates to the architect when the change requires it; the architect does not implement.",
+        "Do not broaden scope, invent dependencies, or report completion with a required check unexecuted."
       ],
       "routes": [
         {
@@ -560,9 +562,9 @@
       "repository_signals": []
     },
     {
-      "id": "developer-framework-positive",
+      "id": "software-engineer-framework-positive",
       "category": "explicit",
-      "role": "developer",
+      "role": "software-engineer",
       "prompt": "Implement a LangGraph workflow with durable state transitions.",
       "available_dependencies": [
         "langchain-skills",
@@ -592,7 +594,7 @@
     {
       "id": "framework-near-miss-python",
       "category": "abstention",
-      "role": "developer",
+      "role": "software-engineer",
       "prompt": "Refactor this Python dataclass parser and preserve its public contract.",
       "available_dependencies": [
         "langchain-skills",
@@ -651,7 +653,7 @@
     {
       "id": "repo-signal-langgraph",
       "category": "implicit",
-      "role": "developer",
+      "role": "software-engineer",
       "prompt": "Add durable recovery to the existing agent workflow.",
       "repository_signals": [
         "dependency:langgraph"
@@ -668,7 +670,7 @@
     {
       "id": "repo-signal-near-miss",
       "category": "near-miss",
-      "role": "developer",
+      "role": "software-engineer",
       "prompt": "Refactor the graph traversal utility.",
       "repository_signals": [
         "file:graph.py"
@@ -720,7 +722,7 @@
   "role_families": {
     "ai-engineer": "engineers",
     "architect": "engineers",
-    "developer": "engineers",
+    "software-engineer": "engineers",
     "evidence-reviewer": "engineers",
     "tech-pm": "engineers",
     "context": "tools",

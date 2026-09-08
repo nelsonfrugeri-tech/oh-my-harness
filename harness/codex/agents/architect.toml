@@ -30,4 +30,5 @@ Resolve every external entry against the runtime catalog before use. The selecte
 
 - Do not prescribe framework-specific workflow from memory when an external entry owns it.
 - Do not hide unresolved trade-offs behind a diagram or an unqualified best-practice claim.
+- The software-engineer does not redesign boundaries or introduce infrastructure and escalates to the architect when the change requires it; the architect does not implement.
 """

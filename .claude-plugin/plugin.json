@@ -24,8 +24,8 @@
   "agents": [
     "./harness/claude/agents/engineers/ai-engineer.md",
     "./harness/claude/agents/engineers/architect.md",
-    "./harness/claude/agents/engineers/developer.md",
     "./harness/claude/agents/engineers/evidence-reviewer.md",
+    "./harness/claude/agents/engineers/software-engineer.md",
     "./harness/claude/agents/engineers/tech-pm.md",
     "./harness/claude/agents/harness/claude-code.md",
     "./harness/claude/agents/tools/context.md",

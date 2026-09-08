@@ -712,6 +712,7 @@ class CodexInstallerTest(unittest.TestCase):
             "---\nname: codex\n---\n",
             encoding="utf-8",
         )
+        # Legacy fixture name: this synthetic source never mirrors the repository roles.
         agent.joinpath("developer.toml").write_text('name = "developer"\n', encoding="utf-8")
         hook.joinpath("context-load.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
         agents_content = """Shared rules.
