@@ -263,6 +263,12 @@ execução espera. `deny` é o único valor com bloqueio suportado nos dois harn
 
 Só age em repositório explicitamente confiado; sem o marcador, defere sem executar nada.
 
+**O que a garantia cobre.** O gate prova o `HEAD` no instante da **abertura** do PR, e nada além
+disso. Push posterior na branch, `gh pr ready`, `mcp__github__update_pull_request` e `gh api -X
+POST` sobre pull requests **não passam pelo gate** — decisão de desenho, não defeito: o hook governa
+a criação, o review humano e o CI governam o que vem depois. "Não abra o PR sem testes passando"
+significa que a abertura é verificada; os commits seguintes são livres.
+
 ---
 
 ## Trabalho de longa duração

@@ -42,6 +42,13 @@
 # not a defect, because the harness only governs the actors it runs (see
 # harness/*/CLAUDE.md and harness/*/AGENTS.md, "Fluxo de PR").
 #
+# WHAT THE GUARANTEE COVERS: the HEAD at the moment the pull request is opened, and
+# nothing after it. A later `git push` on the branch, `gh pr ready`,
+# `mcp__github__update_pull_request` and `gh api -X POST` on pull requests all pass
+# without a gate — a design decision, not a gap: this hook governs creation, human
+# review and CI govern what follows. Verified by execution: each of those commands
+# returns no decision from this script.
+#
 # HEAD VALIDATION: both trigger paths can name an origin that is not the current
 # checkout — `-H`/`--head` on the CLI (including the `owner:branch` cross-fork form),
 # or the MCP tool's own `head`/`owner`/`repo` fields, which its schema marks required
