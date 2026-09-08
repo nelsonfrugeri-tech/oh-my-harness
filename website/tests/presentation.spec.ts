@@ -14,6 +14,8 @@ test("reader and presentation pass automated accessibility checks", async ({
   ).toEqual([]);
   await page.goto("./?present=1#knowledge");
   await page.getByRole("button", { name: "Revelar diagrama" }).click();
+  // Audit the revealed state, not an intermediate low-opacity animation frame.
+  await expect(page.locator("#knowledge .diagram")).toHaveCSS("opacity", "1");
   expect(
     (
       await new AxeBuilder({ page })
