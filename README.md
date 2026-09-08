@@ -173,7 +173,7 @@ claude plugin list        # Status: ✔ enabled
 ```
 
 Skills arrive namespaced (`/oh-my-harness:review`), agents as
-`oh-my-harness:<theme>:<name>`, and the `SessionStart` and PR-gate hooks come with them.
+`oh-my-harness:<theme>:<name>`, and the PR-gate hook comes with them.
 Updates are a decision, not a side effect of `git pull`: users receive a new version only when
 `version` in the manifest is bumped, and a marketplace entry can pin `ref` or an exact `sha`.
 
@@ -340,7 +340,7 @@ validate the identity at that canonical domain; they never redirect one writer a
 project without stable Git identity triggers one request for its name and slug. A
 collision at the canonical domain blocks writes until one persistent resolver shared by
 note and session writers is defined; a local alias is never created. `type` (the domain noun required by OKF)
-and `knowledge_type` (`decision · event · procedure · reference · conversation`) remain
+and `knowledge_type` (`decision · event · procedure · reference · conversation · project`) remain
 filterable metadata and do not choose the directory. Relationships live as Markdown
 links in the body. Paths remain stable because an OKF Concept ID is its relative path.
 

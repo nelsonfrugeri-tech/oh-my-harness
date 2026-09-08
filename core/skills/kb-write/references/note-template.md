@@ -84,6 +84,8 @@ note exists; retain the required content below and omit optional sections when i
 - procedure: purpose/prerequisites, ordered steps, verification, failure handling, teardown/rollback.
 - reference: fact/constraint, scope/evidence, consequences, freshness/version boundary.
 - conversation: participants/context, positions, durable outcome, open questions.
+- project: name and observed aliases, repository_path, remote_url or null when the guard rejects it,
+  default_branch, and the supersession pointer when a later note replaces it.
 
 If conversation produced another class, use that stronger knowledge_type. Express relationships as
 Markdown links in sentences naming the relationship. Use bundle-rooted paths; omit related-link dumps.

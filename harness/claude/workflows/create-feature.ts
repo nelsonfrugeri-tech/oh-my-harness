@@ -140,11 +140,11 @@ Desconhecidos: ${JSON.stringify(refinementUnknowns)}
 
 # Tarefas
 1. Escreva uma user history no formato INVEST: título, "As a / I want / So that", critérios de aceitação Given/When/Then (3-6 cenários), Definition of Done.
-2. Crie um issue/ticket no repositório ${repo || '<descobrir via git remote>'} via a capability `code-host` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Se `code-host` não estiver plugada ou falhar, deixe issueUrl como string vazia e prossiga.
-3. Use a skill `evidence`. Preserve evidência verificada, hipóteses falsificáveis, desconhecidos e a proveniência quantitativa; nunca invente uma métrica.
+2. Crie um issue/ticket no repositório ${repo || '<descobrir via git remote>'} via a capability \`code-host\` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Se \`code-host\` não estiver plugada ou falhar, deixe issueUrl como string vazia e prossiga.
+3. Use a skill \`evidence\`. Preserve evidência verificada, hipóteses falsificáveis, desconhecidos e a proveniência quantitativa; nunca invente uma métrica.
 4. Devolva tudo no schema, incluindo o markdown completo pronto para ser salvo em ${docsBase}/user_history/user_history.md.
 
-Grave o markdown final em disco em `${docsBase}/user_history/user_history.md`. Peça ao agent `knowledge-base` para registrar um resumo; se a knowledge base não estiver disponível, siga sem ela.`,
+Grave o markdown final em disco em \`${docsBase}/user_history/user_history.md\`. Peça ao agent \`knowledge-base\` para registrar um resumo; se a knowledge base não estiver disponível, siga sem ela.`,
   { agentType: 'tech-pm', label: 'tech-pm:user_history', phase: 'user_history', schema: USER_HISTORY_SCHEMA },
 )
 
@@ -169,7 +169,7 @@ ${(userHistory.definitionOfDone || []).map((d, i) => `${i + 1}. ${d}`).join('\n'
 1. Crie um branch git: feature/${featureSlug}
 2. Implemente o código necessário, com testes mínimos.
 3. Garanta que o build/lint/tests locais passam.
-4. Use a skill `evidence`. Retorne observações executadas com escopo, hipóteses testadas e desconhecidos restantes; testes passando provam apenas os casos exercitados.
+4. Use a skill \`evidence\`. Retorne observações executadas com escopo, hipóteses testadas e desconhecidos restantes; testes passando provam apenas os casos exercitados.
 5. Retorne resumo, arquivos alterados, comandos de verificação, nome do branch.
 
 Se houver bloqueio que exige decisão do usuário, retorne verdict="blocked" com blockedReason claro.`,
@@ -336,7 +336,7 @@ ${(implementation.commands || []).map(c => `\`\`\`\n${c}\n\`\`\``).join('\n')}
 - [x] Hipóteses e desconhecidos preservados no relatório de validação
 
 # Tarefa
-Abra o Pull/Merge Request via a capability `code-host` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Faça push do branch antes se necessário. Retorne prUrl, title e body usados.`,
+Abra o Pull/Merge Request via a capability \`code-host\` (carregue a tool concreta via ToolSearch — ver harness/claude/CLAUDE.md). Faça push do branch antes se necessário. Retorne prUrl, title e body usados.`,
   { agentType: implementerAgentType, label: `${implementerLabel}:open_pr`, phase: 'open_pr', schema: PR_SCHEMA },
 )
 

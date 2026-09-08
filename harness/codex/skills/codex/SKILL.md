@@ -17,7 +17,9 @@ placed under the personal skill and MCP roots. Deja owns transcript index, MCP w
 preserve them and use Deja only for session-memory, never a second curated store.
 
 Optional `code-graph` provider: run `pipx install graphifyy` and `graphify install --platform codex`,
-then register the resulting MCP server in the capability table of the managed global `AGENTS.md`.
+which installs a skill and a hook but no MCP server; register the server yourself with
+`codex mcp add --env GRAPHIFY_PROJECT_DIR=. graphify -- graphify-mcp-server`, then add the provider
+row to the capability table of the managed global `AGENTS.md`.
 The `claude` platform variant of that installer writes to `CLAUDE.md`, where omh keeps a managed
 block; reconcile that block afterwards and rerun `install.py --check` before trusting the result.
 
@@ -33,8 +35,8 @@ modify Claude adapter files during Codex-only work.
 ## Package migration to 2.0.1
 
 The hook descriptor and commands move to `harness/codex/hooks/` and `core/hooks/`.
-After upgrading from the old layout, open `/hooks` and review both `SessionStart` and the pull
-request gate again. Previous approval does not authorize changed definitions. Verify runtime trust before
-reporting either hook as active; `install.py --check` validates adapter files, not hook trust.
+After upgrading from the old layout, open `/hooks` and review the pull request gate again.
+Previous approval does not authorize changed definitions. Verify runtime trust before
+reporting the hook as active; `install.py --check` validates adapter files, not hook trust.
 The installer does not grant trust on the user's behalf. Use `installers/codex/install.py` from
 the repository root to synchronize the global adapter.
