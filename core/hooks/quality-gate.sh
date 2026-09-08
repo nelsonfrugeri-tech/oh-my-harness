@@ -441,6 +441,15 @@ fi
 HEAD_SHA=$(git rev-parse HEAD 2>/dev/null)
 TARGET_SHA=$(git rev-parse --verify -q "refs/remotes/$TARGET_REMOTE/$PR_BRANCH" 2>/dev/null)
 if [ -z "$TARGET_SHA" ]; then
+  # A branch can track a remote the pull request will not use. Refusing beats
+  # verifying `$TRACKING_REMOTE/$PR_BRANCH`, which would report "verified" about a ref
+  # the pull request never reads. Name the situation, because the way out is the
+  # bypass and nobody guesses that from "push it".
+  TRACKING_REMOTE=$(git config --get "branch.$PR_BRANCH.remote" 2>/dev/null)
+  if [ -n "$TRACKING_REMOTE" ] && [ "$TRACKING_REMOTE" != "$TARGET_REMOTE" ] &&
+    git rev-parse --verify -q "refs/remotes/$TRACKING_REMOTE/$PR_BRANCH" >/dev/null 2>&1; then
+    decide deny "$PR_BRANCH tracks $TRACKING_REMOTE, but the pull request would be opened against $TARGET_REMOTE, which has no $PR_BRANCH. The gate refuses instead of verifying $TRACKING_REMOTE/$PR_BRANCH, because that is not the ref the pull request uses. Push $PR_BRANCH to $TARGET_REMOTE, or open the pull request with the emergency bypass (OMH_GATE=off gh pr create …), which records that it was NOT verified."
+  fi
   decide deny "The local head has not been pushed: $TARGET_REMOTE has no $PR_BRANCH, so the pull request would be opened against a remote that does not have this branch. Push it to $TARGET_REMOTE, then retry."
 fi
 if [ -z "$HEAD_SHA" ] || [ "$TARGET_SHA" != "$HEAD_SHA" ]; then

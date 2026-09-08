@@ -261,6 +261,11 @@ no Claude Code `ask` pergunta ao usuário — em `claude -p` sem permission host
 e o efeito é recusa, mas com `canUseTool` ou `--permission-prompt-tool` o prompt é roteado e a
 execução espera. `deny` é o único valor com bloqueio suportado nos dois harnesses.
 
+**Branch que rastreia outro remote.** Se a branch rastreia, por exemplo, `upstream`, e o `origin` não
+tem essa branch, o gate **recusa** em vez de validar contra o tracking: a ref rastreada não é a que o
+PR usa, e verificá-la seria afirmar garantia sobre outra coisa. A razão da recusa nomeia os dois
+remotes. Saídas: enviar a branch para o `origin`, ou abrir com o escape de emergência abaixo.
+
 Só age em repositório explicitamente confiado; sem o marcador, defere sem executar nada.
 
 **O que a garantia cobre.** O gate prova o `HEAD` no instante da **abertura** do PR, e nada além

@@ -373,8 +373,11 @@ class QualityGateTest(unittest.TestCase):
 
         decision = self._decision(self._run_gate())
 
+        reason = decision["permissionDecisionReason"]
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("origin has no feat", decision["permissionDecisionReason"])
+        self.assertIn("feat tracks upstream", reason)
+        self.assertIn("opened against origin", reason)
+        self.assertIn("OMH_GATE=off", reason)
 
     def test_detached_head_denies_with_an_accurate_reason(self) -> None:
         self._configure_and_commit(test="false")
