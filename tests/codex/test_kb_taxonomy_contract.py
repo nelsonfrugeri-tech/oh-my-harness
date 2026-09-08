@@ -156,6 +156,38 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("`knowledge_type: project` note under", retrieval)
         self.assertIn("`work/projects/*/identity/` first", retrieval)
 
+    def test_note_template_carries_project_identity_in_the_frontmatter(self) -> None:
+        template = self._read("core/skills/kb-write/references/note-template.md")
+        marker = "```yaml\nknowledge_type: project\n"
+        self.assertIn(marker, template)
+        block = template.split(marker, 1)[1].split("```", 1)[0]
+
+        fields = ("name", "aliases", "repository_path", "remote_url", "default_branch")
+        for field in fields:
+            with self.subTest(field=field):
+                self.assertIn(f"\n{field}: ", f"\n{block}")
+
+        prose = " ".join(
+            template.split("## Project identity frontmatter", 1)[1]
+            .split("\n## ", 1)[0]
+            .split()
+        )
+        self.assertIn(
+            "`null` when the sensitive-target guard of `kb-write` rejects it", prose
+        )
+        self.assertIn("never echoed", prose)
+        self.assertIn("`redacted`", prose)
+
+        write = " ".join(self._read("core/skills/kb-write/SKILL.md").split())
+        retrieval = " ".join(self._read("core/skills/kb-retrieval/SKILL.md").split())
+        for field in fields:
+            with self.subTest(surface="kb-write", field=field):
+                self.assertIn(f"`{field}`", write)
+        for field in ("repository_path", "remote_url", "default_branch"):
+            with self.subTest(surface="kb-retrieval", field=field):
+                self.assertIn(f"`{field}`", retrieval)
+        self.assertIn("from its frontmatter", retrieval)
+
     def test_no_kb_surface_still_depends_on_the_context_snapshot(self) -> None:
         surfaces = (
             "core/skills/kb-retrieval/SKILL.md",
