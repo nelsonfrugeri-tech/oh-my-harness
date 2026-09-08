@@ -80,6 +80,13 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual(packaged, catalog)
         self.assertIn(f"/badge/skills-{len(packaged)}-", readme)
 
+        # The agent badge drifts the same way the skill badge would: derive it from
+        # the manifest instead of trusting the number written in the README.
+        agents = json.loads(
+            _ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8")
+        )["agents"]
+        self.assertIn(f"/badge/agents-{len(agents)}-", readme)
+
     def test_codex_marketplace_exposes_the_repository_plugin(self) -> None:
         marketplace = json.loads(
             _ROOT.joinpath(".agents/plugins/marketplace.json").read_text(encoding="utf-8")
@@ -192,7 +199,7 @@ class AdapterContractTest(unittest.TestCase):
             self.assertEqual([], entry["warnings"])
             self.assertEqual([], entry["errors"])
             self.assertEqual(
-                {"preToolUse"},
+                {"preToolUse", "sessionStart"},
                 {hook["eventName"] for hook in plugin_hooks},
             )
             quality_gate = next(
@@ -215,7 +222,7 @@ class AdapterContractTest(unittest.TestCase):
             for group in groups
             for handler in group["hooks"]
         ]
-        self.assertEqual({"PreToolUse"}, set(hooks["hooks"]))
+        self.assertEqual({"PreToolUse", "SessionStart"}, set(hooks["hooks"]))
 
         # Two PreToolUse handlers now point at quality-gate.sh (Bash `gh pr create` and the
         # GitHub MCP PR-creation tool); disambiguate on the Bash-only `if` condition instead
@@ -241,7 +248,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("## Fluxo de PR", guidance)
         self.assertIn("## Como opero", guidance)
         portuguese_prose = (
-            "Na dúvida, busque — nunca responda de memória",
+            "Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado",
             "Antes de escrever, modificar ou revisar qualquer linha de código",
             "Commit e push são livres",
             "Delegue por padrão.",
@@ -483,11 +490,16 @@ class AdapterContractTest(unittest.TestCase):
         data = json.loads(_ROOT.joinpath("harness/codex/adapter-hooks-removal.json").read_text(encoding="utf-8"))
         self.assertEqual({}, data["hooks"])
 
-    def test_quality_gate_is_the_only_shared_hook(self) -> None:
+    def test_shared_hooks_are_the_quality_gate_and_kb_pointer(self) -> None:
+        # Extended by #134 (Group F, wave 2) to admit the SessionStart KB pointer
+        # alongside the pre-existing PreToolUse quality gate; both stay the only
+        # shared hook scripts and both stay executable.
         gate = _ROOT / "core/hooks/quality-gate.sh"
+        pointer = _ROOT / "core/hooks/kb-pointer.sh"
 
-        self.assertEqual([gate], sorted(_ROOT.glob("core/hooks/*.sh")))
+        self.assertEqual([pointer, gate], sorted(_ROOT.glob("core/hooks/*.sh")))
         self.assertTrue(gate.stat().st_mode & 0o111)
+        self.assertTrue(pointer.stat().st_mode & 0o111)
         self.assertEqual([], list(_ROOT.glob("harness/*/hooks/*.sh")))
 
     def test_code_craft_contract_is_consistently_repository_first(self) -> None:

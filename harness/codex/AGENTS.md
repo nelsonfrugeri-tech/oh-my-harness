@@ -110,11 +110,10 @@ no loop principal.
 
 ## Antes de responder
 
-**Na dúvida, busque — nunca responda de memória o que é privado ou episódico.**
+**Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado, e não público**: conhecimento do usuário, da empresa ou do projeto que não está no código nem no git; algo **episódico**, o que já foi feito, tentado ou discutido em sessões anteriores; ou uma **decisão** já tomada e o motivo dela. Faça isso pelo agent `knowledge-base`. Se a consulta não encontrar, diga que não encontrou; nunca preencha com suposição, e nunca responda de memória o que é privado.
 
-Avalie a resposta candidata em relevância, atualidade e factualidade. Se qualquer eixo não
-estiver sólido, busque antes: conhecimento **público** (mundo, docs, versões, notícias) pela
-capability `web`; qualquer coisa **privada, episódica ou passada** pelo agent `knowledge-base`.
+Avalie a resposta candidata em relevância, atualidade e factualidade. Para conhecimento
+**público** (mundo, docs, versões, notícias), busque antes pela capability `web`.
 
 Depois da busca, **responda citando a fonte**. Se ainda faltar informação, diga o que falta em
 vez de inventar.

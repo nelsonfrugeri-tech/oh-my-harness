@@ -1,0 +1,562 @@
+"""Contract tests for the KB just-in-time rule, session-start pointer, and explorer onboarding.
+
+Covers issue #134 (epic #113, wave 2, group F): a concrete-trigger KB rule in
+CLAUDE.md/AGENTS.md, a one-line SessionStart pointer hook, and the explorer agent
+as onboarding with a site report and a CLAUDE.md proposal.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import subprocess
+import time
+import unittest
+from pathlib import Path
+
+
+_ROOT = Path(__file__).resolve().parents[2]
+
+_KB_RULE = (
+    "**Consulte a knowledge base antes de responder sempre que o assunto for "
+    "interno ou privado, e não público**: conhecimento do usuário, da empresa "
+    "ou do projeto que não está no código nem no git; algo **episódico**, o "
+    "que já foi feito, tentado ou discutido em sessões anteriores; ou uma "
+    "**decisão** já tomada e o motivo dela. Faça isso pelo agent "
+    "`knowledge-base`. Se a consulta não encontrar, diga que não encontrou; "
+    "nunca preencha com suposição, e nunca responda de memória o que é "
+    "privado."
+)
+
+
+class KbRuleContractTests(unittest.TestCase):
+    def test_rule_is_identical_in_both_global_guidance_files(self) -> None:
+        claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
+        codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
+
+        self.assertIn(_KB_RULE, claude)
+        self.assertIn(_KB_RULE, codex)
+
+    def test_rule_lives_under_the_before_answering_heading(self) -> None:
+        claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
+        codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
+
+        claude_section = claude.split("## Antes de responder", 1)[1].split("\n---", 1)[0]
+        # Group E (#120) unified the heading: both files now use "Antes de responder".
+        codex_section = codex.split("## Antes de responder", 1)[1].split("\n---", 1)[0]
+        self.assertIn(_KB_RULE, claude_section)
+        self.assertIn(_KB_RULE, codex_section)
+
+    def test_rule_still_routes_public_knowledge_through_web(self) -> None:
+        claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
+        codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
+
+        self.assertIn("capability `web`", claude)
+        self.assertIn("capability `web`", codex)
+        # Group E (#120) made the shared sections byte-identical, so the same
+        # sentence must hold in both files.
+        self.assertIn("responda citando a fonte", claude)
+        self.assertIn("responda citando a fonte", codex)
+
+
+class KbPointerHookContractTests(unittest.TestCase):
+    _HOOK = _ROOT / "core/hooks/kb-pointer.sh"
+
+    def _run(self, cwd: Path, kb_root: Path | None, env_extra: dict[str, str] | None = None):
+        env: dict[str, str] = {"PATH": "/usr/bin:/bin:/usr/local/bin"}
+        if kb_root is not None:
+            env["OMH_KB_ROOT"] = str(kb_root)
+        if env_extra:
+            env.update(env_extra)
+        payload = json.dumps({"cwd": str(cwd)})
+        start = time.monotonic()
+        result = subprocess.run(
+            ["bash", str(self._HOOK)],
+            input=payload,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=5,
+        )
+        elapsed = time.monotonic() - start
+        return result, elapsed
+
+    def _write_project_note(
+        self, kb_root: Path, slug: str, name: str, repository_path: Path
+    ) -> Path:
+        identity_dir = kb_root / "work/projects" / slug / "identity"
+        identity_dir.mkdir(parents=True, exist_ok=True)
+        note = identity_dir / "2026-09-01--project-identity.md"
+        note.write_text(
+            "---\n"
+            "knowledge_type: project\n"
+            f"name: {name}\n"
+            "aliases: []\n"
+            f"repository_path: {repository_path}\n"
+            "remote_url: null\n"
+            "default_branch: main\n"
+            "created_at: '2026-09-01T10:00:00Z'\n"
+            "---\n\n"
+            "Project identity note.\n",
+            encoding="utf-8",
+        )
+        return note
+
+    def _write_note(self, kb_root: Path, slug: str, topic: str, name: str, created_at: str) -> None:
+        note_dir = kb_root / "work/projects" / slug / topic
+        note_dir.mkdir(parents=True, exist_ok=True)
+        (note_dir / name).write_text(
+            "---\n"
+            "knowledge_type: decision\n"
+            f"created_at: {created_at}\n"
+            "---\n\nBody.\n",
+            encoding="utf-8",
+        )
+
+    def test_prints_note_count_and_latest_date_when_project_note_exists(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = tmp_path / "repo"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            self._write_project_note(kb_root, "sample", "sample", repo.resolve())
+            self._write_note(kb_root, "sample", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
+            self._write_note(kb_root, "sample", "decisions", "2026-09-03--b.md", "'2026-09-03T10:00:00Z'")
+
+            result, elapsed = self._run(repo, kb_root)
+
+            self.assertEqual(0, result.returncode)
+            self.assertLess(elapsed, 2.0)
+            line = result.stdout.strip()
+            self.assertTrue(line)
+            self.assertLess(len(line), 200)
+            self.assertIn("KB deste projeto: 3 notas, última em 2026-09-03", line)
+            self.assertIn("consulte a knowledge base", line)
+            self.assertNotIn(str(tmp_path), line)
+            self.assertNotIn(str(repo), line)
+
+    def test_falls_back_to_the_directory_named_after_the_repository_basename(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = tmp_path / "oh-my-harness"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            self._write_note(kb_root, "oh-my-harness", "decisions", "2026-09-05--a.md", "2026-09-05T10:00:00Z")
+
+            result, elapsed = self._run(repo, kb_root)
+
+            self.assertEqual(0, result.returncode)
+            self.assertLess(elapsed, 2.0)
+            line = result.stdout.strip()
+            self.assertLess(len(line), 200)
+            self.assertIn(
+                "KB deste projeto (por diretório, sem nota de identidade): "
+                "1 notas, última em 2026-09-05",
+                line,
+            )
+            self.assertNotIn(str(tmp_path), line)
+
+    def test_note_and_directory_resolutions_use_different_line_labels(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+
+            note_repo = tmp_path / "with-note"
+            note_repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=note_repo, check=True)
+            self._write_project_note(kb_root, "with-note", "with-note", note_repo.resolve())
+            self._write_note(kb_root, "with-note", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
+
+            directory_repo = tmp_path / "without-note"
+            directory_repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=directory_repo, check=True)
+            self._write_note(kb_root, "without-note", "decisions", "2026-09-02--a.md", "2026-09-02T10:00:00Z")
+
+            note_result, _ = self._run(note_repo, kb_root)
+            directory_result, _ = self._run(directory_repo, kb_root)
+
+            note_line = note_result.stdout.strip()
+            directory_line = directory_result.stdout.strip()
+            self.assertTrue(note_line.startswith("KB deste projeto:"))
+            self.assertFalse(note_line.startswith("KB deste projeto ("))
+            self.assertTrue(
+                directory_line.startswith(
+                    "KB deste projeto (por diretório, sem nota de identidade):"
+                )
+            )
+
+    def test_prints_no_kb_message_when_project_is_not_found(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = tmp_path / "unknown-project"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+
+            result, elapsed = self._run(repo, kb_root)
+
+            self.assertEqual(0, result.returncode)
+            self.assertLess(elapsed, 2.0)
+            line = result.stdout.strip()
+            self.assertEqual(
+                "Sem KB para este projeto; o `explorer` cria uma sob demanda", line
+            )
+            self.assertLess(len(line), 200)
+
+    def test_silent_when_omh_runtime_is_set(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = tmp_path / "sample"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            self._write_project_note(kb_root, "sample", "sample", repo.resolve())
+            self._write_note(kb_root, "sample", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
+
+            result, elapsed = self._run(repo, kb_root, env_extra={"OMH_RUNTIME": "1"})
+
+            self.assertEqual(0, result.returncode)
+            self.assertEqual("", result.stdout)
+            self.assertLess(elapsed, 2.0)
+
+    def test_excludes_index_log_and_legacy_context_notes_from_the_count(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = tmp_path / "sample"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            self._write_project_note(kb_root, "sample", "sample", repo.resolve())
+            self._write_note(kb_root, "sample", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
+            project_dir = kb_root / "work/projects/sample"
+            (project_dir / "index.md").write_text("index\n", encoding="utf-8")
+            (project_dir / "log.md").write_text("log\n", encoding="utf-8")
+            (project_dir / "context.md").write_text("legacy context\n", encoding="utf-8")
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertIn("KB deste projeto: 2 notas", result.stdout)
+
+    def test_follows_project_root_symlink_but_not_nested_symlinks(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            real_project_dir = tmp_path / "project-notes"
+            real_project_dir.mkdir()
+            projects_dir = kb_root / "work/projects"
+            projects_dir.mkdir(parents=True)
+            (projects_dir / "repo").symlink_to(real_project_dir, target_is_directory=True)
+            self._write_note(kb_root, "repo", "decisions", "a.md", "2026-09-03T10:00:00Z")
+            external_dir = tmp_path / "external-notes"
+            external_dir.mkdir()
+            (external_dir / "outside.md").write_text(
+                "---\nknowledge_type: decision\n"
+                "created_at: 2026-09-09T10:00:00Z\n---\n",
+                encoding="utf-8",
+            )
+            (real_project_dir / "external-link").symlink_to(
+                external_dir, target_is_directory=True
+            )
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertIn(
+                "KB deste projeto (por diretório, sem nota de identidade): "
+                "1 notas, última em 2026-09-03",
+                result.stdout,
+            )
+
+    # ---- identity resolution: the cases a review reproduced against the first head ----
+
+    def _identity_note(self, kb_root: Path, slug: str, frontmatter: str) -> None:
+        identity_dir = kb_root / "work/projects" / slug / "identity"
+        identity_dir.mkdir(parents=True, exist_ok=True)
+        (identity_dir / "2026-09-01--project-identity.md").write_text(
+            f"---\n{frontmatter}\n---\n\nProject identity note.\n", encoding="utf-8"
+        )
+
+    def _repo(self, tmp_path: Path, name: str) -> Path:
+        repo = tmp_path / name
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        return repo
+
+    def test_deprecated_project_note_never_resolves_the_project(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            self._identity_note(
+                kb_root,
+                "stale",
+                "knowledge_type: project\nstatus: deprecated\nname: repo\naliases: []",
+            )
+            self._write_note(kb_root, "stale", "decisions", "a.md", "2026-09-01T10:00:00Z")
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertIn("Sem KB para este projeto", result.stdout)
+
+    def test_alias_matches_the_whole_value_and_never_a_substring(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            self._identity_note(
+                kb_root,
+                "other",
+                "knowledge_type: project\nname: other\naliases: [my-repository]",
+            )
+            self._write_note(kb_root, "other", "decisions", "a.md", "2026-09-01T10:00:00Z")
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertIn("Sem KB para este projeto", result.stdout)
+
+    def test_quoted_scalars_and_block_aliases_still_resolve(self) -> None:
+        import tempfile
+
+        cases = (
+            ('knowledge_type: project\nname: "repo"\naliases: []', "quoted name"),
+            ("knowledge_type: project\nname: other\naliases:\n  - repo", "block alias"),
+            ("knowledge_type: project\nname: other\naliases: ['repo']", "single quoted alias"),
+            ('knowledge_type: project\nname: other\naliases: ["repo"]', "double quoted alias"),
+            ("knowledge_type: project\nname: other\naliases: [repo]", "bare inline alias"),
+            ("knowledge_type: project\nname: other\naliases: [x, repo]", "last item of a list"),
+        )
+        for frontmatter, label in cases:
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as tmp:
+                tmp_path = Path(tmp)
+                kb_root = tmp_path / "kb"
+                repo = self._repo(tmp_path, "repo")
+                self._identity_note(kb_root, "sample", frontmatter)
+                self._write_note(kb_root, "sample", "decisions", "a.md", "2026-09-01T10:00:00Z")
+
+                result, _ = self._run(repo, kb_root)
+
+                self.assertTrue(
+                    result.stdout.strip().startswith("KB deste projeto:"), result.stdout
+                )
+
+    def test_quoted_repository_path_resolves_and_symlinked_paths_are_canonicalized(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            # Path(tmp) may sit behind a symlink (/var -> /private/var on macOS); the
+            # non-canonical spelling must resolve to the same project as the real one.
+            self._identity_note(
+                kb_root,
+                "sample",
+                f'knowledge_type: project\nname: other\naliases: []\nrepository_path: "{repo}"',
+            )
+            self._write_note(kb_root, "sample", "decisions", "a.md", "2026-09-01T10:00:00Z")
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertTrue(
+                result.stdout.strip().startswith("KB deste projeto:"), result.stdout
+            )
+
+    def test_repository_path_wins_over_name_and_alias(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            self._identity_note(
+                kb_root, "by-name", "knowledge_type: project\nname: repo\naliases: []"
+            )
+            self._write_note(kb_root, "by-name", "decisions", "a.md", "2026-09-01T10:00:00Z")
+            self._identity_note(
+                kb_root,
+                "by-path",
+                f"knowledge_type: project\nname: other\naliases: []\nrepository_path: {repo.resolve()}",
+            )
+            for index in range(3):
+                self._write_note(
+                    kb_root, "by-path", "decisions", f"{index}.md", "2026-09-02T10:00:00Z"
+                )
+
+            result, _ = self._run(repo, kb_root)
+
+            # by-path holds 3 notes plus its identity note; by-name holds 2 in total.
+            self.assertIn("KB deste projeto: 4 notas", result.stdout)
+
+    def test_two_projects_in_the_winning_layer_refuse_to_resolve_from_a_note(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            for slug in ("first", "second"):
+                self._identity_note(
+                    kb_root, slug, "knowledge_type: project\nname: repo\naliases: []"
+                )
+                self._write_note(kb_root, slug, "decisions", "a.md", "2026-09-01T10:00:00Z")
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertIn("Sem KB para este projeto", result.stdout)
+
+    def test_ambiguity_falls_through_to_the_labelled_directory_resolution(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            for slug in ("first", "second"):
+                self._identity_note(
+                    kb_root, slug, "knowledge_type: project\nname: repo\naliases: []"
+                )
+                self._write_note(kb_root, slug, "decisions", "a.md", "2026-09-01T10:00:00Z")
+            self._write_note(kb_root, "repo", "decisions", "a.md", "2026-09-06T10:00:00Z")
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertTrue(
+                result.stdout.strip().startswith(
+                    "KB deste projeto (por diretório, sem nota de identidade):"
+                ),
+                result.stdout,
+            )
+
+    def test_line_names_no_interface_absent_from_a_plugin_only_installation(self) -> None:
+        """Every backticked name the hook prints must exist on both install surfaces.
+
+        The Codex native plugin packages skills and this hook but no custom agents,
+        so a line naming an agent would emit a call to an unavailable interface.
+        """
+        hook = self._HOOK.read_text(encoding="utf-8")
+        printed = [
+            line for line in hook.splitlines() if line.lstrip().startswith("printf '")
+        ]
+        self.assertTrue(printed)
+        names = {
+            name for line in printed for name in re.findall(r"`([^`]+)`", line)
+        }
+        self.assertTrue(names)
+
+        def skills_of(manifest_path: str) -> set[str]:
+            manifest = json.loads(_ROOT.joinpath(manifest_path).read_text(encoding="utf-8"))
+            return {
+                path.parent.name
+                for root in manifest["skills"]
+                for path in (_ROOT / root).glob("*/SKILL.md")
+            }
+
+        codex_catalog = skills_of(".codex-plugin/plugin.json")
+        claude_manifest = json.loads(
+            _ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8")
+        )
+        claude_catalog = skills_of(".claude-plugin/plugin.json") | {
+            Path(entry).stem for entry in claude_manifest["agents"]
+        }
+
+        self.assertEqual(set(), names - codex_catalog, "unavailable in plugin-only Codex")
+        self.assertEqual(set(), names - claude_catalog, "unavailable in Claude Code")
+
+    def test_hook_is_registered_in_both_harness_hooks_json(self) -> None:
+        claude_hooks = json.loads(
+            _ROOT.joinpath("harness/claude/hooks/hooks.json").read_text(encoding="utf-8")
+        )
+        codex_hooks = json.loads(
+            _ROOT.joinpath("harness/codex/hooks/hooks.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(claude_hooks, codex_hooks)
+
+        session_start = claude_hooks["hooks"]["SessionStart"]
+        self.assertEqual(1, len(session_start))
+        self.assertEqual("startup|resume", session_start[0]["matcher"])
+        handler = session_start[0]["hooks"][0]
+        self.assertIn("core/hooks/kb-pointer.sh", handler["command"])
+        self.assertEqual(2, handler["timeout"])
+
+
+class ExplorerOnboardingContractTests(unittest.TestCase):
+    def _read(self, relative_path: str) -> str:
+        return _ROOT.joinpath(relative_path).read_text(encoding="utf-8")
+
+    def test_skill_no_longer_mentions_the_context_snapshot(self) -> None:
+        contract = self._read("core/skills/explorer/SKILL.md")
+        self.assertNotIn("context.md", contract)
+        self.assertNotIn("context-load", contract)
+
+    def test_skill_describes_the_three_onboarding_outputs(self) -> None:
+        contract = " ".join(self._read("core/skills/explorer/SKILL.md").split())
+        self.assertIn("site-report", contract)
+        self.assertIn("CLAUDE.md", contract)
+        self.assertIn("knowledge-base", contract)
+
+    def test_skill_requires_approval_before_writing_the_claude_md_proposal(self) -> None:
+        contract = " ".join(self._read("core/skills/explorer/SKILL.md").split())
+        self.assertIn("approval", contract.lower())
+        approval_index = contract.lower().index("approval")
+        write_index = contract.lower().index("write")
+        self.assertLessEqual(approval_index, contract.lower().rindex("write"))
+        self.assertNotEqual(write_index, -1)
+
+    def test_skill_states_it_never_writes_the_claude_md_proposal_itself(self) -> None:
+        contract = " ".join(self._read("core/skills/explorer/SKILL.md").split())
+        self.assertIn("the calling thread writes the approved proposal, this skill never does", contract)
+
+    def test_explorer_role_and_adapters_never_write_inside_the_repository(self) -> None:
+        manifest = json.loads(_ROOT.joinpath("core/agents/routing.json").read_text(encoding="utf-8"))
+        role = manifest["roles"]["explorer"]
+        joined_contract = " ".join(role["operating_contract"]).lower()
+        joined_boundaries = " ".join(role["boundaries"]).lower()
+        self.assertIn("write only the external site", joined_contract)
+        self.assertIn("never write it yourself", joined_contract)
+        self.assertNotIn("write only the external site and, after explicit approval", joined_contract)
+        self.assertIn(
+            "do not write anything inside the analyzed repository", joined_boundaries
+        )
+        overlay = manifest["adapter_specs"]["shared-markdown"]["overlays"]["explorer"]
+        self.assertIn("Write", overlay["tools"])
+        self.assertNotIn("Edit", overlay["tools"])
+
+    def test_explorer_role_exists_with_the_tools_family(self) -> None:
+        manifest = json.loads(_ROOT.joinpath("core/agents/routing.json").read_text(encoding="utf-8"))
+        self.assertIn("explorer", manifest["roles"])
+        self.assertEqual("tools", manifest["role_families"]["explorer"])
+        role = manifest["roles"]["explorer"]
+        self.assertEqual(
+            ["evidence", "explorer", "site-report", "didactic-visual"],
+            role["local_skills"],
+        )
+        overlay = manifest["adapter_specs"]["shared-markdown"]["overlays"]["explorer"]
+        self.assertNotIn("Edit", overlay["tools"])
+
+    def test_explorer_appears_in_the_plugin_agent_manifest(self) -> None:
+        plugin = json.loads(_ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8"))
+        self.assertIn("./harness/claude/agents/tools/explorer.md", plugin["agents"])
+
+
+if __name__ == "__main__":
+    unittest.main()
