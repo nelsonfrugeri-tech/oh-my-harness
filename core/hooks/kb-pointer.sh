@@ -53,6 +53,11 @@
 #         <YYYY-MM-DD>; …`.
 #       - resolved from the directory fallback: `KB deste projeto (por diretório,
 #         sem nota de identidade): N notas, última em <YYYY-MM-DD>; …`.
+#   - Traversal uses `find -H`: follow a symlink only when the resolved project
+#     directory itself is the command-line root. Never follow nested symlinks into
+#     external trees or cycles. This deliberately omits notes in symlinked topic
+#     directories; preserving the KB containment boundary is safer than complete
+#     traversal of externally located topics.
 #   - The printed line names the knowledge base, never a mechanical interface. The
 #     Codex native plugin packages skills and this hook but NO custom agents (see
 #     `.codex-plugin/plugin.json` and README "Codex custom agents … are not plugin
