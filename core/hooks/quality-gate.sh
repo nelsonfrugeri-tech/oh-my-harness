@@ -46,9 +46,9 @@
 # budgeted to a hard ~10s wall-clock timeout (background job + poll + `kill -9`, never
 # a hang on credentials: `GIT_TERMINAL_PROMPT=0`, `GIT_ASKPASS=true`, `SSH_ASKPASS=true`)
 # and writing only to a `mktemp` file outside the repository. A reachable, divergent
-# remote asks; an unreachable one is not evidence of anything and falls back to the
-# local-only comparison already performed — this contract only ever verifies against
-# a live remote, never against network state it could not observe.
+# remote asks; an unreachable remote also asks because the gate cannot establish what
+# the PR will contain. The caller may use the explicit emergency bypass when that risk
+# is understood.
 #
 # Written for bash 3.2 (macOS default): no associative arrays, no mapfile.
 
@@ -236,8 +236,8 @@ fi
 # by hand: background the command, poll, and `kill -9` past the deadline. The
 # credential env vars stop it from ever blocking on a prompt; the output goes to a
 # `mktemp` file under $TMPDIR, never inside the repository. Any failure — no hasher,
-# no reachable remote, a slow remote, a non-zero exit, an empty ref — is "unknown",
-# not "diverged": the caller falls back to the local comparison already performed.
+# no reachable remote, a slow remote, a non-zero exit, an empty ref — leaves the
+# selected remote revision unknown, so the caller returns `ask` before running checks.
 fetch_remote_sha() {
   remote="$1"; ref="$2"
   out=$(mktemp "${TMPDIR:-/tmp}/omh-quality-gate-ls-remote.XXXXXX" 2>/dev/null) || return 1
@@ -269,7 +269,10 @@ REMOTE_NAME=$(git config --get "branch.$CURRENT_BRANCH.remote" 2>/dev/null)
 REMOTE_REF=$(git config --get "branch.$CURRENT_BRANCH.merge" 2>/dev/null)
 if [ -n "$REMOTE_NAME" ] && [ -n "$REMOTE_REF" ]; then
   REMOTE_SHA=$(fetch_remote_sha "$REMOTE_NAME" "$REMOTE_REF")
-  if [ -n "$REMOTE_SHA" ] && [ "$REMOTE_SHA" != "$HEAD_SHA" ]; then
+  if [ -z "$REMOTE_SHA" ]; then
+    decide ask "The remote branch could not be verified. Restore access to $REMOTE_NAME, then retry, or use the explicit emergency bypass."
+  fi
+  if [ "$REMOTE_SHA" != "$HEAD_SHA" ]; then
     decide ask "The remote branch has moved since the last local fetch: $REMOTE_NAME's $UPSTREAM is now $REMOTE_SHA, this checkout has $HEAD_SHA. Fetch, then retry."
   fi
 fi

@@ -213,8 +213,8 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("ask", decision["permissionDecision"])
         self.assertIn("moved since the last local fetch", decision["permissionDecisionReason"])
 
-    def test_remote_unreachable_falls_back_to_local_comparison(self) -> None:
-        self._configure_and_commit(test="true")
+    def test_remote_unreachable_asks_without_running_checks(self) -> None:
+        self._configure_and_commit(test="false")
         self._push_current_head()
         self._trust_repository()
         self._git(
@@ -223,7 +223,8 @@ class QualityGateTest(unittest.TestCase):
 
         decision = self._decision(self._run_gate())
 
-        self.assertEqual("allow", decision["permissionDecision"])
+        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertIn("could not be verified", decision["permissionDecisionReason"])
 
     # ---- helpers ----------------------------------------------------------------
 
