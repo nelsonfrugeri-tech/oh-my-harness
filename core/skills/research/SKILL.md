@@ -38,7 +38,8 @@ support are explicit.
    when the unresolved meaning would change the search or answer.
 3. For each claim, select a source able to establish it:
    - current product contract, version, price, model, or standard: live official documentation,
-     release notes, registry, or standards body;
+     release notes, registry, or standards body; for LangChain, LangGraph, and Deep Agents prefer
+     the framework-docs capability, falling back to the web capability when it does not answer;
    - vulnerability: maintainer advisory, OSV/CVE record, and affected-version data;
    - research result: original paper and, when the claim depends on reproducibility, its artifacts
      or an independent reproduction;

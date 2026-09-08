@@ -1,4 +1,5 @@
 {
+  "contract": "core/agents/routing.json -> catalog_contract.dependencies",
   "marketplaces": [
     {
       "label": "LangChain",
@@ -11,7 +12,14 @@
       "plugins": [
         "langchain-skills",
         "langchain-mcp"
-      ]
+      ],
+      "mcp_servers": {
+        "langchain-mcp": [
+          "langchain-docs",
+          "langchain-reference"
+        ]
+      },
+      "mcp_registration": "Instalar o plugin não é prova de que o Codex registrou os MCP servers dele. Confirme com `codex mcp list` e, se faltarem, registre `langchain-docs` (https://docs.langchain.com/mcp) e `langchain-reference` (https://reference.langchain.com/mcp), ambos HTTP e sem auth. Sem isso a capability `framework-docs` não responde no Codex."
     },
     {
       "label": "AI Evals",
@@ -25,5 +33,9 @@
         "evals"
       ]
     }
-  ]
+  ],
+  "declared_not_installed": {
+    "langsmith-skills": "Roteado como entry opcional na rota de avaliação do ai-engineer, mas não instalado por padrão: só faz sentido quando o tracing ou o dataset já vivem no LangSmith.",
+    "langsmith-mcp": "Account-bound: exige conta LangSmith e autorização OAuth em https://api.smith.langchain.com/mcp. Declarado e desligado por padrão; nenhuma rota depende dele."
+  }
 }
