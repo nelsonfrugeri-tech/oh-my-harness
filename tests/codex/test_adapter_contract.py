@@ -297,8 +297,7 @@ class AdapterContractTest(unittest.TestCase):
 
     def test_engineering_agents_load_the_evidence_skill(self) -> None:
         roles = (
-            "ai-engineer", "architect", "developer", "evidence-reviewer",
-            "qa", "sre", "tech-pm",
+            "ai-engineer", "architect", "developer", "evidence-reviewer", "tech-pm",
         )
 
         for role in roles:

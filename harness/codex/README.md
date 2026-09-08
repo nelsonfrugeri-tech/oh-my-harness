@@ -124,7 +124,7 @@ require a LangSmith account and OAuth authorization.
 It also installs the official AI Evals Course marketplace and its `evals` plugin. It provides
 eight skills for error discovery, eval-pipeline audits, synthetic data, RAG evaluation, human
 review interfaces, LLM-as-Judge prompts, and judge calibration. The local `ai-engineer`,
-`developer`, `architect`, and `qa` agents first verify that `evals:*` is available at runtime;
+`developer`, and `architect` agents first verify that `evals:*` is available at runtime;
 when installation is pending, they report that state and do not claim to use unavailable skills.
 
 The upstream marketplace publishes skills and MCP servers, not Codex custom agents. The local

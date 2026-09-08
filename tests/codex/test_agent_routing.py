@@ -18,7 +18,7 @@ class AgentRoutingContractTest(unittest.TestCase):
         families = _MANIFEST["role_families"]
         codex = _MANIFEST["adapter_specs"]["codex-toml"]["overlays"]
 
-        self.assertEqual(11, len(roles))
+        self.assertEqual(9, len(roles))
         self.assertEqual(set(roles), set(families))
         self.assertEqual(set(roles), set(codex))
 
@@ -27,7 +27,7 @@ class AgentRoutingContractTest(unittest.TestCase):
 
         self.assertEqual("0.3.1", dependency["minimum_version"])
         self.assertEqual(["evals:evals-start"], dependency["entries"])
-        for role_id in ("ai-engineer", "qa"):
+        for role_id in ("ai-engineer",):
             route = next(
                 route
                 for route in _MANIFEST["roles"][role_id]["routes"]

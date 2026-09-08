@@ -10,7 +10,7 @@ library on Claude Code and Codex today.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#whats-inside)
+[![Agents](https://img.shields.io/badge/agents-10-2496ED?style=flat-square)](#whats-inside)
 [![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#whats-inside)
 [![Docs](https://img.shields.io/badge/docs-pt--BR-009C3B?style=flat-square)](#language-contract)
 
@@ -199,7 +199,7 @@ claude plugin install evals@ai-evals-course                # 8 skills, ~862 toke
 ```
 
 `langchain-skills` backs the LangChain, LangGraph, and Deep Agents routing in `ai-engineer`,
-`architect`, and `developer`. `evals` backs the LLM-evaluation routing in `ai-engineer` and `qa`:
+`architect`, and `developer`. `evals` backs the LLM-evaluation routing in `ai-engineer`:
 error analysis from real traces, LLM-as-judge, judge calibration against human labels, and RAG
 evaluation. The two overlap on the word "eval" and not in method, so the agents say which is which
 — `evals` is framework-agnostic methodology, `langchain-skills:eval-engineering` is Harbor
@@ -276,8 +276,6 @@ and the native paths for both adapters.
 | `engineers` | `architect`   | System design, ADRs, C4, trade-offs, API design       | opus   |
 | `engineers` | `developer`   | Implementation, bug fixes, refactoring, testing       | sonnet |
 | `engineers` | `ai-engineer` | LLM/RAG/embeddings, data pipelines, evaluation         | sonnet |
-| `engineers` | `qa`          | Test strategy, E2E, performance, accessibility        | sonnet |
-| `engineers` | `sre`         | Observability, SLO/SLI, incident response              | sonnet |
 | `engineers` | `tech-pm`     | User stories, backlog, roadmap, PRDs                   | sonnet |
 | `engineers` | `evidence-reviewer` | Read-only audit of software claims, metrics, and decisions | opus |
 | `harness`   | `claude-code` | Installs/syncs the library into `~/.claude`             | sonnet |

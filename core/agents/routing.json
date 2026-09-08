@@ -96,20 +96,6 @@
             "ToolSearch"
           ]
         },
-        "qa": {
-          "version": "1.2.0",
-          "model": "sonnet",
-          "tools": [
-            "Read",
-            "Write",
-            "Edit",
-            "Bash",
-            "Grep",
-            "Glob",
-            "WebSearch",
-            "ToolSearch"
-          ]
-        },
         "evidence-reviewer": {
           "version": "1.0.0",
           "model": "opus",
@@ -119,20 +105,6 @@
             "Glob",
             "WebSearch",
             "WebFetch",
-            "ToolSearch"
-          ]
-        },
-        "sre": {
-          "version": "1.2.0",
-          "model": "sonnet",
-          "tools": [
-            "Read",
-            "Write",
-            "Edit",
-            "Bash",
-            "Grep",
-            "Glob",
-            "WebSearch",
             "ToolSearch"
           ]
         },
@@ -221,9 +193,7 @@
         "ai-engineer": {},
         "architect": {},
         "developer": {},
-        "qa": {},
         "evidence-reviewer": {},
-        "sre": {},
         "tech-pm": {},
         "context": {},
         "knowledge-base": {},
@@ -412,89 +382,6 @@
         }
       ]
     },
-    "qa": {
-      "id": "qa",
-      "title": "Quality Assurance Engineer",
-      "description": "Use for test strategy, integration and end-to-end testing, performance, accessibility, contracts, isolated environments, and independent release validation.",
-      "local_skills": [
-        "evidence",
-        "test",
-        "environment",
-        "review",
-        "research",
-        "didactic-visual"
-      ],
-      "summary": "You are an independent quality assurance engineer who validates delivered behavior and requires evidence before declaring a release ready.",
-      "implementation_guidance": "Keep tests deterministic and environments isolated. Validate the implementation rather than the promise, and separate baseline failures from candidate regressions.",
-      "operating_contract": [
-        "Discover quality commands from repository targets and configuration instead of assuming a command.",
-        "Exercise happy paths, failure paths, integration boundaries, performance, accessibility, security, and contracts proportionally to risk.",
-        "Require subprocess-level smoke tests for command-line products and real dependencies on critical integration paths.",
-        "Record environment, command, scope, result, and remaining gaps for every release claim."
-      ],
-      "boundaries": [
-        "Do not substitute the ai-engineer skill for a missing evaluation plugin.",
-        "Do not treat mock-only coverage or a red unexplained baseline as release evidence."
-      ],
-      "routes": [
-        {
-          "id": "harbor-evals",
-          "priority": 100,
-          "dependency": "langchain-skills",
-          "entry": "langchain-skills:eval-engineering",
-          "match": {
-            "any_of": [
-              "harbor task",
-              "harbor verifier",
-              "harbor evaluation"
-            ],
-            "none_of": []
-          },
-          "sequence": "Load after evidence as the operative evaluation capability. Do not route Harbor work through ecosystem-primer.",
-          "degraded_behavior": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used."
-        },
-        {
-          "id": "ai-evals",
-          "priority": 80,
-          "dependency": "evals",
-          "entry": "evals:evals-start",
-          "match": {
-            "any_of": [
-              "llm evaluation",
-              "llm eval",
-              "language model evaluation",
-              "rag evaluation",
-              "failure taxonomy",
-              "synthetic evaluation data",
-              "llm-as-judge"
-            ],
-            "none_of": [
-              "harbor"
-            ]
-          },
-          "sequence": "Load after evidence. Let the entry skill select one focused evaluation workflow.",
-          "degraded_behavior": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with evidence, test, and research until evals:evals-start is available."
-        },
-        {
-          "id": "langchain-framework",
-          "priority": 60,
-          "dependency": "langchain-skills",
-          "entry": "langchain-skills:ecosystem-primer",
-          "match": {
-            "any_of": [
-              "langchain",
-              "langgraph",
-              "deep agents"
-            ],
-            "none_of": [
-              "harbor"
-            ]
-          },
-          "sequence": "Load after evidence. Let the primer select one focused framework skill.",
-          "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through the web capability; never claim that the unavailable integration was used."
-        }
-      ]
-    },
     "evidence-reviewer": {
       "id": "evidence-reviewer",
       "title": "Evidence Reviewer",
@@ -516,33 +403,6 @@
       "boundaries": [
         "Do not edit files, execute mutating actions, or replace the decision owner.",
         "Do not demand evidence that cannot affect the decision or promote historical records and passing tests beyond what they establish."
-      ],
-      "routes": []
-    },
-    "sre": {
-      "id": "sre",
-      "title": "Site Reliability Engineer",
-      "description": "Use for observability, monitoring, alerting, SLI and SLO definition, incident response, runbooks, production health checks, and operational excellence.",
-      "local_skills": [
-        "evidence",
-        "operate",
-        "observability",
-        "security",
-        "review",
-        "research",
-        "didactic-visual"
-      ],
-      "summary": "You are a site reliability engineer who makes production systems observable, reliable, and recoverable through measurable evidence and blameless operations.",
-      "implementation_guidance": "Evaluate decisions by production reliability impact and define user-centered reliability signals before prescribing controls.",
-      "operating_contract": [
-        "Define user-centered SLIs and SLOs, manage error budgets, and design for failure and recovery.",
-        "Use logs for events, metrics for aggregates, and traces for request flows while controlling observability cost.",
-        "Create symptom-based alerts, multi-window multi-burn-rate policies when appropriate, RED service dashboards, USE resource dashboards, and actionable runbooks.",
-        "Handle incidents through detect, triage, mitigate, resolve, and blameless postmortem, then update the runbook."
-      ],
-      "boundaries": [
-        "Do not assume local development setup or take over product feature implementation.",
-        "Do not alert on internal causes without user impact, blame individuals, or substitute prose for available production data."
       ],
       "routes": []
     },
@@ -715,21 +575,6 @@
       "repository_signals": []
     },
     {
-      "id": "qa-framework-positive",
-      "category": "explicit",
-      "role": "qa",
-      "prompt": "Test a LangGraph workflow across persistence boundaries.",
-      "available_dependencies": [
-        "langchain-skills",
-        "evals"
-      ],
-      "expected_kind": "entry",
-      "expected_route": "langchain-framework",
-      "expected_entry": "langchain-skills:ecosystem-primer",
-      "expected_message": null,
-      "repository_signals": []
-    },
-    {
       "id": "ai-engineer-eval-positive",
       "category": "explicit",
       "role": "ai-engineer",
@@ -775,36 +620,6 @@
       "repository_signals": []
     },
     {
-      "id": "harbor-over-generic-evals",
-      "category": "overlap",
-      "role": "qa",
-      "prompt": "Build a Harbor evaluation with a Verifier and an LLM evaluation dataset.",
-      "available_dependencies": [
-        "langchain-skills",
-        "evals"
-      ],
-      "expected_kind": "entry",
-      "expected_route": "harbor-evals",
-      "expected_entry": "langchain-skills:eval-engineering",
-      "expected_message": null,
-      "repository_signals": []
-    },
-    {
-      "id": "generic-ai-eval",
-      "category": "explicit",
-      "role": "qa",
-      "prompt": "Create an LLM evaluation from traces and a failure taxonomy.",
-      "available_dependencies": [
-        "langchain-skills",
-        "evals"
-      ],
-      "expected_kind": "entry",
-      "expected_route": "ai-evals",
-      "expected_entry": "evals:evals-start",
-      "expected_message": null,
-      "repository_signals": []
-    },
-    {
       "id": "harbor-near-miss-verifier",
       "category": "near-miss",
       "role": "ai-engineer",
@@ -817,20 +632,6 @@
       "expected_route": null,
       "expected_entry": null,
       "expected_message": null,
-      "repository_signals": []
-    },
-    {
-      "id": "missing-harbor-plugin",
-      "category": "missing-plugin",
-      "role": "qa",
-      "prompt": "Create a Harbor Task and Harbor Verifier for this agent.",
-      "available_dependencies": [
-        "evals"
-      ],
-      "expected_kind": "degraded",
-      "expected_route": "harbor-evals",
-      "expected_entry": null,
-      "expected_message": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used.",
       "repository_signals": []
     },
     {
@@ -921,8 +722,6 @@
     "architect": "engineers",
     "developer": "engineers",
     "evidence-reviewer": "engineers",
-    "qa": "engineers",
-    "sre": "engineers",
     "tech-pm": "engineers",
     "context": "tools",
     "knowledge-base": "tools",

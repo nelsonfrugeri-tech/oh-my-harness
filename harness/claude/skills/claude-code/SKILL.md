@@ -12,7 +12,7 @@ description: |
   dos hooks duplicados que dispariam duas vezes. Cobre também os plugins de terceiro que os
   agents roteiam e que não são vendorizados aqui: `langchain-skills` e `langchain-mcp` (marketplace
   `langchain-ai/langchain-plugins`), roteados por `ai-engineer`, `architect` e `developer`; e
-  `evals` (marketplace `ai-evals-course`), roteado por `ai-engineer` e `qa`.
+  `evals` (marketplace `ai-evals-course`), roteado por `ai-engineer`.
   Use quando: (1) instalar a biblioteca numa máquina, (2) atualizar depois de um push,
   (3) migrar do sync por symlink para o plugin, (4) diagnosticar skill/agent/hook que não
   carrega, (5) instalar ou diagnosticar os plugins de terceiro.
@@ -153,7 +153,7 @@ claude plugin marketplace add ai-evals-course/evals-skills
 claude plugin install evals@ai-evals-course
 ```
 
-Roteado pela seção *Avaliação de LLM (evals)* dos agents `ai-engineer` e `qa`. Traz **8 skills**
+Roteado pela seção *Avaliação de LLM (evals)* do agent `ai-engineer`. Traz **8 skills**
 de error analysis, LLM-as-judge, calibração de evaluator e avaliação de RAG, a **~862 tokens**
 always-on e nenhum MCP server. O nome do marketplace (`ai-evals-course`) difere do nome do
 repositório (`evals-skills`) — o ID de instalação usa o do marketplace.
