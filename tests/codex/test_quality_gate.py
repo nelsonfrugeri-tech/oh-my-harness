@@ -93,12 +93,31 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("allow", decision["permissionDecision"])
         self.assertIn("NOT verified", decision["permissionDecisionReason"])
 
-    def test_non_pr_command_defers_without_running_checks(self) -> None:
+    #: Commands that must never reach the gate. `gh pr list/view/merge/checkout` are
+    #: read-only; gating them would run the whole project suite under a 600 s timeout
+    #: and refuse to *read* a pull request when a test fails. The remaining rows pin
+    #: the word boundary the trigger depends on.
+    _NON_PR_CREATE_COMMANDS = (
+        "gh issue create --title x",
+        "gh pr list",
+        "gh pr view 135",
+        "gh pr merge 135",
+        "gh pr checkout 135",
+        "gh pr create-foo",
+        "gh pr",
+        "gh pr create-something",
+        "git push && gh pr view 135",
+        "gh prcreate",
+    )
+
+    def test_non_pr_create_commands_defer_without_running_checks(self) -> None:
         self._configure_and_commit(test="false")
         self._push_current_head()
         self._trust_repository()
 
-        self.assertEqual("", self._run_gate("gh issue create --title x"))
+        for command in self._NON_PR_CREATE_COMMANDS:
+            with self.subTest(command=command):
+                self.assertEqual("", self._run_gate(command))
 
     def test_heredoc_mentioning_gh_pr_create_does_not_trigger_the_gate(self) -> None:
         self._configure_and_commit(test="false")
