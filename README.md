@@ -13,6 +13,9 @@ work—even when you change AI coding assistants, machines, or providers.
 [![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#agents)
 [![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#skills)
 
+[Explore the interactive guide](https://nelsonfrugeri-tech.github.io/oh-my-harness/)
+· [Website development and recording](website/README.md)
+
 </div>
 
 ---
@@ -204,6 +207,7 @@ Language follows the artifact's role:
 | `prompt` and `required` fields in `core/evals/*/cases.json` | pt-BR |
 | Evaluation protocol README files | English |
 | Installer error messages shown to users | pt-BR |
+| Public website and video-guide prose in `website/` | pt-BR (approved presentation-language exception) |
 | Vendored third-party content | Original upstream language |
 
 The response contract is independent of repository prose: respond in the user's language while

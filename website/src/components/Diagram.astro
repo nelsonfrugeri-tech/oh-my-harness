@@ -1,0 +1,230 @@
+---
+interface Props {
+  kind:
+    | "portability"
+    | "architecture"
+    | "evidence"
+    | "knowledge"
+    | "engineering"
+    | "boundaries"
+    | "demo"
+    | "start";
+}
+const { kind } = Astro.props;
+const flows = {
+  engineering: [
+    ["01", "Definir", "Escopo e critérios de aceite"],
+    ["02", "Construir", "Implementação e testes"],
+    ["03", "Revisar", "Standards + Spec"],
+    ["04", "Decidir", "Aceite e handoff explícitos"],
+  ],
+  demo: [
+    ["01", "Preparar", "Projeto público e dados sintéticos"],
+    ["02", "Executar", "Uma tarefa pequena, de ponta a ponta"],
+    ["03", "Inspecionar", "Diff, testes, review e proveniência"],
+    ["04", "Retomar", "Recuperar a decisão em outra sessão"],
+  ],
+  start: [
+    ["01", "Explorar", "Entenda os contratos"],
+    ["02", "Instalar", "Escolha seu harness"],
+    ["03", "Verificar", "Valide no seu ambiente"],
+  ],
+};
+---
+
+<div class:list={["diagram", `diagram-${kind}`]}>
+  {
+    kind === "portability" && (
+      <>
+        <div class="diagram-caption">
+          <span class="signal" /> UM SISTEMA DE TRABALHO · DOIS HARNESSES
+        </div>
+        <div class="core-orbit">
+          <>
+            <span class="mono">oh-my-harness</span>
+            <strong>
+              O método
+              <br />é seu.
+            </strong>
+            <span>evidências · conhecimento · engenharia</span>
+          </>
+        </div>
+        <div class="connector" aria-hidden="true" />
+        <div class="harness-pair">
+          <>
+            <div>
+              <>
+                <span class="mono">ADAPTER / 01</span>
+                <strong>Claude Code</strong>
+                <span>Representação nativa</span>
+              </>
+            </div>
+            <div>
+              <>
+                <span class="mono">ADAPTER / 02</span>
+                <strong>Codex</strong>
+                <span>Representação nativa</span>
+              </>
+            </div>
+          </>
+        </div>
+        <p class="diagram-foot">
+          Compartilhe a intenção. Preserve as diferenças.
+        </p>
+      </>
+    )
+  }
+  {
+    kind === "architecture" && (
+      <>
+        <div class="diagram-caption">A ARQUITETURA EM TRÊS CAMADAS</div>
+        <div class="layer">
+          <>
+            <span class="mono">01 / CORE</span>
+            <strong>Agents · Skills · Policies</strong>
+            <span>Hooks, evals e contratos de workflow</span>
+          </>
+        </div>
+        <div class="arrow" aria-hidden="true" />
+        <div class="layer">
+          <>
+            <span class="mono">02 / HARNESS</span>
+            <strong>Claude Code ↔ Codex</strong>
+            <span>Formatos, permissões e integrações nativas</span>
+          </>
+        </div>
+        <div class="arrow" aria-hidden="true" />
+        <div class="layer">
+          <>
+            <span class="mono">03 / MÁQUINA</span>
+            <strong>Capabilities → Providers</strong>
+            <span>Ferramentas e conhecimento externo ao produto</span>
+          </>
+        </div>
+      </>
+    )
+  }
+  {
+    kind === "evidence" && (
+      <>
+        <div class="diagram-caption">
+          EXEMPLO ILUSTRATIVO · NÃO É UM RESULTADO DE TESTE
+        </div>
+        <div class="claim broad">
+          <>
+            <span class="mono">ALEGAÇÃO AMPLA</span>
+            <p>
+              “A autenticação
+              <br />é segura.”
+            </p>
+            <span>O teste não estabelece tudo isso.</span>
+          </>
+        </div>
+        <div class="claim bounded">
+          <>
+            <span class="mono">OBSERVAÇÃO DELIMITADA</span>
+            <p>
+              “O token expirado
+              <br />
+              foi rejeitado.”
+            </p>
+            <span>Fonte + revisão + caso exercitado.</span>
+          </>
+        </div>
+        <p class="diagram-foot">Evidência → escopo → conclusão</p>
+      </>
+    )
+  }
+  {
+    kind === "knowledge" && (
+      <>
+        <div class="diagram-caption">
+          DUAS MEMÓRIAS · UMA DISTINÇÃO ESSENCIAL
+        </div>
+        <div class="memory-row">
+          <>
+            <span class="mono">EPISÓDICA</span>
+            <strong>Transcripts</strong>
+            <span>O que foi dito · retrieval de sessões</span>
+          </>
+        </div>
+        <div class="memory-divider">curadoria explícita · proveniência</div>
+        <div class="memory-row primary">
+          <>
+            <span class="mono">CURADA</span>
+            <strong>Notas Markdown / OKF</strong>
+            <span>O que permanece válido · fonte de verdade</span>
+          </>
+        </div>
+        <div class="arrow" aria-hidden="true" />
+        <div class="index-row">
+          <>
+            <strong>Qdrant</strong>
+            <span>Índice derivado e reconstruível</span>
+          </>
+        </div>
+        <p class="diagram-foot">
+          Identidade exata primeiro. Semelhança como fallback.
+        </p>
+      </>
+    )
+  }
+  {
+    kind === "boundaries" && (
+      <>
+        <div class="diagram-caption">O QUE VAI PARA CADA LUGAR</div>
+        <div class="layer">
+          <>
+            <span class="mono">VERSIONADO / OMH</span>
+            <strong>Seu sistema de trabalho</strong>
+            <span>Contratos compartilhados e adapters</span>
+          </>
+        </div>
+        <div class="layer">
+          <>
+            <span class="mono">INSTALADO / HARNESS</span>
+            <strong>Execução nativa</strong>
+            <span>Configurações, agents e skills disponíveis</span>
+          </>
+        </div>
+        <div class="layer">
+          <>
+            <span class="mono">LOCAL / MÁQUINA</span>
+            <strong>Providers e conhecimento</strong>
+            <span>Identidade e bundle fora dos produtos</span>
+          </>
+        </div>
+        <p class="diagram-foot">
+          Secrets e configuração pessoal não pertencem à biblioteca.
+        </p>
+      </>
+    )
+  }
+  {
+    (kind === "engineering" || kind === "demo" || kind === "start") && (
+      <>
+        <div class="diagram-caption">
+          {kind === "demo"
+            ? "ROTEIRO PARA UMA EXECUÇÃO A REGISTRAR"
+            : "DO CONTRATO À VERIFICAÇÃO"}
+        </div>
+        <ol class="flow-list">
+          {flows[kind].map(([number, title, description]) => (
+            <li>
+              <span class="flow-number">{number}</span>
+              <div>
+                <strong>{title}</strong>
+                <span>{description}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p class="diagram-foot">
+          {kind === "engineering"
+            ? "O humano responde por escopo, autorização e aceite."
+            : "Comece pequeno. Inspecione o que realmente aconteceu."}
+        </p>
+      </>
+    )
+  }
+</div>
