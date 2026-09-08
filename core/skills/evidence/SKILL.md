@@ -81,6 +81,8 @@ separate from durable correction.
 
 ## Output contract
 
+Respond in the user's language; keep established technical terms in English.
+
 Lead with the bounded conclusion. Cite or identify support beside each material claim, including
 source, inspection date or revision, derivation method, and limitation when applicable. Label only
 certainty boundaries that affect action. State unresolved conflicts and unavailable-source degraded

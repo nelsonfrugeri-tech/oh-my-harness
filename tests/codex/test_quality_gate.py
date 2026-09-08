@@ -61,7 +61,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("FAILED at test", decision["permissionDecisionReason"])
+        self.assertIn("FALHOU em test", decision["permissionDecisionReason"])
 
     def test_dirty_working_tree_denies_instead_of_running_checks(self) -> None:
         self._configure_and_commit(test="false")
@@ -72,7 +72,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("uncommitted changes", decision["permissionDecisionReason"])
+        self.assertIn("alterações não commitadas", decision["permissionDecisionReason"])
 
     def test_unpushed_head_denies_instead_of_running_checks(self) -> None:
         self._configure_and_commit(test="false")
@@ -82,7 +82,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("has not been pushed", decision["permissionDecisionReason"])
+        self.assertIn("não foi enviado", decision["permissionDecisionReason"])
 
     def test_explicit_bypass_allows_without_repository_trust(self) -> None:
         self._configure_and_commit(test="false")
@@ -91,7 +91,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate("OMH_GATE=off gh pr create --fill"))
 
         self.assertEqual("allow", decision["permissionDecision"])
-        self.assertIn("NOT verified", decision["permissionDecisionReason"])
+        self.assertIn("NÃO foi verificado", decision["permissionDecisionReason"])
 
     #: Commands that must never reach the gate. `gh pr list/view/merge/checkout` are
     #: read-only; gating them would run the whole project suite under a 600 s timeout
@@ -155,7 +155,7 @@ class QualityGateTest(unittest.TestCase):
                 decision = self._decision(self._run_gate(command))
 
                 self.assertEqual("deny", decision["permissionDecision"])
-                self.assertIn("FAILED at test", decision["permissionDecisionReason"])
+                self.assertIn("FALHOU em test", decision["permissionDecisionReason"])
 
     def test_quoted_bypass_mention_does_not_grant_the_bypass(self) -> None:
         # OMH_GATE=off counts only as a real assignment prefix of the command being
@@ -180,7 +180,7 @@ class QualityGateTest(unittest.TestCase):
         )
 
         self.assertEqual("allow", decision["permissionDecision"])
-        self.assertIn("NOT verified", decision["permissionDecisionReason"])
+        self.assertIn("NÃO foi verificado", decision["permissionDecisionReason"])
 
     # ---- MCP PR-creation path --------------------------------------------------
 
@@ -203,7 +203,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate_mcp())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("uncommitted changes", decision["permissionDecisionReason"])
+        self.assertIn("alterações não commitadas", decision["permissionDecisionReason"])
 
     def test_mcp_pr_creation_tool_bypass_requires_the_environment_variable(self) -> None:
         # The MCP call carries no command string, so the `OMH_GATE=off <cmd>` prefix form
@@ -216,7 +216,7 @@ class QualityGateTest(unittest.TestCase):
         )
 
         self.assertEqual("allow", decision["permissionDecision"])
-        self.assertIn("NOT verified", decision["permissionDecisionReason"])
+        self.assertIn("NÃO foi verificado", decision["permissionDecisionReason"])
 
     # ---- selected PR origin, review findings on #135 ---------------------------
 
@@ -230,7 +230,7 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("other-branch", decision["permissionDecisionReason"])
         self.assertIn(
-            "differs from the branch currently checked out", decision["permissionDecisionReason"]
+            "difere do branch atualmente em checkout", decision["permissionDecisionReason"]
         )
 
     def test_head_flag_cross_fork_denies(self) -> None:
@@ -241,7 +241,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate("gh pr create --head someone:other-branch --fill"))
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("another fork", decision["permissionDecisionReason"])
+        self.assertIn("outro fork", decision["permissionDecisionReason"])
 
     def test_head_flag_matching_current_branch_runs_normally(self) -> None:
         self._configure_and_commit(test="true")
@@ -326,7 +326,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("moved since the last local fetch", decision["permissionDecisionReason"])
+        self.assertIn("alterado desde o último fetch local", decision["permissionDecisionReason"])
 
     def test_remote_unreachable_denies_without_running_checks(self) -> None:
         self._configure_and_commit(test="false")
@@ -339,7 +339,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("could not be verified", decision["permissionDecisionReason"])
+        self.assertIn("não pôde ser verificado", decision["permissionDecisionReason"])
 
     def test_local_commit_ahead_of_the_remote_denies(self) -> None:
         # The common unpushed case, distinct from "no upstream at all": the branch is
@@ -353,8 +353,8 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("has not been pushed", decision["permissionDecisionReason"])
-        self.assertIn("HEAD differs from origin/", decision["permissionDecisionReason"])
+        self.assertIn("não foi enviado", decision["permissionDecisionReason"])
+        self.assertIn("HEAD difere de origin/", decision["permissionDecisionReason"])
 
     def test_branch_tracking_another_remote_denies_when_origin_lacks_it(self) -> None:
         # `@{upstream}` is not necessarily the remote the pull request targets: a branch
@@ -375,8 +375,8 @@ class QualityGateTest(unittest.TestCase):
 
         reason = decision["permissionDecisionReason"]
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("feat tracks upstream", reason)
-        self.assertIn("opened against origin", reason)
+        self.assertIn("feat rastreia upstream", reason)
+        self.assertIn("aberto contra origin", reason)
         self.assertIn("OMH_GATE=off", reason)
 
     def test_detached_head_denies_with_an_accurate_reason(self) -> None:
@@ -388,8 +388,8 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("HEAD is detached", decision["permissionDecisionReason"])
-        self.assertNotIn("no upstream", decision["permissionDecisionReason"])
+        self.assertIn("HEAD está detached", decision["permissionDecisionReason"])
+        self.assertNotIn("sem upstream", decision["permissionDecisionReason"])
 
     def test_untracked_files_get_their_own_reason(self) -> None:
         # "uncommitted changes" is not a true description of a stray .DS_Store.
@@ -402,9 +402,9 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("Untracked files are present", decision["permissionDecisionReason"])
+        self.assertIn("Há arquivos não rastreados", decision["permissionDecisionReason"])
         self.assertIn("graphify-out/", decision["permissionDecisionReason"])
-        self.assertNotIn("uncommitted changes", decision["permissionDecisionReason"])
+        self.assertNotIn("alterações não commitadas", decision["permissionDecisionReason"])
 
     def test_pass_cache_invalidates_when_the_gate_configuration_changes(self) -> None:
         # The configuration is reachable without a new commit whenever it is ignored
@@ -424,7 +424,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("deny", decision["permissionDecision"])
-        self.assertIn("FAILED at test", decision["permissionDecisionReason"])
+        self.assertIn("FALHOU em test", decision["permissionDecisionReason"])
 
     def test_pass_cache_short_circuits_an_unchanged_head_and_configuration(self) -> None:
         self._configure_and_commit(test="true")
@@ -435,7 +435,7 @@ class QualityGateTest(unittest.TestCase):
         decision = self._decision(self._run_gate())
 
         self.assertEqual("allow", decision["permissionDecision"])
-        self.assertIn("already passed", decision["permissionDecisionReason"])
+        self.assertIn("já passou", decision["permissionDecisionReason"])
 
     def test_no_guard_decision_uses_ask(self) -> None:
         # `ask` is not portable: Codex parses it, marks the hook run as failed and

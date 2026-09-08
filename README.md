@@ -158,7 +158,21 @@ The mandatory implementation constraints live in [`core/skills/implement/referen
 
 ### Language contract
 
-Instructional prose is **pt-BR**; code, comments, docstrings, and technical terms stay **English**. You talk to the harness in your language; what ships to a codebase is written in the code's language.
+Language follows the artifact's role:
+
+| Artifact | Language |
+| --- | --- |
+| Skills, roles, agents, references, and `routing.json` | English |
+| Code, comments, docstrings, test messages, and repository documentation | English |
+| `harness/claude/CLAUDE.md` and `harness/codex/AGENTS.md` | pt-BR |
+| Text injected into a user session by hooks | pt-BR |
+| `prompt` and `required` fields in `core/evals/*/cases.json` | pt-BR |
+| Evaluation protocol README files | English |
+| Installer error messages shown to users | pt-BR |
+| Vendored third-party content | Original upstream language |
+
+The response contract is independent of repository prose: respond in the user's language while
+keeping established technical terms in English.
 
 ---
 

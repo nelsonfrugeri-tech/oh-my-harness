@@ -288,7 +288,7 @@ fi
 # bypass says in its reason that the pull request was NOT verified. Treat the gate as
 # an executable reminder with an audited escape, not as an access control.
 if [ "${OMH_GATE:-}" = "off" ] || [ "$GATE_BYPASS" = yes ]; then
-  decide allow "Quality gate bypassed via OMH_GATE=off. This pull request was NOT verified."
+  decide allow "Quality gate ignorado via OMH_GATE=off. Este pull request NÃO foi verificado."
 fi
 
 [ -n "$CWD" ] && cd "$CWD" 2>/dev/null
@@ -384,11 +384,11 @@ CURRENT_BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null)
 if [ -n "$HEAD_ARG" ]; then
   case "$HEAD_ARG" in
     *:*)
-      decide deny "The pull request head ($HEAD_ARG) names another fork. The gate only validates the current checkout; verify $HEAD_ARG manually, then retry."
+      decide deny "O head do pull request ($HEAD_ARG) indica outro fork. O gate valida apenas o checkout atual; verifique $HEAD_ARG manualmente e tente novamente."
       ;;
   esac
   if [ "$HEAD_ARG" != "$CURRENT_BRANCH" ]; then
-    decide deny "The pull request head ($HEAD_ARG) differs from the branch currently checked out (${CURRENT_BRANCH:-detached HEAD}). Check out $HEAD_ARG, or verify it manually, then retry."
+    decide deny "O head do pull request ($HEAD_ARG) difere do branch atualmente em checkout (${CURRENT_BRANCH:-HEAD detached}). Faça checkout de $HEAD_ARG ou verifique-o manualmente e tente novamente."
   fi
 fi
 
@@ -398,7 +398,7 @@ if [ "$IS_MCP" = yes ] && [ -n "$MCP_OWNER" ] && [ -n "$MCP_REPO" ]; then
   if [ -n "$ORIGIN_OWNER_REPO" ]; then
     TARGET_OWNER_REPO=$(printf '%s/%s' "$MCP_OWNER" "$MCP_REPO" | tr '[:upper:]' '[:lower:]')
     if [ "$TARGET_OWNER_REPO" != "$(printf '%s' "$ORIGIN_OWNER_REPO" | tr '[:upper:]' '[:lower:]')" ]; then
-      decide deny "The pull request targets $MCP_OWNER/$MCP_REPO, which does not match the local origin remote ($ORIGIN_OWNER_REPO). Open the PR from a checkout of that repository, or verify it manually."
+      decide deny "O pull request aponta para $MCP_OWNER/$MCP_REPO, que não corresponde ao remote origin local ($ORIGIN_OWNER_REPO). Abra o PR a partir de um checkout desse repositório ou verifique-o manualmente."
     fi
   fi
   # ORIGIN_URL empty or in an unrecognized form: fail open, this specific check is skipped.
@@ -413,11 +413,11 @@ fi
 # `.DS_Store` or an unignored build directory, and an inaccurate reason is what makes
 # a gate look broken.
 if [ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" ]; then
-  decide deny "There are uncommitted changes to tracked files that will not enter the pull request. Commit or discard them, then retry."
+  decide deny "Há alterações não commitadas em arquivos rastreados que não entrarão no pull request. Faça commit ou descarte-as e tente novamente."
 fi
 UNTRACKED=$(git ls-files --others --exclude-standard 2>/dev/null | head -5 | tr '\n' ' ')
 if [ -n "$UNTRACKED" ]; then
-  decide deny "Untracked files are present and will not enter the pull request: ${UNTRACKED}. Commit them, add them to .gitignore, or remove them, then retry."
+  decide deny "Há arquivos não rastreados que não entrarão no pull request: ${UNTRACKED}. Faça commit deles, adicione-os ao .gitignore ou remova-os e tente novamente."
 fi
 
 # The PR is built from the branch on the remote it targets, not from the local HEAD
@@ -428,14 +428,14 @@ fi
 # otherwise — and compare HEAD against that ref.
 PR_BRANCH=${HEAD_ARG:-$CURRENT_BRANCH}
 if [ -z "$PR_BRANCH" ]; then
-  decide deny "HEAD is detached, so there is no branch for the pull request to be opened from. Check out the branch you intend to open it from, then retry."
+  decide deny "O HEAD está detached, portanto não há um branch a partir do qual abrir o pull request. Faça checkout do branch desejado e tente novamente."
 fi
 
 TARGET_REMOTE=origin
 git remote get-url origin >/dev/null 2>&1 ||
   TARGET_REMOTE=$(git config --get "branch.$PR_BRANCH.remote" 2>/dev/null)
 if [ -z "$TARGET_REMOTE" ]; then
-  decide deny "The local head has not been pushed: $PR_BRANCH has no remote to open the pull request from. Push it, then retry."
+  decide deny "O head local não foi enviado: $PR_BRANCH não tem um remote a partir do qual abrir o pull request. Faça push e tente novamente."
 fi
 
 HEAD_SHA=$(git rev-parse HEAD 2>/dev/null)
@@ -448,12 +448,12 @@ if [ -z "$TARGET_SHA" ]; then
   TRACKING_REMOTE=$(git config --get "branch.$PR_BRANCH.remote" 2>/dev/null)
   if [ -n "$TRACKING_REMOTE" ] && [ "$TRACKING_REMOTE" != "$TARGET_REMOTE" ] &&
     git rev-parse --verify -q "refs/remotes/$TRACKING_REMOTE/$PR_BRANCH" >/dev/null 2>&1; then
-    decide deny "$PR_BRANCH tracks $TRACKING_REMOTE, but the pull request would be opened against $TARGET_REMOTE, which has no $PR_BRANCH. The gate refuses instead of verifying $TRACKING_REMOTE/$PR_BRANCH, because that is not the ref the pull request uses. Push $PR_BRANCH to $TARGET_REMOTE, or open the pull request with the emergency bypass (OMH_GATE=off gh pr create …), which records that it was NOT verified."
+    decide deny "$PR_BRANCH rastreia $TRACKING_REMOTE, mas o pull request seria aberto contra $TARGET_REMOTE, que não contém $PR_BRANCH. O gate recusa em vez de verificar $TRACKING_REMOTE/$PR_BRANCH, pois essa não é a ref usada pelo pull request. Faça push de $PR_BRANCH para $TARGET_REMOTE ou abra o pull request com o bypass de emergência (OMH_GATE=off gh pr create …), que registra que ele NÃO foi verificado."
   fi
-  decide deny "The local head has not been pushed: $TARGET_REMOTE has no $PR_BRANCH, so the pull request would be opened against a remote that does not have this branch. Push it to $TARGET_REMOTE, then retry."
+  decide deny "O head local não foi enviado: $TARGET_REMOTE não contém $PR_BRANCH, portanto o pull request seria aberto contra um remote que não tem esse branch. Faça push para $TARGET_REMOTE e tente novamente."
 fi
 if [ -z "$HEAD_SHA" ] || [ "$TARGET_SHA" != "$HEAD_SHA" ]; then
-  decide deny "The local head has not been pushed: HEAD differs from $TARGET_REMOTE/$PR_BRANCH. Push it, then retry."
+  decide deny "O head local não foi enviado: HEAD difere de $TARGET_REMOTE/$PR_BRANCH. Faça push e tente novamente."
 fi
 
 # ---------------------------------------------------------------- remote reality check
@@ -493,10 +493,10 @@ fetch_remote_sha() {
 # answer covers the same ref the local comparison above just accepted.
 REMOTE_SHA=$(fetch_remote_sha "$TARGET_REMOTE" "refs/heads/$PR_BRANCH")
 if [ -z "$REMOTE_SHA" ]; then
-  decide deny "The remote branch could not be verified. Restore access to $TARGET_REMOTE, then retry, or use the explicit emergency bypass."
+  decide deny "O branch remoto não pôde ser verificado. Restaure o acesso a $TARGET_REMOTE e tente novamente ou use o bypass de emergência explícito."
 fi
 if [ "$REMOTE_SHA" != "$HEAD_SHA" ]; then
-  decide deny "The remote branch has moved since the last local fetch: $TARGET_REMOTE's $PR_BRANCH is now $REMOTE_SHA, this checkout has $HEAD_SHA. Fetch, then retry."
+  decide deny "O branch remoto foi alterado desde o último fetch local: $PR_BRANCH em $TARGET_REMOTE agora está em $REMOTE_SHA, enquanto este checkout está em $HEAD_SHA. Faça fetch e tente novamente."
 fi
 
 # ---------------------------------------------------------------- run cache
@@ -517,7 +517,7 @@ CACHE_KEY="$HEAD_SHA"
 # key that matches everything.
 if [ -n "$HEAD_SHA" ] && [ -f "$CACHE_FILE" ]; then
   if [ "$(cat "$CACHE_FILE" 2>/dev/null)" = "$CACHE_KEY" ]; then
-    decide allow "Quality gate already passed for this exact HEAD and configuration."
+    decide allow "O quality gate já passou para este HEAD e esta configuração exatos."
   fi
 fi
 
@@ -628,11 +628,11 @@ for kind in format lint typecheck test; do
   [ -z "$cmd" ] && continue
   out=$(run_check "$cmd"); rc=$?
   if [ "$rc" -ne 0 ]; then
-    decide deny "Quality gate FAILED at ${kind}: \`${cmd}\`
+    decide deny "O quality gate FALHOU em ${kind}: \`${cmd}\`
 
 $(printf '%s' "$out" | tail -25)
 
-Fix it, push the fix, and open the pull request again. Emergency bypass (the PR is NOT verified): prefix the command with OMH_GATE=off, or export it before an MCP-triggered PR."
+Corrija o problema, faça push da correção e abra o pull request novamente. Bypass de emergência (o PR NÃO é verificado): prefixe o comando com OMH_GATE=off ou exporte a variável antes de um PR disparado por MCP."
   fi
   RAN="$RAN $kind"
 done
@@ -644,7 +644,7 @@ if [ -f "$CONFIG" ]; then
     [ -z "$cmd" ] && break
     out=$(run_check "$cmd"); rc=$?
     if [ "$rc" -ne 0 ]; then
-      decide deny "Quality gate FAILED on a project check: \`${cmd}\`
+      decide deny "O quality gate FALHOU em uma verificação do projeto: \`${cmd}\`
 
 $(printf '%s' "$out" | tail -25)"
     fi
@@ -654,7 +654,7 @@ $(printf '%s' "$out" | tail -25)"
 fi
 
 if [ -z "$RAN" ]; then
-  decide allow "Quality gate found no format/lint/typecheck/test command for this repo — nothing to verify."
+  decide allow "O quality gate não encontrou comandos de format/lint/typecheck/test neste repositório — não há nada para verificar."
 fi
 
 if [ -n "$HEAD_SHA" ]; then
@@ -662,4 +662,4 @@ if [ -n "$HEAD_SHA" ]; then
   printf '%s' "$CACHE_KEY" > "$CACHE_FILE" 2>/dev/null
 fi
 
-decide allow "Quality gate passed:${RAN}."
+decide allow "O quality gate passou:${RAN}."

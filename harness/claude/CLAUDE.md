@@ -9,6 +9,7 @@ Regras vinculantes deste ambiente. Aplicam-se a toda sessão do harness e a todo
 
 ---
 
+<!-- shared-guidance:start -->
 <!-- software-evidence:start -->
 ## Como penso, decido e respondo
 
@@ -123,11 +124,22 @@ vez de inventar.
 
 ## Idioma
 
-- **Conversa, prosa instrucional, títulos e explicações** → pt-BR.
-- **Termos técnicos e nomes próprios** de engenharia → inglês inline (*guard clause*, RAG, OAuth).
-- **Base de código** — código, comentários, docstrings e docs que vivem num repositório → **inglês**.
-- **Nomes de skill/agent e triggers** → inglês em kebab-case. **Chaves de frontmatter** → inglês, em kebab-case ou snake_case (o ecossistema usa `knowledge_type`, `created_at`, `upstream_version`).
-- **Conteúdo *vendored* de terceiro** (skill/runbook publicado por outro projeto) → fica **no idioma original**. Traduzir cria um fork que dá drift silencioso a cada release upstream; marque a proveniência com `upstream_version`.
+| Artefato | Idioma | Motivo |
+| --- | --- | --- |
+| Skills, roles, agents, references e `routing.json` | inglês | São artefatos lidos pelo modelo e testados como código. |
+| Código, comentários, docstrings, mensagens de teste | inglês | Fazem parte da base de código. |
+| `README.md`, `INSTRUCTIONS.md` e documentação do repositório | inglês | São documentação pública para outros developers. |
+| `harness/claude/CLAUDE.md` e `harness/codex/AGENTS.md` | pt-BR | São instruções globais ao harness no idioma da conversa. |
+| Texto que hooks injetam na sessão | pt-BR | É conversa com o usuário. |
+| `core/evals/*/cases.json`, nos campos `prompt` e `required` | pt-BR | Simula o usuário falando. |
+| `core/evals/*/README.md` | inglês | É protocolo documentado no repositório. |
+| Mensagens de erro do installer voltadas ao usuário | pt-BR | Mantêm a interface existente do installer. |
+| Conteúdo *vendored* de terceiros | idioma original | Traduzir criaria um fork implícito sujeito a drift do upstream. |
+
+Converse no idioma do usuário e mantenha termos técnicos estabelecidos em inglês inline, como
+*guard clause*, RAG e OAuth. Nomes de skill, agent e trigger usam inglês em kebab-case; chaves de
+frontmatter seguem a convenção do ecossistema, normalmente kebab-case ou snake_case. Conteúdo
+*vendored* registra sua proveniência e `upstream_version`.
 
 ---
 
@@ -141,34 +153,52 @@ Arquivo **auxiliar, temporário ou de execução** — script one-off, relatóri
 
 ## Ambiente
 
-Agents e skills **nunca** citam uma tool concreta: pedem uma **capability** abstrata. Esta tabela
-é o único lugar acoplado à máquina, e lista **o que está plugado aqui** — não o catálogo do que
-existe. Cada máquina acrescenta as suas linhas; capability citada na prosa e ausente daqui
-simplesmente não tem provider.
+### Capabilities e adapters
 
-| Capability | Papel | Tool concreta nesta máquina |
+Agents e skills referenciam capabilities abstratas, nunca identificadores concretos de tools. O
+adapter de cada runtime é o único lugar que vincula uma capability a um provider instalado naquela
+máquina. Bindings concretos e primitivos ficam no delta do runtime.
+
+Resolva uma capability pelo adapter ativo. Capability vazia, provider ausente ou infraestrutura fora
+do ar exige modo degradado explícito: conclua o trabalho ainda possível e declare exatamente o que
+ficou pendente. Nunca invente uma tool ou transforme falha em silêncio.
+
+### Tool agents
+
+Tool agents operam infraestrutura compartilhada consumida por outros agents.
+
+| Agent | Responsabilidade | Skills |
 | --- | --- | --- |
-| `web` | Busca e fetch na web | `WebSearch`, `WebFetch` |
-| `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` |
-| `session-memory` | Memória bruta de sessões passadas: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` |
+| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas, session records e o mapeamento sob demanda de um repositório | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session`, `explorer` |
+| `site` | Criar sites visuais com fontes e expô-los opcionalmente após aprovação | `site-report`, `site-expose` |
 
-`Read`, `Write`, `Edit`, `Bash`, `Grep` e `Glob` são primitivos — não precisam de plugue.
+O routing pertence às descriptions dos agents, e a mecânica pertence às skills. Não duplique nenhum
+dos dois aqui.
 
-**Resolução:** a prosa pede a capability → você usa a tool mapeada acima; se for MCP deferida,
-carregue via `ToolSearch` antes. **Nunca invente uma tool.** Capability vazia, provider ausente ou
-infra fora do ar → **degrade e declare**: faça a parte possível e diga exatamente o que ficou
-pendente. Nunca vire falha silenciosa nem invenção.
+### Fatos vinculantes do ambiente
 
-**Onde cada coisa mora.** Tool agents operam a infraestrutura que os outros consomem: quem são está
-na description deles, que o harness já carrega, e a mecânica está na skill de cada um — pergunte ao
-dono em vez de duplicar aqui. Duas regras transversais não têm outro dono:
+1. A knowledge base é um bundle OKF v0.2 em `~/knowledge-base/`, sempre fora dos repositórios do
+   usuário. Seu runtime fica em `~/.local/share/omh-kb/`; o bundle Markdown é a source of truth e
+   todo índice binário pode ser reconstruído.
+2. O modelo de embedding é fixo em `BAAI/bge-m3`. Alterá-lo invalida todo o índice e exige uma
+   decisão explícita do usuário.
+3. Quando o Deja estiver instalado, `DEJA_INCLUDE_SUBAGENTS=1` é obrigatório para que transcripts de
+   subagents não sejam omitidos. A redaction de transcripts do Deja é uma proteção mínima; revise o
+   conteúdo antes de exportá-lo.
+4. O Deja controla seu próprio wiring de MCP e hooks. A sincronização do harness deve preservar
+   hooks gerenciados pelo Deja e sua skill de histórico instalada. Use o Deja apenas para retrieval;
+   seus recursos de escrita de notas não podem criar um segundo repositório de conhecimento curado.
+5. Providers externos de capability, como o de `code-graph`, são instalados pelas próprias
+   ferramentas e vivem fora deste repositório. A sincronização do harness os preserva.
+6. A biblioteca é agnóstica a contas. Client IDs, secrets, tokens, handles e paths de executáveis
+   específicos da máquina nunca entram no repositório.
 
-1. **Tool agent nunca escreve no repositório do usuário.** Conhecimento vai para
-   `~/knowledge-base/`, sempre fora do repo; o sync da biblioteca, para `~/.claude/`.
-2. **Nada de terceiro é órfão, nada de segredo entra no repo.** Skills e hooks instalados por
-   outras ferramentas (`deja-history`, os providers externos das capabilities) não podem ser
-   removidos por nenhum sync; e nenhum token, secret ou handle entra no repositório — um agent
-   reporta o *estado* da auth, nunca o valor.
+### Duas camadas de memória, dois responsáveis
+
+| Camada | Armazenamento | Escritor | Leitor |
+| --- | --- | --- | --- |
+| Bruta e episódica: o que foi dito | Transcripts do harness e índice do Deja | Apenas ingestão automática | Capability `session-memory` |
+| Destilada e curada: o que permanece válido | Bundle OKF em `~/knowledge-base/` | Somente `kb-write` | `kb-retrieval` |
 
 ### Memória — o agent `knowledge-base`
 
@@ -188,6 +218,19 @@ campo obrigatório ausente bloqueia a escrita, e metadata realmente indisponíve
 **O invariante.** É o **único escritor de conhecimento curado** — mecanismos de nota de outras
 ferramentas abririam um repositório concorrente e são proibidos; delas só lemos. Sem infra, degrada
 e declara.
+
+### Regras de conhecimento
+
+1. Tool agents nunca escrevem no repositório do usuário. Escritas de conhecimento vão para
+   `~/knowledge-base/`; destinos de instalação do adapter ficam no delta do runtime.
+2. Sem Qdrant, escritas em disco continuam e a indexação permanece pendente. O retrieval usa
+   navegação estruturada em disco como fallback e informa explicitamente o modo degradado.
+3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records são
+   documentos mutáveis nomeados e reescritos in-place.
+4. Toda nova nota e todo session record carregam provenance real de harness, sessão, cwd e máquina
+   conforme `kb-write`/`kb-session`. A identidade estável vem de
+   `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente bloqueia a escrita, enquanto
+   metadata que o harness não fornece permanece explicitamente `null`.
 
 ---
 
@@ -288,3 +331,29 @@ específico, esse contrato prevalece somente sobre a forma. Ele não suspende as
 evidence, provenance, incerteza, idioma ou segurança; saídas machine-readable devem permanecer
 exatamente no schema solicitado, sem prosa ou visual adicional.
 <!-- response-format:end -->
+<!-- shared-guidance:end -->
+
+---
+
+<!-- claude-delta:start -->
+## Delta do Claude Code
+
+### Bindings e primitivos do Claude Code
+
+Esta tabela lista apenas os providers conectados nesta máquina, não o catálogo de capabilities
+possíveis. Cada máquina acrescenta as suas linhas.
+
+| Capability | Papel | Provider Claude Code nesta máquina |
+| --- | --- | --- |
+| `web` | Busca e fetch na web | `WebSearch`, `WebFetch` |
+| `code-graph` | Query/path/explain sobre um knowledge graph de codebase | `mcp__graphify__*` |
+| `session-memory` | Memória bruta de sessões passadas: recall por tema, digest, `blame` por arquivo | `deja` CLI / `mcp__deja__*` |
+
+`Read`, `Write`, `Edit`, `Bash`, `Grep` e `Glob` são primitivos e não precisam de provider. Se um
+MCP estiver deferido, carregue-o via `ToolSearch` antes de usá-lo.
+
+### Destino de sincronização do Claude Code
+
+A sincronização da biblioteca escreve apenas em `~/.claude/` e preserva skills e hooks instalados
+por outras ferramentas.
+<!-- claude-delta:end -->

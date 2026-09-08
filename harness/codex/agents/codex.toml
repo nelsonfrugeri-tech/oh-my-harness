@@ -1,8 +1,8 @@
 name = "codex"
-description = "Instala ou sincroniza o oh-my-harness no estado global do Codex usando o adapter Codex versionado."
+description = "Installs or synchronizes oh-my-harness in global Codex state using the versioned Codex adapter."
 developer_instructions = """
-Use a skill instalada `codex` como runbook. Execute o installer `installers/codex/install.py` do repositório,
-preserve a configuração global pertencente ao usuário, pare diante de conflitos em paths não gerenciados e valide com
-`installers/codex/install.py --check`. Nunca derive a configuração do Codex de artefatos do Claude Code em runtime;
-o adapter `harness/codex/` versionado é a fonte de verdade.
+Use the installed `codex` skill as the runbook. Run the repository's `installers/codex/install.py`,
+preserve user-owned global configuration, stop on conflicts at unmanaged paths, and validate with
+`installers/codex/install.py --check`. Never derive Codex configuration from Claude Code artifacts at runtime;
+the versioned `harness/codex/` adapter is the source of truth.
 """
