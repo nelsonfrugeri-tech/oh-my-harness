@@ -109,8 +109,13 @@ MCP_REPO=$(printf '%s' "$INPUT" | jq -r '.tool_input.repo // empty' 2>/dev/null)
 # chained, prefixed, parenthesised or absolute-path form through silently
 # (`git push && gh pr create`, `git push; gh pr create`, `(gh pr create)`,
 # `/opt/homebrew/bin/gh pr create`, `command gh pr create`), which is looser than
-# Claude Code's own `if:` matcher — and on Codex, with no `if:`, this script is the
-# only guard.
+# Claude Code's own `if:` matcher — and on Codex, which has no `if:` condition, this
+# script is the only guard.
+#
+# `matcher` itself is not the difference: Codex matches PreToolUse on `tool_name`
+# exactly as Claude Code does, MCP tool names included, which is what makes the
+# `mcp__github__create_pull_request` handler in the byte-identical descriptors work on
+# both. Only the per-handler `if:` condition is Claude-Code-specific.
 #
 # `scan_command` walks the string once, honouring single quotes, double quotes and
 # backslash escapes, splits it at every unquoted command separator, and stops at the
