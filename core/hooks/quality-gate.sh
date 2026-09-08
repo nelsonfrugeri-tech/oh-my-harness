@@ -83,30 +83,177 @@ MCP_REPO=$(printf '%s' "$INPUT" | jq -r '.tool_input.repo // empty' 2>/dev/null)
 # Two ways this harness opens a pull request: the `gh` CLI over Bash, or the GitHub
 # MCP server's PR-creation tool. The MCP call carries no shell command, so it is
 # identified by tool name instead of by regex.
+#
+# The Bash path is decided by a one-pass shell-aware scan instead of a regex over
+# the raw first line. A regex anchored at the start of the first line let every
+# chained, prefixed, parenthesised or absolute-path form through silently
+# (`git push && gh pr create`, `git push; gh pr create`, `(gh pr create)`,
+# `/opt/homebrew/bin/gh pr create`, `command gh pr create`), which is looser than
+# Claude Code's own `if:` matcher — and on Codex, with no `if:`, this script is the
+# only guard.
+#
+# `scan_command` walks the string once, honouring single quotes, double quotes and
+# backslash escapes, splits it at every unquoted command separator, and stops at the
+# first unquoted `<<` so a heredoc body is never read as a command. Each segment is
+# then inspected in command position: leading `VAR=value` assignments and the
+# command wrappers below are skipped, and the command word matches when it is `gh`
+# or ends in `/gh`. Quoted text is never a command, so a PR title mentioning
+# `gh pr create` or `OMH_GATE=off` cannot trigger or bypass the gate.
+#
+# An unlisted wrapper (`nice`, `xargs`, a shell function) still escapes, and so does
+# a command substitution inside double quotes. That is the script's declared
+# fail-open stance, not a claim of completeness.
+
+GATE_TRIGGERED=no
+GATE_BYPASS=no
+SEG_COUNT=0
+SEG_TOKENS=()
+PR_ARGC=0
+PR_ARGV=()
+
+is_gh_word() {
+  case "$1" in
+    gh | */gh) return 0 ;;
+  esac
+  return 1
+}
+
+is_wrapper_word() {
+  case "$1" in
+    command | env | exec | sudo | doas | nohup | nice | stdbuf | time | builtin) return 0 ;;
+  esac
+  return 1
+}
+
+# Decide whether the segment currently in SEG_TOKENS is a `gh pr create` invocation.
+# Records the arguments that follow so the selected PR origin can be read from the
+# same parse, and honours `OMH_GATE=off` only as a real assignment prefix.
+inspect_segment() {
+  index=0
+  bypass=no
+  while [ "$index" -lt "$SEG_COUNT" ]; do
+    word=${SEG_TOKENS[$index]}
+    case "$word" in
+      OMH_GATE=off) bypass=yes ;;
+      [A-Za-z_]*=*) ;;
+      *) is_wrapper_word "$word" || break ;;
+    esac
+    index=$((index + 1))
+  done
+
+  [ "$GATE_TRIGGERED" = yes ] && return
+  [ $((index + 2)) -lt "$SEG_COUNT" ] || return
+  is_gh_word "${SEG_TOKENS[$index]}" || return
+  [ "${SEG_TOKENS[$((index + 1))]}" = pr ] || return
+  [ "${SEG_TOKENS[$((index + 2))]}" = create ] || return
+
+  GATE_TRIGGERED=yes
+  [ "$bypass" = yes ] && GATE_BYPASS=yes
+  index=$((index + 3))
+  PR_ARGC=0
+  PR_ARGV=()
+  while [ "$index" -lt "$SEG_COUNT" ]; do
+    PR_ARGV[$PR_ARGC]=${SEG_TOKENS[$index]}
+    PR_ARGC=$((PR_ARGC + 1))
+    index=$((index + 1))
+  done
+}
+
+end_token() {
+  if [ -n "$token" ] || [ "$token_open" -eq 1 ]; then
+    SEG_TOKENS[$SEG_COUNT]="$token"
+    SEG_COUNT=$((SEG_COUNT + 1))
+    token=""
+    token_open=0
+  fi
+}
+
+end_segment() {
+  [ "$SEG_COUNT" -gt 0 ] && inspect_segment
+  SEG_COUNT=0
+  SEG_TOKENS=()
+}
+
+scan_command() {
+  command_line="$1"
+  length=${#command_line}
+  position=0
+  token=""
+  token_open=0
+  SEG_COUNT=0
+  SEG_TOKENS=()
+  while [ "$position" -lt "$length" ]; do
+    char=${command_line:position:1}
+    case "$char" in
+      "'")
+        position=$((position + 1))
+        while [ "$position" -lt "$length" ] && [ "${command_line:position:1}" != "'" ]; do
+          token="$token${command_line:position:1}"
+          position=$((position + 1))
+        done
+        token_open=1
+        ;;
+      '"')
+        position=$((position + 1))
+        while [ "$position" -lt "$length" ] && [ "${command_line:position:1}" != '"' ]; do
+          [ "${command_line:position:1}" = '\' ] && position=$((position + 1))
+          token="$token${command_line:position:1}"
+          position=$((position + 1))
+        done
+        token_open=1
+        ;;
+      '\')
+        position=$((position + 1))
+        token="$token${command_line:position:1}"
+        token_open=1
+        ;;
+      ' ' | $'\t')
+        end_token
+        ;;
+      '<')
+        end_token
+        # `<<` opens a heredoc: everything after it is data, never a command.
+        if [ "${command_line:$((position + 1)):1}" = '<' ]; then
+          end_segment
+          return
+        fi
+        ;;
+      '>')
+        end_token
+        ;;
+      ';' | '&' | '|' | '(' | ')' | '{' | '}' | '`' | $'\n')
+        end_token
+        end_segment
+        ;;
+      *)
+        token="$token$char"
+        token_open=1
+        ;;
+    esac
+    position=$((position + 1))
+  done
+  end_token
+  end_segment
+}
+
 IS_MCP=no
 if [ "$TOOL_NAME" = "$MCP_PR_TOOL" ]; then
   IS_MCP=yes
 else
-  # Claude Code evaluates `if: Bash(gh pr create*)` before invoking this script.
-  # Codex currently retains only the `Bash` matcher, so mirror the declared direct-command
-  # scope here. Inspecting only the first line prevents heredoc bodies and documentation
-  # from being mistaken for commands without attempting to parse shell grammar.
-  TOOL_FIRST_LINE=$(printf '%s' "$TOOL_CMD" | sed -n '1p')
-  printf '%s' "$TOOL_FIRST_LINE" |
-    grep -qE '^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+[[:space:]]+)*gh[[:space:]]+pr[[:space:]]+create([[:space:]]|$)' ||
-    defer
+  scan_command "$TOOL_CMD"
+  [ "$GATE_TRIGGERED" = yes ] || defer
 fi
 
 # Escape hatch. The prefix form (`OMH_GATE=off gh pr create …`) sets the variable on
-# the *creating* process, which this hook never inherits — so read it off the command
-# string too, not just our own environment. Anchored at the start on purpose: a PR
-# title or body that merely mentions OMH_GATE=off must not grant the bypass.
+# the *creating* process, which this hook never inherits — so it is read off the
+# command string too, not just our own environment. It counts only as a real
+# assignment prefix of the triggering segment: a PR title or body that merely
+# mentions OMH_GATE=off is a quoted argument and must not grant the bypass.
 #
 # The MCP tool call carries no command string, so there is no prefix form for it:
 # bypass that path only by exporting OMH_GATE=off in the environment this hook itself
 # runs in (e.g. for the whole session), not by putting it in PR fields.
-if [ "${OMH_GATE:-}" = "off" ] ||
-  { [ "$IS_MCP" = no ] && printf '%s' "$TOOL_CMD" | grep -qE '^[[:space:]]*OMH_GATE=off[[:space:]]'; }; then
+if [ "${OMH_GATE:-}" = "off" ] || [ "$GATE_BYPASS" = yes ]; then
   decide allow "Quality gate bypassed via OMH_GATE=off. This pull request was NOT verified."
 fi
 
@@ -179,7 +326,7 @@ normalize_owner_repo() {
 if [ "$IS_MCP" = yes ]; then
   HEAD_ARG="$MCP_HEAD"
 else
-  HEAD_ARG=$(parse_head_flag "$TOOL_FIRST_LINE")
+  HEAD_ARG=$(parse_head_flag "$(printf '%s' "$TOOL_CMD" | sed -n '1p')")
 fi
 
 CURRENT_BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null)

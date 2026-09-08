@@ -108,6 +108,61 @@ class QualityGateTest(unittest.TestCase):
 
         self.assertEqual("", self._run_gate(command))
 
+    # ---- trigger width, review findings on #135 --------------------------------
+
+    #: Every form the reviewer showed escaping the first-line-anchored regex. `deny`
+    #: proves the gate ran: the configured `test` command is `false`.
+    _CHAINED_PR_CREATE_COMMANDS = (
+        "gh pr create --fill",
+        "git push -u origin main && gh pr create --fill",
+        "git push; gh pr create --fill",
+        "(gh pr create --fill)",
+        "/opt/homebrew/bin/gh pr create --fill",
+        "cd . && gh pr create --fill",
+        "command gh pr create",
+        "env gh pr create",
+        "FOO=1 gh pr create --fill",
+        "gh pr create --fill || true",
+        "echo x | gh pr create --fill",
+    )
+
+    def test_chained_and_prefixed_pr_creation_still_runs_the_checks(self) -> None:
+        self._configure_and_commit(test="false")
+        self._push_current_head()
+        self._trust_repository()
+
+        for command in self._CHAINED_PR_CREATE_COMMANDS:
+            with self.subTest(command=command):
+                decision = self._decision(self._run_gate(command))
+
+                self.assertEqual("deny", decision["permissionDecision"])
+                self.assertIn("FAILED at test", decision["permissionDecisionReason"])
+
+    def test_quoted_bypass_mention_does_not_grant_the_bypass(self) -> None:
+        # OMH_GATE=off counts only as a real assignment prefix of the command being
+        # run; inside a PR title it is a quoted argument.
+        self._configure_and_commit(test="false")
+        self._push_current_head()
+        self._trust_repository()
+
+        decision = self._decision(
+            self._run_gate("gh pr create --title 'mentions OMH_GATE=off' --fill")
+        )
+
+        self.assertEqual("deny", decision["permissionDecision"])
+
+    def test_bypass_prefix_is_honoured_after_a_chained_command(self) -> None:
+        self._configure_and_commit(test="false")
+        self._push_current_head()
+        self._trust_repository()
+
+        decision = self._decision(
+            self._run_gate("git push && OMH_GATE=off gh pr create --fill")
+        )
+
+        self.assertEqual("allow", decision["permissionDecision"])
+        self.assertIn("NOT verified", decision["permissionDecisionReason"])
+
     # ---- MCP PR-creation path --------------------------------------------------
 
     def test_mcp_pr_creation_tool_runs_the_same_checks_as_gh_pr_create(self) -> None:
