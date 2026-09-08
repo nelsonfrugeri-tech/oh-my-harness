@@ -28,7 +28,6 @@
     "./harness/claude/agents/engineers/tech-pm.md",
     "./harness/claude/agents/harness/claude-code.md",
     "./harness/claude/agents/policy/evidence-reviewer.md",
-    "./harness/claude/agents/tools/context.md",
     "./harness/claude/agents/tools/graphify.md",
     "./harness/claude/agents/tools/knowledge-base.md",
     "./harness/claude/agents/tools/site.md"

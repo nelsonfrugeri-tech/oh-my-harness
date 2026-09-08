@@ -64,7 +64,7 @@ class KnowledgeBaseSessionDistillationContractTests(unittest.TestCase):
 
         self.assertIn("collision at the canonical domain blocks writes", readme)
         self.assertIn(
-            "persistent resolver shared by note, context, and session writers",
+            "persistent resolver shared by note and session writers",
             readme,
         )
         self.assertIn("a local alias is never created", readme)

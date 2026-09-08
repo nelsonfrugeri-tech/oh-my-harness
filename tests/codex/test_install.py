@@ -50,7 +50,7 @@ class CodexInstallerTest(unittest.TestCase):
         self.assertTrue(installed_agent.is_file())
         self.assertFalse(installed_agent.is_symlink())
         self.assertEqual('name = "developer"\n', installed_agent.read_text(encoding="utf-8"))
-        self.assertFalse(self._codex_home.joinpath("hooks/context-load.sh").exists())
+        self.assertFalse(self._codex_home.joinpath("hooks/quality-gate.sh").exists())
         agents = self._codex_home.joinpath("AGENTS.md").read_text(encoding="utf-8")
         self.assertIn("Personal rule.", agents)
         self.assertIn("Shared rules.", agents)
@@ -714,7 +714,7 @@ class CodexInstallerTest(unittest.TestCase):
         )
         # Legacy fixture name: this synthetic source never mirrors the repository roles.
         agent.joinpath("developer.toml").write_text('name = "developer"\n', encoding="utf-8")
-        hook.joinpath("context-load.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+        hook.joinpath("quality-gate.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
         agents_content = """Shared rules.
 
 | Capability | Purpose | Codex provider on this machine |

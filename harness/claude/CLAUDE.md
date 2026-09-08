@@ -172,7 +172,7 @@ dono em vez de duplicar aqui. Duas regras transversais não têm outro dono:
 
 ### Memória — o agent `knowledge-base`
 
-**O que é.** O dono da memória do usuário: conhecimento durável, o contexto vivo de cada projeto e
+**O que é.** O dono da memória do usuário: conhecimento durável, a identidade de cada projeto e
 o registro das sessões. É **um agent desta biblioteca, não uma capability** — logo não é
 substituível, e é isso que sustenta o invariante abaixo.
 

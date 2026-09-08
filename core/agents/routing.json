@@ -120,22 +120,8 @@
             "ToolSearch"
           ]
         },
-        "context": {
-          "version": "1.0.0",
-          "model": "sonnet",
-          "tools": [
-            "Read",
-            "Grep",
-            "Glob",
-            "Bash",
-            "Write",
-            "WebSearch",
-            "WebFetch",
-            "ToolSearch"
-          ]
-        },
         "knowledge-base": {
-          "version": "1.0.0",
+          "version": "2.0.0",
           "model": "sonnet",
           "tools": [
             "Read",
@@ -196,7 +182,6 @@
         "software-engineer": {},
         "evidence-reviewer": {},
         "tech-pm": {},
-        "context": {},
         "knowledge-base": {},
         "graphify": {},
         "site": {}
@@ -436,39 +421,17 @@
       ],
       "routes": []
     },
-    "context": {
-      "id": "context",
-      "title": "Project Context Orchestrator",
-      "description": "Use to load or explicitly refresh the current repository context from the external OKF knowledge base without writing to the repository.",
-      "local_skills": [
-        "evidence",
-        "explorer",
-        "didactic-visual"
-      ],
-      "summary": "You orchestrate the current project's living context and delegate repository analysis to the explorer skill.",
-      "implementation_guidance": "Resolve the Git root and canonical project identity before reading or refreshing context; keep all generated context outside the repository.",
-      "operating_contract": [
-        "Resolve the Git root with git rev-parse --show-toplevel and use its normalized leaf name consistently with explorer.",
-        "Validate existing context provenance against the current repository before loading it.",
-        "Use FULL when context is absent, DELTA when commits changed or refresh is explicit, and the cheap LOAD path otherwise.",
-        "Return a concise snapshot with project, context state, analysis timestamp and hash, current architecture, service interface, and review guidance."
-      ],
-      "boundaries": [
-        "Never write to the user's repository; context writes belong under ~/knowledge-base/ and are performed by explorer.",
-        "Do not invent context or claim it loaded when exploration or persistence failed."
-      ],
-      "routes": []
-    },
     "knowledge-base": {
       "id": "knowledge-base",
       "title": "Knowledge Base Orchestrator",
-      "description": "Use to operate the external OKF knowledge base, its derived Qdrant index, immutable notes, hybrid retrieval, and living session records; also use for named-entity or address lookup against stored knowledge, including opening a known project, locating a repository or path, and returning a repository URL.",
+      "description": "Use to operate the external OKF knowledge base, its derived Qdrant index, immutable notes, hybrid retrieval, living session records, and on-demand repository mapping; also use for named-entity or address lookup against stored knowledge, including opening a known project, locating a repository or path, and returning a repository URL.",
       "local_skills": [
         "evidence",
         "kb-infra",
         "kb-write",
         "kb-retrieval",
         "kb-session",
+        "explorer",
         "didactic-visual"
       ],
       "summary": "You orchestrate the user's external OKF knowledge base while preserving provenance, immutable notes, and truthful degraded behavior.",
@@ -728,7 +691,6 @@
     "software-engineer": "engineers",
     "evidence-reviewer": "policy",
     "tech-pm": "engineers",
-    "context": "tools",
     "knowledge-base": "tools",
     "graphify": "tools",
     "site": "tools"

@@ -86,7 +86,7 @@ verify transcript containment, parse JSONL, search bounded context, redact secre
 and never load/export a whole transcript. Report reduced coverage.
 
 This skill never writes notes. Only explicit preservation may pass atomic durable knowledge with real
-provenance to kb-write; never duplicate resume, transcript, or context.md.
+provenance to kb-write; never duplicate resume, transcript, or project-note content.
 
 ## Complete session distillation
 

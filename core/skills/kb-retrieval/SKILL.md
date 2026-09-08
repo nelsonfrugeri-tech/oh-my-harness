@@ -5,7 +5,7 @@ description: "Internal retrieval workflow owned by the knowledge-base agent, als
 
 # KB Retrieval
 
-Curated memory is Markdown notes plus mutable context.md. Episodic memory is raw transcripts plus
+Curated memory is Markdown notes. Episodic memory is raw transcripts plus
 mutable JSON sessions. Qdrant and Graphify are derived, not sources.
 
 ## Resolve exact entities and addresses first
@@ -14,9 +14,9 @@ When a request names an entity or asks for an address, repository, path, URL, ow
 exact lookup before semantic search. Extract the requested name or observed alias and the desired
 property; embeddings must never choose among homonyms.
 
-For project/repository lookup, inspect every `work/projects/*/context.md` first. Match directory,
-title, safe repository name, and aliases; use the body Repository path and frontmatter `remote_url`
-only as candidates. Revalidate legacy stored remotes before responding. Reject a password, HTTP(S)
+For project/repository lookup, inspect the active `knowledge_type: project` note under
+`work/projects/*/identity/` first. Match directory, `name`, `aliases`, and safe repository name; use
+`repository_path`, `remote_url`, and `default_branch` from its frontmatter only as candidates. Revalidate legacy stored remotes before responding. Reject a password, HTTP(S)
 userinfo, any query string or fragment, signed URLs, or ambiguous parsing; an SSH/SCP transport
 username is allowed. Treat a rejected value as `remote_url: null`, report `redacted`, and never echo
 the sensitive target, even partially.
@@ -49,13 +49,13 @@ not missing knowledge.
 
 On disk navigate bundle/domain/topic indexes into the topic folder. For a recursive newest-first
 timeline that excludes reserved files, use:
-`find ~/knowledge-base/<domain> -type f -name '*.md' ! -name index.md ! -name log.md ! -name context.md -print | awk -F/ '{print $NF "\t" $0}' | sort -r | cut -f2- | head`.
+`find ~/knowledge-base/<domain> -type f -name '*.md' ! -name index.md ! -name log.md -print | awk -F/ '{print $NF "\t" $0}' | sort -r | cut -f2- | head`.
 
 Parse only the first YAML frontmatter block for metadata with `yaml.safe_load`; never grep bodies for
 keys. An ephemeral filter may receive `~/knowledge-base/<domain> type system`, split the file into
 lines, require the first line to be `---`, and locate the closing delimiter with
-`lines.index("---", 1)`. Invalid or non-mapping YAML is reported and skipped. `index.md`, `log.md`,
-and `context.md` are reserved navigation/live context, not notes. Search JSON structurally. Follow
+`lines.index("---", 1)`. Invalid or non-mapping YAML is reported and skipped. `index.md` and `log.md`
+are reserved navigation, not notes. Search JSON structurally. Follow
 relationships/supersession; prefer the newest active note unless history is requested. Report broken
 or conflicting chains.
 

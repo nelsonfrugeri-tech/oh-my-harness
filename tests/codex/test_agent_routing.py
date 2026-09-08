@@ -18,7 +18,7 @@ class AgentRoutingContractTest(unittest.TestCase):
         families = _MANIFEST["role_families"]
         codex = _MANIFEST["adapter_specs"]["codex-toml"]["overlays"]
 
-        self.assertEqual(9, len(roles))
+        self.assertEqual(8, len(roles))
         self.assertEqual(set(roles), set(families))
         self.assertEqual(set(roles), set(codex))
 

@@ -9,11 +9,12 @@ Markdown notes are curated source records. Qdrant is derived; JSON sessions/tran
 Read [references/note-template.md](references/note-template.md).
 
 Write only when explicitly asked to preserve/update durable knowledge. Questions, exploration,
-session summaries, and context refreshes do not create notes or duplicate context.md/session records.
+session summaries, and repository mapping do not create notes or duplicate session records.
 
 Route the body by `knowledge_type`, never `type`: decision (choice/evidence/trade-offs); event
 (time/impact/status); procedure (steps/verification/teardown); reference (fact/scope/freshness);
-conversation (durable exchange only without a stronger class). `type` is a separate free-form OKF
+conversation (durable exchange only without a stronger class); project (the identity of one
+repository-backed project). `type` is a separate free-form OKF
 entity noun and selects neither template nor directory.
 
 Resolve adapter roots and route `scope -> domain -> topic -> concept`, with at most one subtopic.
@@ -23,11 +24,24 @@ kebab-case subject; the short slug contains 2-6 substantive terms. `type` does n
 directory. The relative Markdown path is the OKF Concept ID: never move or rename a note during a
 normal write; path changes require an explicit migration.
 
-Resolve project identity from an explicit project name, observed Git root, and `remote_url`. Reuse
-the canonical slug already registered by `explorer`, `kb-session`, and `context-load.sh`; never
-search for another slug to make a write succeed. If stable Git identity is unavailable, ask once for
-the canonical name and slug. A canonical-domain collision blocks writing. An existing artifact
+Resolve project identity from an explicit project name, observed Git root, and `remote_url`. Derive
+the canonical project slug with this exact pipeline, never by interpretation:
+
+```bash
+basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'
+```
+
+Reuse the canonical slug already registered by `explorer` and `kb-session`; never search for another
+slug to make a write succeed. If stable Git identity is unavailable, ask once for the canonical name
+and slug. A canonical-domain collision blocks writing. An existing artifact
 without sufficient identity also fails closed; never invent an alias.
+
+Preserve that identity as a project note: `knowledge_type: project` at
+`work/projects/<project>/identity/<YYYY-MM-DD>--project-identity.md`, carrying `name`, `aliases`,
+`repository_path`, `remote_url`, and `default_branch`. It is the record `kb-retrieval` reads for
+exact lookups such as opening a known project or returning its repository URL. Its `remote_url`
+obeys the sensitive-target policy below: a rejected project remote persists as `remote_url: null`
+and is never echoed. Correct it by supersession like any other note; never rewrite it in place.
 
 ## Preserve addressable knowledge
 

@@ -37,7 +37,7 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("collision blocks writing", contract)
         self.assertIn("existing artifact without sufficient identity", contract)
         self.assertIn("fails closed", contract)
-        self.assertIn("`explorer`, `kb-session`, and `context-load.sh`", contract)
+        self.assertIn("`explorer` and `kb-session`", contract)
 
     def test_topic_path_and_short_filename_are_stable(self) -> None:
         contract = self._read("core/skills/kb-write/SKILL.md")
@@ -140,7 +140,38 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("Live upsert and full reindex use this same mapping", infra_flat)
         self.assertIn("material address", template)
 
-    def test_remote_values_fail_closed_across_context_write_and_retrieval(self) -> None:
+    def test_project_identity_lives_in_a_project_note(self) -> None:
+        write = " ".join(self._read("core/skills/kb-write/SKILL.md").split())
+        retrieval = " ".join(self._read("core/skills/kb-retrieval/SKILL.md").split())
+
+        self.assertIn("`knowledge_type: project`", write)
+        self.assertIn(
+            "`work/projects/<project>/identity/<YYYY-MM-DD>--project-identity.md`",
+            write,
+        )
+        for field in ("name", "aliases", "repository_path", "remote_url", "default_branch"):
+            with self.subTest(field=field):
+                self.assertIn(f"`{field}`", write)
+        self.assertIn("never rewrite it in place", write)
+        self.assertIn("`knowledge_type: project` note under", retrieval)
+        self.assertIn("`work/projects/*/identity/` first", retrieval)
+
+    def test_no_kb_surface_still_depends_on_the_context_snapshot(self) -> None:
+        surfaces = (
+            "core/skills/kb-write/SKILL.md",
+            "core/skills/kb-retrieval/SKILL.md",
+            "core/skills/kb-infra/SKILL.md",
+            "core/skills/kb-session/SKILL.md",
+            "core/skills/explorer/SKILL.md",
+        )
+        for surface in surfaces:
+            with self.subTest(surface=surface):
+                contract = self._read(surface)
+                self.assertNotIn("context.md", contract)
+                self.assertNotIn("context-load", contract)
+                self.assertNotIn("last_hash", contract)
+
+    def test_remote_values_fail_closed_across_project_note_write_and_retrieval(self) -> None:
         boundaries = {
             "explorer": self._read("core/skills/explorer/SKILL.md"),
             "writer": self._read("core/skills/kb-write/SKILL.md"),
@@ -168,6 +199,10 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
             " ".join(boundaries["retrieval"].split()),
         )
         self.assertIn("Revalidate legacy stored remotes", boundaries["retrieval"])
+        self.assertIn(
+            "a rejected project remote persists as `remote_url: null`",
+            " ".join(boundaries["writer"].split()),
+        )
         self.assertIn(
             "Fictitious example: `https://user:token@example.com/repo.git?signature=secret`",
             boundaries["explorer"],

@@ -91,11 +91,12 @@ duplica. Diagnostique antes de remover:
 find ~/.claude/agents ~/.claude/skills ~/.claude/hooks -maxdepth 2 -type l -exec ls -l {} \; 2>/dev/null
 ```
 
-1. **Hooks duplicados são o sintoma mais visível.** Se `~/.claude/settings.json` ainda tem os
-   handlers `SessionStart → context-load.sh` ou `PreToolUse → quality-gate.sh`, eles disparam
-   **junto** com os do plugin — o snapshot de contexto aparece duas vezes e o quality gate roda
-   duas vezes. Remova **apenas** esses dois handlers; preserve handlers de terceiros no mesmo
-   evento (o Deja instala `SessionStart`, `PreCompact` e `UserPromptSubmit`).
+1. **Hooks duplicados são o sintoma mais visível.** Se `~/.claude/settings.json` ainda tem o
+   handler `PreToolUse → quality-gate.sh`, ele dispara **junto** com o do plugin e o quality gate
+   roda duas vezes. Remova **apenas** esse handler; preserve handlers de terceiros no mesmo
+   evento (o Deja instala `SessionStart`, `PreCompact` e `UserPromptSubmit`). Um handler
+   `SessionStart` apontando para esta biblioteca vem de uma instalação antiga e também deve
+   sair: ela não entrega mais nenhum hook de abertura de sessão.
 2. **Symlinks de agents e skills** que apontam para este repositório viraram redundantes: o
    plugin fornece os mesmos componentes, com namespace. Remova-os, **um a um e com
    confirmação** — nunca em massa. Skills e agents de terceiros (`deja-history`, a cópia
@@ -201,7 +202,6 @@ Depois abra uma **sessão nova** e confirme por observação, não por suposiç�
 
 - uma skill do plugin responde por `/oh-my-harness:<nome>`;
 - um agent aparece como `oh-my-harness:<tema>:<nome>`;
-- o `SessionStart` injetou snapshot ou pedido FULL/DELTA — **uma vez só**;
 - `/context` lista o `CLAUDE.md` sob **Memory files**.
 
 > `claude plugin validate` valida os manifestos, **não** o carregamento. Erro de hook duplicado

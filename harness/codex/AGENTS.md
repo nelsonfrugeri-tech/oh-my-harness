@@ -79,8 +79,7 @@ Um tool agent opera infraestrutura compartilhada consumida por outros agents.
 
 | Agent | Responsabilidade | Skills |
 | --- | --- | --- |
-| `context` | Manter o contexto vivo do projeto atual em `~/knowledge-base/work/projects/{project}/context.md` | `explorer` |
-| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas e session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
+| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas, session records e o mapeamento sob demanda de um repositório | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session`, `explorer` |
 | `graphify` | Criar ou atualizar um code graph fora da árvore do produto e então consultá-lo ou explicá-lo | `graphify` |
 | `site` | Criar sites visuais com fontes e expô-los opcionalmente após aprovação | `site-report`, `site-expose` |
 
@@ -126,8 +125,8 @@ record com `transcript_path: null` e informe o modo degradado.
    `~/knowledge-base/`; a instalação do adapter Codex escreve apenas em `$CODEX_HOME` e `~/.agents/`.
 2. Sem Qdrant, escritas em disco continuam e a indexação permanece pendente. O retrieval usa
    navegação estruturada em disco como fallback e informa explicitamente o modo degradado.
-3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records e
-   `context.md` são documentos mutáveis nomeados e reescritos in-place.
+3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records são
+   documentos mutáveis nomeados e reescritos in-place.
 4. Toda nova nota e todo session record carregam provenance real de harness, sessão, cwd e máquina
    conforme `kb-write`/`kb-session`. A identidade estável vem de
    `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente bloqueia a escrita, enquanto
