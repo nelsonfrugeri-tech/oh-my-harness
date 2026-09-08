@@ -144,6 +144,87 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("allow", decision["permissionDecision"])
         self.assertIn("NOT verified", decision["permissionDecisionReason"])
 
+    # ---- selected PR origin, review findings on #135 ---------------------------
+
+    def test_head_flag_for_another_branch_asks(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+
+        decision = self._decision(self._run_gate("gh pr create --head other-branch --fill"))
+
+        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertIn("other-branch", decision["permissionDecisionReason"])
+        self.assertIn(
+            "differs from the branch currently checked out", decision["permissionDecisionReason"]
+        )
+
+    def test_head_flag_cross_fork_asks(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+
+        decision = self._decision(self._run_gate("gh pr create --head someone:other-branch --fill"))
+
+        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertIn("another fork", decision["permissionDecisionReason"])
+
+    def test_head_flag_matching_current_branch_runs_normally(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+        branch = self._git("rev-parse", "--abbrev-ref", "HEAD")
+
+        decision = self._decision(self._run_gate(f"gh pr create --head {branch} --fill"))
+
+        self.assertEqual("allow", decision["permissionDecision"])
+
+    def test_mcp_head_for_another_branch_asks(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+
+        decision = self._decision(self._run_gate_mcp(head="other-branch"))
+
+        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertIn("other-branch", decision["permissionDecisionReason"])
+
+    def test_mcp_owner_repo_mismatch_asks(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+        # Only a URL in a form `normalize_owner_repo` can parse exercises the mismatch
+        # branch; the bare-repo path used elsewhere in this suite deliberately can't.
+        self._git("remote", "set-url", "origin", "https://github.com/nelsonfrugeri-tech/oh-my-harness.git")
+
+        decision = self._decision(self._run_gate_mcp(owner="someone-else", repo="unrelated"))
+
+        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertIn("someone-else/unrelated", decision["permissionDecisionReason"])
+
+    def test_remote_diverged_after_force_push_asks(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+        self._diverge_remote_without_fetching()
+
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("ask", decision["permissionDecision"])
+        self.assertIn("moved since the last local fetch", decision["permissionDecisionReason"])
+
+    def test_remote_unreachable_falls_back_to_local_comparison(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+        self._git(
+            "remote", "set-url", "origin", str(Path(self._temporary.name) / "does-not-exist.git")
+        )
+
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("allow", decision["permissionDecision"])
+
     # ---- helpers ----------------------------------------------------------------
 
     def _configure_and_commit(self, **commands: str) -> None:
@@ -162,6 +243,28 @@ class QualityGateTest(unittest.TestCase):
         branch = self._git("rev-parse", "--abbrev-ref", "HEAD")
         self._git("push", "-q", "-u", "origin", branch)
 
+    def _diverge_remote_without_fetching(self) -> None:
+        # Simulate another actor force-pushing after this checkout's last fetch: clone
+        # the bare "origin" through a second, independent path, amend its history, and
+        # push -f there. self._repo's own refs/remotes/origin/* stay stale because it
+        # never fetches — the exact state a stale local comparison can't see.
+        remote = Path(self._temporary.name) / "origin.git"
+        clone = Path(self._temporary.name) / "other-clone"
+        subprocess.run(("git", "clone", "-q", str(remote), str(clone)), check=True, capture_output=True)
+        subprocess.run(
+            ("git", "-C", str(clone), "config", "user.email", "other@example.com"), check=True
+        )
+        subprocess.run(("git", "-C", str(clone), "config", "user.name", "Other Actor"), check=True)
+        branch = subprocess.run(
+            ("git", "-C", str(clone), "rev-parse", "--abbrev-ref", "HEAD"),
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        clone.joinpath("tracked.txt").write_text("diverged upstream\n", encoding="utf-8")
+        subprocess.run(("git", "-C", str(clone), "commit", "-aq", "-m", "diverge"), check=True)
+        subprocess.run(("git", "-C", str(clone), "push", "-qf", "origin", branch), check=True)
+
     def _trust_repository(self) -> None:
         common_dir = self._git("rev-parse", "--path-format=absolute", "--git-common-dir")
         signature = hashlib.sha256(common_dir.encode()).hexdigest()[:12]
@@ -175,11 +278,25 @@ class QualityGateTest(unittest.TestCase):
         payload = {"cwd": str(self._repo), "tool_name": "Bash", "tool_input": {"command": command}}
         return self._invoke(payload, extra_env)
 
-    def _run_gate_mcp(self, extra_env: dict[str, str] | None = None) -> str:
+    def _run_gate_mcp(
+        self,
+        head: str | None = None,
+        owner: str = "nelsonfrugeri-tech",
+        repo: str = "oh-my-harness",
+        extra_env: dict[str, str] | None = None,
+    ) -> str:
+        if head is None:
+            head = self._git("rev-parse", "--abbrev-ref", "HEAD")
         payload = {
             "cwd": str(self._repo),
             "tool_name": _MCP_PR_TOOL,
-            "tool_input": {"title": "test PR", "head": "feature", "base": "main"},
+            "tool_input": {
+                "title": "test PR",
+                "head": head,
+                "base": "main",
+                "owner": owner,
+                "repo": repo,
+            },
         }
         return self._invoke(payload, extra_env)
 

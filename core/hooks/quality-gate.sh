@@ -29,6 +29,27 @@
 # not a defect, because the harness only governs the actors it runs (see
 # harness/*/CLAUDE.md and harness/*/AGENTS.md, "Fluxo de PR").
 #
+# HEAD VALIDATION: both trigger paths can name an origin that is not the current
+# checkout — `-H`/`--head` on the CLI (including the `owner:branch` cross-fork form),
+# or the MCP tool's own `head`/`owner`/`repo` fields, which its schema marks required
+# on every call. Validating the current checkout while a different origin is what
+# actually ships would be validation by proxy, so the gate resolves the selected
+# origin first and `ask`s whenever it cannot reconcile it with the current checkout:
+# a cross-fork head, a different local branch, or an MCP `owner/repo` that does not
+# match the `origin` remote. An unparsable `origin` URL fails that specific check
+# open (see `normalize_owner_repo`) rather than guessing.
+#
+# REMOTE FRESHNESS: the local `HEAD`-vs-upstream comparison only proves the tracking
+# ref agrees with `HEAD`, not that the remote hasn't moved since the last fetch — a
+# force-push leaves both stale in agreement and wrong. Before trusting that
+# comparison, the gate makes one `git ls-remote` attempt against the tracked branch,
+# budgeted to a hard ~10s wall-clock timeout (background job + poll + `kill -9`, never
+# a hang on credentials: `GIT_TERMINAL_PROMPT=0`, `GIT_ASKPASS=true`, `SSH_ASKPASS=true`)
+# and writing only to a `mktemp` file outside the repository. A reachable, divergent
+# remote asks; an unreachable one is not evidence of anything and falls back to the
+# local-only comparison already performed — this contract only ever verifies against
+# a live remote, never against network state it could not observe.
+#
 # Written for bash 3.2 (macOS default): no associative arrays, no mapfile.
 
 set -uo pipefail
@@ -55,6 +76,9 @@ command -v jq >/dev/null 2>&1 || defer
 CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
 TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)
 TOOL_CMD=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
+MCP_HEAD=$(printf '%s' "$INPUT" | jq -r '.tool_input.head // empty' 2>/dev/null)
+MCP_OWNER=$(printf '%s' "$INPUT" | jq -r '.tool_input.owner // empty' 2>/dev/null)
+MCP_REPO=$(printf '%s' "$INPUT" | jq -r '.tool_input.repo // empty' 2>/dev/null)
 
 # Two ways this harness opens a pull request: the `gh` CLI over Bash, or the GitHub
 # MCP server's PR-creation tool. The MCP call carries no shell command, so it is
@@ -119,6 +143,70 @@ if [ -e "$GIT_DIR/MERGE_HEAD" ] || [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_
   defer
 fi
 
+# ---------------------------------------------------------------- selected PR origin
+
+# Extract the value of -H/--head from a single-line `gh pr create` command. Supports
+# `--head=X`, `--head X`, and `-H X`; the last occurrence wins, matching how argument
+# parsers resolve a repeated flag. Prints nothing when the flag is absent.
+parse_head_flag() {
+  line="$1"
+  value=$(printf '%s' "$line" | grep -oE '(^|[[:space:]])--head=[^[:space:]]+' | tail -1 | sed -E 's/^[[:space:]]*--head=//')
+  if [ -n "$value" ]; then
+    printf '%s' "$value"
+    return
+  fi
+  printf '%s' "$line" | grep -oE '(^|[[:space:]])(--head|-H)[[:space:]]+[^[:space:]]+' | tail -1 |
+    sed -E 's/^[[:space:]]*(--head|-H)[[:space:]]+//'
+}
+
+# Best-effort owner/repo from a remote URL. Only the two forms git/GitHub actually
+# produce (`git@host:owner/repo(.git)` and `https://host/owner/repo(.git)`); anything
+# else prints nothing, which the caller treats as "cannot verify" and skips the check.
+normalize_owner_repo() {
+  url="$1"
+  url=${url%.git}
+  case "$url" in
+    git@*:*)
+      printf '%s' "${url#*:}"
+      ;;
+    https://*|http://*)
+      rest=${url#*://}
+      printf '%s' "${rest#*/}"
+      ;;
+  esac
+}
+
+if [ "$IS_MCP" = yes ]; then
+  HEAD_ARG="$MCP_HEAD"
+else
+  HEAD_ARG=$(parse_head_flag "$TOOL_FIRST_LINE")
+fi
+
+CURRENT_BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null)
+
+if [ -n "$HEAD_ARG" ]; then
+  case "$HEAD_ARG" in
+    *:*)
+      decide ask "The pull request head ($HEAD_ARG) names another fork. The gate only validates the current checkout; verify $HEAD_ARG manually, then retry."
+      ;;
+  esac
+  if [ "$HEAD_ARG" != "$CURRENT_BRANCH" ]; then
+    decide ask "The pull request head ($HEAD_ARG) differs from the branch currently checked out (${CURRENT_BRANCH:-detached HEAD}). Check out $HEAD_ARG, or verify it manually, then retry."
+  fi
+fi
+
+if [ "$IS_MCP" = yes ] && [ -n "$MCP_OWNER" ] && [ -n "$MCP_REPO" ]; then
+  ORIGIN_URL=$(git remote get-url origin 2>/dev/null)
+  ORIGIN_OWNER_REPO=$(normalize_owner_repo "$ORIGIN_URL")
+  if [ -n "$ORIGIN_OWNER_REPO" ]; then
+    TARGET_OWNER_REPO=$(printf '%s/%s' "$MCP_OWNER" "$MCP_REPO" | tr '[:upper:]' '[:lower:]')
+    if [ "$TARGET_OWNER_REPO" != "$(printf '%s' "$ORIGIN_OWNER_REPO" | tr '[:upper:]' '[:lower:]')" ]; then
+      decide ask "The pull request targets $MCP_OWNER/$MCP_REPO, which does not match the local origin remote ($ORIGIN_OWNER_REPO). Open the PR from a checkout of that repository, or verify it manually."
+    fi
+  fi
+  # ORIGIN_URL empty or in an unrecognized form: fail open, this specific check is skipped.
+fi
+
 # ---------------------------------------------------------------- what the PR will ship
 
 # The PR ships HEAD, not the working tree. Anything uncommitted is silently absent
@@ -139,6 +227,51 @@ UPSTREAM_SHA=$(git rev-parse --verify -q "$UPSTREAM" 2>/dev/null)
 HEAD_SHA=$(git rev-parse HEAD 2>/dev/null)
 if [ -z "$HEAD_SHA" ] || [ "$UPSTREAM_SHA" != "$HEAD_SHA" ]; then
   decide ask "The local head has not been pushed: HEAD differs from $UPSTREAM. Push it, then retry."
+fi
+
+# ---------------------------------------------------------------- remote reality check
+
+# One `git ls-remote` attempt, hard-budgeted to ~10s wall clock. bash 3.2 has no
+# built-in timeout and macOS has no guaranteed `timeout(1)`, so the budget is enforced
+# by hand: background the command, poll, and `kill -9` past the deadline. The
+# credential env vars stop it from ever blocking on a prompt; the output goes to a
+# `mktemp` file under $TMPDIR, never inside the repository. Any failure — no hasher,
+# no reachable remote, a slow remote, a non-zero exit, an empty ref — is "unknown",
+# not "diverged": the caller falls back to the local comparison already performed.
+fetch_remote_sha() {
+  remote="$1"; ref="$2"
+  out=$(mktemp "${TMPDIR:-/tmp}/omh-quality-gate-ls-remote.XXXXXX" 2>/dev/null) || return 1
+  (GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true SSH_ASKPASS=true git ls-remote "$remote" "$ref" >"$out" 2>/dev/null) &
+  pid=$!
+  waited=0
+  while kill -0 "$pid" 2>/dev/null; do
+    waited=$((waited + 1))
+    if [ "$waited" -gt 10 ]; then
+      kill -9 "$pid" 2>/dev/null
+      wait "$pid" 2>/dev/null
+      rm -f "$out" 2>/dev/null
+      return 1
+    fi
+    sleep 1
+  done
+  wait "$pid" 2>/dev/null
+  rc=$?
+  remote_sha=$(awk '{print $1; exit}' "$out" 2>/dev/null)
+  rm -f "$out" 2>/dev/null
+  [ "$rc" -eq 0 ] && [ -n "$remote_sha" ] || return 1
+  printf '%s' "$remote_sha"
+}
+
+# `@{upstream}`'s remote and branch, read from config rather than split out of
+# "$UPSTREAM" — both remote names and branch names may contain "/", and config is
+# unambiguous about which is which.
+REMOTE_NAME=$(git config --get "branch.$CURRENT_BRANCH.remote" 2>/dev/null)
+REMOTE_REF=$(git config --get "branch.$CURRENT_BRANCH.merge" 2>/dev/null)
+if [ -n "$REMOTE_NAME" ] && [ -n "$REMOTE_REF" ]; then
+  REMOTE_SHA=$(fetch_remote_sha "$REMOTE_NAME" "$REMOTE_REF")
+  if [ -n "$REMOTE_SHA" ] && [ "$REMOTE_SHA" != "$HEAD_SHA" ]; then
+    decide ask "The remote branch has moved since the last local fetch: $REMOTE_NAME's $UPSTREAM is now $REMOTE_SHA, this checkout has $HEAD_SHA. Fetch, then retry."
+  fi
 fi
 
 # ---------------------------------------------------------------- run cache
