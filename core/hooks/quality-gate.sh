@@ -376,17 +376,31 @@ if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
   decide deny "There are uncommitted changes that will not enter the pull request. Commit or discard them, then retry."
 fi
 
-# The PR is built from the pushed remote branch, not from the local HEAD. Without a
-# pushed upstream — or with a local HEAD the upstream does not have yet — the gate
-# would be verifying content the PR will not actually contain.
-UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)
-if [ -z "$UPSTREAM" ]; then
-  decide deny "The local head has not been pushed: the current branch has no upstream. Push it, then retry."
+# The PR is built from the branch on the remote it targets, not from the local HEAD
+# and not necessarily from `@{upstream}`: a branch tracking `upstream/feat` while
+# `origin` has no `feat` at all used to be allowed, and the pull request was then
+# opened against a remote that did not have the branch. Resolve the remote the PR
+# actually targets instead — `origin` when it exists, the branch's tracking remote
+# otherwise — and compare HEAD against that ref.
+PR_BRANCH=${HEAD_ARG:-$CURRENT_BRANCH}
+if [ -z "$PR_BRANCH" ]; then
+  decide deny "HEAD is detached, so there is no branch for the pull request to be opened from. Check out the branch you intend to open it from, then retry."
 fi
-UPSTREAM_SHA=$(git rev-parse --verify -q "$UPSTREAM" 2>/dev/null)
+
+TARGET_REMOTE=origin
+git remote get-url origin >/dev/null 2>&1 ||
+  TARGET_REMOTE=$(git config --get "branch.$PR_BRANCH.remote" 2>/dev/null)
+if [ -z "$TARGET_REMOTE" ]; then
+  decide deny "The local head has not been pushed: $PR_BRANCH has no remote to open the pull request from. Push it, then retry."
+fi
+
 HEAD_SHA=$(git rev-parse HEAD 2>/dev/null)
-if [ -z "$HEAD_SHA" ] || [ "$UPSTREAM_SHA" != "$HEAD_SHA" ]; then
-  decide deny "The local head has not been pushed: HEAD differs from $UPSTREAM. Push it, then retry."
+TARGET_SHA=$(git rev-parse --verify -q "refs/remotes/$TARGET_REMOTE/$PR_BRANCH" 2>/dev/null)
+if [ -z "$TARGET_SHA" ]; then
+  decide deny "The local head has not been pushed: $TARGET_REMOTE has no $PR_BRANCH, so the pull request would be opened against a remote that does not have this branch. Push it to $TARGET_REMOTE, then retry."
+fi
+if [ -z "$HEAD_SHA" ] || [ "$TARGET_SHA" != "$HEAD_SHA" ]; then
+  decide deny "The local head has not been pushed: HEAD differs from $TARGET_REMOTE/$PR_BRANCH. Push it, then retry."
 fi
 
 # ---------------------------------------------------------------- remote reality check
@@ -397,7 +411,7 @@ fi
 # credential env vars stop it from ever blocking on a prompt; the output goes to a
 # `mktemp` file under $TMPDIR, never inside the repository. Any failure — no hasher,
 # no reachable remote, a slow remote, a non-zero exit, an empty ref — leaves the
-# selected remote revision unknown, so the caller returns `ask` before running checks.
+# selected remote revision unknown, so the caller denies before running checks.
 fetch_remote_sha() {
   remote="$1"; ref="$2"
   out=$(mktemp "${TMPDIR:-/tmp}/omh-quality-gate-ls-remote.XXXXXX" 2>/dev/null) || return 1
@@ -422,19 +436,14 @@ fetch_remote_sha() {
   printf '%s' "$remote_sha"
 }
 
-# `@{upstream}`'s remote and branch, read from config rather than split out of
-# "$UPSTREAM" — both remote names and branch names may contain "/", and config is
-# unambiguous about which is which.
-REMOTE_NAME=$(git config --get "branch.$CURRENT_BRANCH.remote" 2>/dev/null)
-REMOTE_REF=$(git config --get "branch.$CURRENT_BRANCH.merge" 2>/dev/null)
-if [ -n "$REMOTE_NAME" ] && [ -n "$REMOTE_REF" ]; then
-  REMOTE_SHA=$(fetch_remote_sha "$REMOTE_NAME" "$REMOTE_REF")
-  if [ -z "$REMOTE_SHA" ]; then
-    decide deny "The remote branch could not be verified. Restore access to $REMOTE_NAME, then retry, or use the explicit emergency bypass."
-  fi
-  if [ "$REMOTE_SHA" != "$HEAD_SHA" ]; then
-    decide deny "The remote branch has moved since the last local fetch: $REMOTE_NAME's $UPSTREAM is now $REMOTE_SHA, this checkout has $HEAD_SHA. Fetch, then retry."
-  fi
+# Asked of the remote the PR targets and of the branch it will ship, so the live
+# answer covers the same ref the local comparison above just accepted.
+REMOTE_SHA=$(fetch_remote_sha "$TARGET_REMOTE" "refs/heads/$PR_BRANCH")
+if [ -z "$REMOTE_SHA" ]; then
+  decide deny "The remote branch could not be verified. Restore access to $TARGET_REMOTE, then retry, or use the explicit emergency bypass."
+fi
+if [ "$REMOTE_SHA" != "$HEAD_SHA" ]; then
+  decide deny "The remote branch has moved since the last local fetch: $TARGET_REMOTE's $PR_BRANCH is now $REMOTE_SHA, this checkout has $HEAD_SHA. Fetch, then retry."
 fi
 
 # ---------------------------------------------------------------- run cache

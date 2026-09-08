@@ -281,6 +281,53 @@ class QualityGateTest(unittest.TestCase):
         self.assertEqual("deny", decision["permissionDecision"])
         self.assertIn("could not be verified", decision["permissionDecisionReason"])
 
+    def test_local_commit_ahead_of_the_remote_denies(self) -> None:
+        # The common unpushed case, distinct from "no upstream at all": the branch is
+        # tracked and pushed, but HEAD carries a commit the remote does not have.
+        self._configure_and_commit(test="false")
+        self._push_current_head()
+        self._trust_repository()
+        self._repo.joinpath("tracked.txt").write_text("ahead of the remote\n", encoding="utf-8")
+        self._git("commit", "-aq", "-m", "local commit ahead")
+
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("deny", decision["permissionDecision"])
+        self.assertIn("has not been pushed", decision["permissionDecisionReason"])
+        self.assertIn("HEAD differs from origin/", decision["permissionDecisionReason"])
+
+    def test_branch_tracking_another_remote_denies_when_origin_lacks_it(self) -> None:
+        # `@{upstream}` is not necessarily the remote the pull request targets: a branch
+        # tracking `upstream/feat` while `origin` has no `feat` would open the PR against
+        # a remote that does not have the branch.
+        self._configure_and_commit(test="false")
+        self._push_current_head()
+        self._trust_repository()
+        self._git("checkout", "-q", "-b", "feat")
+        elsewhere = Path(self._temporary.name) / "upstream.git"
+        subprocess.run(
+            ("git", "init", "-q", "--bare", str(elsewhere)), check=True, capture_output=True
+        )
+        self._git("remote", "add", "upstream", str(elsewhere))
+        self._git("push", "-q", "-u", "upstream", "feat")
+
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("deny", decision["permissionDecision"])
+        self.assertIn("origin has no feat", decision["permissionDecisionReason"])
+
+    def test_detached_head_denies_with_an_accurate_reason(self) -> None:
+        self._configure_and_commit(test="false")
+        self._push_current_head()
+        self._trust_repository()
+        self._git("checkout", "-q", "--detach", "HEAD")
+
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("deny", decision["permissionDecision"])
+        self.assertIn("HEAD is detached", decision["permissionDecisionReason"])
+        self.assertNotIn("no upstream", decision["permissionDecisionReason"])
+
     def test_no_guard_decision_uses_ask(self) -> None:
         # `ask` is not portable: Codex parses it, marks the hook run as failed and
         # continues the tool call, so an `ask` guard would open the PR there while
