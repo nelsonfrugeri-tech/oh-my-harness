@@ -215,7 +215,7 @@ class AdapterContractTest(unittest.TestCase):
             for group in groups
             for handler in group["hooks"]
         ]
-        self.assertEqual({"PreToolUse"}, set(hooks["hooks"]))
+        self.assertEqual({"PreToolUse", "SessionStart"}, set(hooks["hooks"]))
 
         # Two PreToolUse handlers now point at quality-gate.sh (Bash `gh pr create` and the
         # GitHub MCP PR-creation tool); disambiguate on the Bash-only `if` condition instead
@@ -483,11 +483,16 @@ class AdapterContractTest(unittest.TestCase):
         data = json.loads(_ROOT.joinpath("harness/codex/adapter-hooks-removal.json").read_text(encoding="utf-8"))
         self.assertEqual({}, data["hooks"])
 
-    def test_quality_gate_is_the_only_shared_hook(self) -> None:
+    def test_shared_hooks_are_the_quality_gate_and_kb_pointer(self) -> None:
+        # Extended by #134 (Group F, wave 2) to admit the SessionStart KB pointer
+        # alongside the pre-existing PreToolUse quality gate; both stay the only
+        # shared hook scripts and both stay executable.
         gate = _ROOT / "core/hooks/quality-gate.sh"
+        pointer = _ROOT / "core/hooks/kb-pointer.sh"
 
-        self.assertEqual([gate], sorted(_ROOT.glob("core/hooks/*.sh")))
+        self.assertEqual([pointer, gate], sorted(_ROOT.glob("core/hooks/*.sh")))
         self.assertTrue(gate.stat().st_mode & 0o111)
+        self.assertTrue(pointer.stat().st_mode & 0o111)
         self.assertEqual([], list(_ROOT.glob("harness/*/hooks/*.sh")))
 
     def test_code_craft_contract_is_consistently_repository_first(self) -> None:

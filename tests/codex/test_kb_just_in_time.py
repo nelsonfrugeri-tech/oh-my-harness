@@ -120,7 +120,7 @@ class KbPointerHookContractTests(unittest.TestCase):
             repo = tmp_path / "repo"
             repo.mkdir()
             subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
-            self._write_project_note(kb_root, "sample", "sample", repo)
+            self._write_project_note(kb_root, "sample", "sample", repo.resolve())
             self._write_note(kb_root, "sample", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
             self._write_note(kb_root, "sample", "decisions", "2026-09-03--b.md", "'2026-09-03T10:00:00Z'")
 
@@ -131,7 +131,7 @@ class KbPointerHookContractTests(unittest.TestCase):
             line = result.stdout.strip()
             self.assertTrue(line)
             self.assertLess(len(line), 200)
-            self.assertIn("KB deste projeto: 2 notas, última em 2026-09-03", line)
+            self.assertIn("KB deste projeto: 3 notas, última em 2026-09-03", line)
             self.assertIn("`knowledge-base`", line)
             self.assertNotIn(str(tmp_path), line)
             self.assertNotIn(str(repo), line)
@@ -152,8 +152,44 @@ class KbPointerHookContractTests(unittest.TestCase):
             self.assertEqual(0, result.returncode)
             self.assertLess(elapsed, 2.0)
             line = result.stdout.strip()
-            self.assertIn("KB deste projeto: 1 notas, última em 2026-09-05", line)
+            self.assertLess(len(line), 200)
+            self.assertIn(
+                "KB deste projeto (por diretório, sem nota de identidade): "
+                "1 notas, última em 2026-09-05",
+                line,
+            )
             self.assertNotIn(str(tmp_path), line)
+
+    def test_note_and_directory_resolutions_use_different_line_labels(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+
+            note_repo = tmp_path / "with-note"
+            note_repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=note_repo, check=True)
+            self._write_project_note(kb_root, "with-note", "with-note", note_repo.resolve())
+            self._write_note(kb_root, "with-note", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
+
+            directory_repo = tmp_path / "without-note"
+            directory_repo.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=directory_repo, check=True)
+            self._write_note(kb_root, "without-note", "decisions", "2026-09-02--a.md", "2026-09-02T10:00:00Z")
+
+            note_result, _ = self._run(note_repo, kb_root)
+            directory_result, _ = self._run(directory_repo, kb_root)
+
+            note_line = note_result.stdout.strip()
+            directory_line = directory_result.stdout.strip()
+            self.assertTrue(note_line.startswith("KB deste projeto:"))
+            self.assertFalse(note_line.startswith("KB deste projeto ("))
+            self.assertTrue(
+                directory_line.startswith(
+                    "KB deste projeto (por diretório, sem nota de identidade):"
+                )
+            )
 
     def test_prints_no_kb_message_when_project_is_not_found(self) -> None:
         import tempfile
@@ -184,7 +220,7 @@ class KbPointerHookContractTests(unittest.TestCase):
             repo = tmp_path / "sample"
             repo.mkdir()
             subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
-            self._write_project_note(kb_root, "sample", "sample", repo)
+            self._write_project_note(kb_root, "sample", "sample", repo.resolve())
             self._write_note(kb_root, "sample", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
 
             result, elapsed = self._run(repo, kb_root, env_extra={"OMH_RUNTIME": "1"})
@@ -202,7 +238,7 @@ class KbPointerHookContractTests(unittest.TestCase):
             repo = tmp_path / "sample"
             repo.mkdir()
             subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
-            self._write_project_note(kb_root, "sample", "sample", repo)
+            self._write_project_note(kb_root, "sample", "sample", repo.resolve())
             self._write_note(kb_root, "sample", "decisions", "2026-09-01--a.md", "2026-09-01T10:00:00Z")
             project_dir = kb_root / "work/projects/sample"
             (project_dir / "index.md").write_text("index\n", encoding="utf-8")
@@ -211,7 +247,7 @@ class KbPointerHookContractTests(unittest.TestCase):
 
             result, _ = self._run(repo, kb_root)
 
-            self.assertIn("KB deste projeto: 1 notas", result.stdout)
+            self.assertIn("KB deste projeto: 2 notas", result.stdout)
 
     def test_hook_is_registered_in_both_harness_hooks_json(self) -> None:
         claude_hooks = json.loads(
