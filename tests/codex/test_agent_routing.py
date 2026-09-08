@@ -66,6 +66,29 @@ class AgentRoutingContractTest(unittest.TestCase):
                 ).read_text(encoding="utf-8")
                 self.assertNotIn("sandbox_mode", other)
 
+    def test_software_engineer_refuses_an_unresilient_external_call(self) -> None:
+        requirements = (
+            "an external call without a timeout",
+            "an idempotent retry with backoff and jitter",
+            "a circuit breaker or explicitly justified failure behavior",
+        )
+        contract = " ".join(
+            _MANIFEST["roles"]["software-engineer"]["operating_contract"]
+        )
+        rendered = (
+            "harness/claude/agents/engineers/software-engineer.md",
+            "harness/codex/agents/software-engineer.toml",
+        )
+        for requirement in requirements:
+            with self.subTest(surface="manifest", requirement=requirement):
+                self.assertIn(requirement, contract)
+            for path in rendered:
+                adapter = " ".join(
+                    _ROOT.joinpath(path).read_text(encoding="utf-8").split()
+                )
+                with self.subTest(surface=path, requirement=requirement):
+                    self.assertIn(requirement, adapter)
+
     def test_local_skill_order_preserves_evidence_and_presentation(self) -> None:
         for role_id, role in _MANIFEST["roles"].items():
             with self.subTest(role=role_id):
