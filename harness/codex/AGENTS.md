@@ -234,18 +234,53 @@ automática de patterns quando o repositório não os definiu.
 
 ---
 
-## Fluxo de commit
+## Fluxo de PR
 
-Quando o usuário pedir um commit:
+Commit e push são livres: faça-os quando o usuário mandar, sem gate. Antes de abrir o PR
+(`gh pr create` ou o tool de PR do MCP do `code-host`):
 
 1. Execute format e lint primeiro, pois eles podem modificar arquivos.
-2. Em paralelo, faça um subagent Codex revisar o diff staged usando a skill `review` e as regras de
-   code-craft, e execute a test suite do projeto.
-3. Faça o commit somente quando o review não tiver blocker e os testes passarem. Caso contrário,
+2. Em paralelo, faça um subagent Codex revisar o diff que vai para o PR usando a skill `review` e
+   as regras de code-craft, e execute a test suite do projeto.
+3. Abra o PR somente quando o review não tiver blocker e os testes passarem. Caso contrário,
    corrija os findings e repita.
 
 Descubra os comandos do projeto a partir de targets do Makefile, da configuração do projeto e então
 dos defaults da linguagem. Nunca faça hardcode de um comando de teste ou lint.
+
+Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin), em `gh pr create` e no
+tool de criação de PR do MCP do `code-host`: ele descobre e roda format, lint, typecheck e testes
+sobre o `HEAD` que vai para o PR, e bloqueia a abertura se algum falhar.
+
+O hook **recusa (`deny`)**, antes de rodar qualquer check, árvore de trabalho suja, `HEAD` local
+não enviado ao remoto, head de outra branch ou fork, `owner/repo` que não corresponde ao remote
+`origin`, e remoto divergente ou não verificável — o PR carrega o que está no remoto, não o que
+está só no working tree. É `deny` e não `ask` porque `ask` não é portável: o Codex documenta que
+`permissionDecision: "ask"` é "parsed but not supported yet" e **segue com o tool call**, enquanto
+no Claude Code `ask` pergunta ao usuário — em `claude -p` sem permission host não há quem responda
+e o efeito é recusa, mas com `canUseTool` ou `--permission-prompt-tool` o prompt é roteado e a
+execução espera. `deny` é o único valor com bloqueio suportado nos dois harnesses.
+
+**Branch que rastreia outro remote.** Se a branch rastreia, por exemplo, `upstream`, e o `origin` não
+tem essa branch, o gate **recusa** em vez de validar contra o tracking: a ref rastreada não é a que o
+PR usa, e verificá-la seria afirmar garantia sobre outra coisa. A razão da recusa nomeia os dois
+remotes. Saídas: enviar a branch para o `origin`, ou abrir com o escape de emergência abaixo.
+
+Só age em repositório explicitamente confiado; sem o marcador, defere sem executar nada.
+
+**O que a garantia cobre.** O gate prova o `HEAD` no instante da **abertura** do PR, e nada além
+disso. Push posterior na branch, `gh pr ready`, `mcp__github__update_pull_request` e `gh api -X
+POST` sobre pull requests **não passam pelo gate** — decisão de desenho, não defeito: o hook governa
+a criação, o review humano e o CI governam o que vem depois. "Não abra o PR sem testes passando"
+significa que a abertura é verificada; os commits seguintes são livres.
+
+**Escape de emergência.** Prefixe `OMH_GATE=off` no comando (`OMH_GATE=off gh pr create …`) ou
+exporte `OMH_GATE=off` no ambiente do hook para o caminho MCP. O gate permite e **declara** que o PR
+não foi verificado. O bypass não é controle de acesso: um agent pode digitar o prefixo, e no Claude
+Code um `Write` em `.claude/settings.local.json` com `{"env": {"OMH_GATE": "off"}}` liga o escape do
+caminho MCP na sessão corrente. É lembrete executável com escape auditado, não permissão.
+
+Mecânica, confiança do repositório e limites no cabeçalho de `core/hooks/quality-gate.sh`.
 
 ---
 

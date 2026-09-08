@@ -28,8 +28,8 @@ modify Claude adapter files during Codex-only work.
 ## Package migration to 2.0.1
 
 The hook descriptor and commands move to `harness/codex/hooks/` and `core/hooks/`.
-After upgrading from the old layout, open `/hooks` and review both `SessionStart` and the commit
-gate again. Previous approval does not authorize changed definitions. Verify runtime trust before
+After upgrading from the old layout, open `/hooks` and review both `SessionStart` and the pull
+request gate again. Previous approval does not authorize changed definitions. Verify runtime trust before
 reporting either hook as active; `install.py --check` validates adapter files, not hook trust.
 The installer does not grant trust on the user's behalf. Use `installers/codex/install.py` from
 the repository root to synchronize the global adapter.
