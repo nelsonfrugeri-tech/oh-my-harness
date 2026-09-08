@@ -232,24 +232,19 @@ class AdapterContractTest(unittest.TestCase):
 
         self.assertLessEqual(len(guidance.encode("utf-8")), 32 * 1024)
         self.assertIn("## Idioma", guidance)
-        self.assertIn("## Nunca poluir um projeto com arquivos que não são do produto", guidance)
-        self.assertIn("## Ambiente e adapters de capability", guidance)
+        self.assertIn("## Nunca poluir o projeto com arquivos que não são do produto", guidance)
+        self.assertIn("## Ambiente", guidance)
         self.assertIn("### Fatos vinculantes do ambiente", guidance)
         self.assertIn("### Regras de conhecimento", guidance)
-        self.assertIn("## Autoavaliação antes de responder", guidance)
-        self.assertIn("## Padrões de código obrigatórios", guidance)
-        # Renamed by #126 (Group D, wave 1): the gate now runs before the pull request,
-        # not before the commit. Group E absorbs this heading when it rewrites AGENTS.md
-        # from CLAUDE.md in wave 2.
+        self.assertIn("## Antes de responder", guidance)
+        self.assertIn("## Padrões de código — ativação obrigatória", guidance)
         self.assertIn("## Fluxo de PR", guidance)
-        self.assertIn("## Trabalho de longa duração", guidance)
+        self.assertIn("## Como opero", guidance)
         portuguese_prose = (
-            "Na dúvida, busque antes de responder.",
-            "Antes de escrever, modificar ou revisar código",
-            # Renamed by #126 (Group D, wave 1) together with the heading above: commit
-            # and push are free, the gate now runs before the pull request is opened.
+            "Na dúvida, busque — nunca responda de memória",
+            "Antes de escrever, modificar ou revisar qualquer linha de código",
             "Commit e push são livres",
-            "Delegue uma tarefa substancial, bem delimitada e não interativa",
+            "Delegue por padrão.",
         )
         self.assertTrue(all(sentence in guidance for sentence in portuguese_prose))
         english_headings = (

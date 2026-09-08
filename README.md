@@ -191,6 +191,24 @@ The mandatory implementation constraints live in
 Project contracts override generic preferences. Do not split by a universal line or symbol count,
 and do not force a pattern where the repository provides no evidence that it helps.
 
+### Language contract
+
+Language follows the artifact's role:
+
+| Artifact | Language |
+| --- | --- |
+| Skills, roles, agents, references, and `routing.json` | English |
+| Code, comments, docstrings, test messages, and repository documentation | English |
+| `harness/claude/CLAUDE.md` and `harness/codex/AGENTS.md` | pt-BR |
+| Text injected into a user session by hooks | pt-BR |
+| `prompt` and `required` fields in `core/evals/*/cases.json` | pt-BR |
+| Evaluation protocol README files | English |
+| Installer error messages shown to users | pt-BR |
+| Vendored third-party content | Original upstream language |
+
+The response contract is independent of repository prose: respond in the user's language while
+keeping established technical terms in English.
+
 ## Supported harnesses
 
 Claude Code and Codex are first-class today. The shared source is designed to admit more adapters,
@@ -271,6 +289,22 @@ commits and pushes free. In a trusted repository it:
 4. runs those checks and denies PR creation when a discovered check fails.
 
 Repository trust is separate from hook trust because discovered commands are repository-controlled.
+From a checkout you have reviewed, opt in once with:
+
+```bash
+common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir)
+if command -v shasum >/dev/null 2>&1; then
+  repo_sig=$(printf '%s' "$common_git_dir" | shasum -a 256 | cut -d' ' -f1 | cut -c1-12)
+else
+  repo_sig=$(printf '%s' "$common_git_dir" | sha256sum | cut -d' ' -f1 | cut -c1-12)
+fi
+trust_dir="${XDG_CACHE_HOME:-$HOME/.cache}/omh-quality-gate/trusted"
+mkdir -p "$trust_dir"
+touch "$trust_dir/$repo_sig"
+```
+
+The common Git directory makes that decision apply to every worktree of the reviewed repository.
+Without this marker, the gate deliberately defers and the normal PR flow continues unverified.
 The gate covers `gh pr create` and the configured GitHub MCP creation tool. It does not cover a PR
 opened in a browser, later pushes, or every possible provider API. `OMH_GATE=off` is an explicit,
 reported emergency bypass—not an access-control boundary.

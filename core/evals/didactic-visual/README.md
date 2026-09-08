@@ -1,27 +1,27 @@
 # Didactic Visual Eval Protocol
 
-Use estes casos para detectar regressões de comportamento na skill `didactic-visual`. O corpus
-define comportamentos observáveis, não redação de referência.
+Use these cases to detect behavioral regressions in the `didactic-visual` skill. The corpus
+defines observable behaviors, not reference wording.
 
-## Execute a avaliação
+## Run the evaluation
 
-1. Registre harness, modelo, versão quando disponível, commit, data e evaluator.
-2. Inicie cada caso em uma fresh session com o adapter sob teste. Não exponha os requisitos nem a
-   resposta de outro caso ao candidato.
-3. Execute primeiro todos os casos com a instalação plugin-only. Repita com o adapter global para
-   detectar divergências entre superfícies.
-4. Envie o `prompt` exatamente como está e permita somente as tools necessárias ao cenário.
-5. Salve a resposta completa fora do repositório do produto ou no sistema de evals adotado.
-6. Marque cada item de `required` como `pass` ou `fail` e cite o menor trecho que sustenta o score.
-   O caso passa somente quando todos os requisitos passam e não há comportamento contraditório.
-7. Reporte casos aprovados sobre o total; nunca declare aprovação quando algum caso foi omitido.
+1. Record the harness, model, version when available, commit, date, and evaluator.
+2. Start each case in a fresh session with the adapter under test. Do not expose the requirements or
+   another case's response to the candidate.
+3. First run all cases with the plugin-only installation. Repeat with the global adapter to
+   detect divergences between surfaces.
+4. Send the `prompt` exactly as written and allow only the tools required by the scenario.
+5. Save the complete response outside the product repository or in the adopted eval system.
+6. Mark each `required` item as `pass` or `fail` and cite the shortest excerpt supporting the score.
+   The case passes only when every requirement passes and there is no contradictory behavior.
+7. Report passed cases over the total; never declare a pass when any case was omitted.
 
-## Resolva scores ambíguos
+## Resolve ambiguous scores
 
-Use um segundo evaluator read-only que receba caso, resposta e requisitos, mas não o primeiro
-veredito. Registre divergências e sua resolução; nunca altere um score silenciosamente.
+Use a second read-only evaluator that receives the case, response, and requirements, but not the
+first verdict. Record disagreements and their resolution; never change a score silently.
 
-## Registro do resultado
+## Result record
 
 ```json
 {
@@ -37,5 +37,5 @@ veredito. Registre divergências e sua resolução; nunca altere um score silenc
 }
 ```
 
-O resultado prova apenas o comportamento observado no harness, modelo, configuração, commit e
-instante registrados. Ele não prova comportamento idêntico em outra sessão.
+The result proves only the behavior observed with the recorded harness, model, configuration,
+commit, and timestamp. It does not prove identical behavior in another session.
