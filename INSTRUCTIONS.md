@@ -1,11 +1,11 @@
-# INSTRUCTIONS.md — bootstrap para o harness que abrir este repositório
+# INSTRUCTIONS.md — bootstrap for the harness opening this repository
 
-> Para o agente de IA (Claude Code ou outro harness) que abrir este repositório pela primeira
-> vez, antes de a biblioteca estar instalada localmente. Leia isto **antes** de qualquer ação.
+> For the AI agent (Claude Code or another harness) opening this repository for the first time,
+> before the library is installed locally. Read this **before** taking any action.
 
-Este repositório é uma **FONTE** de config de harness — não um projeto de desenvolvimento.
-Numa máquina nova, o agent `claude-code` e a skill `claude-code` ainda não estão instalados no
-`~/.claude` local, então este arquivo existe só como entrypoint legível para o bootstrap.
+This repository is a harness configuration **SOURCE**, not a development project. On a new
+machine, the `claude-code` agent and skill are not yet installed in the local `~/.claude`, so this
+file exists only as a readable bootstrap entrypoint.
 
 **Your task when the user requests installation or synchronization:** select the adapter for the
 active harness. For Claude Code, run the `claude-code` agent or follow

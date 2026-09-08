@@ -2,125 +2,124 @@
 version: 2.2.0
 name: claude-code
 description: |
-  Runbook de instalação da biblioteca oh-my-harness no Claude Code **como plugin nativo**.
-  Cobre: o manifesto `.claude-plugin/plugin.json` (skills compartilhadas em `core/skills/` e
-  específicas em `harness/claude/skills/`), agents declarados a partir de `harness/claude/agents/`,
-  os hooks do plugin em `harness/claude/hooks/hooks.json`
-  com `${CLAUDE_PLUGIN_ROOT}`, o marketplace para distribuição versionada por git (version,
-  ref, sha), as duas superfícies que o plugin **não** cobre (`CLAUDE.md` e `permissions` do
-  `settings.json`), e a migração a partir do layout antigo de symlinks — inclusive a remoção
-  dos hooks duplicados que dispariam duas vezes. Cobre também os plugins de terceiro que os
-  agents roteiam e que não são vendorizados aqui: `langchain-skills` e `langchain-mcp` (marketplace
-  `langchain-ai/langchain-plugins`), roteados por `ai-engineer`, `architect` e `software-engineer`; e
-  `evals` (marketplace `ai-evals-course`), roteado por `ai-engineer`.
-  Use quando: (1) instalar a biblioteca numa máquina, (2) atualizar depois de um push,
-  (3) migrar do sync por symlink para o plugin, (4) diagnosticar skill/agent/hook que não
-  carrega, (5) instalar ou diagnosticar os plugins de terceiro.
-  Gatilhos: instalar, sincronizar, sync, setup, configurar harness, atualizar biblioteca, plugin,
+  Runbook for installing the oh-my-harness library in Claude Code **as a native plugin**.
+  Covers: the `.claude-plugin/plugin.json` manifest (shared skills in `core/skills/` and
+  specific skills in `harness/claude/skills/`), agents declared from `harness/claude/agents/`,
+  the plugin hooks in `harness/claude/hooks/hooks.json`
+  with `${CLAUDE_PLUGIN_ROOT}`, the marketplace for versioned Git distribution (version,
+  ref, sha), the two surfaces the plugin **does not** cover (`CLAUDE.md` and `permissions` in
+  `settings.json`), and migration from the old symlink layout—including removal of duplicate hooks
+  that would fire twice. Also covers the third-party plugins routed by the agents and not vendored
+  here: `langchain-skills` and `langchain-mcp` (marketplace
+  `langchain-ai/langchain-plugins`), routed by `ai-engineer`, `architect`, and `software-engineer`;
+  and `evals` (marketplace `ai-evals-course`), routed by `ai-engineer`.
+  Use when: (1) installing the library on a machine, (2) updating after a push,
+  (3) migrating from symlink sync to the plugin, (4) diagnosing a skill/agent/hook that does not
+  load, or (5) installing or diagnosing third-party plugins.
+  Triggers: install, synchronize, sync, setup, configure harness, update library, plugin,
   langchain, langgraph, deep agents, evals, error analysis, llm-as-judge.
 type: capability
 ---
 
-# Claude Code — Instalação como Plugin Nativo
+# Claude Code — Native Plugin Installation
 
-A biblioteca é um **plugin do Claude Code**. Instalação, atualização, versionamento e
-namespacing são do próprio harness; não há mais runbook de symlink a executar à mão.
+The library is a **Claude Code plugin**. Installation, updates, versioning, and namespacing
+are handled by the harness itself; there is no longer a symlink runbook to execute manually.
 
-## Regras de Conduta (este repositório é uma FONTE, não um projeto de desenvolvimento)
+## Rules of Conduct (this repository is a SOURCE, not a development project)
 
-1. **Você não desenvolve este repo.** Não cria, não edita e não faz scaffold de arquivos aqui
-   — **exceto** quando o usuário pedir **explicitamente** para alterar a própria biblioteca.
-2. **Config do harness vai para o global** — nunca dentro deste repo, nunca dentro de projeto
-   nenhum.
-3. **Nunca polua um projeto com arquivos que não são do produto** — script one-off, `.md` de
-   análise, scratch e saída intermediária ficam em `/tmp` ou no scratchpad da sessão.
-4. **Nunca faça nada que o usuário não pediu explicitamente.**
-5. **Nada destrutivo sem confirmação explícita.**
+1. **Do not develop this repository.** Do not create, edit, or scaffold files here
+   — **except** when the user **explicitly** asks to change the library itself.
+2. **Harness configuration belongs in the global environment** — never inside this repository or
+   any project.
+3. **Never pollute a project with files that are not part of the product** — one-off scripts,
+   analysis `.md` files, scratch data, and intermediate output belong in `/tmp` or the session scratchpad.
+4. **Never do anything the user did not explicitly request.**
+5. **Do nothing destructive without explicit confirmation.**
 
 ---
 
-## Passo 1 — Instalar
+## Step 1 — Install
 
-Três caminhos, do mais permanente ao mais efêmero:
+Three paths, from most permanent to most ephemeral:
 
 ```bash
-# distribuição por git (o caminho normal)
+# Git distribution (the normal path)
 claude plugin marketplace add nelsonfrugeri-tech/oh-my-harness
 claude plugin install oh-my-harness@oh-my-harness
 
-# a partir de um clone local
-claude plugin marketplace add /caminho/para/oh-my-harness
+# from a local clone
+claude plugin marketplace add /path/to/oh-my-harness
 claude plugin install oh-my-harness@oh-my-harness
 
-# desenvolvimento: carrega o repo direto, sem instalar
-claude --plugin-dir /caminho/para/oh-my-harness
+# development: load the repository directly without installing
+claude --plugin-dir /path/to/oh-my-harness
 ```
 
-Confirme o estado:
+Confirm the state:
 
 ```bash
-claude plugin list                      # Status deve ser "✔ enabled"
+claude plugin list                      # Status must be "✔ enabled"
 claude plugin details oh-my-harness@oh-my-harness
 ```
 
-O `details` imprime o inventário e o **custo de contexto projetado**. Duas leituras do output
-que evitam susto:
+`details` prints the inventory and the **projected context cost**. Two points about the output
+that prevent surprises:
 
-- **Agents são declarados explicitamente.** Os manifests vivem em subpastas temadas de
-  `harness/claude/agents/` e carregam com nome escopado `oh-my-harness:<tema>:<nome>`.
-- **`Hooks` não custa contexto** — roda no harness, fora da janela do modelo.
+- **Agents are declared explicitly.** Their manifests live in themed subfolders under
+  `harness/claude/agents/` and load with the scoped name `oh-my-harness:<theme>:<name>`.
+- **`Hooks` consume no context** — they run in the harness, outside the model's context window.
 
-## Passo 2 — O que o plugin NÃO cobre
+## Step 2 — What the plugin DOES NOT cover
 
-Um plugin não fornece instruções globais nem preferências do usuário. Estas duas superfícies
-continuam sendo instalação manual, e é isso que o `harness/claude/` da fonte ainda serve:
+A plugin does not provide global instructions or user preferences. These two surfaces still
+require manual installation, which is what the source's `harness/claude/` still supports:
 
-| Superfície | Por quê | O que fazer |
+| Surface | Why | What to do |
 | --- | --- | --- |
-| `~/.claude/CLAUDE.md` | Plugin não pode fornecer instrução global — só skills, agents e hooks | Faça **merge** de `harness/claude/CLAUDE.md`, preservando a tabela de capabilities da máquina e qualquer bloco local |
-| `~/.claude/settings.json` → `permissions` | O `settings.json` de plugin só aceita `agent` e `subagentStatusLine` | Faça merge de `harness/claude/settings.json`, preservando `model`, `theme`, `autoMode` e permissões do usuário |
+| `~/.claude/CLAUDE.md` | A plugin cannot provide global instructions—only skills, agents, and hooks | **Merge** `harness/claude/CLAUDE.md`, preserving the machine capability table and any local block |
+| `~/.claude/settings.json` → `permissions` | A plugin's `settings.json` accepts only `agent` and `subagentStatusLine` | Merge `harness/claude/settings.json`, preserving `model`, `theme`, `autoMode`, and user permissions |
 
-**Os hooks NÃO entram mais no `settings.json`.** Eles são do plugin. Ver Passo 3.
+**Hooks no longer go in `settings.json`.** They belong to the plugin. See Step 3.
 
-## Passo 3 — Migração a partir do layout antigo
+## Step 3 — Migrate from the old layout
 
-Numa máquina que já usou o sync por symlink, o conteúdo antigo **coexiste** com o plugin e
-duplica. Diagnostique antes de remover:
+On a machine that previously used symlink sync, the old content **coexists** with the plugin and
+causes duplication. Diagnose before removing anything:
 
 ```bash
 find ~/.claude/agents ~/.claude/skills ~/.claude/hooks -maxdepth 2 -type l -exec ls -l {} \; 2>/dev/null
 ```
 
-1. **Hooks duplicados são o sintoma mais visível.** Se `~/.claude/settings.json` ainda tem o
-   handler `PreToolUse → quality-gate.sh`, ele dispara **junto** com o do plugin e o quality gate
-   roda duas vezes. Remova **apenas** esse handler; preserve handlers de terceiros no mesmo
-   evento (o Deja instala `SessionStart`, `PreCompact` e `UserPromptSubmit`). Um handler
-   `SessionStart` apontando para esta biblioteca vem de uma instalação antiga e também deve
-   sair: ela não entrega mais nenhum hook de abertura de sessão.
-2. **Symlinks de agents e skills** que apontam para este repositório viraram redundantes: o
-   plugin fornece os mesmos componentes, com namespace. Remova-os, **um a um e com
-   confirmação** — nunca em massa. Skills e agents instalados por outras ferramentas
-   (`deja-history`, e qualquer provider externo de capability) **não** são órfãos e não podem
-   ser removidos.
-3. **`~/.claude/CLAUDE.md` e `permissions` permanecem** — são o Passo 2, não resíduo.
+1. **Duplicate hooks are the most visible symptom.** If `~/.claude/settings.json` still has the
+   `PreToolUse → quality-gate.sh` handler, it fires **alongside** the plugin handler and the quality
+   gate runs twice. Remove **only** that handler; preserve third-party handlers for the same event
+   (Deja installs `SessionStart`, `PreCompact`, and `UserPromptSubmit`). A `SessionStart` handler
+   pointing to this library comes from an old installation and must also be removed: the library no
+   longer provides any session-opening hook.
+2. **Agent and skill symlinks** pointing to this repository are now redundant: the plugin provides
+   the same components under a namespace. Remove them **one at a time and with confirmation**—never
+   in bulk. Skills and agents installed by other tools (`deja-history`, and any external capability
+   provider) **are not** orphaned and must not be removed.
+3. **`~/.claude/CLAUDE.md` and `permissions` remain**—they belong to Step 2 and are not residue.
 
-## Passo 4 — Capabilities / MCP
+## Step 4 — Capabilities / MCP
 
-O plugin traz o comportamento; a **tabela de capabilities** é da máquina e vive no
+The plugin provides behavior; the machine owns the **capability table**, which lives in
 `~/.claude/CLAUDE.md`:
 
-1. Liste os MCP servers com `claude mcp list` (ou lendo `~/.claude.json`).
-2. Proponha o mapeamento: git hosting → `code-host`; CI → `ci`; grafo → `code-graph`;
-   memória de sessão → `session-memory`; sem provider → deixe **vazia**.
-3. Mostre como diff e aplique após confirmação.
-4. Use o prefixo do server (`mcp__github__*`), nunca uma tool individual.
+1. List MCP servers with `claude mcp list` (or by reading `~/.claude.json`).
+2. Propose the mapping: Git hosting → `code-host`; CI → `ci`; graph → `code-graph`;
+   session memory → `session-memory`; no provider → leave it **empty**.
+3. Show the change as a diff and apply it after confirmation.
+4. Use the server prefix (`mcp__github__*`), never an individual tool.
 
-### Opcional — provider de `code-graph`
+### Optional — `code-graph` provider
 
-A capability `code-graph` continua na tabela, mas o provider **não** é vendorizado aqui. A linha
-da tabela é uma alegação sobre um **servidor MCP instalado e registrado**, nunca sobre a skill: o
-`graphify install --platform claude` copia a skill e escreve instruções no `CLAUDE.md`, e não
-registra servidor MCP nenhum. São três passos distintos:
+The `code-graph` capability remains in the table, but its provider is **not** vendored here. The
+table row is a claim about an **installed and registered MCP server**, never about the skill:
+`graphify install --platform claude` copies the skill and writes instructions to `CLAUDE.md`; it
+does not register an MCP server. These are three distinct steps:
 
 ```bash
 pipx install 'graphifyy[mcp]'
@@ -128,29 +127,30 @@ graphify install --platform claude
 claude mcp add --env GRAPHIFY_PROJECT_DIR=. graphify -- graphify-mcp
 ```
 
-O extra `[mcp]` não é decorativo: em `graphifyy` 0.9.27 a dependência `mcp` entra só por ele, e o
-executável publicado do servidor é `graphify-mcp` — `graphify-mcp-server` não existe.
+The `[mcp]` extra is not decorative: in `graphifyy` 0.9.27, the `mcp` dependency is included only
+through that extra, and the published server executable is `graphify-mcp`—`graphify-mcp-server`
+does not exist.
 
-O `graphify install --platform claude` **escreve no `CLAUDE.md`**, arquivo onde o `omh` também
-mantém um bloco gerenciado. Depois de rodá-lo, reconcilie: releia `~/.claude/CLAUDE.md`, confirme
-que o bloco do `omh` continua íntegro e reaplique o Passo 2 se ele tiver sido deslocado.
+`graphify install --platform claude` **writes to `CLAUDE.md`**, where `omh` also maintains a
+managed block. After running it, reconcile the file: reread `~/.claude/CLAUDE.md`, confirm that the
+`omh` block remains intact, and reapply Step 2 if it was displaced.
 
-Acrescente a linha do provider (`mcp__graphify__*`) à tabela de capabilities **somente** depois que
-o servidor estiver registrado e responder: confirme com `claude mcp list` e uma chamada real. Linha
-na tabela sem servidor registrado é provider fantasma — o `code-graph` falha enquanto a
-configuração afirma que ele existe.
+Add the provider row (`mcp__graphify__*`) to the capability table **only** after the server is
+registered and responding: confirm with `claude mcp list` and a real call. A table row without a
+registered server is a phantom provider—the `code-graph` capability fails while the configuration
+claims it exists.
 
-## Passo 5 — Plugins de terceiro que os agents roteiam
+## Step 5 — Third-party plugins routed by the agents
 
-Alguns agents desta biblioteca roteiam para skills que **não são nossas**: elas vivem em
-marketplaces de terceiro, nunca vendorizadas aqui. O conteúdo é mantido upstream e chega pelo
-fluxo normal de update de plugin, sem trabalho neste repo — em troca, sem os plugins instalados a
-prosa desses agents aponta para skills que não existem.
+Some agents in this library route to skills that **are not ours**: they live in third-party
+marketplaces and are never vendored here. Their content is maintained upstream and arrives through
+the normal plugin update flow, with no work in this repository—in exchange, without the plugins
+installed, the prose in those agents points to skills that do not exist.
 
-Instale os dois marketplaces abaixo. Em ambos, declare ao usuário o custo always-on em vez de
-instalar calado: são tokens somados a **toda** sessão, mesmo quando o assunto não aparece.
+Install the two marketplaces below. For both, disclose the always-on cost to the user instead of
+installing silently: these tokens are added to **every** session, even when the topic does not arise.
 
-### LangChain, LangGraph e Deep Agents
+### LangChain, LangGraph, and Deep Agents
 
 ```bash
 claude plugin marketplace add langchain-ai/langchain-plugins
@@ -158,57 +158,58 @@ claude plugin install langchain-skills@langchain-plugins
 claude plugin install langchain-mcp@langchain-plugins
 ```
 
-Roteados pela seção *Ecossistema LangChain* dos agents `ai-engineer`, `architect` e `software-engineer`.
-Medido com `claude plugin details` na instalação de referência:
+Routed by the *LangChain Ecosystem* section of the `ai-engineer`, `architect`, and `software-engineer`
+agents. Measured with `claude plugin details` in the reference installation:
 
-| Plugin | Traz | Custo always-on |
+| Plugin | Provides | Always-on cost |
 | --- | --- | --- |
-| `langchain-skills` | 22 skills de LangChain, LangGraph e Deep Agents | ~2.1k tokens por sessão |
-| `langchain-mcp` | 2 MCP servers: `langchain-docs` e `langchain-reference` | ~0 (schema resolvido em runtime) |
+| `langchain-skills` | 22 LangChain, LangGraph, and Deep Agents skills | ~2.1k tokens per session |
+| `langchain-mcp` | 2 MCP servers: `langchain-docs` and `langchain-reference` | ~0 (schema resolved at runtime) |
 
-Os ~2.1k são o preço de ter as 22 descriptions disponíveis para roteamento; o corpo de cada skill
-só carrega quando invocada.
+The ~2.1k is the cost of keeping all 22 descriptions available for routing; each skill body loads
+only when invoked.
 
-O mesmo marketplace publica `langsmith-skills` e `langsmith-mcp`, que **não** instalamos por
-padrão: exigem conta LangSmith e autorização OAuth. Instale-os do mesmo marketplace se o usuário
-tiver conta e pedir.
+The same marketplace publishes `langsmith-skills` and `langsmith-mcp`, which we **do not** install
+by default: they require a LangSmith account and OAuth authorization. Install them from the same
+marketplace if the user has an account and asks for them.
 
-### Avaliação de LLM
+### LLM Evaluation
 
 ```bash
 claude plugin marketplace add ai-evals-course/evals-skills
 claude plugin install evals@ai-evals-course
 ```
 
-Roteado pela seção *Avaliação de LLM (evals)* do agent `ai-engineer`. Traz **8 skills**
-de error analysis, LLM-as-judge, calibração de evaluator e avaliação de RAG, a **~862 tokens**
-always-on e nenhum MCP server. O nome do marketplace (`ai-evals-course`) difere do nome do
-repositório (`evals-skills`) — o ID de instalação usa o do marketplace.
+Routed by the *LLM Evaluation (evals)* section of the `ai-engineer` agent. It provides **8 skills**
+for error analysis, LLM-as-judge, evaluator calibration, and RAG evaluation, at an always-on cost
+of **~862 tokens**, with no MCP server. The marketplace name (`ai-evals-course`) differs from the
+repository name (`evals-skills`)—the installation ID uses the marketplace name.
 
-> Observado nas duas instalações: o `marketplace add` clona por **SSH** (`git@github.com:…`). Numa
-> máquina sem acesso SSH ao GitHub o passo falha aí — diagnostique o clone antes de suspeitar do
-> marketplace.
+> Observed in both installations: `marketplace add` clones over **SSH** (`git@github.com:…`). On a
+> machine without SSH access to GitHub, the step fails there—diagnose the clone before suspecting
+> the marketplace.
 
-Verificação: `claude plugin list` mostra os três como `✔ enabled`; `claude plugin details <id>`
-lista as skills (22 e 8 na instalação de referência — o upstream pode somar mais); e numa sessão
-nova `/langchain-skills:ecosystem-primer` e `/evals:evals-start` respondem. O routing exige `evals >= 0.3.1`; instalações antigas que ainda expõem `/evals:start` devem executar `claude plugin update evals@ai-evals-course` e reiniciar o Claude Code.
+Verification: `claude plugin list` shows all three as `✔ enabled`; `claude plugin details <id>`
+lists the skills (22 and 8 in the reference installation—upstream may add more); and, in a new
+session, `/langchain-skills:ecosystem-primer` and `/evals:evals-start` respond. Routing requires
+`evals >= 0.3.1`; old installations that still expose `/evals:start` must run
+`claude plugin update evals@ai-evals-course` and restart Claude Code.
 
-## Passo 6 — Atualizar
+## Step 6 — Update
 
 ```bash
 claude plugin marketplace update oh-my-harness
 claude plugin update oh-my-harness@oh-my-harness
 ```
 
-O usuário só recebe uma versão nova quando o `version` do `plugin.json` sobe — é isso que
-torna a atualização uma decisão, não um efeito colateral de `git pull`. Para fixar uma versão
-exata, o marketplace aceita `ref` (branch/tag) e `sha` (commit); com os dois presentes, o
-`sha` vence.
+The user receives a new version only when `version` in `plugin.json` is incremented—this makes the
+update a decision rather than a side effect of `git pull`. To pin an exact version, the marketplace
+accepts `ref` (branch/tag) and `sha` (commit); when both are present, `sha` takes precedence.
 
-`CLAUDE.md` e `permissions` **não** são atualizados pelo plugin: quando a fonte mudar, refaça
-o merge do Passo 2.
+`CLAUDE.md` and `permissions` **are not** updated by the plugin: when the source changes, redo the
+merge from Step 2.
 
-## Passo 7 — Verificação
+## Step 7 — Verification
 
 ### Package migration: 2.0.0 to 2.0.1
 
@@ -220,23 +221,23 @@ Manually created symlinks to old source paths are not owned by the installer: in
 migrate them individually while preserving user-owned files.
 
 ```bash
-claude plugin validate <fonte>     # manifesto e marketplace
-claude plugin list                 # enabled, sem erro de load
+claude plugin validate <source>    # manifest and marketplace
+claude plugin list                 # enabled, with no load errors
 ```
 
-Depois abra uma **sessão nova** e confirme por observação, não por suposição:
+Then open a **new session** and confirm by observation, not assumption:
 
-- uma skill do plugin responde por `/oh-my-harness:<nome>`;
-- um agent aparece como `oh-my-harness:<tema>:<nome>`;
-- `/context` lista o `CLAUDE.md` sob **Memory files**.
+- a plugin skill responds at `/oh-my-harness:<name>`;
+- an agent appears as `oh-my-harness:<theme>:<name>`;
+- `/context` lists `CLAUDE.md` under **Memory files**.
 
-> `claude plugin validate` valida os manifestos, **não** o carregamento. Erro de hook duplicado
-> ou de path só aparece no `plugin list` depois de instalar. Rode os dois.
+> `claude plugin validate` validates the manifests, **not** loading. A duplicate-hook or path error
+> appears in `plugin list` only after installation. Run both commands.
 
 ---
 
-## Ao final
+## Final report
 
-Reporte: versão instalada, contagem real de skills e agents (por execução, não pelo contador),
-estado dos hooks, o que foi migrado do layout antigo, o que foi preservado por ser de terceiro,
-e o que ficou pendente.
+Report: installed version, actual skill and agent counts (from execution, not the counter), hook
+state, what was migrated from the old layout, what was preserved because it belongs to a third
+party, and what remains pending.
