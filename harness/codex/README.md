@@ -99,8 +99,9 @@ requests are routed through Codex auto-review; the global `AGENTS.md` remains re
 the user before destructive operations or access to credential-bearing files. The installer stops
 instead of replacing an existing user-owned sandbox or permissions selection.
 
-The global adapter removes the legacy managed `SessionStart` registration of earlier versions, so
-an installation that uses both surfaces no longer carries a hook this library stopped shipping.
+The global adapter removes the legacy adapter-owned `SessionStart` registration of earlier versions.
+The native plugin now supplies the content-free KB pointer, so retaining the old registration would
+run it twice; unrelated third-party session hooks remain untouched.
 
 Custom-agent TOMLs are copied instead of symlinked because current Codex releases do not discover
 symlinked files reliably. A content manifest permits safe upgrades while refusing to overwrite a

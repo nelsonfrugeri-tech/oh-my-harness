@@ -420,8 +420,9 @@ Key properties:
 - **Project mapping is on demand.** The `explorer` agent inspects a repository read-only and returns a
   cited map to the knowledge-base owner; durable notes require a separate `kb-write` request.
 
-Today the agent invokes KB operations explicitly. Automatic just-in-time prompting and
-end-of-session distillation are not current runtime behavior.
+Today the agent invokes KB content retrieval explicitly. `SessionStart` automatically emits only a
+content-free pointer; automatic content retrieval and end-of-session distillation are not current
+runtime behavior.
 
 ## Optional ecosystem integrations
 

@@ -168,7 +168,8 @@ Tool agents operam infraestrutura compartilhada consumida por outros agents.
 
 | Agent | Responsabilidade | Skills |
 | --- | --- | --- |
-| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas, session records e o mapeamento sob demanda de um repositório | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session`, `explorer` |
+| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas e session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
+| `explorer` | Mapear um repositório desconhecido e entregar site, proposta de `CLAUDE.md` e handoff de conhecimento | `explorer`, `site-report` |
 | `site` | Criar sites visuais com fontes e expô-los opcionalmente após aprovação | `site-report`, `site-expose` |
 
 O routing pertence às descriptions dos agents, e a mecânica pertence às skills. Não duplique nenhum

@@ -138,6 +138,30 @@ class KbPointerHookContractTests(unittest.TestCase):
             self.assertNotIn(str(tmp_path), line)
             self.assertNotIn(str(repo), line)
 
+    def test_ignores_malformed_and_impossible_created_at_values(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            self._write_project_note(kb_root, "sample", "repo", repo.resolve())
+            self._write_note(
+                kb_root, "sample", "decisions", "valid.md", "2026-09-03T10:00:00Z"
+            )
+            self._write_note(
+                kb_root, "sample", "decisions", "malformed.md", "not-a-date"
+            )
+            self._write_note(
+                kb_root, "sample", "decisions", "impossible.md", "9999-02-30T10:00:00Z"
+            )
+
+            result, _ = self._run(repo, kb_root)
+
+            self.assertIn("última em 2026-09-03", result.stdout)
+            self.assertNotIn("not-a-date", result.stdout)
+            self.assertNotIn("9999-02-30", result.stdout)
+
     def test_falls_back_to_the_directory_named_after_the_repository_basename(self) -> None:
         import tempfile
 
@@ -209,7 +233,7 @@ class KbPointerHookContractTests(unittest.TestCase):
             self.assertLess(elapsed, 2.0)
             line = result.stdout.strip()
             self.assertEqual(
-                "Sem KB para este projeto; o `explorer` cria uma sob demanda", line
+                "Sem KB para este projeto; o `explorer` mapeia um sob demanda", line
             )
             self.assertLess(len(line), 200)
 
@@ -447,6 +471,37 @@ class KbPointerHookContractTests(unittest.TestCase):
                 result.stdout,
             )
 
+    def test_resolves_among_one_hundred_projects_within_the_hook_timeout(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            kb_root = tmp_path / "kb"
+            repo = self._repo(tmp_path, "repo")
+            for number in range(100):
+                self._identity_note(
+                    kb_root,
+                    f"noise-{number:03d}",
+                    "knowledge_type: project\n"
+                    f"name: noise-{number:03d}\n"
+                    "aliases: []\n"
+                    f"repository_path: /missing/noise-{number:03d}",
+                )
+            self._identity_note(
+                kb_root,
+                "zzz-target",
+                "knowledge_type: project\nname: other\naliases: []\n"
+                f"repository_path: {repo}",
+            )
+            self._write_note(
+                kb_root, "zzz-target", "decisions", "a.md", "2026-09-03T10:00:00Z"
+            )
+
+            result, elapsed = self._run(repo, kb_root)
+
+            self.assertTrue(result.stdout.startswith("KB deste projeto:"), result.stdout)
+            self.assertLess(elapsed, 2.0)
+
     def test_line_names_no_interface_absent_from_a_plugin_only_installation(self) -> None:
         """Every backticked name the hook prints must exist on both install surfaces.
 
@@ -501,7 +556,35 @@ class KbPointerHookContractTests(unittest.TestCase):
 
 class ExplorerOnboardingContractTests(unittest.TestCase):
     def _read(self, relative_path: str) -> str:
+
         return _ROOT.joinpath(relative_path).read_text(encoding="utf-8")
+    def test_global_guidance_separates_explorer_from_kb_ownership(self) -> None:
+        kb_row = (
+            "| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em "
+            "três etapas e session records | `kb-infra`, `kb-write`, `kb-retrieval`, "
+            "`kb-session` |"
+        )
+        explorer_row = (
+            "| `explorer` | Mapear um repositório desconhecido e entregar site, proposta "
+            "de `CLAUDE.md` e handoff de conhecimento | `explorer`, `site-report` |"
+        )
+        for guidance_path in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
+            guidance = self._read(guidance_path)
+            self.assertIn(kb_row, guidance)
+            self.assertIn(explorer_row, guidance)
+
+    def test_runbooks_distinguish_the_pointer_from_automatic_retrieval(self) -> None:
+        claude_runbook = self._read("harness/claude/skills/claude-code/SKILL.md")
+        codex_runbook = self._read("harness/codex/README.md")
+        project_readme = self._read("README.md")
+
+        self.assertNotIn("no longer provides any session-opening hook", claude_runbook)
+        self.assertIn("plugin now provides the content-free KB pointer", claude_runbook)
+        self.assertIn(
+            "native plugin now supplies the content-free KB pointer", codex_runbook
+        )
+        self.assertIn("automatic content retrieval", project_readme)
+
 
     def test_skill_no_longer_mentions_the_context_snapshot(self) -> None:
         contract = self._read("core/skills/explorer/SKILL.md")
