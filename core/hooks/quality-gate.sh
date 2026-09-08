@@ -271,8 +271,17 @@ fi
 # mentions OMH_GATE=off is a quoted argument and must not grant the bypass.
 #
 # The MCP tool call carries no command string, so there is no prefix form for it:
-# bypass that path only by exporting OMH_GATE=off in the environment this hook itself
-# runs in (e.g. for the whole session), not by putting it in PR fields.
+# bypass that path only through OMH_GATE=off in the environment this hook itself runs
+# in, not by putting it in PR fields.
+#
+# That environment is not the user's alone. Under Claude Code, `env` in settings
+# applies to a session and its subprocesses, `.claude/settings.local.json` is a valid
+# scope, and a running session picks up changed values when the file is saved — so an
+# agent that can `Write` that file can bypass the MCP path for the current session.
+# This is documented rather than closed: the Bash path already accepts an agent-typed
+# `OMH_GATE=off` prefix, so the bypass was never a user-only control, and every
+# bypass says in its reason that the pull request was NOT verified. Treat the gate as
+# an executable reminder with an audited escape, not as an access control.
 if [ "${OMH_GATE:-}" = "off" ] || [ "$GATE_BYPASS" = yes ]; then
   decide allow "Quality gate bypassed via OMH_GATE=off. This pull request was NOT verified."
 fi
@@ -394,9 +403,16 @@ fi
 
 # The PR ships HEAD, not the working tree. Anything uncommitted is silently absent
 # from it, so a dirty tree must stop for a human decision rather than gate content
-# that will not actually be reviewed.
-if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-  decide deny "There are uncommitted changes that will not enter the pull request. Commit or discard them, then retry."
+# that will not actually be reviewed. Modified tracked files and untracked files are
+# reported separately: "uncommitted changes" is not a true description of a stray
+# `.DS_Store` or an unignored build directory, and an inaccurate reason is what makes
+# a gate look broken.
+if [ -n "$(git status --porcelain --untracked-files=no 2>/dev/null)" ]; then
+  decide deny "There are uncommitted changes to tracked files that will not enter the pull request. Commit or discard them, then retry."
+fi
+UNTRACKED=$(git ls-files --others --exclude-standard 2>/dev/null | head -5 | tr '\n' ' ')
+if [ -n "$UNTRACKED" ]; then
+  decide deny "Untracked files are present and will not enter the pull request: ${UNTRACKED}. Commit them, add them to .gitignore, or remove them, then retry."
 fi
 
 # The PR is built from the branch on the remote it targets, not from the local HEAD
@@ -471,19 +487,27 @@ fi
 
 # ---------------------------------------------------------------- run cache
 
+CONFIG=".claude/quality-gate.json"
 CACHE_FILE="$CACHE_DIR/$REPO_SIG"
+
+# Keyed on HEAD *and* on the content of the gate configuration. HEAD alone never
+# invalidated on a configuration change, which is reachable without a new commit
+# whenever `.claude/quality-gate.json` is ignored rather than tracked. It still does
+# not invalidate on a toolchain change outside the repository — a discovered `make
+# test` that starts failing for an installed-dependency reason is only re-run on the
+# next commit. That limit is declared, not silently assumed.
+CACHE_KEY="$HEAD_SHA"
+[ -f "$CONFIG" ] && CACHE_KEY="$HEAD_SHA:$(sha < "$CONFIG")"
 
 # An empty HEAD_SHA means `git rev-parse HEAD` failed; never let that collapse into a
 # key that matches everything.
 if [ -n "$HEAD_SHA" ] && [ -f "$CACHE_FILE" ]; then
-  if [ "$(cat "$CACHE_FILE" 2>/dev/null)" = "$HEAD_SHA" ]; then
-    decide allow "Quality gate already passed for this exact HEAD."
+  if [ "$(cat "$CACHE_FILE" 2>/dev/null)" = "$CACHE_KEY" ]; then
+    decide allow "Quality gate already passed for this exact HEAD and configuration."
   fi
 fi
 
 # ---------------------------------------------------------------- discovery
-
-CONFIG=".claude/quality-gate.json"
 
 has_make_target() {
   for mf in Makefile makefile GNUmakefile; do
@@ -621,7 +645,7 @@ fi
 
 if [ -n "$HEAD_SHA" ]; then
   mkdir -p "$CACHE_DIR" 2>/dev/null
-  printf '%s' "$HEAD_SHA" > "$CACHE_FILE" 2>/dev/null
+  printf '%s' "$CACHE_KEY" > "$CACHE_FILE" 2>/dev/null
 fi
 
 decide allow "Quality gate passed:${RAN}."

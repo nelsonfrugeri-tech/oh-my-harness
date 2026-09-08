@@ -269,6 +269,14 @@ POST` sobre pull requests **não passam pelo gate** — decisão de desenho, nã
 a criação, o review humano e o CI governam o que vem depois. "Não abra o PR sem testes passando"
 significa que a abertura é verificada; os commits seguintes são livres.
 
+**Escape de emergência.** Prefixe `OMH_GATE=off` no comando (`OMH_GATE=off gh pr create …`) ou
+exporte `OMH_GATE=off` no ambiente do hook para o caminho MCP. O gate permite e **declara** que o PR
+não foi verificado. O bypass não é controle de acesso: um agent pode digitar o prefixo, e no Claude
+Code um `Write` em `.claude/settings.local.json` com `{"env": {"OMH_GATE": "off"}}` liga o escape do
+caminho MCP na sessão corrente. É lembrete executável com escape auditado, não permissão.
+
+Mecânica, confiança do repositório e limites no cabeçalho de `core/hooks/quality-gate.sh`.
+
 ---
 
 ## Trabalho de longa duração

@@ -388,6 +388,52 @@ class QualityGateTest(unittest.TestCase):
         self.assertIn("HEAD is detached", decision["permissionDecisionReason"])
         self.assertNotIn("no upstream", decision["permissionDecisionReason"])
 
+    def test_untracked_files_get_their_own_reason(self) -> None:
+        # "uncommitted changes" is not a true description of a stray .DS_Store.
+        self._configure_and_commit(test="false")
+        self._push_current_head()
+        self._trust_repository()
+        self._repo.joinpath("graphify-out").mkdir()
+        self._repo.joinpath("graphify-out/graph.json").write_text("{}\n", encoding="utf-8")
+
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("deny", decision["permissionDecision"])
+        self.assertIn("Untracked files are present", decision["permissionDecisionReason"])
+        self.assertIn("graphify-out/", decision["permissionDecisionReason"])
+        self.assertNotIn("uncommitted changes", decision["permissionDecisionReason"])
+
+    def test_pass_cache_invalidates_when_the_gate_configuration_changes(self) -> None:
+        # The configuration is reachable without a new commit whenever it is ignored
+        # rather than tracked, so HEAD alone is not a sufficient cache key.
+        self._repo.joinpath(".gitignore").write_text(".claude/\n", encoding="utf-8")
+        self._git("add", ".gitignore")
+        self._git("commit", "-q", "-m", "ignore the gate configuration")
+        config = self._repo / ".claude/quality-gate.json"
+        config.parent.mkdir()
+        config.write_text(json.dumps({"test": "true"}), encoding="utf-8")
+        self._push_current_head()
+        self._trust_repository()
+
+        self.assertEqual("allow", self._decision(self._run_gate())["permissionDecision"])
+
+        config.write_text(json.dumps({"test": "false"}), encoding="utf-8")
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("deny", decision["permissionDecision"])
+        self.assertIn("FAILED at test", decision["permissionDecisionReason"])
+
+    def test_pass_cache_short_circuits_an_unchanged_head_and_configuration(self) -> None:
+        self._configure_and_commit(test="true")
+        self._push_current_head()
+        self._trust_repository()
+
+        self.assertEqual("allow", self._decision(self._run_gate())["permissionDecision"])
+        decision = self._decision(self._run_gate())
+
+        self.assertEqual("allow", decision["permissionDecision"])
+        self.assertIn("already passed", decision["permissionDecisionReason"])
+
     def test_no_guard_decision_uses_ask(self) -> None:
         # `ask` is not portable: Codex parses it, marks the hook run as failed and
         # continues the tool call, so an `ask` guard would open the PR there while
