@@ -41,7 +41,7 @@
 #   - Never reads the legacy `work/projects/*/context.md` snapshot: that file is
 #     evidence for the `knowledge-base` agent's one-shot migration (#133), not for
 #     this hook.
-#   - No project resolved -> `Sem KB para este projeto; o \`explorer\` cria uma sob
+#   - No project resolved -> `Sem KB para este projeto; o \`explorer\` mapeia um sob
 #     demanda`.
 #   - Project resolved -> counts `*.md` files under the project directory, excluding
 #     `index.md`, `log.md`, and the legacy `context.md`, and finds the newest
@@ -53,6 +53,11 @@
 #         <YYYY-MM-DD>; …`.
 #       - resolved from the directory fallback: `KB deste projeto (por diretório,
 #         sem nota de identidade): N notas, última em <YYYY-MM-DD>; …`.
+#   - Traversal uses `find -H`: follow a symlink only when the resolved project
+#     directory itself is the command-line root. Never follow nested symlinks into
+#     external trees or cycles. This deliberately omits notes in symlinked topic
+#     directories; preserving the KB containment boundary is safer than complete
+#     traversal of externally located topics.
 #   - The printed line names the knowledge base, never a mechanical interface. The
 #     Codex native plugin packages skills and this hook but NO custom agents (see
 #     `.codex-plugin/plugin.json` and README "Codex custom agents … are not plugin
@@ -139,6 +144,89 @@ canonical() {
   (cd "$1" 2>/dev/null && pwd -P) 2>/dev/null
 }
 
+# Parse every identity note in one awk process. A record uses ASCII file
+# separator (0x1c), which cannot occur in a valid YAML scalar here. The
+# single-pass parser keeps SessionStart inside its two-second budget.
+scan_identities() {
+  awk -v basename="$BASENAME" '
+    function trim(value) {
+      sub(/^[[:space:]]+/, "", value)
+      sub(/[[:space:]]+$/, "", value)
+      return value
+    }
+    function unquote(value, first, last) {
+      value = trim(value)
+      first = substr(value, 1, 1)
+      last = substr(value, length(value), 1)
+      if (length(value) >= 2 && ((first == "\"" && last == "\"") ||
+          (first == "\047" && last == "\047"))) {
+        return substr(value, 2, length(value) - 2)
+      }
+      return value
+    }
+    function reset_note() {
+      boundary = 0
+      knowledge_type = ""
+      status = ""
+      name = ""
+      repository_path = ""
+      alias_match = 0
+      alias_block = 0
+    }
+    function finish_note(file, project_dir) {
+      if (file == "" || knowledge_type != "project" || status == "deprecated") return
+      project_dir = file
+      sub("/identity/[^/]+$", "", project_dir)
+      printf "%s%c%s%c%d%c%d\n", project_dir, 28, repository_path, 28,
+        (name == basename), 28, alias_match
+    }
+    FNR == 1 {
+      if (previous_file != "") finish_note(previous_file)
+      previous_file = FILENAME
+      reset_note()
+    }
+    /^---[[:space:]]*$/ { boundary++; alias_block = 0; next }
+    boundary != 1 { next }
+    alias_block && /^[[:space:]]+-[[:space:]]*/ {
+      value = $0
+      sub(/^[[:space:]]*-[[:space:]]*/, "", value)
+      if (unquote(value) == basename) alias_match = 1
+      next
+    }
+    alias_block { alias_block = 0 }
+    /^knowledge_type:[[:space:]]*/ {
+      value = $0; sub(/^knowledge_type:[[:space:]]*/, "", value)
+      knowledge_type = unquote(value); next
+    }
+    /^status:[[:space:]]*/ {
+      value = $0; sub(/^status:[[:space:]]*/, "", value)
+      status = unquote(value); next
+    }
+    /^name:[[:space:]]*/ {
+      value = $0; sub(/^name:[[:space:]]*/, "", value)
+      name = unquote(value); next
+    }
+    /^repository_path:[[:space:]]*/ {
+      value = $0; sub(/^repository_path:[[:space:]]*/, "", value)
+      repository_path = unquote(value); next
+    }
+    /^aliases:[[:space:]]*/ {
+      value = $0; sub(/^aliases:[[:space:]]*/, "", value)
+      value = trim(value)
+      if (value == "") { alias_block = 1; next }
+      if (value ~ /^\[.*\]$/) {
+        value = substr(value, 2, length(value) - 2)
+        count = split(value, aliases, ",")
+        for (alias_index = 1; alias_index <= count; alias_index++) {
+          if (unquote(aliases[alias_index]) == basename) alias_match = 1
+        }
+      }
+      next
+    }
+    END { finish_note(previous_file) }
+  ' "$@" 2>/dev/null
+}
+
 GIT_ROOT_REAL=$(canonical "$GIT_ROOT")
 [ -n "$GIT_ROOT_REAL" ] || GIT_ROOT_REAL="$GIT_ROOT"
 
@@ -147,35 +235,28 @@ BY_NAME=""
 BY_ALIAS=""
 
 shopt -s nullglob
-for identity_file in "$KB_ROOT"/work/projects/*/identity/*.md; do
-  fm=$(frontmatter "$identity_file")
-  [ "$(fm_field "$fm" "knowledge_type")" = "project" ] || continue
-  [ "$(fm_field "$fm" "status")" = "deprecated" ] && continue
-
-  project_dir=$(dirname "$(dirname "$identity_file")")
-
-  repository_path=$(fm_field "$fm" "repository_path")
+while IFS=$'\034' read -r project_dir repository_path name_match alias_match; do
+  path_match=0
   if [ -n "$repository_path" ]; then
-    repository_real=$(canonical "$repository_path")
-    [ -n "$repository_real" ] || repository_real="$repository_path"
-    if [ "$repository_real" = "$GIT_ROOT_REAL" ]; then
-      BY_PATH="${BY_PATH}${project_dir}
-"
-      continue
+    if [ "$repository_path" = "$GIT_ROOT" ] || [ "$repository_path" = "$GIT_ROOT_REAL" ]; then
+      path_match=1
+    else
+      repository_real=$(canonical "$repository_path")
+      [ -n "$repository_real" ] && [ "$repository_real" = "$GIT_ROOT_REAL" ] && path_match=1
     fi
   fi
 
-  if [ "$(fm_field "$fm" "name")" = "$BASENAME" ]; then
-    BY_NAME="${BY_NAME}${project_dir}
+  if [ "$path_match" -eq 1 ]; then
+    BY_PATH="$BY_PATH$project_dir
 "
-    continue
-  fi
-
-  if fm_aliases "$fm" | grep -qxF "$BASENAME"; then
-    BY_ALIAS="${BY_ALIAS}${project_dir}
+  elif [ "$name_match" -eq 1 ]; then
+    BY_NAME="$BY_NAME$project_dir
+"
+  elif [ "$alias_match" -eq 1 ]; then
+    BY_ALIAS="$BY_ALIAS$project_dir
 "
   fi
-done
+done < <(scan_identities "$KB_ROOT"/work/projects/*/identity/*.md)
 shopt -u nullglob
 
 PROJECT_DIR=""
@@ -199,13 +280,34 @@ if [ -z "$PROJECT_DIR" ] && [ -d "$KB_ROOT/work/projects/$BASENAME" ]; then
 fi
 
 if [ -z "$PROJECT_DIR" ]; then
-  printf 'Sem KB para este projeto; o `explorer` cria uma sob demanda\n'
+  printf 'Sem KB para este projeto; o `explorer` mapeia um sob demanda\n'
   exit 0
 fi
 
 COUNT=0
 LATEST=""
 
+valid_date() {
+  local value year month day max_day
+  value="$1"
+  [[ "$value" =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})$ ]] || return 1
+  year=$((10#${BASH_REMATCH[1]}))
+  month=$((10#${BASH_REMATCH[2]}))
+  day=$((10#${BASH_REMATCH[3]}))
+  [ "$month" -ge 1 ] && [ "$month" -le 12 ] || return 1
+  case "$month" in
+    1 | 3 | 5 | 7 | 8 | 10 | 12) max_day=31 ;;
+    4 | 6 | 9 | 11) max_day=30 ;;
+    2)
+      max_day=28
+      if { [ $((year % 4)) -eq 0 ] && [ $((year % 100)) -ne 0 ]; } ||
+        [ $((year % 400)) -eq 0 ]; then
+        max_day=29
+      fi
+      ;;
+  esac
+  [ "$day" -ge 1 ] && [ "$day" -le "$max_day" ]
+}
 while IFS= read -r -d '' note_file; do
   case "$(basename "$note_file")" in
     index.md | log.md | context.md) continue ;;
@@ -214,13 +316,13 @@ while IFS= read -r -d '' note_file; do
   note_fm=$(frontmatter "$note_file")
   clean_date=$(fm_field "$note_fm" "created_at")
   short_date="${clean_date:0:10}"
-  if [ -n "$short_date" ] && { [ -z "$LATEST" ] || [[ "$short_date" > "$LATEST" ]]; }; then
+  if valid_date "$short_date" && { [ -z "$LATEST" ] || [[ "$short_date" > "$LATEST" ]]; }; then
     LATEST="$short_date"
   fi
 done < <(find -H "$PROJECT_DIR" -type f -name '*.md' -print0 2>/dev/null)
 
 if [ "$COUNT" -eq 0 ]; then
-  printf 'Sem KB para este projeto; o `explorer` cria uma sob demanda\n'
+  printf 'Sem KB para este projeto; o `explorer` mapeia um sob demanda\n'
   exit 0
 fi
 

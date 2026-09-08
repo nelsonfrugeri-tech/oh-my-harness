@@ -94,9 +94,10 @@ find ~/.claude/agents ~/.claude/skills ~/.claude/hooks -maxdepth 2 -type l -exec
 1. **Duplicate hooks are the most visible symptom.** If `~/.claude/settings.json` still has the
    `PreToolUse → quality-gate.sh` handler, it fires **alongside** the plugin handler and the quality
    gate runs twice. Remove **only** that handler; preserve third-party handlers for the same event
-   (Deja installs `SessionStart`, `PreCompact`, and `UserPromptSubmit`). A `SessionStart` handler
-   pointing to this library comes from an old installation and must also be removed: the library no
-   longer provides any session-opening hook.
+   (Deja installs `SessionStart`, `PreCompact`, and `UserPromptSubmit`). A manually registered
+   `SessionStart` handler pointing to this library comes from an old installation and must also be
+   removed: the plugin now provides the content-free KB pointer, and retaining the manual copy would
+   run it twice.
 2. **Agent and skill symlinks** pointing to this repository are now redundant: the plugin provides
    the same components under a namespace. Remove them **one at a time and with confirmation**—never
    in bulk. Skills and agents installed by other tools (`deja-history`, and any external capability
