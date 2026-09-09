@@ -50,6 +50,26 @@ viewports, and enlarged text. Hide notes and camera guides before clean takes if
 Reader mode works without JavaScript. Presentation mode intentionally requires JavaScript. The
 site is not a transcript player or a claim that the demonstration steps were executed.
 
+## Narrative presentation
+
+Open `/oh-my-harness/presentation/` for the separate video and talk presentation.
+The existing guide remains available at `/oh-my-harness/`. Both routes use the
+same local fonts, color tokens, and theme preference.
+
+The presentation follows eleven scenes: continuity, durable knowledge,
+coordination, epistemic governance, portability, architecture, native adapters,
+and a proposed engineering demonstration. Public milestones are dated and linked
+to primary sources; repository references are pinned to the inspected revision.
+Illustrative examples and a proposed demo must not be presented as measured OMH
+outcomes. Personal narration belongs in the video, not in the product page.
+
+Use the scene selector or previous/next controls to navigate. Arrow keys,
+Page Up/Page Down, Home, and End work outside interactive controls. Each scene
+has a shareable URL fragment. Camera space reserves layout only; it does not
+access a camera. The presentation also supports a scrollable reading fallback
+without JavaScript. Verify all scenes at recording and narrow viewport sizes
+before publishing content changes.
+
 ## Publication
 
 The Pages workflow checks and builds pull requests, and publishes only pushes to `master`.
