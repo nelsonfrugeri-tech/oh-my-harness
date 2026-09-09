@@ -34,10 +34,10 @@ test("scene navigation supports retakes, history, bounds, and native controls", 
   await expect(page.locator("#convergencia")).toBeVisible();
   await page.reload();
   await expect(page.locator("#convergencia")).toBeVisible();
-  const selector = page.getByRole("combobox", { name: "Ir para cena" });
-  await selector.focus();
+  await page.getByRole("button", { name: "Alternar tema" }).focus();
   await page.keyboard.press("ArrowLeft");
   await expect(page).toHaveURL(/#convergencia$/);
+  const selector = page.getByRole("combobox", { name: "Ir para cena" });
   await selector.selectOption("governanca");
   await expect(page.locator("#governanca")).toBeVisible();
   await page.locator("#governanca h2").focus();
