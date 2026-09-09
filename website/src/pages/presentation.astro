@@ -1,0 +1,293 @@
+---
+import SceneVisual from "../components/presentation/SceneVisual.astro";
+import { scenes, repository, revision, sourceFile } from "../data/presentation";
+import "../styles/site.css";
+import "../styles/narrative.css";
+
+const home = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
+const canonical = new URL(`${home}presentation/`, Astro.site);
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Uma apresentação visual do oh-my-harness: conhecimento durável, governança epistemológica e um operating model portátil de agentes."
+    />
+    <meta
+      name="theme-color"
+      content="#fbfbfd"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#000000"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      property="og:title"
+      content="oh-my-harness — A engenharia permanece"
+    />
+    <meta
+      property="og:description"
+      content="Onze cenas para explorar os problemas, os três pilares e a arquitetura do OMH."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content={canonical} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={`${home}favicon.svg`} type="image/svg+xml" />
+    <title>Apresentação · oh-my-harness</title>
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem("omh-theme");
+        if (theme === "light" || theme === "dark")
+          document.documentElement.dataset.theme = theme;
+      } catch {
+        /* Follow the system theme when storage is unavailable. */
+      }
+    </script>
+  </head>
+  <body class="narrative-page">
+    <a class="skip-link" href="#main">Pular para o conteúdo</a>
+    <header class="narrative-header">
+      <a
+        class="wordmark"
+        href={home}
+        aria-label="oh-my-harness, site do projeto"
+        ><span class="brand-mark" aria-hidden="true">↗</span>oh-my-harness<span
+          class="edition">Apresentação</span
+        ></a
+      >
+      <div class="narrative-tools">
+        <a class="narrative-home" href={home}>Explorar o projeto ↗</a>
+        <button
+          id="narrative-camera"
+          class="narrative-tool"
+          type="button"
+          aria-label="Reservar espaço para câmera"
+          aria-pressed="false"
+          title="Reservar espaço para câmera"
+          hidden
+          ><svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+            ><rect x="3" y="6" width="12" height="12" rx="3"></rect><path
+              d="m15 10 6-3v10l-6-3"></path></svg
+          ></button
+        >
+        <button
+          id="narrative-fullscreen"
+          class="narrative-tool"
+          type="button"
+          aria-label="Tela cheia"
+          title="Tela cheia"
+          hidden
+          ><svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+            ><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"></path></svg
+          ></button
+        >
+        <button
+          id="narrative-theme"
+          class="narrative-tool"
+          type="button"
+          aria-label="Alternar tema"
+          title="Alternar tema"
+          hidden
+          ><svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+            ><circle cx="12" cy="12" r="8"></circle><path
+              d="M12 4a8 8 0 0 1 0 16Z"
+              fill="currentColor"></path></svg
+          ></button
+        >
+      </div>
+    </header>
+    <main id="main" tabindex="-1" class="narrative-main">
+      {
+        scenes.map((scene, index) => (
+          <section
+            id={scene.id}
+            data-scene
+            class:list={[
+              "narrative-scene",
+              `scene-${scene.id}`,
+              { "scene-bookend": index === 0 || index === scenes.length - 1 },
+            ]}
+            aria-labelledby={`${scene.id}-title`}
+          >
+            <div class="scene-inner">
+              <div class="scene-kicker">
+                <>
+                  <span class="eyebrow">{scene.chapter}</span>
+                  <span class="scene-number mono">
+                    {String(index + 1).padStart(2, "0")}
+                    <span> / {String(scenes.length).padStart(2, "0")}</span>
+                  </span>
+                </>
+              </div>
+              <div class="scene-stage">
+                <div class="scene-intro">
+                  {index === 0 ? (
+                    <h1 id={`${scene.id}-title`} tabindex="-1">
+                      <span class="scene-title-text" set:text={scene.title} />
+                      <em>{scene.accent}</em>
+                    </h1>
+                  ) : (
+                    <h2 id={`${scene.id}-title`} tabindex="-1">
+                      <span class="scene-title-text" set:text={scene.title} />
+                      {scene.accent && <em>{scene.accent}</em>}
+                    </h2>
+                  )}
+                  <p class="scene-lead">{scene.lead}</p>
+                  {index === 0 && (
+                    <a class="button primary narrative-start" href="#contexto">
+                      Começar a apresentação <span aria-hidden="true">→</span>
+                    </a>
+                  )}
+                  {index === scenes.length - 1 && (
+                    <div class="closing-actions">
+                      <a class="button primary" href={repository}>
+                        Abrir o GitHub ↗
+                      </a>
+                      <a href={home}>Explorar o OMH ↗</a>
+                    </div>
+                  )}
+                </div>
+                <SceneVisual kind={scene.id} />
+              </div>
+              <div class="scene-footnote">
+                <>
+                  <span class="takeaway-marker" aria-hidden="true" />
+                  <p>{scene.takeaway}</p>
+                </>
+              </div>
+              <details class="scene-evidence">
+                <>
+                  <summary>
+                    Fontes e arquivos <span aria-hidden="true">+</span>
+                  </summary>
+                  <div class="evidence-content">
+                    {scene.note && <p class="evidence-note">{scene.note}</p>}
+                    {scene.references.length > 0 && (
+                      <div>
+                        <span class="mini-label">Publicações originais</span>
+                        <ul>
+                          {scene.references.map((reference) => (
+                            <li>
+                              <a
+                                href={reference.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {reference.label} ↗
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {scene.files.length > 0 && (
+                      <div>
+                        <span class="mini-label">
+                          Abra no editor · revisão {revision.slice(0, 7)}
+                        </span>
+                        <ul>
+                          {scene.files.map((file) => (
+                            <li>
+                              <a
+                                href={sourceFile(file)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <code>{file}</code> ↗
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <p>
+                      Os links do repositório apontam para uma revisão fixa. Os
+                      diagramas resumem contratos; não representam uma execução
+                      medida.
+                    </p>
+                  </div>
+                </>
+              </details>
+            </div>
+          </section>
+        ))
+      }
+    </main>
+    <aside class="camera-reserve" aria-hidden="true">
+      <span>Espaço para câmera</span>
+    </aside>
+    <nav
+      class="narrative-controls"
+      aria-label="Navegação da apresentação"
+      hidden
+    >
+      <div class="narrative-progress" aria-hidden="true">
+        <span id="narrative-progress-bar"></span>
+      </div>
+      <div class="controls-inner">
+        <span class="control-hint">Navegue com <kbd>←</kbd> <kbd>→</kbd></span
+        ><div class="scene-selection">
+          <span id="narrative-count" class="mono">01 / 11</span><select
+            id="narrative-select"
+            aria-label="Ir para cena"
+            >{
+              scenes.map((scene, index) => (
+                <option value={scene.id}>
+                  {String(index + 1).padStart(2, "0")} · {scene.label}
+                </option>
+              ))
+            }</select
+          >
+        </div><div class="step-controls">
+          <button
+            id="narrative-previous"
+            type="button"
+            aria-label="Cena anterior"
+            disabled>←</button
+          ><button id="narrative-next" type="button" aria-label="Próxima cena"
+            >→</button
+          >
+        </div>
+      </div>
+    </nav>
+    <p
+      id="narrative-announcement"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+    </p>
+    <noscript
+      ><p class="no-script-note">
+        Todas as cenas estão disponíveis nesta página. Ative JavaScript para
+        navegar cena a cena.
+      </p></noscript
+    >
+    <script>
+      import "../scripts/narrative";
+    </script>
+  </body>
+</html>

@@ -1,0 +1,746 @@
+---
+interface Props {
+  kind: string;
+}
+const { kind } = Astro.props;
+const status = [
+  ["fact", "Fato verificado", "Evidência inspecionável"],
+  ["derived", "Resultado derivado", "Entradas + método"],
+  ["inference", "Inferência", "Conclusão sustentada"],
+  ["hypothesis", "Hipótese", "Ainda precisa de teste"],
+  ["estimate", "Estimativa", "Premissas + incerteza"],
+  ["unknown", "Desconhecido", "Ainda não estabelecido"],
+  ["decision", "Decisão", "Escolha + trade-offs"],
+];
+const claude = `---
+name: knowledge-base
+model: sonnet
+skills:
+  - evidence
+  - kb-write
+  - kb-retrieval
+---
+
+# Knowledge Base Orchestrator`;
+const codex = `name = "knowledge-base"
+developer_instructions = """
+# Knowledge Base Orchestrator
+You orchestrate the user's external OKF
+knowledge base while preserving provenance,
+immutable notes, and truthful degraded behavior.
+"""`;
+---
+
+{
+  kind === "a-engenharia-permanece" && (
+    <div
+      class="visual hero-system"
+      aria-label="Conhecimento, governança e agentes formam o core portátil do oh-my-harness"
+    >
+      <>
+        <div class="system-orbit orbit-one" />
+        <div class="system-orbit orbit-two" />
+      </>
+      <>
+        <span class="orbit-label orbit-claude">Claude Code</span>
+        <span class="orbit-label orbit-codex">Codex</span>
+      </>
+      <div class="system-core">
+        <>
+          <span class="core-emblem" aria-hidden="true">
+            ↗
+          </span>
+          <strong>oh-my-harness</strong>
+          <span class="mono">a engenharia permanece</span>
+        </>
+      </div>
+      <div class="system-pillars">
+        <>
+          <div>
+            <span>01</span>Conhecimento
+          </div>
+          <div>
+            <span>02</span>Governança
+          </div>
+          <div>
+            <span>03</span>Agentes
+          </div>
+        </>
+      </div>
+      <span class="orbit-caption">CONTRATOS PORTÁTEIS · ADAPTERS NATIVOS</span>
+    </div>
+  )
+}
+
+{
+  kind === "contexto" && (
+    <div class="visual context-visual">
+      <div class="session-window">
+        <>
+          <div class="window-top">
+            <>
+              <span class="window-dots" aria-hidden="true">
+                ● ● ●
+              </span>
+              <span>Claude Code · sessão A</span>
+            </>
+          </div>
+          <div class="session-content">
+            <>
+              <span class="mini-label">Contexto construído</span>
+              <div class="context-line">
+                <span>↳</span> Decisões de arquitetura
+              </div>
+              <div class="context-line">
+                <span>↳</span> Restrições do projeto
+              </div>
+              <div class="context-line">
+                <span>↳</span> O que já foi investigado
+              </div>
+              <div class="context-line">
+                <span>↳</span> Próximos passos
+              </div>
+              <div class="session-note">
+                Horas de trabalho, contexto acumulado.
+              </div>
+            </>
+          </div>
+        </>
+      </div>
+      <div class="context-transfer">
+        <>
+          <span class="broken-link" aria-hidden="true">
+            ··· / ···
+          </span>
+          <span>
+            nova sessão
+            <br />
+            ou outro harness
+          </span>
+        </>
+      </div>
+      <div class="session-window session-new">
+        <>
+          <div class="window-top">
+            <>
+              <span class="window-dots" aria-hidden="true">
+                ● ● ●
+              </span>
+              <span>Codex · sessão B</span>
+            </>
+          </div>
+          <div class="session-content">
+            <>
+              <span class="mini-label">Continuidade necessária</span>
+              <div class="context-question">
+                O que já
+                <br />
+                sabemos?
+              </div>
+              <div class="empty-line" />
+              <div class="empty-line short" />
+              <div class="session-note">
+                O conhecimento precisa de uma ponte.
+              </div>
+            </>
+          </div>
+        </>
+      </div>
+    </div>
+  )
+}
+
+{
+  kind === "convergencia" && (
+    <div class="visual publication-timeline">
+      <div class="timeline-track" aria-hidden="true" />
+      <article>
+        <>
+          <time datetime="2025-09-29">29 SET 2025</time>
+          <span class="timeline-dot" aria-hidden="true" />
+          <span class="mini-label">Anthropic</span>
+          <h3>
+            Context
+            <br />
+            engineering
+          </h3>
+          <p>Selecionar e organizar o contexto disponível para o agente.</p>
+          <span class="timeline-tag">contexto finito</span>
+        </>
+      </article>
+      <article>
+        <>
+          <time datetime="2026-02-11">11 FEV 2026</time>
+          <span class="timeline-dot" aria-hidden="true" />
+          <span class="mini-label">OpenAI</span>
+          <h3>
+            Harness
+            <br />
+            engineering
+          </h3>
+          <p>Projetar o ambiente e os mecanismos em torno dos agentes.</p>
+          <span class="timeline-tag">ambiente de execução</span>
+        </>
+      </article>
+      <article>
+        <>
+          <time datetime="2026-04-04">04 ABR 2026</time>
+          <span class="timeline-dot" aria-hidden="true" />
+          <span class="mini-label">Andrej Karpathy</span>
+          <h3>
+            LLM
+            <br />
+            Wiki
+          </h3>
+          <p>Fontes preservadas e uma wiki em Markdown mantida por agentes.</p>
+          <span class="timeline-tag">conhecimento persistente</span>
+        </>
+      </article>
+    </div>
+  )
+}
+
+{
+  kind === "conhecimento" && (
+    <div class="visual memory-visual">
+      <div class="memory-flow">
+        <>
+          <div class="memory-origin">
+            <>
+              <span class="mini-label">Memória episódica</span>
+              <div class="paper-stack" aria-hidden="true">
+                <>
+                  <i />
+                  <i />
+                  <i>≡</i>
+                </>
+              </div>
+              <strong>Histórico bruto</strong>
+              <span>transcripts · sessões</span>
+            </>
+          </div>
+          <span class="flow-arrow" aria-hidden="true">
+            →
+          </span>
+          <div class="curation-gate">
+            <>
+              <span class="mini-label">Curadoria explícita</span>
+              <strong>
+                O que continua
+                <br />
+                válido?
+              </strong>
+              <span>
+                selecionar · atribuir
+                <br />
+                preservar · corrigir
+              </span>
+            </>
+          </div>
+          <span class="flow-arrow" aria-hidden="true">
+            →
+          </span>
+          <div class="memory-store">
+            <>
+              <span class="mini-label">Source of truth</span>
+              <strong>Knowledge base</strong>
+              <div class="file-pills">
+                <>
+                  <span>.md</span>
+                  <span>.json</span>
+                </>
+              </div>
+              <span>provenance + lifecycle</span>
+            </>
+          </div>
+        </>
+      </div>
+      <div class="memory-retrieval">
+        <>
+          <div>
+            <>
+              <span class="mini-label">Índice derivado</span>
+              <strong>
+                Qdrant <span>· reconstruível</span>
+              </strong>
+            </>
+          </div>
+          <span class="flow-arrow" aria-hidden="true">
+            →
+          </span>
+          <div>
+            <>
+              <span class="mini-label">Retrieval sob demanda</span>
+              <strong>
+                Claude Code <span>↔</span> Codex
+              </strong>
+            </>
+          </div>
+        </>
+      </div>
+    </div>
+  )
+}
+
+{
+  kind === "coordenacao" && (
+    <div class="visual coordination-visual">
+      <div class="work-lanes">
+        <>
+          <div>
+            <>
+              <span class="lane-dot blue" />
+              <strong>Pesquisa</strong>
+              <span>fontes + conclusões</span>
+              <i />
+              <i />
+              <i />
+            </>
+          </div>
+          <div>
+            <>
+              <span class="lane-dot purple" />
+              <strong>Implementação</strong>
+              <span>código + testes</span>
+              <i />
+              <i />
+              <i />
+            </>
+          </div>
+          <div>
+            <>
+              <span class="lane-dot amber" />
+              <strong>Review</strong>
+              <span>findings + hipóteses</span>
+              <i />
+              <i />
+              <i />
+            </>
+          </div>
+        </>
+      </div>
+      <div class="coordination-connector" aria-hidden="true">
+        →
+      </div>
+      <div class="readable-result">
+        <>
+          <span class="mini-label">Uma resposta que dá pra acompanhar</span>
+          <h3>Conclusão primeiro.</h3>
+          <div class="result-rule">
+            <>
+              <span>01</span>
+              <div>
+                <>
+                  <strong>O que foi observado</strong>
+                  <small>fonte e escopo explícitos</small>
+                </>
+              </div>
+            </>
+          </div>
+          <div class="result-rule">
+            <>
+              <span>02</span>
+              <div>
+                <>
+                  <strong>O que ainda é hipótese</strong>
+                  <small>incerteza e como testar</small>
+                </>
+              </div>
+            </>
+          </div>
+          <div class="result-rule">
+            <>
+              <span>03</span>
+              <div>
+                <>
+                  <strong>O próximo passo</strong>
+                  <small>decisão, critério e responsável</small>
+                </>
+              </div>
+            </>
+          </div>
+        </>
+      </div>
+    </div>
+  )
+}
+
+{
+  kind === "governanca" && (
+    <div class="visual epistemic-visual">
+      <div class="claim-example">
+        <>
+          <span class="mini-label">Exemplo ilustrativo</span>
+          <p class="claim-unsupported">
+            “Os testes passaram.
+            <br />O sistema não tem bugs.”
+          </p>
+          <div class="claim-divider">
+            <span aria-hidden="true">↓</span> separar observação de conclusão
+          </div>
+          <div class="verified-claim">
+            <>
+              <span class="status-dot fact" />
+              <div>
+                <>
+                  <strong>Os testes executados passaram.</strong>
+                  <small>
+                    Válido para os casos, a revisão e o ambiente exercitados.
+                  </small>
+                </>
+              </div>
+            </>
+          </div>
+          <div class="unknown-claim">
+            <>
+              <span class="status-dot unknown" />
+              <div>
+                <>
+                  <strong>Ausência de todos os defeitos?</strong>
+                  <small>Não estabelecida por esse resultado.</small>
+                </>
+              </div>
+            </>
+          </div>
+        </>
+      </div>
+      <div class="claim-taxonomy">
+        {status.map(([color, label, description]) => (
+          <div>
+            <span class:list={["status-dot", color]} />
+            <strong>{label}</strong>
+            <span>{description}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+{
+  kind === "portabilidade" && (
+    <div class="visual portability-visual">
+      <div class="portable-contract">
+        <>
+          <span class="mini-label">Core compartilhado · versionado</span>
+          <h3>Seu operating model</h3>
+          <div class="contract-items">
+            <>
+              <span>Papéis</span>
+              <span>Responsabilidades</span>
+              <span>Skills</span>
+              <span>Políticas</span>
+              <span>Handoffs</span>
+            </>
+          </div>
+        </>
+      </div>
+      <div class="adapter-branches" aria-hidden="true">
+        <>
+          <span />
+          <span />
+        </>
+      </div>
+      <div class="adapter-pair">
+        <>
+          <div>
+            <>
+              <span class="mini-label">Adapter Claude</span>
+              <h3>Claude Code</h3>
+              <div class="format-pills">
+                <>
+                  <span>agents .md</span>
+                  <span>CLAUDE.md</span>
+                </>
+              </div>
+            </>
+          </div>
+          <div>
+            <>
+              <span class="mini-label">Adapter Codex</span>
+              <h3>Codex</h3>
+              <div class="format-pills">
+                <>
+                  <span>agents .toml</span>
+                  <span>AGENTS.md</span>
+                </>
+              </div>
+            </>
+          </div>
+        </>
+      </div>
+      <div class="model-strip">
+        <>
+          <span>Modelos, capacidades e custos evoluem.</span>
+          <strong>Os contratos acompanham você.</strong>
+        </>
+      </div>
+    </div>
+  )
+}
+
+{
+  kind === "arquitetura" && (
+    <div class="visual architecture-visual">
+      <div class="architecture-repo">
+        <>
+          <div class="architecture-header">
+            <>
+              <span class="mini-label">Versionado no repositório</span>
+              <strong class="mono">oh-my-harness/</strong>
+            </>
+          </div>
+          <div class="architecture-columns">
+            <>
+              <div class="architecture-core">
+                <>
+                  <h3 class="mono">core/</h3>
+                  <dl>
+                    <>
+                      <div>
+                        <>
+                          <dt>agents/</dt>
+                          <dd>papéis e routing</dd>
+                        </>
+                      </div>
+                      <div>
+                        <>
+                          <dt>skills/</dt>
+                          <dd>métodos de trabalho</dd>
+                        </>
+                      </div>
+                      <div>
+                        <>
+                          <dt>policies/</dt>
+                          <dd>contratos de comportamento</dd>
+                        </>
+                      </div>
+                      <div>
+                        <>
+                          <dt>hooks/</dt>
+                          <dd>integração ao lifecycle</dd>
+                        </>
+                      </div>
+                      <div>
+                        <>
+                          <dt>evals/</dt>
+                          <dd>avaliação de comportamento</dd>
+                        </>
+                      </div>
+                    </>
+                  </dl>
+                </>
+              </div>
+              <div class="architecture-adapters">
+                <>
+                  <h3 class="mono">harness/</h3>
+                  <div>
+                    <>
+                      <span class="folder-glyph" aria-hidden="true">
+                        ↳
+                      </span>
+                      <strong>claude/</strong>
+                      <span>Markdown · plugin · hooks</span>
+                    </>
+                  </div>
+                  <div>
+                    <>
+                      <span class="folder-glyph" aria-hidden="true">
+                        ↳
+                      </span>
+                      <strong>codex/</strong>
+                      <span>TOML · adapter · hooks</span>
+                    </>
+                  </div>
+                  <p>
+                    Representações nativas
+                    <br />
+                    do contrato compartilhado.
+                  </p>
+                </>
+              </div>
+            </>
+          </div>
+        </>
+      </div>
+      <div class="external-state">
+        <>
+          <span class="mini-label">Fora do repositório</span>
+          <h3>Estado local</h3>
+          <div>
+            <span>01</span>Configuração do harness
+          </div>
+          <div>
+            <span>02</span>Knowledge base
+          </div>
+          <div>
+            <span>03</span>Índices reconstruíveis
+          </div>
+          <p>Identidade, caminhos e configurações pertencem à máquina.</p>
+        </>
+      </div>
+    </div>
+  )
+}
+
+{
+  kind === "adapters" && (
+    <div class="visual code-comparison">
+      <>
+        <div class="code-window">
+          <>
+            <div class="window-top">
+              <>
+                <span>Claude Code</span>
+                <span class="code-format">Markdown + YAML</span>
+              </>
+            </div>
+            <span class="code-path">agents/tools/knowledge-base.md</span>
+            <pre>
+              <code set:text={claude} />
+            </pre>
+          </>
+        </div>
+        <div class="code-window">
+          <>
+            <div class="window-top">
+              <>
+                <span>Codex</span>
+                <span class="code-format">TOML</span>
+              </>
+            </div>
+            <span class="code-path">agents/knowledge-base.toml</span>
+            <pre>
+              <code set:text={codex} />
+            </pre>
+          </>
+        </div>
+        <div class="shared-contract">
+          <>
+            <span aria-hidden="true">↔</span>
+            <span>
+              Mesmo papel: operar a KB, preservar provenance e respeitar os
+              limites de escrita.
+            </span>
+          </>
+        </div>
+      </>
+    </div>
+  )
+}
+
+{
+  kind === "fluxo" && (
+    <div class="visual engineering-visual">
+      <>
+        <div class="human-rail">
+          <>
+            <span class="human-symbol" aria-hidden="true">
+              ◎
+            </span>
+            <div>
+              <>
+                <strong>Human-in-the-loop</strong>
+                <span>
+                  intenção · restrições · trade-offs · critérios de aceite
+                </span>
+              </>
+            </div>
+            <span class="rail-line" aria-hidden="true" />
+          </>
+        </div>
+        <ol class="engineering-flow">
+          <>
+            <li>
+              <>
+                <span>01</span>
+                <strong>Intenção</strong>
+                <small>problema e escopo</small>
+              </>
+            </li>
+            <li>
+              <>
+                <span>02</span>
+                <strong>Exploração</strong>
+                <small>código e contexto</small>
+              </>
+            </li>
+            <li>
+              <>
+                <span>03</span>
+                <strong>Implementação</strong>
+                <small>mudança + testes</small>
+              </>
+            </li>
+            <li>
+              <>
+                <span>04</span>
+                <strong>Review</strong>
+                <small>revisão independente</small>
+              </>
+            </li>
+            <li>
+              <>
+                <span>05</span>
+                <strong>Correção</strong>
+                <small>findings + validação</small>
+              </>
+            </li>
+            <li>
+              <>
+                <span>06</span>
+                <strong>Entrega</strong>
+                <small>diff inspecionável</small>
+              </>
+            </li>
+          </>
+        </ol>
+        <div class="review-loop">
+          <span aria-hidden="true">↶</span> Findings podem exigir novos testes e
+          uma nova rodada de implementação.
+        </div>
+        <div class="demo-status">
+          <>
+            <span class="status-dot hypothesis" />
+            <strong>Demonstração a preparar</strong>
+            <span>
+              issue pequena · critérios observáveis · sem resultado
+              pré-declarado
+            </span>
+          </>
+        </div>
+      </>
+    </div>
+  )
+}
+
+{
+  kind === "o-que-permanece" && (
+    <div class="visual closing-visual">
+      <>
+        <div class="closing-lines" aria-hidden="true">
+          <>
+            <i />
+            <i />
+            <i />
+          </>
+        </div>
+        <div class="closing-word">
+          <>
+            <span class="mini-label">O que atravessa a próxima mudança</span>
+            <strong>
+              Conhecimento.
+              <br />
+              Critérios.
+              <>
+                <br />
+                <em>Engenharia.</em>
+              </>
+            </strong>
+          </>
+        </div>
+        <span class="closing-signature mono">oh-my-harness ↗</span>
+      </>
+    </div>
+  )
+}
