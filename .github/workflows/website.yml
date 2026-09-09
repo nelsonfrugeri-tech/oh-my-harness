@@ -43,9 +43,11 @@ jobs:
       - run: npm run build
       - name: Disable unrelated Google Chrome apt source
         run: |
-          if test -f /etc/apt/sources.list.d/google-chrome.list; then
-            sudo sed -i '\|^deb .*dl.google.com/linux/chrome-stable/deb|s|^|# |' /etc/apt/sources.list.d/google-chrome.list
-          fi
+          for source in /etc/apt/sources.list.d/*; do
+            if test -f "$source" && grep -Fq -- 'dl.google.com/linux/chrome-stable/deb' "$source"; then
+              sudo mv "$source" "/tmp/${source##*/}.disabled"
+            fi
+          done
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - name: Upload GitHub Pages artifact
