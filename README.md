@@ -67,6 +67,7 @@ carry your way of working to the next assistant instead of starting over.
 | Install on Claude Code | [Claude Code quick start](#claude-code) |
 | Install on Codex | [Codex quick start](#codex) |
 | Understand what remains portable | [Architecture](#architecture) |
+| Present the architecture | [Editable diagrams and 4K exports](architecture/presentation/README.md) |
 | Inspect the packaged capabilities | [Agents and skills](#whats-inside) |
 | Add another capability or harness | [Extending oh-my-harness](#extending-oh-my-harness) |
 
