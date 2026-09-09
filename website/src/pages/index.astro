@@ -1,0 +1,262 @@
+---
+import { getCollection, render } from "astro:content";
+import Diagram from "../components/Diagram.astro";
+import "../styles/site.css";
+
+const revision = "eb6b4873797ee4ca83e7c235f71170e78de5c95d";
+const repository = "https://github.com/nelsonfrugeri-tech/oh-my-harness";
+const chapters = await Promise.all(
+  (await getCollection("chapters"))
+    .sort((left, right) => left.data.order - right.data.order)
+    .map(async (entry) => ({
+      ...entry.data,
+      Content: (await render(entry)).Content,
+    })),
+);
+const canonical = new URL(
+  `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`,
+  Astro.site,
+);
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Governança epistemológica, conhecimento durável e um operating model portátil de agentes entre Claude Code e Codex."
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#fbfbfd"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#000000"
+    />
+    <meta
+      property="og:title"
+      content="oh-my-harness — Modelos mudam. Harnesses também. A engenharia permanece."
+    />
+    <meta
+      property="og:description"
+      content="Os três ativos duráveis do agentic development: governança epistemológica, conhecimento e organização portátil de agentes."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content={canonical} />
+    <link rel="canonical" href={canonical} />
+    <link
+      rel="icon"
+      href={`${import.meta.env.BASE_URL}/favicon.svg`}
+      type="image/svg+xml"
+    />
+    <title>oh-my-harness — A engenharia permanece</title>
+    <script is:inline>
+      // Apply the stored theme before first paint so the page never flashes.
+      try {
+        const theme = localStorage.getItem("omh-theme");
+        if (theme === "light" || theme === "dark")
+          document.documentElement.dataset.theme = theme;
+      } catch {
+        /* storage unavailable: follow the system preference */
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Pular para o conteúdo</a>
+    <header class="site-header">
+      <div class="container">
+        <a class="wordmark" href="#origin" aria-label="oh-my-harness, início">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3">
+              <path
+                d="M6 18 18 6M9 6h9v9"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </span>
+          oh-my-harness<span class="edition">Guia 01</span>
+        </a>
+        <div class="header-actions">
+          <a class="repo-link" href={repository}>GitHub ↗</a>
+          <button
+            id="theme"
+            class="icon-button"
+            type="button"
+            aria-label="Tema: automático"
+            title="Alternar tema"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="8.5"></circle>
+              <path
+                d="M12 3.5a8.5 8.5 0 0 1 0 17z"
+                fill="currentColor"
+                stroke="none"></path>
+            </svg>
+          </button>
+          <button
+            id="present"
+            class="button primary small"
+            type="button"
+            hidden
+          >
+            Apresentar
+          </button>
+        </div>
+      </div>
+    </header>
+    <div class="chapter-nav">
+      <div class="container">
+        <span class="eyebrow">Capítulos</span>
+        <nav aria-label="Capítulos">
+          {
+            chapters.map((chapter) => (
+              <a href={`#${chapter.id}`} data-chapter-link={chapter.id}>
+                <span class="chapter-number">
+                  {String(chapter.order).padStart(2, "0")}
+                </span>
+                {chapter.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </div>
+    <main id="main" tabindex="-1">
+      {
+        chapters.map(({ Content, ...chapter }) => (
+          <section
+            id={chapter.id}
+            class="chapter"
+            aria-labelledby={`${chapter.id}-title`}
+            data-chapter
+          >
+            <div class="container">
+              <div class="chapter-heading">
+                <span class="eyebrow">
+                  {String(chapter.order).padStart(2, "0")} — {chapter.label}
+                </span>
+              </div>
+              <div
+                class:list={["chapter-stage", { hero: chapter.order === 1 }]}
+              >
+                <div class="chapter-intro">
+                  {chapter.order === 1 ? (
+                    <h1 id={`${chapter.id}-title`} tabindex="-1">
+                      {chapter.title}
+                      <br />
+                      <em>{chapter.accent}</em>
+                    </h1>
+                  ) : (
+                    <h2 id={`${chapter.id}-title`} tabindex="-1">
+                      {chapter.title}
+                    </h2>
+                  )}
+                  <p class="lead">{chapter.lead}</p>
+                  {chapter.order === 1 && (
+                    <div class="hero-actions">
+                      <a class="button primary" href="#architecture">
+                        Veja os três ativos
+                      </a>
+                      <a href={`${repository}#quick-start`}>Instale o OMH ↗</a>
+                    </div>
+                  )}
+                  {chapter.order === 8 && (
+                    <div class="hero-actions">
+                      <a
+                        class="button primary"
+                        href={`${repository}#quick-start`}
+                      >
+                        Ver instalação no GitHub ↗
+                      </a>
+                    </div>
+                  )}
+                  <a
+                    class="source"
+                    href={`${repository}/blob/${revision}/${chapter.source}`}
+                  >
+                    Fonte do contrato
+                    <span class="mono">{revision.slice(0, 7)}</span>
+                  </a>
+                </div>
+                <Diagram kind={chapter.diagram} />
+              </div>
+              <details class="deep-dive" open>
+                <summary>
+                  Aprofundar
+                  <span>Conceitos, mecanismos e limites</span>
+                  <span aria-hidden="true">+</span>
+                </summary>
+                <div class="prose">
+                  <Content />
+                </div>
+              </details>
+              <aside
+                class="speaker-note"
+                hidden
+                aria-label="Notas para gravação"
+              >
+                <span class="eyebrow">
+                  Notas para gravação · visíveis na captura
+                </span>
+                <p>{chapter.note}</p>
+              </aside>
+            </div>
+          </section>
+        ))
+      }
+      <footer class="site-footer">
+        <div class="container">
+          <span>
+            oh-my-harness <span class="muted">/ a engenharia permanece</span>
+          </span>
+          <span>
+            Contratos documentados em{" "}
+            <a href={`${repository}/tree/${revision}`}>{revision.slice(0, 7)}</a
+            >
+            {" · "}
+            <a href={`${repository}/blob/master/LICENSE`}>Apache 2.0</a>
+          </span>
+        </div>
+      </footer>
+    </main>
+    <div id="presentation-controls" class="presentation-controls" hidden>
+      <button id="previous" type="button" aria-label="Capítulo anterior"
+        >←</button
+      >
+      <span id="progress" class="mono" aria-live="polite" aria-atomic="true"
+      ></span>
+      <button id="next" type="button" aria-label="Próximo capítulo">→</button>
+      <span class="control-divider" aria-hidden="true"></span>
+      <button id="reveal" type="button" aria-pressed="false"
+        >Revelar diagrama</button
+      >
+      <button id="notes" type="button" aria-pressed="false">Notas</button>
+      <button id="camera" type="button" aria-pressed="false"
+        >Área da câmera</button
+      >
+      <button id="exit" type="button">Sair <kbd>Esc</kbd></button>
+    </div>
+    <div id="camera-guide" hidden aria-hidden="true">
+      <span>ÁREA LIVRE PARA CÂMERA<br />Ocupa espaço, não captura vídeo</span>
+    </div>
+    <noscript>
+      <p class="no-script">
+        O guia completo funciona sem JavaScript. O modo de apresentação requer
+        JavaScript.
+      </p>
+    </noscript>
+    <script src="../scripts/presentation.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,228 @@
+---
+interface Props {
+  kind:
+    | "portability"
+    | "architecture"
+    | "evidence"
+    | "knowledge"
+    | "engineering"
+    | "boundaries"
+    | "demo"
+    | "start";
+}
+const { kind } = Astro.props;
+const flows = {
+  engineering: [
+    ["01", "Contratar", "Outcome, restrições e aceite"],
+    ["02", "Delegar", "Especialista certo para o risco"],
+    ["03", "Verificar", "Diff, testes e evidências"],
+    ["04", "Desafiar", "Review independente: Standards + Spec"],
+  ],
+  demo: [
+    ["01", "Descobrir", "Repositório, regras e capabilities"],
+    ["02", "Construir", "Implementação e checks red-capable"],
+    ["03", "Desafiar", "Gates + review independente"],
+    ["04", "Preservar", "Decisão, handoff e conhecimento"],
+  ],
+  start: [
+    ["01", "Instalar", "Escolha um adapter suportado"],
+    ["02", "Conectar", "Capabilities e knowledge base"],
+    ["03", "Verificar", "Execute uma tarefa delimitada"],
+  ],
+};
+---
+
+<div class:list={["diagram", `diagram-${kind}`]}>
+  {
+    kind === "portability" && (
+      <>
+        <div class="diagram-caption">
+          <span class="signal" /> MODELOS MUDAM · HARNESSES TAMBÉM
+        </div>
+        <div class="core-orbit">
+          <>
+            <span class="mono">oh-my-harness</span>
+            <strong>
+              A engenharia
+              <br />
+              permanece.
+            </strong>
+            <span>governança · conhecimento · operating model</span>
+          </>
+        </div>
+        <div class="connector" aria-hidden="true" />
+        <div class="harness-pair">
+          <>
+            <div>
+              <>
+                <span class="mono">ADAPTER / 01</span>
+                <strong>Claude Code</strong>
+                <span>Representação nativa</span>
+              </>
+            </div>
+            <div>
+              <>
+                <span class="mono">ADAPTER / 02</span>
+                <strong>Codex</strong>
+                <span>Representação nativa</span>
+              </>
+            </div>
+          </>
+        </div>
+        <p class="diagram-foot">Um sistema durável. Execuções nativas.</p>
+      </>
+    )
+  }
+  {
+    kind === "architecture" && (
+      <>
+        <div class="diagram-caption">OS TRÊS ATIVOS DURÁVEIS</div>
+        <div class="layer">
+          <>
+            <span class="mono">01 / GOVERNANÇA EPISTEMOLÓGICA</span>
+            <strong>O que sabemos — e como sabemos</strong>
+            <span>Fato · inferência · hipótese · desconhecido · decisão</span>
+          </>
+        </div>
+        <div class="arrow" aria-hidden="true" />
+        <div class="layer">
+          <>
+            <span class="mono">02 / CONHECIMENTO DURÁVEL</span>
+            <strong>Sessão → memória de longo prazo</strong>
+            <span>Curadoria · provenance · lifecycle · retrieval</span>
+          </>
+        </div>
+        <div class="arrow" aria-hidden="true" />
+        <div class="layer">
+          <>
+            <span class="mono">03 / OPERATING MODEL PORTÁTIL</span>
+            <strong>Papéis estáveis · execução substituível</strong>
+            <span>Responsibilities · contracts · handoffs</span>
+          </>
+        </div>
+      </>
+    )
+  }
+  {
+    kind === "evidence" && (
+      <>
+        <div class="diagram-caption">GOVERNANÇA EPISTEMOLÓGICA</div>
+        <div class="claim broad">
+          <>
+            <span class="mono">SAÍDA PLAUSÍVEL</span>
+            <p>
+              “Esta mudança
+              <br />
+              está pronta.”
+            </p>
+            <span>Sem fonte, escopo ou incerteza.</span>
+          </>
+        </div>
+        <div class="claim bounded">
+          <>
+            <span class="mono">DECISÃO GOVERNADA</span>
+            <p>
+              “Pronta para os casos
+              <br />
+              verificados.”
+            </p>
+            <span>Evidência + limite + critério de revisão.</span>
+          </>
+        </div>
+        <p class="diagram-foot">Buscar → inspecionar → classificar → decidir</p>
+      </>
+    )
+  }
+  {
+    kind === "knowledge" && (
+      <>
+        <div class="diagram-caption">DA SESSÃO AO CONHECIMENTO DURÁVEL</div>
+        <div class="memory-row">
+          <>
+            <span class="mono">EPISÓDICA</span>
+            <strong>Transcripts</strong>
+            <span>O que foi dito · retrieval de sessões</span>
+          </>
+        </div>
+        <div class="memory-divider">recuperar → comparar → destilar</div>
+        <div class="memory-row primary">
+          <>
+            <span class="mono">CURADA</span>
+            <strong>Notas imutáveis / OKF</strong>
+            <span>Conhecimento válido · provenance · lifecycle</span>
+          </>
+        </div>
+        <div class="arrow" aria-hidden="true" />
+        <div class="index-row">
+          <>
+            <strong>Qdrant</strong>
+            <span>Dense + sparse · índice reconstruível</span>
+          </>
+        </div>
+        <p class="diagram-foot">
+          Markdown é a fonte de verdade. O índice pode ser reconstruído.
+        </p>
+      </>
+    )
+  }
+  {
+    kind === "boundaries" && (
+      <>
+        <div class="diagram-caption">O QUE VAI PARA CADA LUGAR</div>
+        <div class="layer">
+          <>
+            <span class="mono">VERSIONADO / OMH</span>
+            <strong>Intenção e método</strong>
+            <span>Agents, skills, policies e workflows</span>
+          </>
+        </div>
+        <div class="layer">
+          <>
+            <span class="mono">INSTALADO / HARNESS</span>
+            <strong>Representação nativa</strong>
+            <span>Formato, permissões, isolamento e lifecycle</span>
+          </>
+        </div>
+        <div class="layer">
+          <>
+            <span class="mono">LOCAL / MÁQUINA</span>
+            <strong>Capabilities e conhecimento</strong>
+            <span>Providers, identidade e bundle durável</span>
+          </>
+        </div>
+        <p class="diagram-foot">
+          Compartilhe contratos. Preserve as fronteiras.
+        </p>
+      </>
+    )
+  }
+  {
+    (kind === "engineering" || kind === "demo" || kind === "start") && (
+      <>
+        <div class="diagram-caption">
+          {kind === "demo"
+            ? "FEATURE · DO PEDIDO AO CONHECIMENTO"
+            : "DO CONTRATO À VERIFICAÇÃO"}
+        </div>
+        <ol class="flow-list">
+          {flows[kind].map(([number, title, description]) => (
+            <li>
+              <span class="flow-number">{number}</span>
+              <div>
+                <strong>{title}</strong>
+                <span>{description}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p class="diagram-foot">
+          {kind === "engineering"
+            ? "Humano: intenção, autorização, trade-offs e aceite."
+            : kind === "demo"
+              ? "O resultado inclui código, evidência, review e memória."
+              : "Comece pequeno. Verifique cada transição."}
+        </p>
+      </>
+    )
+  }
+</div>
