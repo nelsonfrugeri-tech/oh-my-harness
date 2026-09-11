@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import tempfile
 import textwrap
 import unittest
 from pathlib import Path
@@ -38,7 +39,10 @@ class ClaudePluginLoaderContractTest(unittest.TestCase):
         agents_dir = _ROOT / "agents"
 
         self.assertTrue(agents_dir.is_dir())
-        entries = tuple(agents_dir.iterdir())
+        # Dotfiles such as an ignored `.DS_Store` are neither shipped nor agents.
+        entries = tuple(
+            entry for entry in agents_dir.iterdir() if not entry.name.startswith(".")
+        )
         self.assertTrue(entries)
         for entry in entries:
             with self.subTest(entry=entry.name):
@@ -73,29 +77,102 @@ class ClaudePluginLoaderContractTest(unittest.TestCase):
                 self.assertEqual(_ROOT / "agents" / f"{role_id}.md", path)
                 self.assertTrue(path.is_file())
 
-    def test_shipped_skill_and_agent_descriptions_fit_the_loader_limit(self) -> None:
+    def test_shipped_skill_descriptions_fit_the_loader_limit(self) -> None:
         skills = tuple(
             path
             for root in _PLUGIN["skills"]
             for path in sorted(_ROOT.joinpath(root).glob("*/SKILL.md"))
         )
-        agents = tuple(sorted(_ROOT.glob("agents/*.md")))
 
         self.assertTrue(skills)
-        self.assertTrue(agents)
-        for path in (*skills, *agents):
+        for path in skills:
             with self.subTest(path=path.relative_to(_ROOT).as_posix()):
-                description = _frontmatter_scalar(self, path, "description")
-                self.assertTrue(description.strip())
-                self.assertLessEqual(len(description), _DESCRIPTION_LIMIT)
+                _assert_description_within_limit(self, path)
+
+    def test_shipped_agent_descriptions_fit_the_loader_limit(self) -> None:
+        agents = tuple(sorted(_ROOT.glob("agents/*.md")))
+
+        self.assertTrue(agents)
+        for path in agents:
+            with self.subTest(path=path.relative_to(_ROOT).as_posix()):
+                _assert_description_within_limit(self, path)
+
+
+class DescriptionMeasurementTest(unittest.TestCase):
+    """Prove the limit check cannot under-measure any YAML scalar form it accepts."""
+
+    # 24 lines of 60 characters fold, with one space per line break, into 1463 characters.
+    _LINES = tuple("x" * 60 for _ in range(24))
+    _FOLDED_LENGTH = 24 * 60 + 23
+
+    def test_plain_multi_line_description_over_the_limit_fails(self) -> None:
+        continuation = "\n".join(f"  {line}" for line in self._LINES[1:])
+        frontmatter = f"description: {self._LINES[0]}\n{continuation}\nname: probe"
+
+        self.assertGreater(self._FOLDED_LENGTH, _DESCRIPTION_LIMIT)
+        self.assertGreaterEqual(self._measure(frontmatter), self._FOLDED_LENGTH)
+        with self.assertRaises(AssertionError):
+            self._check(frontmatter)
+
+    def test_double_quoted_multi_line_description_over_the_limit_fails(self) -> None:
+        continuation = "\n".join(f"  {line}" for line in self._LINES[1:])
+        frontmatter = f'description: "{self._LINES[0]}\n{continuation}"\nname: probe'
+
+        self.assertGreaterEqual(self._measure(frontmatter), self._FOLDED_LENGTH)
+        with self.assertRaises(AssertionError):
+            self._check(frontmatter)
+
+    def test_block_description_over_the_limit_fails(self) -> None:
+        body = "\n".join(f"  {line}" for line in self._LINES)
+        for indicator in ("|", ">"):
+            with self.subTest(indicator=indicator):
+                frontmatter = f"description: {indicator}\n{body}\nname: probe"
+
+                self.assertGreaterEqual(self._measure(frontmatter), self._FOLDED_LENGTH)
+                with self.assertRaises(AssertionError):
+                    self._check(frontmatter)
+
+    def test_single_line_description_is_measured_exactly(self) -> None:
+        for frontmatter in (
+            'description: "short and quoted"\nname: probe',
+            "description: short and quoted\nname: probe",
+        ):
+            with self.subTest(frontmatter=frontmatter):
+                self.assertEqual(len("short and quoted"), self._measure(frontmatter))
+                self._check(frontmatter)
+
+    def _measure(self, frontmatter: str) -> int:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self._write(Path(temporary), frontmatter)
+            return len(_frontmatter_scalar(self, path, "description"))
+
+    def _check(self, frontmatter: str) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            _assert_description_within_limit(self, self._write(Path(temporary), frontmatter))
+
+    def _write(self, directory: Path, frontmatter: str) -> Path:
+        path = directory / "SKILL.md"
+        path.write_text(f"---\n{frontmatter}\n---\n\nBody.\n", encoding="utf-8")
+        return path
+
+
+def _assert_description_within_limit(test: unittest.TestCase, path: Path) -> None:
+    description = _frontmatter_scalar(test, path, "description")
+    test.assertTrue(description.strip(), f"{path} has an empty description")
+    test.assertLessEqual(len(description), _DESCRIPTION_LIMIT, str(path))
 
 
 def _frontmatter_scalar(test: unittest.TestCase, path: Path, key: str) -> str:
-    """Return a top-level frontmatter scalar, measuring block scalars conservatively.
+    """Return a top-level frontmatter scalar, never shorter than its YAML value.
 
     Block scalars are rebuilt with literal (`|`) semantics and clip chomping. Folding (`>`)
     replaces each single line break with one space and collapses blank lines, so the literal
-    length is an upper bound for a folded value and never under-reports it.
+    length is an upper bound for a folded value.
+
+    Plain and quoted values may continue on indented lines. They are folded by joining every
+    trimmed line with one space, which equals YAML folding except that a blank line counts one
+    character more, and quoted escapes such as `\\"` or `''` count as written. Every deviation
+    over-measures, so the limit check can reject a valid description but never accept a long one.
     """
     text = path.read_text(encoding="utf-8")
     match = re.match(r"---\n(.*?)\n---\n", text, re.DOTALL)
@@ -105,15 +182,16 @@ def _frontmatter_scalar(test: unittest.TestCase, path: Path, key: str) -> str:
         name, separator, rest = line.partition(":")
         if name != key or not separator:
             continue
-        value = rest.strip()
-        if value[:1] not in ("|", ">"):
-            return value.strip("'\"")
-        block = []
+        continuation = []
         for follower in lines[index + 1 :]:
             if follower.strip() and not follower.startswith((" ", "\t")):
                 break
-            block.append(follower)
-        return textwrap.dedent("\n".join(block)).strip("\n") + "\n"
+            continuation.append(follower)
+        value = rest.strip()
+        if value[:1] in ("|", ">"):
+            return textwrap.dedent("\n".join(continuation)).strip("\n") + "\n"
+        folded = " ".join(part.strip() for part in (value, *continuation)).strip()
+        return folded[1:-1] if folded[:1] in ("'", '"') else folded
     test.fail(f"{path} has no frontmatter key {key!r}")
     return ""
 
