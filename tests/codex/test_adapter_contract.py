@@ -41,13 +41,13 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual(["./core/skills/", "./harness/claude/skills/"], claude["skills"])
         self.assertEqual("./harness/claude/hooks/hooks.json", claude["hooks"])
         self.assertEqual("./harness/codex/hooks/hooks.json", codex["hooks"])
-        declared = {_ROOT / path for path in claude["agents"]}
-        on_disk = set(_ROOT.glob("harness/claude/agents/**/*.md"))
-        self.assertEqual(on_disk, declared)
-        self.assertEqual(len(declared), len(claude["agents"]))
+        # Claude agents use default discovery from the root `agents/` directory; the
+        # layout itself is pinned by test_claude_plugin_loader_contract.
+        self.assertNotIn("agents", claude)
+        self.assertTrue(_ROOT.joinpath("agents").is_dir())
+        self.assertFalse(_ROOT.joinpath("harness/claude/agents").exists())
         self.assertTrue(_ROOT.joinpath("harness/claude/hooks/hooks.json").is_file())
         self.assertTrue(_ROOT.joinpath("harness/codex/hooks/hooks.json").is_file())
-        self.assertFalse(_ROOT.joinpath("agents").exists())
         self.assertFalse(_ROOT.joinpath("hooks").exists())
 
     def test_readme_skill_catalog_matches_packaged_skills(self) -> None:
@@ -81,10 +81,9 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn(f"/badge/skills-{len(packaged)}-", readme)
 
         # The agent badge drifts the same way the skill badge would: derive it from
-        # the manifest instead of trusting the number written in the README.
-        agents = json.loads(
-            _ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8")
-        )["agents"]
+        # the default discovery directory instead of trusting the number in the README.
+        agents = tuple(_ROOT.glob("agents/*.md"))
+        self.assertTrue(agents)
         self.assertIn(f"/badge/agents-{len(agents)}-", readme)
 
     def test_codex_marketplace_exposes_the_repository_plugin(self) -> None:
@@ -270,7 +269,7 @@ class AdapterContractTest(unittest.TestCase):
     def test_every_portable_agent_has_a_codex_adapter(self) -> None:
         shared = {
             self._yaml_name(path)
-            for path in _ROOT.glob("harness/claude/agents/**/*.md")
+            for path in _ROOT.glob("agents/*.md")
             if path.name != "claude-code.md"
         }
         adapters = {
@@ -301,7 +300,7 @@ class AdapterContractTest(unittest.TestCase):
 
         for role in roles:
             with self.subTest(role=role):
-                shared = _ROOT.joinpath(f"harness/claude/agents/engineers/{role}.md").read_text(
+                shared = _ROOT.joinpath(f"agents/{role}.md").read_text(
                     encoding="utf-8"
                 )
                 codex = _ROOT.joinpath(f"harness/codex/agents/{role}.toml").read_text(
@@ -314,7 +313,7 @@ class AdapterContractTest(unittest.TestCase):
     def test_policy_agents_load_the_evidence_skill(self) -> None:
         for role in ("evidence-reviewer",):
             with self.subTest(role=role):
-                shared = _ROOT.joinpath(f"harness/claude/agents/policy/{role}.md").read_text(
+                shared = _ROOT.joinpath(f"agents/{role}.md").read_text(
                     encoding="utf-8"
                 )
                 codex = _ROOT.joinpath(f"harness/codex/agents/{role}.toml").read_text(
@@ -462,7 +461,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("Legacy points", content)
 
     def test_kb_agents_enforce_provenance_before_writing(self) -> None:
-        shared = _ROOT.joinpath("harness/claude/agents/tools/knowledge-base.md").read_text(
+        shared = _ROOT.joinpath("agents/knowledge-base.md").read_text(
             encoding="utf-8"
         )
         codex = _ROOT.joinpath("harness/codex/agents/knowledge-base.toml").read_text(

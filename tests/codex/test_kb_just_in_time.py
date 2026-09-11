@@ -527,11 +527,9 @@ class KbPointerHookContractTests(unittest.TestCase):
             }
 
         codex_catalog = skills_of(".codex-plugin/plugin.json")
-        claude_manifest = json.loads(
-            _ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8")
-        )
+        # Claude agents come from default discovery of the root `agents/` directory.
         claude_catalog = skills_of(".claude-plugin/plugin.json") | {
-            Path(entry).stem for entry in claude_manifest["agents"]
+            path.stem for path in _ROOT.glob("agents/*.md")
         }
 
         self.assertEqual(set(), names - codex_catalog, "unavailable in plugin-only Codex")
@@ -636,9 +634,10 @@ class ExplorerOnboardingContractTests(unittest.TestCase):
         overlay = manifest["adapter_specs"]["shared-markdown"]["overlays"]["explorer"]
         self.assertNotIn("Edit", overlay["tools"])
 
-    def test_explorer_appears_in_the_plugin_agent_manifest(self) -> None:
+    def test_explorer_is_discovered_by_the_plugin(self) -> None:
         plugin = json.loads(_ROOT.joinpath(".claude-plugin/plugin.json").read_text(encoding="utf-8"))
-        self.assertIn("./harness/claude/agents/tools/explorer.md", plugin["agents"])
+        self.assertNotIn("agents", plugin)
+        self.assertTrue(_ROOT.joinpath("agents/explorer.md").is_file())
 
 
 if __name__ == "__main__":

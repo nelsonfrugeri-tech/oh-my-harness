@@ -91,7 +91,7 @@ carry your way of working to the next assistant instead of starting over.
                     |                                   |
                     v                                   v
              harness/claude/                     harness/codex/
-             Markdown agents                     TOML agents
+             Markdown agents (agents/)           TOML agents
              Workflow TypeScript                 managed adapter
              plugin manifest                     plugin manifest
                     |                                   |
@@ -112,7 +112,9 @@ The repository separates three kinds of state deliberately:
 1. **Portable source** belongs in `core/`: behavior and contracts that should survive a harness
    switch.
 2. **Native representation** belongs in `harness/<name>/`: manifests, agents, hooks, workflows,
-   global guidance, and installer behavior required by that harness.
+   global guidance, and installer behavior required by that harness. The exception is forced by a
+   loader: Claude agent manifests live in the root `agents/` directory, the only agent path the
+   claude.ai plugin loader discovers.
 3. **Machine and user state** stays outside the repository: credentials, provider mappings,
    installed executables, transcripts, and the knowledge base.
 
@@ -330,8 +332,10 @@ harness-specific installation agent:
 | Tool | `explorer` | Onboard into unfamiliar repositories with a site report, a CLAUDE.md proposal, and a knowledge handoff |
 
 The canonical routing contract is
-[`core/agents/routing.json`](core/agents/routing.json). Claude manifests live under
-`harness/claude/agents/`; Codex manifests live under `harness/codex/agents/`.
+[`core/agents/routing.json`](core/agents/routing.json), which also records each role's theme in
+`role_families`. Claude manifests live flat in the root `agents/` directory, the default plugin
+discovery path that both the Claude Code CLI and the claude.ai plugin loader read; Codex manifests
+live under `harness/codex/agents/`.
 
 ### Skills
 

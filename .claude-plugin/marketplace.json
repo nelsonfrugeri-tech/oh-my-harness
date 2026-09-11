@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
-    "version": "2.0.1"
+    "version": "2.0.2"
   },
   "plugins": [
     {

@@ -59,7 +59,7 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertNotIn("or states why no source exists", decision)
 
     def test_evidence_reviewer_is_read_only_and_has_codex_parity(self) -> None:
-        shared = _ROOT.joinpath("harness/claude/agents/policy/evidence-reviewer.md").read_text(
+        shared = _ROOT.joinpath("agents/evidence-reviewer.md").read_text(
             encoding="utf-8"
         )
         codex = _ROOT.joinpath("harness/codex/agents/evidence-reviewer.toml").read_text(

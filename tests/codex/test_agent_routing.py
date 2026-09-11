@@ -216,7 +216,7 @@ class AgentRoutingContractTest(unittest.TestCase):
             _MANIFEST["roles"]["software-engineer"]["operating_contract"]
         )
         rendered = (
-            "harness/claude/agents/engineers/software-engineer.md",
+            "agents/software-engineer.md",
             "harness/codex/agents/software-engineer.toml",
         )
         for requirement in requirements:
@@ -276,10 +276,9 @@ class AgentRoutingContractTest(unittest.TestCase):
 
     def test_adapters_equal_canonical_rendering(self) -> None:
         families = _MANIFEST["role_families"]
+        template = _MANIFEST["adapter_specs"]["shared-markdown"]["path_template"]
         for role_id, role in _MANIFEST["roles"].items():
-            shared_path = _ROOT.joinpath(
-                "harness/claude/agents", families[role_id], f"{role_id}.md"
-            )
+            shared_path = _ROOT / template.format(role=role_id, family=families[role_id])
             codex_path = _ROOT.joinpath("harness/codex", "agents", f"{role_id}.toml")
             with self.subTest(role=role_id):
                 self.assertEqual(

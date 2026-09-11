@@ -2,17 +2,11 @@
 version: 2.2.0
 name: claude-code
 description: |
-  Runbook for installing the oh-my-harness library in Claude Code **as a native plugin**.
-  Covers: the `.claude-plugin/plugin.json` manifest (shared skills in `core/skills/` and
-  specific skills in `harness/claude/skills/`), agents declared from `harness/claude/agents/`,
-  the plugin hooks in `harness/claude/hooks/hooks.json`
-  with `${CLAUDE_PLUGIN_ROOT}`, the marketplace for versioned Git distribution (version,
-  ref, sha), the two surfaces the plugin **does not** cover (`CLAUDE.md` and `permissions` in
-  `settings.json`), and migration from the old symlink layout—including removal of duplicate hooks
-  that would fire twice. Also covers the third-party plugins routed by the agents and not vendored
-  here: `langchain-skills` and `langchain-mcp` (marketplace
-  `langchain-ai/langchain-plugins`), routed by `ai-engineer`, `architect`, and `software-engineer`;
-  and `evals` (marketplace `ai-evals-course`), routed by `ai-engineer`.
+  Runbook for installing oh-my-harness in Claude Code **as a native plugin**: the
+  `.claude-plugin/plugin.json` manifest, skills, root `agents/`, plugin hooks, versioned
+  marketplace distribution, the surfaces the plugin **does not** cover (`CLAUDE.md` and
+  `permissions`), migration from the old symlink layout, and the third-party plugins routed by
+  the agents (`langchain-skills`, `langchain-mcp`, `evals`).
   Use when: (1) installing the library on a machine, (2) updating after a push,
   (3) migrating from symlink sync to the plugin, (4) diagnosing a skill/agent/hook that does not
   load, or (5) installing or diagnosing third-party plugins.
@@ -25,6 +19,21 @@ type: capability
 
 The library is a **Claude Code plugin**. Installation, updates, versioning, and namespacing
 are handled by the harness itself; there is no longer a symlink runbook to execute manually.
+
+## Scope
+
+- **Manifest.** `.claude-plugin/plugin.json` declares the shared skills in `core/skills/`, the
+  Claude-specific skills in `harness/claude/skills/`, and the plugin hooks in
+  `harness/claude/hooks/hooks.json`, whose commands resolve through `${CLAUDE_PLUGIN_ROOT}`.
+- **Agents.** Manifests live flat in the root `agents/` directory and load through default
+  discovery; the manifest has no `agents` key. See Step 1.
+- **Distribution.** The marketplace provides versioned Git distribution (`version`, `ref`, `sha`);
+  see Step 6.
+- **Outside the plugin.** `CLAUDE.md` and `permissions` in `settings.json` need a manual merge
+  (Step 2); migration from the symlink layout removes duplicate hooks that would fire twice (Step 3).
+- **Third-party plugins.** `langchain-skills` and `langchain-mcp` (marketplace
+  `langchain-ai/langchain-plugins`), routed by `ai-engineer`, `architect`, and `software-engineer`;
+  and `evals` (marketplace `ai-evals-course`), routed by `ai-engineer` (Step 5).
 
 ## Rules of Conduct (this repository is a SOURCE, not a development project)
 
@@ -66,8 +75,12 @@ claude plugin details oh-my-harness@oh-my-harness
 `details` prints the inventory and the **projected context cost**. Two points about the output
 that prevent surprises:
 
-- **Agents are declared explicitly.** Their manifests live in themed subfolders under
-  `harness/claude/agents/` and load with the scoped name `oh-my-harness:<theme>:<name>`.
+- **Agents use default discovery.** Their manifests live flat in the root `agents/` directory,
+  with no `agents` key in `plugin.json`, and load with the scoped name `oh-my-harness:<name>`.
+  This is the only layout both loaders accept: the claude.ai / Cowork loader ignores an explicit
+  `agents` list, and the CLI validator rejects directory entries in it. Each agent's family
+  (engineers, policy, tools) is recorded in `role_families` of `core/agents/routing.json`, not in
+  the path.
 - **`Hooks` consume no context** — they run in the harness, outside the model's context window.
 
 ## Step 2 — What the plugin DOES NOT cover
@@ -219,6 +232,14 @@ merge from Step 2.
 
 ## Step 7 — Verification
 
+### Package migration: 2.0.1 to 2.0.2
+
+Agent manifests move from `harness/claude/agents/<theme>/` to the root `agents/` directory, and
+`plugin.json` drops its `agents` list in favor of default discovery. Scoped agent names are
+unchanged (`oh-my-harness:<name>`). Manually created symlinks to the old themed paths break; inspect
+and migrate them individually. The `claude-code` skill description is shortened to fit the
+1024-character limit of the claude.ai / Cowork loader, which drops a longer skill silently.
+
 ### Package migration: 2.0.0 to 2.0.1
 
 Agent and hook paths move into `harness/claude/`; shared scripts move into `core/hooks/`.
@@ -236,7 +257,7 @@ claude plugin list                 # enabled, with no load errors
 Then open a **new session** and confirm by observation, not assumption:
 
 - a plugin skill responds at `/oh-my-harness:<name>`;
-- an agent appears as `oh-my-harness:<theme>:<name>`;
+- an agent appears as `oh-my-harness:<name>`;
 - `/context` lists `CLAUDE.md` under **Memory files**.
 
 > `claude plugin validate` validates the manifests, **not** loading. A duplicate-hook or path error
