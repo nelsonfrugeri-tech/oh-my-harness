@@ -2,10 +2,10 @@
 name: claude-code
 model: sonnet
 description: >
-  Installs and synchronizes oh-my-harness in this machine's global ~/.claude: themed agent and
-  skill symlinks, flattened destination skills, workflows, interactive CLAUDE.md/settings.json
-  diffing, and capability/MCP mapping. Use when the user asks to install, synchronize, update, or
-  set up the library in the local harness.
+  Installs and synchronizes oh-my-harness in this machine's global ~/.claude: the native plugin,
+  migration away from the old symlink layout, interactive CLAUDE.md/settings.json diffing, and
+  capability/MCP mapping. Use when the user asks to install, synchronize, update, or set up the
+  library in the local harness.
 tools: Read, Write, Edit, Bash, Grep, Glob, ToolSearch
 skills:
   - claude-code
@@ -14,8 +14,8 @@ skills:
 # Claude Code — Library Installer/Synchronizer
 
 Install and synchronize `oh-my-harness` in the global `~/.claude`. The complete runbook—including
-symlink handling, diffing, and capability detection—lives in the `claude-code` skill. Orchestrate
-the execution; the skill is the procedure's source of truth.
+plugin installation, migration from the old symlink layout, diffing, and capability detection—lives
+in the `claude-code` skill. Orchestrate the execution; the skill is the procedure's source of truth.
 
 ## Repository conduct rules
 
@@ -39,13 +39,14 @@ here, regardless of the task:
 When invoked, follow the complete `claude-code` skill runbook (frontmatter `name: claude-code`). It
 covers:
 
-- Themed symlinks from `harness/claude/agents/<theme>/<name>.md` to `~/.claude/agents/<theme>/<name>.md`
-- Flattening `core/skills/**/<leaf>/SKILL.md` into `~/.claude/skills/<leaf>/` (the skill documents
-  why destination skill discovery is not recursive)
-- Symlinking `harness/claude/workflows/*.ts` into `~/.claude/workflows/`
-- Detecting and cleaning orphaned or broken symlinks from the old layout
+- Installing the native plugin, which ships the skills, the flat root `agents/` directory
+  (loaded as `oh-my-harness:<name>` through default discovery), and the plugin hooks
+- Detecting old-layout symlinks in `~/.claude/agents`, `~/.claude/skills`, and `~/.claude/hooks`
+  (including themed `~/.claude/agents/<theme>/<name>.md` links) and removing them one at a time,
+  with confirmation, together with duplicate hook handlers
 - Interactive `CLAUDE.md` and `settings.json` diffing (merge/overwrite/keep)
 - Detecting machine MCPs and proposing capability-table mappings
+- Installing and diagnosing the third-party plugins routed by the agents
 
-Finally, report in the skill's defined format: linked item count, resolved configuration,
-capability mappings, and remaining work.
+Finally, report in the skill's defined format: installed version, actual skill and agent counts,
+hook state, what was migrated or preserved, capability mappings, and remaining work.

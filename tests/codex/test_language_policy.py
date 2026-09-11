@@ -38,7 +38,7 @@ def _english_instruction_files() -> tuple[Path, ...]:
     for pattern in (
         "core/skills/**/*.md",
         "core/skills/**/agents/*.yaml",
-        "harness/claude/agents/**/*.md",
+        "agents/*.md",
         "harness/claude/skills/**/*.md",
         "harness/codex/agents/**/*.toml",
         "harness/codex/skills/**/*.md",

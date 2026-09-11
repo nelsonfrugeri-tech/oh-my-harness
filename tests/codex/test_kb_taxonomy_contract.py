@@ -70,7 +70,7 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
 
     def test_agents_enforce_the_same_topic_first_routing(self) -> None:
         paths = (
-            "harness/claude/agents/tools/knowledge-base.md",
+            "agents/knowledge-base.md",
             "harness/codex/agents/knowledge-base.toml",
         )
 
@@ -253,7 +253,7 @@ class KnowledgeBaseTaxonomyContractTests(unittest.TestCase):
         self.assertIn("one-shot legacy migration", retrieval)
 
         for path in (
-            "harness/claude/agents/tools/knowledge-base.md",
+            "agents/knowledge-base.md",
             "harness/codex/agents/knowledge-base.toml",
         ):
             with self.subTest(path=path):

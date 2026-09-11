@@ -134,7 +134,7 @@
   "adapter_specs": {
     "shared-markdown": {
       "format": "yaml-frontmatter-markdown",
-      "path_template": "harness/claude/agents/{family}/{role}.md",
+      "path_template": "agents/{role}.md",
       "canonical_fields": [
         "name",
         "description",

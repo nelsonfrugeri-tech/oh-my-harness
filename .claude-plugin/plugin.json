@@ -1,7 +1,7 @@
 {
   "name": "oh-my-harness",
   "displayName": "oh-my-harness",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
   "author": {
     "name": "Nelson Frugeri",
@@ -20,17 +20,6 @@
   "skills": [
     "./core/skills/",
     "./harness/claude/skills/"
-  ],
-  "agents": [
-    "./harness/claude/agents/engineers/ai-engineer.md",
-    "./harness/claude/agents/engineers/architect.md",
-    "./harness/claude/agents/engineers/software-engineer.md",
-    "./harness/claude/agents/engineers/tech-pm.md",
-    "./harness/claude/agents/harness/claude-code.md",
-    "./harness/claude/agents/policy/evidence-reviewer.md",
-    "./harness/claude/agents/tools/explorer.md",
-    "./harness/claude/agents/tools/knowledge-base.md",
-    "./harness/claude/agents/tools/site.md"
   ],
   "hooks": "./harness/claude/hooks/hooks.json"
 }

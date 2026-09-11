@@ -83,7 +83,7 @@ export const scenes: readonly Scene[] = [
       "Markdown e JSON preservam o conhecimento. O índice pode ser reconstruído.",
     references: [],
     files: [
-      "harness/claude/agents/tools/knowledge-base.md",
+      "agents/knowledge-base.md",
       "core/skills/kb-write/SKILL.md",
       "core/skills/kb-retrieval/SKILL.md",
       "core/skills/kb-infra/SKILL.md",
@@ -163,7 +163,7 @@ export const scenes: readonly Scene[] = [
       "As skills usam SKILL.md nos dois adapters. Agents, instalação e integração seguem os contratos de cada harness.",
     references: [],
     files: [
-      "harness/claude/agents/tools/knowledge-base.md",
+      "agents/knowledge-base.md",
       "harness/codex/agents/knowledge-base.toml",
       "core/skills/kb-write/SKILL.md",
     ],
