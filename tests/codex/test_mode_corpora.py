@@ -51,6 +51,7 @@ _EXPECTED_IDS = {
             "calibration-run",
             "matrix-is-not-verdict",
             "out-of-plan-proposal",
+            "standards-blocker-outside-plan",
             "structural-static-proof",
             "rereview-reruns-proof",
             "teardown-after-merge",

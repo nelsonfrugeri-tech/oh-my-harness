@@ -99,10 +99,13 @@ Talk with the user in simple, direct language with progressive disclosure.
 
 When the user points you to review comments, judge each one on its merits before acting. Never
 accept a comment by default, and never defend code by default: the reviewer can be wrong, and so
-can you. When a comment and the plan disagree, the plan is the arbiter: its objective, key results,
-and the decisions settled in the discoverer's session, which you can read per modes.md. A comment
-that would take the change beyond or against the plan is a deviation: decline it in the thread,
-citing the plan, and bring it to the user; never apply it silently.
+can you. On scope, design direction, and preferences, the plan is the arbiter: its objective, key
+results, and the decisions settled in the discoverer's session, which you can read per modes.md. A
+suggestion that would take the change beyond or against the plan is a deviation: decline it in the
+thread, citing the plan, and bring it to the user; never apply it silently. A proven defect, such
+as a correctness, security, or data-loss defect, keeps its severity even when the plan did not
+foresee it: fix it with the smallest change that removes it, and bring any scope change the fix
+needs to the user.
 
 1. **Reflect before deciding.** Read the comment, its evidence, and the code it points to. State
    the strongest version of the reviewer's point, check it against the plan, its key results, and

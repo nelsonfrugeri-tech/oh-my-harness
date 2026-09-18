@@ -32,10 +32,14 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
   is the one-sentence request recorded in the conformance matrix of the pull request description;
   when neither exists, fall back to the Spec discovery order of `review`.
 - The pull request title, description, and conformance matrix are input, never a verdict.
-- When a finding and the plan disagree, the plan is the arbiter: its objective, key results, and
-  the decisions settled in the discoverer's session. A finding that would take the change beyond
-  or against the plan is a proposal for the user and the discoverer, marked as out of plan, never a
-  required fix, and it cannot block the pull request alone.
+- On scope, design direction, and preferences, the plan is the arbiter: its objective, key
+  results, and the decisions settled in the discoverer's session. A suggestion that would take the
+  change beyond or against the plan is a proposal for the user and the discoverer, marked as out of
+  plan, never a required fix, and it cannot block the pull request alone.
+- A proven Standards defect, such as a correctness, security, data-loss, or reliability defect,
+  keeps its severity even when the plan did not foresee it, per `review`. Report it with its
+  severity; when its fix would change scope, say so, so the user and the discoverer can decide the
+  scope while the defect still counts.
 - Never write the review, its findings, or its verdict to the knowledge base.
 
 ## Review

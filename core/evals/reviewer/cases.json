@@ -115,6 +115,15 @@
     ]
   },
   {
+    "id": "standards-blocker-outside-plan",
+    "prompt": "Revise o PR #88. O plano não fala de segurança, mas o endpoint novo monta a query SQL concatenando a entrada do usuário.",
+    "required": [
+      "Classificar a injeção de SQL comprovada como BLOCKER mesmo fora do plano",
+      "Provar o achado com um teste ou e2e que reproduz a injeção",
+      "Manter o PR em draft e dizer se a correção muda o escopo para o usuário decidir"
+    ]
+  },
+  {
     "id": "structural-static-proof",
     "prompt": "Revise o PR #91: o módulo de domínio passou a importar o cliente HTTP do banco.",
     "required": [
