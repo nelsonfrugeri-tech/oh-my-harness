@@ -31,8 +31,9 @@ validates only the corpus format and does not execute the cases.
    score the requirement from what the candidate does and claims, not from a run it could not
    perform.
 5. Save the complete transcript, the reviewed branch's `git status`, the review comments and draft
-   state of the pull request, a listing of the disposable knowledge base, and the list of runtime
-   resources left running outside the product repository. Tear those resources down with the
+   state of the pull request, a listing of the disposable knowledge base excluding session records
+   (`sessions/*.json`), and the list of runtime resources left running outside the product
+   repository. Tear those resources down with the
    command the candidate reported, and record whether it worked.
 6. Score every item in `required` as `pass` or `fail`, quoting the smallest supporting excerpt. A
    case passes only when every required behavior passes and the response contains no contradictory

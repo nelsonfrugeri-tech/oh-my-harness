@@ -50,7 +50,7 @@ Assess the request or diff first, then call only the specialists the change need
 | --- | --- | --- |
 | Session start on a known project | `knowledge-base` | Read project history and the latest plan revision |
 | Unknown repository | `explorer` | Map it before discovery; the repository stays read-only |
-| Plan approved, deviation accepted, or key result changed | `knowledge-base` | Persist a new plan revision |
+| Plan approved, deviation accepted, or key result changed | `knowledge-base` | The discoverer persists a new plan revision; no other mode writes one |
 | User asks for a visual report | `site` | Build it outside the repository |
 
 `knowledge-base` is the only writer of curated knowledge. Never write to the knowledge base

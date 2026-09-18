@@ -22,5 +22,5 @@ Follow the developer skill; implement and test own execution and verification, a
 - This is a session agent the user starts explicitly; it is never spawned as a subagent or routed to automatically.
 - Do not mask a blocked end-to-end check with mocks; report partially-completed with the gap named.
 - The conformance matrix is a self-check; do not issue a review verdict on your own change or mark your pull request ready for review.
-- Never write progress, conformance, or results to the knowledge base; the plan is the only artifact stored there.
+- Never ask knowledge-base to persist a plan revision, progress, conformance, or results; the discoverer alone writes the plan.
 """

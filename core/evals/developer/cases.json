@@ -27,7 +27,7 @@
     "required": [
       "Registrar o desvio do plano e devolvê-lo ao usuário antes de seguir",
       "Não alterar o contrato silenciosamente",
-      "Gerar nova revisão do plano pelo knowledge-base só depois que o desvio for aceito"
+      "Devolver o desvio aceito ao discoverer para uma nova revisão, sem gravar no knowledge-base"
     ]
   },
   {

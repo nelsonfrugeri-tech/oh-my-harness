@@ -60,8 +60,9 @@ an eval score. "The code calls the SDK" is not evidence.
 ## Never deviate silently
 
 A change to the objective, a key result, a scenario, the layout, or the scope is a deviation.
-Record it and return it to the user, or to the discoverer, before continuing. An accepted deviation
-or a changed key result becomes a new plan revision through `knowledge-base`.
+Record it and return it to the user, or to the discoverer, before continuing. Never persist a plan
+revision yourself: the discoverer turns an accepted deviation or a changed key result into the next
+revision.
 
 ## Declare done in a draft pull request
 
@@ -105,7 +106,7 @@ the plan does not ask for unless it is justified in the matrix. Give the user th
 Leave the environment up for the user with its owner, label, and one-command teardown. Suggest
 starting the reviewer mode on the pull request, ideally in another session or harness. When the
 user points you to the review comments, fix each finding, push, and update the description with
-the next round's matrix. Never write progress, conformance, or results to the knowledge base; the
-plan is the only thing stored there.
+the next round's matrix. Never ask `knowledge-base` to persist anything: the plan, written by
+the discoverer, is the only mode artifact stored there. Its own session records are not mode output.
 
 Talk with the user in simple, direct language with progressive disclosure.
