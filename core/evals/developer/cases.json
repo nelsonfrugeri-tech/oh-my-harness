@@ -16,6 +16,8 @@
     "required": [
       "Abrir o PR como draft pelo code host, depois dos gates passarem e do push da branch",
       "Escrever um título que diga o resultado para o usuário e uma descrição didática que explique o que mudou, por quê e como foi provado",
+      "Incluir as decisões com o porquê e a alternativa rejeitada, um guia de leitura na ordem de revisão e onde olhar com mais cuidado",
+      "Listar o que não foi verificado, sem citar comando que não rodou",
       "Incluir na descrição a matriz de conformidade com o objetivo, cada KR com valor observado e cada cenário com nome do teste e saída",
       "Listar o que foi feito além do plano, justificado ou removido",
       "Tratar a matriz como autoverificação e não marcar o próprio PR como pronto para revisão"

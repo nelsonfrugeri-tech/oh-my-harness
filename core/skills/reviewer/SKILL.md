@@ -38,7 +38,9 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
 
 1. **Frame.** Resolve the diff and base per `review`: the pull request, or the local worktree
    against its base. Read the plan revision, and the pull request title and description when a
-   pull request exists. On re-review, read your earlier comments first.
+   pull request exists. Use its review guide and "where to look hardest" as the starting reading
+   order, never as the limit of the review; a missing or unclear explanation is itself a finding.
+   On re-review, read your earlier comments first.
 2. **Assess and triage.** Read the diff, then call the specialists it needs, such as `architect`,
    `software-engineer`, or `ai-engineer` when AI is involved, and announce the call. Apply the
    calibration rule of modes.md.

@@ -70,33 +70,15 @@ The developer delivers code in the repository and a draft pull request, opened t
 `code-host` capability after the broad gates pass and the branch is pushed. The PR quality gate
 still runs its checks at creation. Only the reviewer mode moves the pull request to ready.
 
-Explainability is the point of the description: a reader who never saw the plan must understand
-what changed, why, and how it was proven. Write it didactically, in the user's language.
-
-- **Title:** the outcome for the user of the feature, in one line, not the files touched.
-- **Description:** in this order, the objective and why it matters; the approach in plain prose,
-  with a visual per `didactic-visual` when it helps; the conformance matrix below; and how to run
-  and tear down the environment.
+Contextual explainability is the point of the pull request, with extreme didactics: a reviewer who
+never saw the plan or the session must understand what changed, why, how it was proven, and where
+to look. Write the title and description per [pull-request.md](references/pull-request.md): TL;DR,
+why with evidence, design, decisions with the alternatives rejected, a review guide in reading
+order, where to look hardest, how to verify, verification done with the conformance matrix, and
+what was not verified.
 
 The matrix is an author self-check and input to independent review; it can never become a verdict
-or a merge recommendation. Explain each row in words a reviewer can check, not only a status.
-
-```markdown
-## Conformance: <project> / <feature> - plan revision <n | fast lane> - round <r>
-
-| Plan item | Expected | Observed | Evidence |
-| --- | --- | --- | --- |
-| Objective | <objective, or the one-sentence request on the fast lane> | <met / not met> | <observation> |
-| KR1 | <target> | <observed value> | <method, command, output> |
-| S1 | <scenario> | <pass / fail> | <test name and run output> |
-| AC1 | <criterion> | <pass / fail> | <command and result> |
-
-**Nothing beyond the plan:** <none, or each extra change with its justification>
-**Deviations:** <none, or each one with the user's decision>
-**Environment:** <owner, label, endpoints, teardown command>
-**Status:** <completed | partially-completed | blocked>
-```
-
+or a merge recommendation.
 On the fast lane there is no plan revision: write `fast lane` in the header and record the
 one-sentence request as the objective, because the reviewer uses it as the Spec. Remove any change
 the plan does not ask for unless it is justified in the matrix. Give the user the pull request URL.

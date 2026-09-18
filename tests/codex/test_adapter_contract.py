@@ -321,11 +321,18 @@ class AdapterContractTest(unittest.TestCase):
             return " ".join(_ROOT.joinpath(relative).read_text(encoding="utf-8").split())
 
         developer = read("core/skills/developer/SKILL.md")
+        pull_request = read("core/skills/developer/references/pull-request.md")
         reviewer = read("core/skills/reviewer/SKILL.md")
         modes = read("core/skills/developer/references/modes.md")
         self.assertIn("a draft pull request, opened through the `code-host` capability", developer)
         self.assertIn("Only the reviewer mode moves the pull request to ready.", developer)
-        self.assertIn("plan revision <n | fast lane>", developer)
+        self.assertIn("[pull-request.md](references/pull-request.md)", developer)
+        self.assertIn("plan revision <n | fast lane>", pull_request)
+        sections = ("TL;DR", "Why", "Decisions", "Review guide", "Where to look hardest", "Not verified")
+        for section in sections:
+            with self.subTest(section=section):
+                self.assertIn(f"**{section}.**", pull_request)
+        self.assertIn("review guide", reviewer)
         self.assertIn("With no BLOCKER, mark the draft pull request ready for review", reviewer)
         self.assertIn("With a BLOCKER, it stays draft", reviewer)
         self.assertIn("On the fast lane, the Spec is the one-sentence request", reviewer)
