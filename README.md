@@ -10,7 +10,7 @@ work—even when you change AI coding assistants, machines, or providers.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#agents)
+[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#agents)
 [![Skills](https://img.shields.io/badge/skills-31-DC5F00?style=flat-square)](#skills)
 
 </div>
@@ -316,11 +316,22 @@ reported emergency bypass—not an access-control boundary.
 
 ### Agents
 
-Eight portable roles are represented natively in both harnesses. Each adapter adds its own ninth,
-harness-specific installation agent:
+Eleven portable roles are represented natively in both harnesses. Each adapter adds its own
+twelfth, harness-specific installation agent. The roles form three tiers plus an auditor:
+
+- **Modes** are primary sessions the user starts explicitly. They orchestrate and may call every
+  other agent; they are never spawned as subagents.
+- **Specialists** (the Engineering theme) are subagents a mode calls by triage on objective
+  signals: new module or boundary to `architect`, production code to `software-engineer`, LLM
+  surface to `ai-engineer`, ambiguous scope to `tech-pm`.
+- **Tool agents** are called by function at fixed points, without triage.
+- `evidence-reviewer` audits claims independently; the reviewer mode may use it for meta-review.
 
 | Theme | Agent | Responsibility |
 | --- | --- | --- |
+| Mode | `discoverer` | Research the objective and produce a user-approved plan with measurable key results and test scenarios, writing no product code |
+| Mode | `developer` | Build the latest plan revision test-first in an isolated worktree and runtime, prove it end to end, and report a conformance matrix |
+| Mode | `reviewer` | Triage specialists into parallel independent reviews, prove BLOCKER and MAJOR findings in its own environment, and issue one verdict |
 | Engineering | `architect` | System design, ADRs, C4, API design, and explicit trade-offs |
 | Engineering | `software-engineer` | End-to-end implementation with scalability, resilience, responsiveness, quality, and cost constraints |
 | Engineering | `ai-engineer` | LLM integration, RAG, embeddings, data pipelines, and AI evaluation |

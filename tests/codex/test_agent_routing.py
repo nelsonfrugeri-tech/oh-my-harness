@@ -13,6 +13,7 @@ _MANIFEST = json.loads(
 _PLUGINS_FILE = _ROOT / "harness/codex/integrations/plugins.json"
 _RUNBOOK_FILE = _ROOT / "harness/claude/skills/claude-code/SKILL.md"
 _SELF_DISTRIBUTION = "oh-my-harness@oh-my-harness"
+_MODES = ("discoverer", "developer", "reviewer")
 
 
 class AgentRoutingContractTest(unittest.TestCase):
@@ -21,9 +22,38 @@ class AgentRoutingContractTest(unittest.TestCase):
         families = _MANIFEST["role_families"]
         codex = _MANIFEST["adapter_specs"]["codex-toml"]["overlays"]
 
-        self.assertEqual(8, len(roles))
         self.assertEqual(set(roles), set(families))
         self.assertEqual(set(roles), set(codex))
+        members: dict[str, set[str]] = {}
+        for role_id, family in families.items():
+            members.setdefault(family, set()).add(role_id)
+        self.assertEqual(
+            {
+                "engineers": {"architect", "software-engineer", "ai-engineer", "tech-pm"},
+                "policy": {"evidence-reviewer"},
+                "tools": {"knowledge-base", "site", "explorer"},
+                "modes": set(_MODES),
+            },
+            members,
+        )
+
+    def test_mode_agents_are_unrestricted_session_agents(self) -> None:
+        # A mode is the primary session and fans out to every other agent, so a `tools`
+        # list would cut it off from tools it needs, including the agent-starting one.
+        overlays = _MANIFEST["adapter_specs"]["shared-markdown"]["overlays"]
+        for mode in _MODES:
+            role = _MANIFEST["roles"][mode]
+            rendered = _ROOT.joinpath("agents", f"{mode}.md").read_text(encoding="utf-8")
+            frontmatter = rendered.split("\n---\n", 1)[0]
+            with self.subTest(mode=mode):
+                self.assertNotIn("tools", overlays[mode])
+                self.assertNotIn("\ntools:", frontmatter)
+                self.assertIn(f"claude --agent oh-my-harness:{mode}", role["description"])
+                self.assertIn("never spawn it as a subagent", role["description"])
+                self.assertEqual(mode, role["local_skills"][1])
+                self.assertTrue(
+                    _ROOT.joinpath("core/skills", mode, "SKILL.md").is_file()
+                )
 
     def test_evals_dependency_requires_the_renamed_entry(self) -> None:
         dependency = _MANIFEST["catalog_contract"]["dependencies"]["evals"]
@@ -394,6 +424,9 @@ def _bullet_section(heading: str, values: list[str]) -> str:
 def _render_shared(role_id: str, role: dict[str, object]) -> str:
     overlay = _MANIFEST["adapter_specs"]["shared-markdown"]["overlays"][role_id]
     skills = "\n".join(f"  - {skill}" for skill in role["local_skills"])
+    # An absent `tools` overlay means no restriction: the agent inherits every tool,
+    # including the one that starts other agents.
+    tools = ("tools: " + ", ".join(overlay["tools"]),) if "tools" in overlay else ()
     frontmatter = "\n".join(
         (
             "---",
@@ -402,7 +435,7 @@ def _render_shared(role_id: str, role: dict[str, object]) -> str:
             "description: >",
             f"  {role['description']}",
             f"model: {overlay['model']}",
-            "tools: " + ", ".join(overlay["tools"]),
+            *tools,
             "skills:",
             skills,
             "---",
