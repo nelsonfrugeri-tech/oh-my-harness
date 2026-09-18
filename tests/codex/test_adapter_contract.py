@@ -287,11 +287,32 @@ class AdapterContractTest(unittest.TestCase):
         names = [path.parent.name for path in sources]
         self.assertEqual(len(names), len(set(names)))
 
-    def test_feature_skill_uses_portable_orchestration(self) -> None:
-        content = _ROOT.joinpath("core/skills/feature/SKILL.md").read_text(encoding="utf-8")
+    def test_session_modes_use_portable_orchestration(self) -> None:
+        paths = (
+            "core/skills/discoverer/SKILL.md",
+            "core/skills/developer/SKILL.md",
+            "core/skills/reviewer/SKILL.md",
+            "core/skills/developer/references/modes.md",
+            "core/skills/discoverer/references/plan.md",
+        )
         forbidden = ("Workflow({", "AskUserQuestion", "use the tool `Agent`")
-        self.assertFalse(any(token in content for token in forbidden))
-        self.assertIn("Keep resumable state", content)
+        for relative in paths:
+            content = _ROOT.joinpath(relative).read_text(encoding="utf-8")
+            with self.subTest(path=relative):
+                self.assertFalse(any(token in content for token in forbidden))
+        # Resumable state lives outside every repository, in harness-neutral artifacts.
+        modes = " ".join(
+            _ROOT.joinpath("core/skills/developer/references/modes.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        self.assertIn("never harness-specific tool names", modes)
+        self.assertIn("${XDG_STATE_HOME:-$HOME/.local/state}/oh-my-harness/handoffs/", modes)
+
+    def test_session_modes_are_the_only_feature_workflow(self) -> None:
+        # The three modes replaced the feature skill; the fast lane is the developer mode.
+        self.assertFalse(_ROOT.joinpath("core/skills/feature").exists())
+        self.assertFalse(_ROOT.joinpath("harness/claude/workflows").exists())
 
     def test_engineering_agents_load_the_evidence_skill(self) -> None:
         roles = (

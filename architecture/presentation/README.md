@@ -27,7 +27,9 @@ individual Excalidraw file, SVG, and 3840 × 2160 PNG (16:9).
 The diagrams document the product at revision
 [bf6eb4d53feffa3d135c0fef8afc46e215b26dc4](https://github.com/nelsonfrugeri-tech/oh-my-harness/tree/bf6eb4d53feffa3d135c0fef8afc46e215b26dc4),
 inspected on September 8, 2026. They describe components and contracts, not proof that optional
-providers are installed or healthy on a particular machine.
+providers are installed or healthy on a particular machine. They predate the session modes: the
+`feature` skill and the `create-feature.ts` prototype described below were later removed, and
+feature work now runs through the discoverer, developer, and reviewer modes.
 
 - Claude Code and Codex have native adapters. Both can access shared knowledge and configured
   capabilities. Additional harnesses require their own adapter.
@@ -60,7 +62,9 @@ Primary source paths for future updates:
 - [Knowledge writing](../../core/skills/kb-write/SKILL.md),
   [retrieval](../../core/skills/kb-retrieval/SKILL.md), and
   [infrastructure](../../core/skills/kb-infra/SKILL.md)
-- [Feature orchestration](../../core/skills/feature/SKILL.md)
+- Feature session modes: [discoverer](../../core/skills/discoverer/SKILL.md),
+  [developer](../../core/skills/developer/SKILL.md), and
+  [reviewer](../../core/skills/reviewer/SKILL.md)
 - [PR quality gate](../../core/hooks/quality-gate.sh)
 
 The original exports used the official Excalidraw 0.18.0 export utilities. All five frames were

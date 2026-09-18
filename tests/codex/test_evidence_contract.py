@@ -74,7 +74,7 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertIn("fals", codex.lower())
 
     def test_orchestration_skills_name_the_evidence_reviewer_agent(self) -> None:
-        for skill in ("core/skills/feature/SKILL.md", "core/skills/evidence/SKILL.md"):
+        for skill in ("core/skills/reviewer/SKILL.md", "core/skills/evidence/SKILL.md"):
             with self.subTest(skill=skill):
                 self.assertIn("`evidence-reviewer` agent", self._read(skill))
 
@@ -100,13 +100,13 @@ class EvidenceContractTest(unittest.TestCase):
 
     def test_core_software_workflows_invoke_the_evidence_contract(self) -> None:
         paths = (
-            "core/skills/feature/SKILL.md",
+            "core/skills/discoverer/SKILL.md",
+            "core/skills/developer/SKILL.md",
             "core/skills/implement/references/workflow-bug-fix.md",
             "core/skills/manage/SKILL.md",
             "core/skills/research/SKILL.md",
             "core/skills/review/SKILL.md",
             "core/skills/design/SKILL.md",
-            "harness/claude/workflows/create-feature.ts",
         )
 
         for relative in paths:
@@ -120,12 +120,11 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertIn("do not replace it with a weaker source presented as fact", research)
         self.assertNotIn("~30%", manage)
         self.assertNotIn("Buffer: 20%", manage)
-        feature = " ".join(self._read("core/skills/feature/SKILL.md").split())
-        adapter = self._read("harness/claude/workflows/create-feature.ts")
-        self.assertIn("independent review", feature)
-        self.assertIn("can never become a merge recommendation", feature)
-        self.assertIn("unknowns", feature)
-        self.assertIn("refinementUnknowns", adapter)
+        developer = " ".join(self._read("core/skills/developer/SKILL.md").split())
+        plan = self._read("core/skills/discoverer/references/plan.md")
+        self.assertIn("independent review", developer)
+        self.assertIn("can never become a verdict or a merge recommendation", developer)
+        self.assertIn("## Open unknowns", plan)
 
     def _canonical_contract(self) -> str:
         path = _ROOT / "core/policies/software-evidence-contract.md"

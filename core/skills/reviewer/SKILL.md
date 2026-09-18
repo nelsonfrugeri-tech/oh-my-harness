@@ -42,8 +42,8 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
    check that shows the problem. A simpler finding needs no infrastructure.
 5. **Meta-review.** Judge every returned finding before accepting it. Hold the severity bar to the
    key results and correctness; a reviewer asked to find gaps always finds some, so drop noise,
-   merge duplicates, and downgrade unsupported severity. Optionally ask `evidence-reviewer` to audit
-   contested findings.
+   merge duplicates, and downgrade unsupported severity. Optionally ask the `evidence-reviewer` agent to
+   audit contested findings.
 6. **Compile.** Write one report with the canonical verdict from `review`, add the triage line and
    the proof environment, save it as the next `review-<round>.md` in the handoff directory, and give
    the user its path.

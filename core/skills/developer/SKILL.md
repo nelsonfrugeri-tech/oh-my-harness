@@ -19,7 +19,8 @@ metadata:
 Build exactly what the plan asks, prove it in the real runtime, and hand the evidence to the
 reviewer. Apply [modes.md](references/modes.md) for tiers, lane, triage, isolation, and
 handoff, and [plan.md](../discoverer/references/plan.md) for the plan contract. `implement` and `test`
-own execution and verification; this skill sequences them.
+own execution and verification; this skill sequences them. Apply `evidence` to every material claim:
+an explanation of a failure stays a hypothesis until an observation in the runtime supports it.
 
 ## Start
 
@@ -62,7 +63,8 @@ or a changed key result becomes a new plan revision through `knowledge-base`.
 
 ## Declare done with a conformance matrix
 
-The matrix is an author self-check and input to review, never a verdict.
+The matrix is an author self-check and input to independent review; it can never become a verdict
+or a merge recommendation.
 
 ```markdown
 # Conformance: <project> / <feature> - plan revision <n> - round <r>

@@ -26,9 +26,9 @@ needs, priority, scope, or acceptance.
 - Use this capability when a product choice, outcome, scope boundary, sequencing decision, or
   acceptance contract is missing. Abstain for generic concept explanations and purely technical
   choices inside an already accepted contract.
-- Own product intent and acceptance only. Route architecture to `design`, implementation and test
-  execution to `feature` or `implement`, independent verification to `review`, and release or
-  operational execution to their owning capabilities.
+- Own product intent and acceptance only. Route architecture to `design`, planning of a material
+  feature to the `discoverer` mode, implementation and test execution to `implement`, independent
+  verification to `review`, and release or operational execution to their owning capabilities.
 - Ask one focused question only when its answer can change scope, safety, architecture, acceptance,
   or sequencing. Otherwise preserve the issue as an assumption or unknown and continue with the
   next reversible decision.
@@ -125,7 +125,7 @@ Keep these contracts distinct:
 | --- | --- | --- |
 | Product acceptance | Product decision owner | Observable outcome, boundary, and failure behavior |
 | Technical design | Architecture or engineering | Constraints and unresolved questions only |
-| Implementation plan | `feature` / `implement` | Requested outcome and authority boundary |
+| Implementation plan | `discoverer` mode / `implement` | Requested outcome and authority boundary |
 | Test strategy | Test or implementation capability | Behaviors and required evidence, not test structure |
 | Release verification | Operations or release owner | Product success signal and applicable guardrails |
 
@@ -156,8 +156,9 @@ and one material boundary. A material feature contract includes:
 - product validation signal and release guardrails, when known;
 - a compact log of material decisions and superseding evidence.
 
-Hand this contract to `feature` as intent. Do not duplicate its repository discovery, resumable state,
-technical design, implementation, testing, review, or release orchestration. Mark omitted fields as
+Hand this contract to the `discoverer` mode as the input of its plan; a fast-lane change goes straight
+to the `developer` mode. Do not duplicate their repository discovery, plan, technical refinement,
+implementation, testing, review, or release orchestration. Mark omitted fields as
 not applicable only when that distinction matters; do not fill every heading for appearance.
 
 ## Verify and stop
@@ -169,5 +170,5 @@ cannot change the next reversible step; otherwise return the unresolved decision
 
 Re-evaluate this skill when product facts are stored as timeless doctrine, priority arithmetic hides
 uncertainty, small requests accumulate ceremony, acceptance repeatedly causes scope growth, or the
-`feature` input contract changes. Refresh volatile and organizational facts at use time rather than
+`discoverer` plan input changes. Refresh volatile and organizational facts at use time rather than
 on a calendar.
