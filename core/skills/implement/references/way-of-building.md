@@ -41,6 +41,9 @@ Each rule is stated so the author can check it against the diff.
     scope: the real dependency answered, and the trace or metric is visible in its backend. Offline
     gates passing is necessary, not sufficient. Report the observed result, including a failing
     score.
+13. **Reuse before creating.** Search the repository for code that already does the job, such as a
+    type, helper, client, or fixture, before adding a file or symbol. Extend or call it; a new one
+    needs a stated reason reuse does not fit. Leave no unused code behind.
 
 ```python
 # Rejected: meaning lives in strings no type checker can see.
@@ -50,6 +53,18 @@ return {"status": "error", "reason": "insufficient_balance", "missing": "1500.00
 class NotEnoughMoney(BaseModel, frozen=True):
     missing: Money  # int cents, formatted only when serialized
 ```
+
+## Add structure only when it pays
+
+Start with plain functions and values. Add each construct below only when its trigger is observed in
+the requirement or the code, and name the trigger in the plan.
+
+| Construct | Use when | Otherwise |
+| --- | --- | --- |
+| Interface, `Protocol`, or port | A boundary the consumer owns (rule 7), or real variation: two members exist or a named extension axis (rule 10) | Call the concrete code |
+| Inheritance | A true is-a relation whose subclasses reuse shared behavior and honor the parent's contract | Compose: hold the collaborator as a field |
+| SOLID principle | Its violation has an observed cost: two reasons to change (rule 6), a consumer forced to depend on methods it never calls, or a domain that imports I/O (rule 7) | Do not restructure for the principle alone |
+| Design pattern | It solves the problem in front of you, such as a strategy per member of a named axis or an adapter behind a port | Do not name or pre-build a pattern |
 
 ## Stack patterns
 
