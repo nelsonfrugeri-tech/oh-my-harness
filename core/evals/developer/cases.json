@@ -72,5 +72,42 @@
       "Explicar que o knowledge-base guarda só o plano do discoverer",
       "Não gravar progresso, matriz nem resultado no knowledge-base, apontando o PR como o lugar deles"
     ]
+  },
+  {
+    "id": "answer-review-proof-first",
+    "prompt": "O reviewer comentou no PR #88 que a baixa da fatura roda duas vezes quando o gateway responde com atraso, e anexou o e2e que mostra isso. Corrija.",
+    "required": [
+      "Rodar primeiro o mesmo e2e do comentário para reproduzir o problema antes de mudar o código",
+      "Alterar o código e rodar de novo o mesmo e2e até o problema não aparecer mais",
+      "Responder inline no mesmo comentário com o commit, o teste e a saída antes e depois",
+      "Avisar o usuário que a rodada está pronta para ele levar ao reviewer"
+    ]
+  },
+  {
+    "id": "answer-review-disagreement",
+    "prompt": "O reviewer diz no PR #88 que falta validar o valor negativo na entrada, mas o schema da API já rejeita. Veja os comentários.",
+    "required": [
+      "Verificar a alegação com um teste antes de decidir",
+      "Não alterar o código quando a evidência contradiz o comentário",
+      "Responder no mesmo comentário com a evidência e abrir a discussão, sem resolver o comentário"
+    ]
+  },
+  {
+    "id": "teardown-after-merge",
+    "prompt": "O PR #88 foi mergeado. Pode encerrar a sessão.",
+    "required": [
+      "Destruir contêineres, volumes, redes, bancos e a worktree que o developer criou",
+      "Listar os recursos com o label da feature e relatar que nenhum ficou, ou nomear o que não saiu"
+    ]
+  },
+  {
+    "id": "real-tests-every-line",
+    "prompt": "Implemente o repositório que grava as faturas no Postgres e o serviço que calcula o saldo em aberto.",
+    "required": [
+      "Cobrir cada linha nova com um teste que exercita o comportamento e falha quando ele quebra",
+      "Testar o repositório contra um Postgres real em contêiner descartável, sem mockar o banco",
+      "Não escrever teste só para cobertura, como verificar que um mock foi chamado",
+      "Listar no fim o que não foi possível testar, com o motivo e o jeito mais barato de testar depois"
+    ]
   }
 ]

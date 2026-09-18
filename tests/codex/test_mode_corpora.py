@@ -29,6 +29,10 @@ _EXPECTED_IDS = {
             "walking-skeleton-first",
             "small-work-direct",
             "kb-holds-only-plan",
+            "answer-review-proof-first",
+            "answer-review-disagreement",
+            "teardown-after-merge",
+            "real-tests-every-line",
         }
     ),
     "reviewer": frozenset(
@@ -45,6 +49,8 @@ _EXPECTED_IDS = {
             "one-point-at-a-time",
             "calibration-run",
             "matrix-is-not-verdict",
+            "rereview-reruns-proof",
+            "teardown-after-merge",
         }
     ),
 }

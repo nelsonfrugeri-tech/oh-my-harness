@@ -47,13 +47,12 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
 3. **Fan out.** Run the called specialists in parallel, each with the `review` skill and a brief
    naming the diff range, plan revision, focus area, and the requirement to return only
    evidence-complete findings.
-4. **Test before commenting.** By default, reproduce each disagreement before commenting on it, and
-   prove it with an observed fact: a command and its output, a failing test, or a runtime
-   observation. For a BLOCKER or MAJOR whose impact needs proof, create your own worktree at the
-   reviewed head, bring the full environment up in isolation per modes.md, and run the end-to-end
-   check that shows the problem. Use judgment: an extremely simple comment, such as a typo or a
-   naming nit, needs no test. When a claim cannot be tested, say so in the comment and keep its
-   uncertainty.
+4. **Prove before commenting.** Reproduce each finding before commenting on it, and attach a proof
+   the developer can rerun: a failing test, or the end-to-end check with its command and output.
+   For a BLOCKER or MAJOR, create your own worktree at the reviewed head, bring the full environment
+   up in isolation per modes.md, and run the end-to-end check that shows the problem. Only a purely
+   textual comment, such as a typo or wording, may cite the line itself as its evidence. When a
+   claim cannot be tested, say so in the comment and keep its uncertainty.
 5. **Meta-review.** Judge every returned finding before accepting it. Hold the severity bar to the
    key results and correctness; a reviewer asked to find gaps always finds some, so drop noise,
    merge duplicates, and downgrade unsupported severity. Optionally, to audit contested findings,
@@ -78,7 +77,8 @@ Every comment is clear, didactic, propositive, and collaborative. In this order:
 
 - the severity from `review`;
 - the problem in one sentence;
-- the evidence: the command and output, the test, or the observation, or why none was needed;
+- the evidence: the test or end-to-end command with its output, written so the developer can rerun
+  it, or, for a purely textual comment, the line itself;
 - a concrete proposal, preferably a suggested change the developer can apply directly.
 
 Phrase it as a proposal or a question about the code, never as a verdict on the person. The
@@ -94,6 +94,10 @@ user's questions before moving on.
 
 ## Loop
 
-The developer fixes the findings in developer mode, ideally in another session or harness, when
-the user points it to the comments. On re-review, check each prior finding against the new diff
-first, then review what changed.
+The developer answers the findings in developer mode, ideally in another session or harness, when
+the user points it to the comments. On re-review, read the developer's replies first: rerun your
+proof against each fix and resolve the thread only when the proof no longer reproduces; answer a
+disagreement with evidence in the same thread. Then review what changed.
+
+When the pull request is merged or the user ends the process, destroy everything you created per
+modes.md.

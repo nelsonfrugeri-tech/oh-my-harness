@@ -91,6 +91,11 @@ expiry or explicit removal signal. Test-fixture teardown from `test` still appli
 themselves. The read-only default of `review` covers the reviewed code and worktree, not the
 reviewer's own proof worktree.
 
+When the feature is merged or the user ends the process, the developer and the reviewer each
+destroy all the infrastructure they created: containers, volumes, networks, databases, and their
+worktrees, plus local branches that were never pushed. Run each teardown command, then list the
+resources carrying the label and report that none remain, or name what could not be removed.
+
 ## Hand off through the user
 
 The user controls every handoff: they tell each mode what to read. Each mode can run in its own

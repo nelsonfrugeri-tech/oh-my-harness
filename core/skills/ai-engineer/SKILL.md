@@ -28,9 +28,10 @@ Select the smallest mode that owns the outcome and read only its reference.
 
 For overlap, order modes by dependency: integration or retrieval, agent engineering, evaluation,
 then production. Do not load all references by default. Use model knowledge for a simple definition.
-Prefer a direct model call or deterministic workflow when no agent is needed. When the plan names
-an extension axis, such as tools that will grow, design for it: one agent loop discovers the tools,
-and deterministic code still decides and gates every side effect.
+Prefer a direct model call or deterministic workflow when no agent is needed. When tools are the
+named extension axis, one agent loop discovers the tools, and deterministic code still decides and
+gates every side effect. For another named axis, such as providers or rules, design for that
+variation only.
 
 ## Compose authoritative skills
 

@@ -42,7 +42,11 @@ explanation of a failure stays a hypothesis until an observation in the runtime 
 3. Add one thin vertical slice at a time with `implement`, applying its code-craft and
    way-of-building references. Run the slice's unit and integration tests and the gates, then run
    it against the real system before the next slice.
-4. Run the repository's broad gates.
+4. Cover every line you write with a test that exercises its behavior, per way-of-building: be
+   critical of each test, mock as little as possible, and run real dependencies in disposable
+   containers. Before declaring done, list what could not be tested and why in the pull request's
+   "Not verified" section.
+5. Run the repository's broad gates.
 
 Do small or sequential work directly. Delegate only substantial, independent, parallelizable work,
 and name in the brief the skills to load before code.
@@ -86,9 +90,30 @@ the plan does not ask for unless it is justified in the matrix. Give the user th
 ## Hand off and iterate
 
 Leave the environment up for the user with its owner, label, and one-command teardown. Suggest
-starting the reviewer mode on the pull request, ideally in another session or harness. When the
-user points you to the review comments, fix each finding, push, and update the description with
-the next round's matrix. Never ask `knowledge-base` to persist anything: the plan, written by
+starting the reviewer mode on the pull request, ideally in another session or harness. Never ask `knowledge-base` to persist anything: the plan, written by
 the discoverer, is the only mode artifact stored there. Its own session records are not mode output.
 
 Talk with the user in simple, direct language with progressive disclosure.
+
+## Answer the review
+
+When the user points you to review comments, judge each one on its merits before acting:
+
+1. **Decide whether it holds.** Read the comment, its evidence, and the code it points to.
+2. **Simple finding:** fix it, add or adjust a test that proves the fix, and run it.
+3. **Complex finding:** reproduce the reviewer's proof first, running the same test or end-to-end
+   check the comment shows. When it reproduces, change the code and rerun the same proof until the
+   problem no longer shows. When it does not reproduce, treat that as a disagreement.
+4. **Reply inline in the same thread** with what you did: the commit, the test or check you ran,
+   and its output before and after.
+5. **Disagreement:** do not change the code. Reply in the thread with your evidence and open the
+   discussion; never resolve a thread you disagree with.
+
+Push, update the description for the next round per the pull request reference, and tell the user
+what was fixed, what is in discussion, and that the round is ready for them to hand to the
+reviewer.
+
+## Tear down
+
+When the pull request is merged or the user ends the process, destroy everything you created per
+modes.md.

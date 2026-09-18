@@ -54,6 +54,39 @@ class ImplementCorpusTest(unittest.TestCase):
         self.assertIn("When the repository defines a convention for that concern, follow", reference)
         self.assertIn("[way-of-building.md](way-of-building.md)", craft)
 
+    def test_done_requires_only_the_components_the_slice_has(self) -> None:
+        reference = " ".join(
+            _ROOT.joinpath("core/skills/implement/references/way-of-building.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+
+        self.assertIn("each real dependency the slice uses answered", reference)
+        self.assertIn("when the slice emits telemetry", reference)
+
+    def test_every_line_is_tested_for_real_with_gaps_declared(self) -> None:
+        reference = " ".join(
+            _ROOT.joinpath("core/skills/implement/references/way-of-building.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        developer = " ".join(
+            _ROOT.joinpath("core/skills/developer/SKILL.md").read_text(encoding="utf-8").split()
+        )
+
+        self.assertIn("Every line the change adds is covered by a test", reference)
+        self.assertIn("Mock as little as possible", reference)
+        self.assertIn("disposable container", reference)
+        self.assertIn("what could not be tested and why", developer)
+
+    def test_agent_loop_is_prescribed_only_for_a_tool_axis(self) -> None:
+        ai_engineer = " ".join(
+            _ROOT.joinpath("core/skills/ai-engineer/SKILL.md").read_text(encoding="utf-8").split()
+        )
+
+        self.assertIn("When tools are the named extension axis", ai_engineer)
+        self.assertNotIn("When the plan names an extension axis, such as tools", ai_engineer)
+
     def _cases(self) -> list[dict[str, object]]:
         path = _ROOT / "core/evals/implement/cases.json"
         value = json.loads(path.read_text(encoding="utf-8"))

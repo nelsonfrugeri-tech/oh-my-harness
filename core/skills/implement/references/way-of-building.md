@@ -59,8 +59,8 @@ Each rule is stated so the author can check it against the diff.
     Docstrings on public entry points and ports state the contract in one or two lines. Never
     narrate what the code does or how it came to be.
 16. **Done means observed.** A slice is done when it ran in the real runtime at the smallest safe
-    scope: the real dependency answered, and the trace or metric is visible in its backend. Offline
-    gates passing is necessary, not sufficient. Report the observed result, including a failing
+    scope: each real dependency the slice uses answered, and, when the slice emits telemetry, the
+    trace or metric is visible in its backend. Offline gates passing is necessary, not sufficient. Report the observed result, including a failing
     score.
 
 ```python
@@ -91,12 +91,20 @@ the requirement or the code, and name the trigger in the plan.
 
 ## Test every behavior
 
+- Every line the change adds is covered by a test that exercises its behavior. Be critical of each
+  test: it must fail when the behavior breaks. Never write a test only to raise coverage, such as
+  one that asserts a mock was called, restates a constant, or tests the framework.
+- Mock as little as possible. Run real dependencies, such as databases, queues, and HTTP services,
+  in a disposable container, for example with Testcontainers; fake only what cannot run locally.
+- Always look for a way to test. What still cannot be tested is declared at the end with the reason
+  and the cheapest way to test it later.
 - Test at the public seam of each layer with the lowest level that exposes the risk:
   - domain: pure, table-driven unit tests, one per rule and per outcome type, covering every
     branch;
   - orchestration: hand-written fakes for the ports that record calls, no deep mock chains,
     covering the happy path, every refusal, a failure midway, retries, and concurrency;
-  - adapters: recorded real payloads, captured read-only, plus one opt-in live test;
+  - adapters: the real dependency in a disposable container when it can run locally; otherwise
+    recorded real payloads, captured read-only, plus one opt-in live test;
   - entry point: every response path, including error mapping.
 - Derive expected values from the spec or the dataset, never by copying what the code returns.
 - One behavior per test, named as a sentence.

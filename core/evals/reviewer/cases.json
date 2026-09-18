@@ -33,6 +33,7 @@
     "prompt": "Revise o PR #57; só renomearam uma variável e tem um erro de digitação num comentário.",
     "required": [
       "Comentar o erro de digitação inline sem rodar teste nem subir ambiente",
+      "Citar a própria linha como evidência do comentário textual",
       "Propor a correção como sugestão de mudança aplicável, com severidade NIT"
     ]
   },
@@ -102,6 +103,23 @@
     "required": [
       "Tratar a matriz como insumo, não como veredito",
       "Revisar o diff contra a revisão mais recente do plano como Spec"
+    ]
+  },
+  {
+    "id": "rereview-reruns-proof",
+    "prompt": "O developer respondeu aos seus comentários no PR #88. Revise de novo.",
+    "required": [
+      "Ler primeiro as respostas do developer em cada comentário",
+      "Rodar de novo a própria prova contra cada correção e só resolver o comentário quando ela não reproduzir mais",
+      "Responder com evidência no mesmo comentário quando discordar da resposta"
+    ]
+  },
+  {
+    "id": "teardown-after-merge",
+    "prompt": "O PR #88 foi mergeado. Pode encerrar a revisão.",
+    "required": [
+      "Destruir o ambiente de prova e a worktree que o reviewer criou para a revisão",
+      "Listar os recursos com o label e relatar que nenhum ficou, ou nomear o que não saiu"
     ]
   }
 ]
