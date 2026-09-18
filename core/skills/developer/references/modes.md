@@ -35,10 +35,12 @@ Assess the request or diff first, then call only the specialists the change need
 - Announce the triage in one line before calling anyone, for example:
   `Triage: called architect (new package), software-engineer (production code); skipped ai-engineer (no LLM surface), tech-pm (scope settled).`
 - When in doubt, call.
-- Calibrate: every fifth review, counted from the review reports in the handoff directory, call
-  every specialist and compare with what triage would have called. A BLOCKER from a specialist
-  triage would have skipped means the signal table is wrong: record the missed signal and change the
-  table.
+- Calibrate: when the user asks, and on every fifth review by the reviewer mode in the repository,
+  call every specialist and compare with what triage would have called. Count earlier reviews on
+  the code host by the marker line the reviewer writes in each review summary, reading every page
+  of the search; a local review with no pull request counts only when the user asks. A BLOCKER from
+  a specialist triage would have skipped means the signal table is wrong: record the missed signal
+  in the review report and propose the table change to the user. Never edit the installed library.
 - In discoverer and developer, specialists are consultants: they advise and the mode decides. In
   reviewer, they are independent reviewers running in parallel.
 
@@ -49,18 +51,20 @@ Assess the request or diff first, then call only the specialists the change need
 | Session start on a known project | `knowledge-base` | Read project history and the latest plan revision |
 | Unknown repository | `explorer` | Map it before discovery; the repository stays read-only |
 | Plan approved, deviation accepted, or key result changed | `knowledge-base` | Persist a new plan revision |
-| Feature finished | `knowledge-base` | Persist the consolidated result |
 | User asks for a visual report | `site` | Build it outside the repository |
 
 `knowledge-base` is the only writer of curated knowledge. Never write to the knowledge base
-directly. When it is unavailable, keep the artifact in the handoff directory and say that
-persistence is pending.
+directly. The plan is the only artifact the modes persist there: progress, conformance, review
+reports, and results live in the pull request, the terminal, and the repository. When
+`knowledge-base` is unavailable, give the user the approved plan text and say that persistence is
+pending.
 
 ## Coordinate
 
 - Do not ask again about a point the conversation or plan already settled.
-- Do small or sequential work directly. Delegate only substantial, independent, parallelizable
-  work, and never start a subagent the task did not call for.
+- In a mode session, this rule refines the global delegation default: do small or sequential work
+  directly. Delegate only substantial, independent, parallelizable work, and never start a subagent
+  the task did not call for.
 - Name in each brief the skills to load before any code, including the framework documentation or
   skill for the stack.
 - Treat a subagent report as a claim: verify the files on disk and the behavior in the real runtime
@@ -81,19 +85,32 @@ with their own runtime:
 - one teardown command scoped to that name, such as `docker compose -p <name> down -v`.
 
 Leave the environment up for the user when done and report its owner, label, endpoints, expiry
-when set, and teardown command.
+when set, and teardown command. That environment is a residual resource under the `environment`
+[safe lifecycle](../../environment/references/safe-lifecycle.md): it keeps an owner, a label, and an
+expiry or explicit removal signal. Test-fixture teardown from `test` still applies inside the tests
+themselves. The read-only default of `review` covers the reviewed code and worktree, not the
+reviewer's own proof worktree.
 
-## Hand off across sessions and harnesses
+## Hand off through the user
 
-Each mode can run in its own session, preferably on a different harness. Handoffs use only plain
-Markdown and shell paths, never harness-specific tool names.
+The user controls every handoff: they tell each mode what to read. Each mode can run in its own
+session, preferably on a different harness. Handoffs use only plain Markdown, the code host, and
+shell paths, never harness-specific tool names.
 
-- The plan lives in the knowledge base; see [plan.md](../../discoverer/references/plan.md).
-- Round artifacts, the developer's conformance matrix and the reviewer's report, are Markdown files
-  outside every repository at
-  `${XDG_STATE_HOME:-$HOME/.local/state}/oh-my-harness/handoffs/<project>/<feature>/`, named
-  `conformance-<round>.md` and `review-<round>.md`. Give the user the exact path. They are
-  progress, so they never become knowledge-base notes.
+| From | Artifact | Read by |
+| --- | --- | --- |
+| Discoverer | The approved plan revision in the knowledge base; see [plan.md](../../discoverer/references/plan.md) | Developer and reviewer, through `knowledge-base` |
+| Developer | A draft pull request, opened through `code-host`, whose description carries the conformance matrix | Reviewer, when the user points it to the pull request |
+| Reviewer | Inline review comments on the pull request, or `file:line` findings in the terminal for unpushed code, and the final report in the terminal | Developer, when the user points it to them |
+
+The pull request moves from draft to ready only through the reviewer: after a review with no
+BLOCKER, the reviewer marks it ready for review through `code-host` and says so in its report. With
+a BLOCKER it stays draft and the loop continues.
+
+When the developer or the reviewer needs detail the plan does not hold, the plan note's provenance
+and the discoverer's session record in the knowledge base name the harness and session that wrote
+it. Read that transcript through the `session-memory` capability, read-only, and revalidate what it
+says against the plan.
 
 ## Converse
 

@@ -3,9 +3,10 @@ name: developer
 description: >-
   Workflow of the developer session mode. Builds the latest approved plan revision, or a fast-lane
   change, in an isolated git worktree and runtime: writes the plan's test scenarios first,
-  implements in thin slices, runs end-to-end checks in the real runtime, and finishes with a
-  conformance matrix against the plan. Use when the developer agent runs as the session agent, or
-  when the user explicitly asks to build an approved plan. Do not use for discovery or an
+  implements in thin slices, runs end-to-end checks in the real runtime, and finishes with a draft
+  pull request whose description carries a conformance matrix against the plan. Use when the
+  developer agent runs as the session agent, or when the user explicitly asks to build an approved
+  plan. Do not use for discovery or an
   independent review verdict.
 metadata:
   type: workflow
@@ -17,16 +18,17 @@ metadata:
 # Developer
 
 Build exactly what the plan asks, prove it in the real runtime, and hand the evidence to the
-reviewer. Apply [modes.md](references/modes.md) for tiers, lane, triage, isolation, and
-handoff, and [plan.md](../discoverer/references/plan.md) for the plan contract. `implement` and `test`
-own execution and verification; this skill sequences them. Apply `evidence` to every material claim:
-an explanation of a failure stays a hypothesis until an observation in the runtime supports it.
+reviewer. Apply [modes.md](references/modes.md) for tiers, lane, triage, isolation, and handoff,
+and [plan.md](../discoverer/references/plan.md) for the plan contract. `implement` and `test` own
+execution and verification; this skill sequences them. Apply `evidence` to every material claim: an
+explanation of a failure stays a hypothesis until an observation in the runtime supports it.
 
 ## Start
 
 1. Ask `knowledge-base` for the latest non-deprecated plan revision of the project and feature, and
    cite it. Without a plan, confirm the fast lane: one sentence, no new module, no public contract
    change, no LLM behavior change, no data migration. Any of those sends the user to the discoverer.
+   When the plan leaves a point open, read the discoverer's session per modes.md before asking.
 2. Create a git worktree outside the product checkout and an isolated runtime per modes.md.
 3. Triage specialists as consultants and announce the call.
 4. Load the framework documentation and stack skills before writing any code.
@@ -61,17 +63,29 @@ A change to the objective, a key result, a scenario, the layout, or the scope is
 Record it and return it to the user, or to the discoverer, before continuing. An accepted deviation
 or a changed key result becomes a new plan revision through `knowledge-base`.
 
-## Declare done with a conformance matrix
+## Declare done in a draft pull request
+
+The developer delivers code in the repository and a draft pull request, opened through the
+`code-host` capability after the broad gates pass and the branch is pushed. The PR quality gate
+still runs its checks at creation. Only the reviewer mode moves the pull request to ready.
+
+Explainability is the point of the description: a reader who never saw the plan must understand
+what changed, why, and how it was proven. Write it didactically, in the user's language.
+
+- **Title:** the outcome for the user of the feature, in one line, not the files touched.
+- **Description:** in this order, the objective and why it matters; the approach in plain prose,
+  with a visual per `didactic-visual` when it helps; the conformance matrix below; and how to run
+  and tear down the environment.
 
 The matrix is an author self-check and input to independent review; it can never become a verdict
-or a merge recommendation.
+or a merge recommendation. Explain each row in words a reviewer can check, not only a status.
 
 ```markdown
-# Conformance: <project> / <feature> - plan revision <n> - round <r>
+## Conformance: <project> / <feature> - plan revision <n | fast lane> - round <r>
 
 | Plan item | Expected | Observed | Evidence |
 | --- | --- | --- | --- |
-| Objective | <objective> | <met / not met> | <observation> |
+| Objective | <objective, or the one-sentence request on the fast lane> | <met / not met> | <observation> |
 | KR1 | <target> | <observed value> | <method, command, output> |
 | S1 | <scenario> | <pass / fail> | <test name and run output> |
 | AC1 | <criterion> | <pass / fail> | <command and result> |
@@ -82,13 +96,16 @@ or a merge recommendation.
 **Status:** <completed | partially-completed | blocked>
 ```
 
-Remove any change the plan does not ask for unless it is justified in the matrix. Save the matrix in
-the handoff directory and give the user its path.
+On the fast lane there is no plan revision: write `fast lane` in the header and record the
+one-sentence request as the objective, because the reviewer uses it as the Spec. Remove any change
+the plan does not ask for unless it is justified in the matrix. Give the user the pull request URL.
 
 ## Hand off and iterate
 
 Leave the environment up for the user with its owner, label, and one-command teardown. Suggest
-starting the reviewer mode, ideally in another session or harness. When a review report arrives,
-read it from the handoff directory, fix each finding, and produce the next round's matrix.
+starting the reviewer mode on the pull request, ideally in another session or harness. When the
+user points you to the review comments, fix each finding, push, and update the description with
+the next round's matrix. Never write progress, conformance, or results to the knowledge base; the
+plan is the only thing stored there.
 
 Talk with the user in simple, direct language with progressive disclosure.

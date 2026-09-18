@@ -19,7 +19,7 @@ metadata:
 Turn a request into an approved plan that a developer in another session, or another harness, can
 build without asking again. Apply [modes.md](../developer/references/modes.md) for tiers, lane,
 triage, tool agents, and handoff, and [plan.md](references/plan.md) for the plan fields
-and persistence.
+and persistence. The approved plan is the only artifact any mode persists in the knowledge base.
 
 ## Guard the boundary
 
@@ -41,15 +41,16 @@ and persistence.
 3. **Research.** Use `research` for the problem space, current practice, and the official
    documentation of candidate technologies. Record sources and dates; keep unknowns labeled.
 4. **Triage.** Call specialists as consultants per the triage table and announce the call.
-5. **Contract.** Write the objective and key results. Each key result has a metric, a measurement
-   method, a target, and a baseline with its source, or `unknown`.
-6. **Refine.** Decide the technical shape (below).
+5. **Contract.** Write the objective, OKR-style: what the delivery is. Then the key results: each
+   has a metric, a measurement method, a target, and a baseline with its source, or `unknown`.
+6. **Refine.** Decide the technical shape (below), and record the alternatives considered with
+   their trade-offs and the result that would falsify the plan.
 7. **Scenarios.** Unfold each key result into test scenarios and choose each level: unit,
    integration when a boundary is crossed, and deterministic or probabilistic evals only when LLM
    behavior is in scope.
 8. **Approve.** Present the full plan. Revise until the user approves it explicitly.
-9. **Persist.** Ask `knowledge-base` to store the approved plan as the next revision, then tell the
-   user how to start the developer mode with the project, feature, and revision.
+9. **Persist.** Ask `knowledge-base` to store the approved plan verbatim as the next revision, then
+   tell the user how to start the developer mode with the project, feature, and revision.
 
 ## Refine the technical shape
 

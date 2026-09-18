@@ -300,14 +300,40 @@ class AdapterContractTest(unittest.TestCase):
             content = _ROOT.joinpath(relative).read_text(encoding="utf-8")
             with self.subTest(path=relative):
                 self.assertFalse(any(token in content for token in forbidden))
-        # Resumable state lives outside every repository, in harness-neutral artifacts.
+        # State that crosses sessions lives in harness-neutral artifacts the user hands over:
+        # the plan in the knowledge base and the pull request on the code host.
         modes = " ".join(
             _ROOT.joinpath("core/skills/developer/references/modes.md")
             .read_text(encoding="utf-8")
             .split()
         )
         self.assertIn("never harness-specific tool names", modes)
-        self.assertIn("${XDG_STATE_HOME:-$HOME/.local/state}/oh-my-harness/handoffs/", modes)
+        self.assertIn("The user controls every handoff", modes)
+        self.assertIn("The plan is the only artifact the modes persist there", modes)
+        for relative in paths:
+            with self.subTest(path=relative, check="no handoff directory"):
+                content = _ROOT.joinpath(relative).read_text(encoding="utf-8")
+                self.assertNotIn("handoff directory", content)
+                self.assertNotIn("oh-my-harness/handoffs", content)
+
+    def test_session_modes_share_one_pull_request_lifecycle(self) -> None:
+        def read(relative: str) -> str:
+            return " ".join(_ROOT.joinpath(relative).read_text(encoding="utf-8").split())
+
+        developer = read("core/skills/developer/SKILL.md")
+        reviewer = read("core/skills/reviewer/SKILL.md")
+        modes = read("core/skills/developer/references/modes.md")
+        self.assertIn("a draft pull request, opened through the `code-host` capability", developer)
+        self.assertIn("Only the reviewer mode moves the pull request to ready.", developer)
+        self.assertIn("plan revision <n | fast lane>", developer)
+        self.assertIn("With no BLOCKER, mark the draft pull request ready for review", reviewer)
+        self.assertIn("With a BLOCKER, it stays draft", reviewer)
+        self.assertIn("On the fast lane, the Spec is the one-sentence request", reviewer)
+        self.assertIn("never as a loose general comment", reviewer)
+        self.assertIn("The pull request moves from draft to ready only through the reviewer", modes)
+        for relative in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
+            with self.subTest(path=relative):
+                self.assertIn("o developer abre o PR como **draft**", read(relative))
 
     def test_session_modes_are_the_only_feature_workflow(self) -> None:
         # The three modes replaced the feature skill; the fast lane is the developer mode.

@@ -2,7 +2,7 @@
 version: 1.0.0
 name: discoverer
 description: >
-  Session agent for discovery. Start it explicitly as the session agent, for example `claude --agent oh-my-harness:discoverer`; never spawn it as a subagent or route to it automatically. Understands the objective, researches it, and produces a user-approved feature plan with measurable key results, test scenarios, and a simple technical refinement that reuses existing code, without writing product code.
+  Session agent for discovery. Start it explicitly as the session agent, as your harness adapter documents; never spawn it as a subagent or route to it automatically. Understands the objective, researches it, and produces a user-approved feature plan with measurable key results, test scenarios, and a simple technical refinement that reuses existing code, without writing product code.
 model: opus
 skills:
   - evidence
@@ -28,7 +28,7 @@ Follow the discoverer skill; its modes and plan references define triage, tool a
 - Understand the objective before acting, research it with primary sources, and keep every unknown baseline labeled unknown.
 - Search the repository for code to reuse before planning anything new, and keep the design simple and tied to a key result.
 - Map every key result to test scenarios and get the user's explicit approval of the full plan.
-- Call knowledge-base at the start for project history and after approval to persist the plan, and explorer for an unknown repository.
+- Call knowledge-base at the start for project history and after approval to persist the plan, the only artifact the modes store there, and explorer for an unknown repository.
 
 ## Boundaries
 

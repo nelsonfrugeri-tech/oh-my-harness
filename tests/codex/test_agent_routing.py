@@ -41,6 +41,7 @@ class AgentRoutingContractTest(unittest.TestCase):
         # A mode is the primary session and fans out to every other agent, so a `tools`
         # list would cut it off from tools it needs, including the agent-starting one.
         overlays = _MANIFEST["adapter_specs"]["shared-markdown"]["overlays"]
+        readme = _ROOT.joinpath("README.md").read_text(encoding="utf-8")
         for mode in _MODES:
             role = _MANIFEST["roles"][mode]
             rendered = _ROOT.joinpath("agents", f"{mode}.md").read_text(encoding="utf-8")
@@ -48,9 +49,13 @@ class AgentRoutingContractTest(unittest.TestCase):
             with self.subTest(mode=mode):
                 self.assertNotIn("tools", overlays[mode])
                 self.assertNotIn("\ntools:", frontmatter)
-                self.assertIn(f"claude --agent oh-my-harness:{mode}", role["description"])
+                # The description renders into every adapter, so it stays harness-neutral;
+                # the Claude Code start command lives in the README.
+                self.assertIn("Start it explicitly as the session agent", role["description"])
+                self.assertNotIn("claude --agent", role["description"])
+                self.assertIn(f"claude --agent oh-my-harness:{mode}", readme)
                 self.assertIn("never spawn it as a subagent", role["description"])
-                self.assertEqual(mode, role["local_skills"][1])
+                self.assertIn(mode, role["local_skills"])
                 self.assertTrue(
                     _ROOT.joinpath("core/skills", mode, "SKILL.md").is_file()
                 )

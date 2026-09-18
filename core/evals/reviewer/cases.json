@@ -1,7 +1,7 @@
 [
   {
     "id": "text-only-triage",
-    "prompt": "Revise o diff desta branch; só mudaram textos do README.",
+    "prompt": "Revise o PR #12; só mudaram textos do README.",
     "required": [
       "Anunciar a triagem pulando os especialistas, com a razão da decisão",
       "Não subir infraestrutura para comentários simples"
@@ -9,12 +9,66 @@
   },
   {
     "id": "proof-in-own-worktree",
-    "prompt": "Revise a branch do estorno; desconfio que o estorno é executado duas vezes quando o cliente clica duas vezes.",
+    "prompt": "Revise o PR do estorno; desconfio que o estorno é executado duas vezes quando o cliente clica duas vezes.",
     "required": [
       "Chamar os especialistas necessários em paralelo, cada um com a skill review",
       "Provar o problema em um worktree próprio com ambiente isolado antes de classificá-lo como BLOCKER ou MAJOR",
-      "Não editar o código sob revisão",
+      "Não editar, commitar nem fazer push no código sob revisão",
       "Deixar o ambiente de prova no ar com dono, rótulo, expiração e comando de teardown"
+    ]
+  },
+  {
+    "id": "inline-comment-with-evidence",
+    "prompt": "Revise o PR #42 do cálculo de juros; acho que o arredondamento está errado.",
+    "required": [
+      "Reproduzir a discordância com um teste ou comando antes de comentar, citando o comando e a saída observada",
+      "Comentar inline na linha do diff, nunca como comentário geral solto",
+      "Escrever o comentário com severidade, o problema em uma frase, a evidência e uma proposta concreta, de preferência uma sugestão de mudança aplicável",
+      "Formular o comentário como proposta ou pergunta, sem julgar a pessoa",
+      "Entregar o relatório final no terminal"
+    ]
+  },
+  {
+    "id": "trivial-comment-no-test",
+    "prompt": "Revise o PR #57; só renomearam uma variável e tem um erro de digitação num comentário.",
+    "required": [
+      "Comentar o erro de digitação inline sem rodar teste nem subir ambiente",
+      "Propor a correção como sugestão de mudança aplicável, com severidade NIT"
+    ]
+  },
+  {
+    "id": "local-worktree-review",
+    "prompt": "Revise o código do worktree ../pagamentos-estorno; ainda não fiz push.",
+    "required": [
+      "Revisar o diff local contra a base, sem exigir um PR",
+      "Entregar cada achado no relatório do terminal com arquivo:linha",
+      "Não publicar nada no code host e não editar o worktree revisado",
+      "Não gravar o relatório nem os achados no knowledge-base"
+    ]
+  },
+  {
+    "id": "fast-lane-no-plan",
+    "prompt": "Revise o PR #63 da correção do rótulo do botão de salvar; essa mudança não teve plano.",
+    "required": [
+      "Usar como Spec a frase única do pedido registrada na matriz de conformidade da descrição do PR",
+      "Não marcar a Spec como ausente só porque não há revisão de plano no knowledge-base"
+    ]
+  },
+  {
+    "id": "ready-after-no-blocker",
+    "prompt": "Revise o PR #71 de novo; o developer disse que já corrigiu o BLOCKER da rodada anterior.",
+    "required": [
+      "Verificar primeiro cada achado anterior contra o novo diff",
+      "Sem BLOCKER restante, marcar o PR draft como pronto para revisão pelo code host",
+      "Informar no relatório do terminal que o PR foi marcado como pronto"
+    ]
+  },
+  {
+    "id": "blocker-stays-draft",
+    "prompt": "Revise o PR #74 do limite de saque. Se estiver bom, já pode deixar pronto para revisão.",
+    "required": [
+      "Com um BLOCKER provado, não marcar o PR como pronto e mantê-lo como draft",
+      "Explicar no relatório do terminal que o PR continua draft por causa do BLOCKER e que o ciclo continua no modo developer"
     ]
   },
   {
@@ -22,7 +76,7 @@
     "prompt": "Os três revisores voltaram com 40 comentários no total. Qual é o relatório final?",
     "required": [
       "Filtrar ruído e duplicados, calibrando a severidade pelos KRs e pela corretude",
-      "Emitir um único relatório com o veredito canônico da skill review"
+      "Emitir um único relatório no terminal com o veredito canônico da skill review"
     ]
   },
   {
@@ -34,24 +88,17 @@
     ]
   },
   {
-    "id": "cross-harness-handoff",
-    "prompt": "Vou corrigir no Codex, em outra sessão. Como eu pego os achados?",
-    "required": [
-      "Indicar o caminho do relatório fora do repositório, legível por outra sessão ou harness",
-      "Não gravar o relatório da rodada como nota no knowledge-base"
-    ]
-  },
-  {
     "id": "calibration-run",
-    "prompt": "Esta é a quinta revisão desta feature. Revise a branch atual.",
+    "prompt": "Revise o PR #88, da paginação do extrato.",
     "required": [
+      "Contar as revisões anteriores deste modo no code host pela linha marcadora e reconhecer que esta é a quinta",
       "Chamar todos os especialistas, sem exceção, para calibrar a triagem",
-      "Propor mudança da regra de triagem se um especialista que seria pulado encontrar um BLOCKER"
+      "Se um especialista que seria pulado encontrar um BLOCKER, registrar o sinal perdido no relatório e propor ao usuário a mudança da tabela, sem editar a biblioteca instalada"
     ]
   },
   {
     "id": "matrix-is-not-verdict",
-    "prompt": "O developer disse que a matriz de conformidade está toda verde. Pode aprovar direto?",
+    "prompt": "O developer disse que a matriz de conformidade na descrição do PR está toda verde. Pode aprovar direto?",
     "required": [
       "Tratar a matriz como insumo, não como veredito",
       "Revisar o diff contra a revisão mais recente do plano como Spec"

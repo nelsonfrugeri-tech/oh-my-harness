@@ -330,8 +330,8 @@ twelfth, harness-specific installation agent. The roles form three tiers plus an
 | Theme | Agent | Responsibility |
 | --- | --- | --- |
 | Mode | `discoverer` | Research the objective and produce a user-approved plan with measurable key results and test scenarios, writing no product code |
-| Mode | `developer` | Build the latest plan revision test-first in an isolated worktree and runtime, prove it end to end, and report a conformance matrix |
-| Mode | `reviewer` | Triage specialists into parallel independent reviews, prove BLOCKER and MAJOR findings in its own environment, and issue one verdict |
+| Mode | `developer` | Build the latest plan revision test-first in an isolated worktree and runtime, prove it end to end, and open a draft pull request whose description carries a conformance matrix |
+| Mode | `reviewer` | Review the pull request or local worktree the user points it to: triage specialists into parallel independent reviews, test before commenting, comment inline, report one verdict in the terminal, and mark the pull request ready when no BLOCKER remains |
 | Engineering | `architect` | System design, ADRs, C4, API design, and explicit trade-offs |
 | Engineering | `software-engineer` | End-to-end implementation with scalability, resilience, responsiveness, quality, and cost constraints |
 | Engineering | `ai-engineer` | LLM integration, RAG, embeddings, data pipelines, and AI evaluation |
@@ -373,16 +373,20 @@ preferably on different harnesses:
 
 ```bash
 claude --agent oh-my-harness:discoverer   # approved plan, no product code
-claude --agent oh-my-harness:developer    # build the plan in an isolated worktree
-claude --agent oh-my-harness:reviewer     # triaged review with proof and one verdict
+claude --agent oh-my-harness:developer    # build the plan in an isolated worktree, open a draft PR
+claude --agent oh-my-harness:reviewer     # triaged review with inline comments and one verdict
 ```
 
 A change describable in one sentence that creates no module, changes no public contract or LLM
 behavior, and migrates no data takes the fast lane: start the developer mode directly. That is the
-only shortcut; there is no lighter workflow. The plan persists in the knowledge base through the
-`knowledge-base` agent as revisions that supersede each other, and round artifacts such as the
-conformance matrix and the review report are Markdown files outside the repository, so any harness
-can pick them up. The discoverer owns the plan contract in
+only shortcut; there is no lighter workflow.
+
+The user controls every handoff by telling each mode what to read. The plan is the only artifact the
+modes store in the knowledge base, through the `knowledge-base` agent, as revisions that supersede
+each other. The developer delivers a draft pull request whose description explains the change and
+carries the conformance matrix. The reviewer reviews the pull request, or unpushed code in a local
+worktree, comments inline, reports in the terminal, and marks the pull request ready for review
+only when no BLOCKER remains. The discoverer owns the plan contract in
 [`plan.md`](core/skills/discoverer/references/plan.md); the developer, the mode every path runs,
 holds the shared contract in [`modes.md`](core/skills/developer/references/modes.md). On Codex, see
 [Start a session mode](harness/codex/README.md#start-a-session-mode).

@@ -22,21 +22,27 @@ _EXPECTED_IDS = {
     "developer": frozenset(
         {
             "e2e-evidence-before-done",
-            "conformance-matrix",
+            "pr-conformance-matrix",
             "silent-deviation",
             "blocked-external-dependency",
             "fast-lane-guard",
             "walking-skeleton-first",
             "small-work-direct",
+            "kb-holds-only-plan",
         }
     ),
     "reviewer": frozenset(
         {
             "text-only-triage",
             "proof-in-own-worktree",
+            "inline-comment-with-evidence",
+            "trivial-comment-no-test",
+            "local-worktree-review",
+            "fast-lane-no-plan",
+            "ready-after-no-blocker",
+            "blocker-stays-draft",
             "meta-review-noise",
             "one-point-at-a-time",
-            "cross-harness-handoff",
             "calibration-run",
             "matrix-is-not-verdict",
         }

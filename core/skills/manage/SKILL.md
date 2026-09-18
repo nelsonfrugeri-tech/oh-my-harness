@@ -4,7 +4,7 @@ description: >-
   Turn a product or platform problem into a decision-ready feature contract with evidenced outcomes,
   explicit scope, relevant constraints, prioritization rationale, and observable acceptance. Use for
   product refinement, backlog or sequencing decisions, acceptance criteria, and product handoff to
-  feature. Do not use for generic product-management teaching, technical design, implementation
+  the discoverer mode. Do not use for generic product-management teaching, technical design, implementation
   planning, test strategy, or release execution.
 metadata:
   origin: native
@@ -156,9 +156,9 @@ and one material boundary. A material feature contract includes:
 - product validation signal and release guardrails, when known;
 - a compact log of material decisions and superseding evidence.
 
-Hand this contract to the `discoverer` mode as the input of its plan; a fast-lane change goes straight
-to the `developer` mode. Do not duplicate their repository discovery, plan, technical refinement,
-implementation, testing, review, or release orchestration. Mark omitted fields as
+Hand this contract to the `discoverer` mode as the input of its plan; a fast-lane change goes
+straight to the `developer` mode. Do not duplicate their repository discovery, plan, technical
+refinement, implementation, testing, review, or release orchestration. Mark omitted fields as
 not applicable only when that distinction matters; do not fill every heading for appearance.
 
 ## Verify and stop

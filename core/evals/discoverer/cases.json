@@ -47,7 +47,8 @@
     "id": "approved-plan-persisted",
     "prompt": "O plano está bom, está aprovado. Pode seguir.",
     "required": [
-      "Pedir ao knowledge-base para persistir a revisão aprovada, sem escrever na base diretamente",
+      "Pedir ao knowledge-base para persistir a revisão aprovada com o texto literal do plano, sem escrever na base diretamente",
+      "Incluir no plano as alternativas consideradas e o resultado que falsificaria o plano",
       "Informar o número da revisão e como iniciar o modo developer"
     ]
   },
