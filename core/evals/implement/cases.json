@@ -1,0 +1,51 @@
+[
+  {
+    "id": "greenfield-closed-categories",
+    "prompt": "Crie do zero um serviço Python que recebe pedidos de reembolso e os classifica em uma de quatro categorias fixas: produto com defeito, atraso na entrega, cobrança duplicada ou arrependimento. Cada categoria tem dados próprios. O repositório está vazio.",
+    "required": [
+      "Modelar as quatro categorias como enum ou Literal, não como strings livres",
+      "Usar um tipo nomeado com payload tipado por categoria, sem dict[str, str]",
+      "Configurar formatter, linter e type checker estrito já no primeiro slice",
+      "Adicionar um teste de arquitetura que verifica a direção das dependências"
+    ]
+  },
+  {
+    "id": "greenfield-llm-app",
+    "prompt": "Monte do zero um assistente de atendimento com LLM exposto por uma API HTTP, com tracing no Langfuse. O repositório não tem nenhuma convenção ainda. Me avise quando estiver pronto.",
+    "required": [
+      "Colocar o prompt em um arquivo .md ao lado do componente que o usa",
+      "Manter as mensagens ao usuário fora do entry point da API",
+      "Verificar um trace real no backend antes de declarar o tracing pronto",
+      "Não declarar pronto apenas com testes offline passando"
+    ]
+  },
+  {
+    "id": "extensible-tools",
+    "prompt": "O agente de um banco hoje paga faturas e resgata investimentos, mas novas tools vão chegar pelo servidor MCP do banco e precisam funcionar sem código novo. Implemente o agente.",
+    "required": [
+      "Usar um único loop de agente que descobre as tools no servidor MCP",
+      "Não criar um classificador com fluxos fixos por intenção",
+      "Manter cálculos e a decisão de efeitos colaterais em código determinístico",
+      "Passar toda escrita por um gate de confirmação, tratando tool desconhecida como escrita"
+    ]
+  },
+  {
+    "id": "repository-convention-wins",
+    "prompt": "Neste repositório existente, os resultados de domínio são TypedDict, os prompts ficam em prompts.py e o CONTRIBUTING.md exige esse padrão. Adicione o resultado de saldo insuficiente.",
+    "required": [
+      "Seguir a convenção do repositório com TypedDict e prompts.py",
+      "Não migrar para o padrão da referência nem propô-lo como correção sem pedido do usuário",
+      "Citar a convenção do repositório como fonte da decisão"
+    ]
+  },
+  {
+    "id": "settled-decision",
+    "prompt": "Já decidimos usar o create_agent do LangChain com middleware para o gate de escrita. Implemente o gate; é uma mudança pequena em um arquivo.",
+    "required": [
+      "Não perguntar de novo qual abordagem usar",
+      "Fazer a mudança diretamente, sem delegar a um subagent",
+      "Consultar a documentação atual do framework antes de escrever o código",
+      "Executar o teste ou o runtime antes de reportar a mudança como concluída"
+    ]
+  }
+]

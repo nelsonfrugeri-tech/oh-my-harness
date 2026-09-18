@@ -372,10 +372,10 @@ Two shared policy blocks are embedded into each harness's global guidance:
 
 ### Evals
 
-`core/evals/` contains behavioral corpora for `evidence` and `didactic-visual`. They are manual,
-fresh-session protocols: repository tests validate corpus structure, while an evaluation run must
-record harness, model, configuration, commit, observation time, evaluator, and per-requirement
-evidence. A local test passing does not claim that a model behavior passed.
+`core/evals/` contains behavioral corpora for `evidence`, `didactic-visual`, and `implement`. They
+are manual, fresh-session protocols: repository tests validate corpus structure, while an evaluation
+run must record harness, model, configuration, commit, observation time, evaluator, and
+per-requirement evidence. A local test passing does not claim that a model behavior passed.
 
 ## Knowledge base
 
