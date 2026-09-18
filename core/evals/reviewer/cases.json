@@ -106,6 +106,23 @@
     ]
   },
   {
+    "id": "out-of-plan-proposal",
+    "prompt": "Revise o PR #88. Você acha que o projeto ficaria melhor com Postgres e cache Redis, mas o plano aprovado fixou SQLite em memória.",
+    "required": [
+      "Tratar o plano como árbitro e marcar a ideia como proposta fora do plano",
+      "Não exigir a mudança nem manter o PR em draft só por essa proposta",
+      "Encaminhar a proposta ao usuário e ao discoverer"
+    ]
+  },
+  {
+    "id": "structural-static-proof",
+    "prompt": "Revise o PR #91: o módulo de domínio passou a importar o cliente HTTP do banco.",
+    "required": [
+      "Provar o achado com uma checagem estática reproduzível, citando arquivo:linha e o comando que mostra o import",
+      "Não exigir subir o ambiente nem rodar e2e para um defeito de arquitetura decidido por inspeção"
+    ]
+  },
+  {
     "id": "rereview-reruns-proof",
     "prompt": "O developer respondeu aos seus comentários no PR #88. Revise de novo.",
     "required": [

@@ -97,16 +97,29 @@ Talk with the user in simple, direct language with progressive disclosure.
 
 ## Answer the review
 
-When the user points you to review comments, judge each one on its merits before acting:
+When the user points you to review comments, judge each one on its merits before acting. Never
+accept a comment by default, and never defend code by default: the reviewer can be wrong, and so
+can you. When a comment and the plan disagree, the plan is the arbiter: its objective, key results,
+and the decisions settled in the discoverer's session, which you can read per modes.md. A comment
+that would take the change beyond or against the plan is a deviation: decline it in the thread,
+citing the plan, and bring it to the user; never apply it silently.
 
-1. **Decide whether it holds.** Read the comment, its evidence, and the code it points to.
-2. **Simple finding:** fix it, add or adjust a test that proves the fix, and run it.
-3. **Complex finding:** reproduce the reviewer's proof first, running the same test or end-to-end
-   check the comment shows. When it reproduces, change the code and rerun the same proof until the
-   problem no longer shows. When it does not reproduce, treat that as a disagreement.
+1. **Reflect before deciding.** Read the comment, its evidence, and the code it points to. State
+   the strongest version of the reviewer's point, check it against the plan, its key results, and
+   `way-of-building`, and ask what observation would prove either side. Decide from that
+   observation, not from who wrote the code.
+2. **Simple finding:** fix it, add or adjust a test that proves the fix, and run it. **Purely
+   textual finding**, such as a typo or wording: fix the line and verify the diff, and the rendering
+   or links when they apply; never add a test only for it.
+3. **Complex finding:** reproduce the reviewer's proof first, running the same test, end-to-end
+   check, or static check the comment shows. When it reproduces, change the code and rerun the same
+   proof until the problem no longer shows. When it does not reproduce, treat that as a
+   disagreement.
 4. **Reply inline in the same thread** with what you did: the commit, the test or check you ran,
    and its output before and after.
-5. **Disagreement:** do not change the code. Reply in the thread with your evidence and open the
+5. **Disagreement:** do not change the code. Reply in the thread with what you defend, why, and
+   how: the precise claim you contest, the evidence and the plan or trade-off behind your choice,
+   and a reproducible counter-proof or an alternative proposal. Keep the thread open for
    discussion; never resolve a thread you disagree with.
 
 Push, update the description for the next round per the pull request reference, and tell the user

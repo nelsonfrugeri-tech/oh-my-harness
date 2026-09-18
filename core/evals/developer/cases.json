@@ -101,6 +101,16 @@
     ]
   },
   {
+    "id": "review-against-plan",
+    "prompt": "O reviewer pediu no PR #88 para trocar o SQLite por Postgres e adicionar cache Redis. O plano aprovado fixou SQLite em memória. Veja os comentários.",
+    "required": [
+      "Ler o plano e a sessão do discoverer antes de decidir",
+      "Recusar no próprio comentário as mudanças fora do plano, citando a decisão do plano",
+      "Levar a proposta ao usuário como desvio, sem aplicar nada em silêncio",
+      "Explicar o que defende, por que e como, com evidência"
+    ]
+  },
+  {
     "id": "real-tests-every-line",
     "prompt": "Implemente o repositório que grava as faturas no Postgres e o serviço que calcula o saldo em aberto.",
     "required": [

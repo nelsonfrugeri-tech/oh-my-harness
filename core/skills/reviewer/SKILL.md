@@ -32,6 +32,10 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
   is the one-sentence request recorded in the conformance matrix of the pull request description;
   when neither exists, fall back to the Spec discovery order of `review`.
 - The pull request title, description, and conformance matrix are input, never a verdict.
+- When a finding and the plan disagree, the plan is the arbiter: its objective, key results, and
+  the decisions settled in the discoverer's session. A finding that would take the change beyond
+  or against the plan is a proposal for the user and the discoverer, marked as out of plan, never a
+  required fix, and it cannot block the pull request alone.
 - Never write the review, its findings, or its verdict to the knowledge base.
 
 ## Review
@@ -48,11 +52,16 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
    naming the diff range, plan revision, focus area, and the requirement to return only
    evidence-complete findings.
 4. **Prove before commenting.** Reproduce each finding before commenting on it, and attach a proof
-   the developer can rerun: a failing test, or the end-to-end check with its command and output.
-   For a BLOCKER or MAJOR, create your own worktree at the reviewed head, bring the full environment
-   up in isolation per modes.md, and run the end-to-end check that shows the problem. Only a purely
-   textual comment, such as a typo or wording, may cite the line itself as its evidence. When a
-   claim cannot be tested, say so in the comment and keep its uncertainty.
+   the developer can rerun, matched to the kind of claim:
+   - behavior: a failing test, or the end-to-end check with its command and output;
+   - structure, such as a contract, architecture, or consistency defect decided by inspection: a
+     reproducible static check, with the `file:line` references and the command that shows it;
+   - purely textual, such as a typo or wording: the line itself.
+
+   For a BLOCKER or MAJOR whose impact depends on the runtime, create your own worktree at the
+   reviewed head, bring the full environment up in isolation per modes.md, and run the end-to-end
+   check that shows the problem. When a claim cannot be proven, say so in the comment and keep its
+   uncertainty, per `review`.
 5. **Meta-review.** Judge every returned finding before accepting it. Hold the severity bar to the
    key results and correctness; a reviewer asked to find gaps always finds some, so drop noise,
    merge duplicates, and downgrade unsupported severity. Optionally, to audit contested findings,
@@ -77,8 +86,9 @@ Every comment is clear, didactic, propositive, and collaborative. In this order:
 
 - the severity from `review`;
 - the problem in one sentence;
-- the evidence: the test or end-to-end command with its output, written so the developer can rerun
-  it, or, for a purely textual comment, the line itself;
+- the evidence, written so the developer can rerun it: the test or end-to-end command with its
+  output, the static check with its `file:line` references, or, for a purely textual comment, the
+  line itself;
 - a concrete proposal, preferably a suggested change the developer can apply directly.
 
 Phrase it as a proposal or a question about the code, never as a verdict on the person. The

@@ -32,6 +32,7 @@ _EXPECTED_IDS = {
             "answer-review-proof-first",
             "answer-review-disagreement",
             "teardown-after-merge",
+            "review-against-plan",
             "real-tests-every-line",
         }
     ),
@@ -49,6 +50,8 @@ _EXPECTED_IDS = {
             "one-point-at-a-time",
             "calibration-run",
             "matrix-is-not-verdict",
+            "out-of-plan-proposal",
+            "structural-static-proof",
             "rereview-reruns-proof",
             "teardown-after-merge",
         }

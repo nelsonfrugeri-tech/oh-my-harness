@@ -316,6 +316,30 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertNotIn("handoff directory", content)
                 self.assertNotIn("oh-my-harness/handoffs", content)
 
+    def test_review_proof_matches_the_kind_of_claim(self) -> None:
+        def read(relative: str) -> str:
+            return " ".join(_ROOT.joinpath(relative).read_text(encoding="utf-8").split())
+
+        reviewer = read("core/skills/reviewer/SKILL.md")
+        developer = read("core/skills/developer/SKILL.md")
+        self.assertIn("a reproducible static check", reviewer)
+        self.assertIn("whose impact depends on the runtime", reviewer)
+        self.assertIn("Purely textual finding", developer)
+
+    def test_developer_reflects_before_accepting_or_defending(self) -> None:
+        developer = " ".join(
+            _ROOT.joinpath("core/skills/developer/SKILL.md").read_text(encoding="utf-8").split()
+        )
+
+        self.assertIn("Never accept a comment by default, and never defend code by default", developer)
+        self.assertIn("what you defend, why, and how", developer)
+        reviewer = " ".join(
+            _ROOT.joinpath("core/skills/reviewer/SKILL.md").read_text(encoding="utf-8").split()
+        )
+        for mode in (developer, reviewer):
+            with self.subTest(check="plan is the arbiter"):
+                self.assertIn("the plan is the arbiter", mode)
+
     def test_session_modes_share_one_pull_request_lifecycle(self) -> None:
         def read(relative: str) -> str:
             return " ".join(_ROOT.joinpath(relative).read_text(encoding="utf-8").split())
