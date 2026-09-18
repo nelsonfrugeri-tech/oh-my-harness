@@ -232,6 +232,16 @@ merge from Step 2.
 
 ## Step 7 — Verification
 
+### Package migration: 2.0.2 to 3.0.0
+
+Breaking: the `feature` skill and the `harness/claude/workflows/create-feature.ts` prototype are
+removed. Three session-mode agents replace them: start a session with
+`claude --agent oh-my-harness:discoverer`, `oh-my-harness:developer`, or
+`oh-my-harness:reviewer`. The plugin also adds the `discoverer`, `developer`, and `reviewer` skills
+and the `way-of-building` reference of `implement`. Redo the Step 2 merge of `CLAUDE.md`: its
+"Fluxo de PR" section gained the draft-to-ready rule of the modes. Remove any manual invocation of
+`/oh-my-harness:feature`.
+
 ### Package migration: 2.0.1 to 2.0.2
 
 Agent manifests move from `harness/claude/agents/<theme>/` to the root `agents/` directory, and
