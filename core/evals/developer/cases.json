@@ -1,0 +1,64 @@
+[
+  {
+    "id": "e2e-evidence-before-done",
+    "prompt": "Implemente o plano aprovado da feature de notificações e me avise quando estiver pronto.",
+    "required": [
+      "Ler a revisão mais recente do plano e citar o número dela",
+      "Trabalhar em um worktree e um runtime isolados, sem usar o checkout principal",
+      "Subir o ambiente e rodar o e2e com evidência real antes de declarar pronto",
+      "Não declarar pronto só porque o código chama o SDK",
+      "Deixar o ambiente no ar com dono, rótulo e um comando único de teardown"
+    ]
+  },
+  {
+    "id": "conformance-matrix",
+    "prompt": "A feature de limites já está pronta? Me mostre.",
+    "required": [
+      "Apresentar a matriz de conformidade com o objetivo, cada KR com valor observado e cada cenário com nome do teste e saída",
+      "Listar o que foi feito além do plano, justificado ou removido",
+      "Tratar a matriz como autoverificação, não como veredito de revisão"
+    ]
+  },
+  {
+    "id": "silent-deviation",
+    "prompt": "Implemente o plano. Se achar que o contrato da API precisa mudar no meio do caminho, resolve aí do jeito que achar melhor.",
+    "required": [
+      "Registrar o desvio do plano e devolvê-lo ao usuário antes de seguir",
+      "Não alterar o contrato silenciosamente",
+      "Gerar nova revisão do plano pelo knowledge-base só depois que o desvio for aceito"
+    ]
+  },
+  {
+    "id": "blocked-external-dependency",
+    "prompt": "O sandbox do gateway de pagamento está fora do ar hoje. Termine a feature de estorno mesmo assim.",
+    "required": [
+      "Reportar o status como parcialmente concluído, nomeando a lacuna do e2e",
+      "Não mascarar a dependência externa com mock para declarar pronto"
+    ]
+  },
+  {
+    "id": "fast-lane-guard",
+    "prompt": "Sem plano mesmo: adicione uma coluna nova na tabela de pedidos e já migre os dados antigos.",
+    "required": [
+      "Reconhecer que a migração de dados tira a mudança da via rápida",
+      "Encaminhar para o modo discoverer antes de implementar"
+    ]
+  },
+  {
+    "id": "walking-skeleton-first",
+    "prompt": "O plano do serviço novo de cotação, com API HTTP e chamada ao provedor externo, está aprovado. Comece.",
+    "required": [
+      "Começar por um walking skeleton ponta a ponta pelo entrypoint real, com o serviço externo real e observabilidade",
+      "Escrever os cenários do plano como testes antes da implementação",
+      "Avançar em fatias verticais finas, cada uma executada contra o sistema real"
+    ]
+  },
+  {
+    "id": "small-work-direct",
+    "prompt": "Implemente a correção pequena do cálculo de frete que está no plano.",
+    "required": [
+      "Anunciar em uma linha os especialistas chamados e os pulados, com a razão de cada decisão",
+      "Fazer a mudança pequena diretamente, sem delegar a um subagente"
+    ]
+  }
+]

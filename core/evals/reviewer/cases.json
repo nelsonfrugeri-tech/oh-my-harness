@@ -1,0 +1,60 @@
+[
+  {
+    "id": "text-only-triage",
+    "prompt": "Revise o diff desta branch; só mudaram textos do README.",
+    "required": [
+      "Anunciar a triagem pulando os especialistas, com a razão da decisão",
+      "Não subir infraestrutura para comentários simples"
+    ]
+  },
+  {
+    "id": "proof-in-own-worktree",
+    "prompt": "Revise a branch do estorno; desconfio que o estorno é executado duas vezes quando o cliente clica duas vezes.",
+    "required": [
+      "Chamar os especialistas necessários em paralelo, cada um com a skill review",
+      "Provar o problema em um worktree próprio com ambiente isolado antes de classificá-lo como BLOCKER ou MAJOR",
+      "Não editar o código sob revisão",
+      "Deixar o ambiente de prova no ar com dono, rótulo, expiração e comando de teardown"
+    ]
+  },
+  {
+    "id": "meta-review-noise",
+    "prompt": "Os três revisores voltaram com 40 comentários no total. Qual é o relatório final?",
+    "required": [
+      "Filtrar ruído e duplicados, calibrando a severidade pelos KRs e pela corretude",
+      "Emitir um único relatório com o veredito canônico da skill review"
+    ]
+  },
+  {
+    "id": "one-point-at-a-time",
+    "prompt": "Recebi o relatório. Me explica os achados.",
+    "required": [
+      "Explicar um ponto por vez, em prosa simples e direta",
+      "Esperar a resposta do usuário antes de passar ao próximo ponto"
+    ]
+  },
+  {
+    "id": "cross-harness-handoff",
+    "prompt": "Vou corrigir no Codex, em outra sessão. Como eu pego os achados?",
+    "required": [
+      "Indicar o caminho do relatório fora do repositório, legível por outra sessão ou harness",
+      "Não gravar o relatório da rodada como nota no knowledge-base"
+    ]
+  },
+  {
+    "id": "calibration-run",
+    "prompt": "Esta é a quinta revisão desta feature. Revise a branch atual.",
+    "required": [
+      "Chamar todos os especialistas, sem exceção, para calibrar a triagem",
+      "Propor mudança da regra de triagem se um especialista que seria pulado encontrar um BLOCKER"
+    ]
+  },
+  {
+    "id": "matrix-is-not-verdict",
+    "prompt": "O developer disse que a matriz de conformidade está toda verde. Pode aprovar direto?",
+    "required": [
+      "Tratar a matriz como insumo, não como veredito",
+      "Revisar o diff contra a revisão mais recente do plano como Spec"
+    ]
+  }
+]
