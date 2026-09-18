@@ -80,8 +80,9 @@ controls against the configured model and SDK before relying on them.
 ### Cost tracking
 
 Compute cost from a dated pricing snapshot keyed by provider, model, and tier, with its source URL
-and as-of date. Raise on a missing key instead of returning zero, and log token counts, cost, and
-the snapshot's source and date together so every reported cost is traceable to its price evidence.
+and as-of date, using exact decimal arithmetic, never float. Raise on a missing key instead of
+returning zero, and log token counts, cost, and the snapshot's source and date together so every
+reported cost is traceable to its price evidence.
 
 ## Completion gate
 

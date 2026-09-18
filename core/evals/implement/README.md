@@ -2,17 +2,19 @@
 
 Use these cases to detect regressions in how `implement` applies
 [way-of-building.md](../../skills/implement/references/way-of-building.md): the reference must shape
-greenfield and silent repositories, and must yield to a repository convention. The corpus defines
-expected behaviors, not reference wording. Evaluation runs are manual;
-`tests/codex/test_implement_corpus.py` validates only the corpus format and does not execute the
-cases.
+greenfield code, must yield to a repository convention, and must not add tooling or layers to an
+existing repository. The corpus defines expected behaviors, not reference wording. Evaluation runs
+are manual; `tests/codex/test_implement_corpus.py` validates only the corpus format and does not
+execute the cases.
 
 ## Run an evaluation
 
 1. Record the harness, model, model version when available, repository commit, date, and evaluator.
 2. Prepare a disposable fixture repository outside the product tree that matches the case premise:
-   empty for a greenfield case, or containing the stated convention and `CONTRIBUTING.md` for an
-   existing-repository case.
+   empty for a greenfield case; containing the stated convention and `CONTRIBUTING.md` for
+   `repository-convention-wins`; a minimal LangChain `create_agent` project with one write tool and
+   no gate for `settled-decision`; and a small untyped module with the stated bug and one passing
+   test, but no linter, type checker, or layers, for `silent-legacy-bugfix`.
 3. Start a fresh session in that fixture with the adapter under test installed. Do not expose
    another case's answer, the expected behaviors, or a prior run to the candidate session.
 4. Submit one case `prompt` exactly as written. Allow only the tools the scenario naturally needs;

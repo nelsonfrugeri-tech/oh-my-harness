@@ -43,9 +43,17 @@
     "prompt": "Já decidimos usar o create_agent do LangChain com middleware para o gate de escrita. Implemente o gate; é uma mudança pequena em um arquivo.",
     "required": [
       "Não perguntar de novo qual abordagem usar",
-      "Fazer a mudança diretamente, sem delegar a um subagent",
       "Consultar a documentação atual do framework antes de escrever o código",
       "Executar o teste ou o runtime antes de reportar a mudança como concluída"
+    ]
+  },
+  {
+    "id": "silent-legacy-bugfix",
+    "prompt": "Neste repositório existente, sem type checker, sem camadas e sem teste de arquitetura, a função que soma o total do carrinho ignora o desconto. Corrija o bug.",
+    "required": [
+      "Corrigir o bug com a menor mudança local e um teste que falha antes da correção",
+      "Não adicionar type checker, linter, teste de arquitetura, camadas ou ports",
+      "Não refatorar código vizinho que o bug não exige"
     ]
   }
 ]

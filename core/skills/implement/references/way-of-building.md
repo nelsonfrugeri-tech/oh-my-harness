@@ -1,14 +1,15 @@
 # Way of Building
 
-An opinionated default for concerns the repository leaves undefined: a greenfield project, or an
-existing repository with no convention for domain modeling, prompt location, dependency direction,
-or similar. Apply it per concern. When the repository defines a convention for that concern, follow
-the repository; do not propose this reference as a correction unless the user asks. Name in the
-plan every concern that fell back to this reference.
+An opinionated default for code the change creates: a greenfield project, or a new module in an
+existing repository whose conventions do not cover it. Apply it per concern. When the repository
+defines a convention for that concern, follow the repository; do not propose this reference as a
+correction unless the user asks. In an existing repository, a missing tool, gate, or layer is the
+repository's choice, not an undefined concern: add one only on explicit request. Name in the plan
+every concern that fell back to this reference.
 
 ## Principles
 
-Each rule is stated so a reviewer can check it against the diff.
+Each rule is stated so the author can check it against the diff.
 
 1. **Name the domain.** A business concept crossing a module boundary is a named type with typed
    fields. No `dict[str, str]`, `dict[str, Any]`, or free strings carrying business meaning.
@@ -16,14 +17,17 @@ Each rule is stated so a reviewer can check it against the diff.
    never a string compared by value.
 3. **One type per outcome.** Each result a caller must handle differently is its own type, such as
    `NotEnoughMoney`, not a reason string or a status code with a free message.
-4. **Values carry their unit.** Money is integer minor units in a value type; format it only at
+4. **Values carry their unit.** Money uses an exact representation in a value type: integer minor
+   units, or `Decimal` when sub-minor precision is required, never float. Format it only at
    serialization or presentation. The same holds for durations, quantities, and identifiers.
-5. **Immutable by default.** Domain values are frozen. Behaviour that only reads a value lives on
+5. **Immutable by default.** Domain values are frozen. Behavior that only reads a value lives on
    that value or beside it in the domain.
 6. **One responsibility per module.** Split when a module has two reasons to change. Size is a
    signal to inspect, never the reason to split.
-7. **Dependencies point inward.** The domain imports no framework, I/O, or model client. Each
-   external system sits behind a port owned by its consumer. A test enforces the direction.
+7. **Dependencies point inward.** The domain imports no framework, I/O, or model client. An
+   external system the change introduces sits behind a port owned by its consumer when the domain
+   must not know it or tests must replace it. In a greenfield project, a test enforces the
+   direction.
 8. **Content is not logic.** Prompts, user-facing messages, and templates live in their own files
    or modules, never inline in business logic or the entry point.
 9. **Code decides, the model proposes.** A model may interpret input and choose among tools; it
@@ -75,6 +79,8 @@ framework APIs from official sources before use.
 
 ## Make the standard executable on the first slice
 
+Greenfield only. In an existing repository, use the gates it already has.
+
 - Configure the formatter, linter, and strict type checker in the project manifest and expose them
   through the repository entry point, such as a Make target, so the PR quality gate discovers and
   runs them.
@@ -84,16 +90,7 @@ framework APIs from official sources before use.
 - Optionally add a file-size check whose limit the user chooses. It flags a file for review; it
   does not decide the design.
 
-## Coordination
+## Before writing
 
-For the orchestrating agent that plans and delegates this work.
-
-- Before asking the user, check whether the conversation or plan already decided the point. Asking
-  again for a settled choice costs a round trip and trust.
-- Do small or sequential work directly and consult a specialist for advice. Delegate only
-  substantial, independent work, and never start a subagent the task did not call for.
-- Name in each delegation brief the framework and stack skills to load, and require loading them
-  before any code is written.
-- Treat a subagent report as a claim. Verify the files on disk and the behavior in the real runtime
-  before reporting.
-- Relay subagent results in the user's language.
+- Do not ask again about a point the conversation or plan already settled.
+- Load the current framework documentation or skill for the stack before writing code against it.

@@ -14,6 +14,7 @@ _EXPECTED_IDS = frozenset(
         "extensible-tools",
         "repository-convention-wins",
         "settled-decision",
+        "silent-legacy-bugfix",
     }
 )
 
