@@ -11,7 +11,7 @@ work—even when you change AI coding assistants, machines, or providers.
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
 [![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#agents)
-[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#skills)
+[![Skills](https://img.shields.io/badge/skills-31-DC5F00?style=flat-square)](#skills)
 
 </div>
 
@@ -339,12 +339,14 @@ live under `harness/codex/agents/`.
 
 ### Skills
 
-The package contains 28 skills: 26 shared skills and one adapter skill for each harness. The catalog
+The package contains 31 skills: 29 shared skills and one adapter skill for each harness. The catalog
 below is intentionally complete and is checked against both plugin manifests.
 
 **Reasoning and presentation:** `evidence` · `didactic-visual`
 
 **Software delivery:** `implement` · `design` · `test` · `review` · `research` · `manage` · `environment` · `ci-cd` · `operate` · `feature`
+
+**Session modes:** `discoverer` · `developer` · `reviewer`
 
 **Engineering knowledge:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 

@@ -1,13 +1,15 @@
 ---
 name: feature
 description: >-
-  Orchestrates an end-to-end feature request by resolving material scope, preserving resumable
-  state, handing bounded implementation to implement and test, and coordinating explicit external
-  handoffs. Use when the user asks to build a feature across multiple phases or sessions. Do not use
-  for a single local edit, automatic QA/SRE certification, or an author-issued review verdict.
+  Lightweight feature path that orchestrates an end-to-end request by resolving material scope,
+  preserving resumable state, handing bounded implementation to implement and test, and
+  coordinating explicit external handoffs. Also holds the shared contracts of the discoverer,
+  developer, and reviewer session modes. Use when the user asks to build a feature across multiple
+  phases or sessions without the full mode flow. Do not use for a single local edit, automatic
+  QA/SRE certification, or an author-issued review verdict.
 metadata:
   type: workflow
-  version: 3.0.0
+  version: 3.1.0
   origin: native
   last_verified: 2026-09-06
 ---
@@ -16,6 +18,11 @@ metadata:
 
 Coordinate feature state and handoffs without duplicating implementation, testing, product,
 operations, or review skills.
+
+This is the lightweight path and works standalone. For the full flow, an approved plan with
+measurable key results, eval-driven development in an isolated runtime, and a triaged independent
+review, the user starts the session modes described in [modes.md](references/modes.md), which share
+the plan contract in [plan.md](references/plan.md).
 
 ## Guard the boundary
 
@@ -69,8 +76,9 @@ records as leads and revalidate mutable state.
 
 Derive observable acceptance criteria and non-goals from the request and repository context. Ask one
 focused question only when an unresolved product or contract choice would materially change the
-implementation. Do not force a refinement ceremony, document template, fixed question count, or
-user approval checkpoint for facts already established.
+implementation. On this lightweight path, do not force a refinement ceremony, document template,
+fixed question count, or user approval checkpoint for facts already established. When the user
+wants an approved plan, that is the discoverer mode's job, not an extra step here.
 
 If a material decision needs architecture, product, AI, security, or evidence review, make a bounded
 handoff with the question, known facts, alternatives, and required output. Preserve returned
