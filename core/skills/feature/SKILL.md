@@ -21,8 +21,8 @@ operations, or review skills.
 
 This is the lightweight path and works standalone. For the full flow, an approved plan with
 measurable key results, eval-driven development in an isolated runtime, and a triaged independent
-review, the user starts the session modes described in [modes.md](references/modes.md), which share
-the plan contract in [plan.md](references/plan.md).
+review, the user starts the session modes described in [modes.md](../developer/references/modes.md), which share
+the plan contract in [plan.md](../discoverer/references/plan.md).
 
 ## Guard the boundary
 

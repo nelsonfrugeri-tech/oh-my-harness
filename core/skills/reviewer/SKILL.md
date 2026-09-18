@@ -17,7 +17,7 @@ metadata:
 # Reviewer
 
 Give the user one trustworthy review of a change and a conversation about it. Apply
-[modes.md](../feature/references/modes.md) for tiers, triage, isolation, and handoff, and
+[modes.md](../developer/references/modes.md) for tiers, triage, isolation, and handoff, and
 [review](../review/SKILL.md) for the frame, severities, finding shape, and canonical verdict.
 
 ## Guard the boundary

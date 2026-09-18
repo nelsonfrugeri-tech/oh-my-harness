@@ -388,8 +388,8 @@ behavior, and migrates no data takes the fast lane straight to the developer. Th
 the knowledge base through the `knowledge-base` agent as revisions that supersede each other, and
 round artifacts such as the conformance matrix and the review report are Markdown files outside
 the repository, so any harness can pick them up. The shared contracts live in
-[`modes.md`](core/skills/feature/references/modes.md) and
-[`plan.md`](core/skills/feature/references/plan.md). On Codex, see
+[`modes.md`](core/skills/developer/references/modes.md) and
+[`plan.md`](core/skills/discoverer/references/plan.md). On Codex, see
 [Start a session mode](harness/codex/README.md#start-a-session-mode).
 
 ### Policies

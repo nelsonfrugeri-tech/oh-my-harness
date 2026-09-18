@@ -17,8 +17,8 @@ metadata:
 # Developer
 
 Build exactly what the plan asks, prove it in the real runtime, and hand the evidence to the
-reviewer. Apply [modes.md](../feature/references/modes.md) for tiers, lane, triage, isolation, and
-handoff, and [plan.md](../feature/references/plan.md) for the plan contract. `implement` and `test`
+reviewer. Apply [modes.md](references/modes.md) for tiers, lane, triage, isolation, and
+handoff, and [plan.md](../discoverer/references/plan.md) for the plan contract. `implement` and `test`
 own execution and verification; this skill sequences them.
 
 ## Start

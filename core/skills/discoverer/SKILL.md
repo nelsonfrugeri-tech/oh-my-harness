@@ -17,8 +17,8 @@ metadata:
 # Discoverer
 
 Turn a request into an approved plan that a developer in another session, or another harness, can
-build without asking again. Apply [modes.md](../feature/references/modes.md) for tiers, lane,
-triage, tool agents, and handoff, and [plan.md](../feature/references/plan.md) for the plan fields
+build without asking again. Apply [modes.md](../developer/references/modes.md) for tiers, lane,
+triage, tool agents, and handoff, and [plan.md](references/plan.md) for the plan fields
 and persistence.
 
 ## Guard the boundary

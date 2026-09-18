@@ -88,7 +88,7 @@ when set, and teardown command.
 Each mode can run in its own session, preferably on a different harness. Handoffs use only plain
 Markdown and shell paths, never harness-specific tool names.
 
-- The plan lives in the knowledge base; see [plan.md](plan.md).
+- The plan lives in the knowledge base; see [plan.md](../../discoverer/references/plan.md).
 - Round artifacts, the developer's conformance matrix and the reviewer's report, are Markdown files
   outside every repository at
   `${XDG_STATE_HOME:-$HOME/.local/state}/oh-my-harness/handoffs/<project>/<feature>/`, named
