@@ -4,8 +4,8 @@ description: >-
   Turn a product or platform problem into a decision-ready feature contract with evidenced outcomes,
   explicit scope, relevant constraints, prioritization rationale, and observable acceptance. Use for
   product refinement, backlog or sequencing decisions, acceptance criteria, and product handoff to
-  the discoverer mode. Do not use for generic product-management teaching, technical design, implementation
-  planning, test strategy, or release execution.
+  the discoverer mode. Do not use for generic product-management teaching, technical design,
+  implementation planning, test strategy, or release execution.
 metadata:
   origin: native
   last_verified: 2026-09-07
