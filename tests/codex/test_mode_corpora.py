@@ -33,6 +33,8 @@ _EXPECTED_IDS = {
             "answer-review-disagreement",
             "teardown-after-merge",
             "review-against-plan",
+            "defect-local-fix",
+            "defect-falsifies-plan",
             "real-tests-every-line",
         }
     ),
@@ -52,6 +54,7 @@ _EXPECTED_IDS = {
             "matrix-is-not-verdict",
             "out-of-plan-proposal",
             "standards-blocker-outside-plan",
+            "finding-falsifies-plan",
             "structural-static-proof",
             "rereview-reruns-proof",
             "teardown-after-merge",

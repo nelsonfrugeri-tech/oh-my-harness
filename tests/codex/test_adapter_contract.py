@@ -341,6 +341,9 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertIn("the plan is the arbiter", mode)
             with self.subTest(check="proven Standards defects keep their severity"):
                 self.assertIn("keeps its severity even when the plan did not foresee it", mode)
+            with self.subTest(check="a finding that falsifies the plan triggers a replan"):
+                self.assertIn("falsifies the plan", mode)
+                self.assertIn("Falsifying result", mode)
 
     def test_session_modes_share_one_pull_request_lifecycle(self) -> None:
         def read(relative: str) -> str:

@@ -104,8 +104,12 @@ results, and the decisions settled in the discoverer's session, which you can re
 suggestion that would take the change beyond or against the plan is a deviation: decline it in the
 thread, citing the plan, and bring it to the user; never apply it silently. A proven defect, such
 as a correctness, security, or data-loss defect, keeps its severity even when the plan did not
-foresee it: fix it with the smallest change that removes it, and bring any scope change the fix
-needs to the user.
+foresee it. When its fix fits the plan, fix it with the smallest change that removes it. When the
+fix would change a decision, key result, or scenario of the plan, or the finding matches the plan's
+`Falsifying result`, the finding falsifies the plan: it is a deviation. Suspend only the affected
+part, keep the finding open with its severity, bring the evidence to the user and the discoverer,
+and resume that part only after the discoverer's new plan revision is approved. The rest of the
+work continues.
 
 1. **Reflect before deciding.** Read the comment, its evidence, and the code it points to. State
    the strongest version of the reviewer's point, check it against the plan, its key results, and

@@ -40,6 +40,10 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
   keeps its severity even when the plan did not foresee it, per `review`. Report it with its
   severity; when its fix would change scope, say so, so the user and the discoverer can decide the
   scope while the defect still counts.
+- When a proven finding invalidates a decision, key result, or scenario of the plan, or matches its
+  `Falsifying result`, say in the comment that it falsifies the plan and name the plan item. The
+  pull request stays draft until the discoverer's new revision is approved, and the next review
+  uses that revision as the Spec.
 - Never write the review, its findings, or its verdict to the knowledge base.
 
 ## Review

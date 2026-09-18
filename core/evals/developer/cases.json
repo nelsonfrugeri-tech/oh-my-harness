@@ -111,6 +111,24 @@
     ]
   },
   {
+    "id": "defect-local-fix",
+    "prompt": "O reviewer provou no PR #88 que o saldo em aberto ignora a última parcela paga, com um teste que falha. O plano já exige esse cálculo. Corrija.",
+    "required": [
+      "Reconhecer que a correção cabe no plano e corrigir direto, sem replanejar",
+      "Rodar o teste do reviewer antes e depois da correção"
+    ]
+  },
+  {
+    "id": "defect-falsifies-plan",
+    "prompt": "O reviewer provou no PR #88, com e2e, que o checkpoint em SQLite em memória perde as operações quando o serviço reinicia. O plano aprovado fixou SQLite em memória.",
+    "required": [
+      "Reconhecer que o achado falsifica uma decisão do plano e tratá-lo como desvio",
+      "Suspender só o trecho afetado, mantendo o achado aberto com a severidade",
+      "Levar a evidência ao usuário e ao discoverer e só retomar depois da nova revisão aprovada",
+      "Não trocar a decisão do plano em silêncio"
+    ]
+  },
+  {
     "id": "real-tests-every-line",
     "prompt": "Implemente o repositório que grava as faturas no Postgres e o serviço que calcula o saldo em aberto.",
     "required": [

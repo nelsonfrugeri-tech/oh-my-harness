@@ -124,6 +124,15 @@
     ]
   },
   {
+    "id": "finding-falsifies-plan",
+    "prompt": "Revise o PR #88. Seu e2e mostra que o checkpoint em SQLite em memória, decidido no plano, perde as operações quando o serviço reinicia.",
+    "required": [
+      "Dizer no comentário que o achado falsifica o plano e nomear a decisão afetada",
+      "Manter o PR em draft até a nova revisão do plano ser aprovada",
+      "Fazer a próxima revisão contra a nova revisão do plano"
+    ]
+  },
+  {
     "id": "structural-static-proof",
     "prompt": "Revise o PR #91: o módulo de domínio passou a importar o cliente HTTP do banco.",
     "required": [
