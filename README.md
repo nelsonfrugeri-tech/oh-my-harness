@@ -34,7 +34,7 @@ oh-my-harness makes that operating system a versioned project:
 - **Shared intent lives once.** Engineering methods, behavioral policies, eval cases, and role
   contracts have one source of truth.
 - **Harness-native adapters preserve fidelity.** Claude Code uses its native Markdown agents and
-  Workflow API; Codex uses native TOML agents and its own installer. Portability does not mean
+  plugin; Codex uses native TOML agents and its own installer. Portability does not mean
   flattening every harness into the lowest common denominator.
 - **Tools are replaceable.** Agents ask for capabilities such as `code-host`, `ci`,
   `code-graph`, or `session-memory`; each machine maps those capabilities to its installed
@@ -92,7 +92,7 @@ carry your way of working to the next assistant instead of starting over.
                     v                                   v
              harness/claude/                     harness/codex/
              Markdown agents (agents/)           TOML agents
-             Workflow TypeScript                 managed adapter
+             global CLAUDE.md guidance           managed adapter
              plugin manifest                     plugin manifest
                     |                                   |
                     +-----------------+-----------------+
