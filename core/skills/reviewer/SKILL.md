@@ -84,9 +84,11 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
    one comment-only review (event `COMMENT`, because a code host may reject approve or
    request-changes from the pull request's author) whose summary carries the verdict and the marker
    line
-   `Reviewed with the oh-my-harness reviewer mode.` that calibration counts. With no BLOCKER, mark
-   the draft pull request ready for review through `code-host` and say so in the report. With a
-   BLOCKER, it stays draft and the loop continues.
+   `Reviewed with the oh-my-harness reviewer mode.` that calibration counts. With no BLOCKER and no
+   pending plan revision, mark the draft pull request ready for review through `code-host` and say
+   so in the report. With a BLOCKER, it stays draft and the loop continues. With a finding of any
+   severity that falsifies the plan, it stays draft until the discoverer's new revision is
+   approved, the developer resumes, and you review the new diff against that revision.
 
 ## Write comments that help
 

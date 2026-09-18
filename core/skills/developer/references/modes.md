@@ -108,9 +108,10 @@ shell paths, never harness-specific tool names.
 | Developer | A draft pull request, opened through `code-host`, whose description carries the conformance matrix | Reviewer, when the user points it to the pull request |
 | Reviewer | Inline review comments on the pull request, or `file:line` findings in the terminal for unpushed code, and the final report in the terminal | Developer, when the user points it to them |
 
-The pull request moves from draft to ready only through the reviewer: after a review with no
-BLOCKER, the reviewer marks it ready for review through `code-host` and says so in its report. With
-a BLOCKER it stays draft and the loop continues.
+The pull request moves from draft to ready only through the reviewer: after a review with no BLOCKER
+and no pending plan revision, the reviewer marks it ready for review through `code-host` and says so
+in its report. With a BLOCKER, or while a finding that falsifies the plan waits for the
+discoverer's new revision, it stays draft and the loop continues.
 
 When the developer or the reviewer needs detail the plan does not hold, the plan note's provenance
 and the discoverer's session record in the knowledge base name the harness and session that wrote

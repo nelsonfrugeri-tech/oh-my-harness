@@ -55,6 +55,7 @@ _EXPECTED_IDS = {
             "out-of-plan-proposal",
             "standards-blocker-outside-plan",
             "finding-falsifies-plan",
+            "major-falsifies-plan-stays-draft",
             "structural-static-proof",
             "rereview-reruns-proof",
             "teardown-after-merge",

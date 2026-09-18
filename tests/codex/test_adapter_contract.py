@@ -362,14 +362,19 @@ class AdapterContractTest(unittest.TestCase):
             with self.subTest(section=section):
                 self.assertIn(f"**{section}.**", pull_request)
         self.assertIn("review guide", reviewer)
-        self.assertIn("With no BLOCKER, mark the draft pull request ready for review", reviewer)
+        self.assertIn(
+            "With no BLOCKER and no pending plan revision, mark the draft pull request ready",
+            reviewer,
+        )
         self.assertIn("With a BLOCKER, it stays draft", reviewer)
         self.assertIn("On the fast lane, the Spec is the one-sentence request", reviewer)
         self.assertIn("never as a loose general comment", reviewer)
         self.assertIn("The pull request moves from draft to ready only through the reviewer", modes)
+        self.assertIn("no BLOCKER and no pending plan revision", modes)
         for relative in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
             with self.subTest(path=relative):
                 self.assertIn("o developer abre o PR como **draft**", read(relative))
+                self.assertIn("sem blocker e sem revisão de plano pendente", read(relative))
 
     def test_session_modes_are_the_only_feature_workflow(self) -> None:
         # The three modes replaced the feature skill; the fast lane is the developer mode.

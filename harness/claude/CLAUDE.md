@@ -248,8 +248,8 @@ PR, com a skill `review` — o hook não o substitui, porque ele roda checks e n
 arquitetura nem cobertura.
 
 No fluxo dos session modes, o developer abre o PR como **draft**, com testes passando, e é o review
-do modo reviewer sem blocker que o move para *ready* — é assim que "não abra o PR sem testes
-passando e review sem blocker" se aplica aos modos.
+do modo reviewer sem blocker e sem revisão de plano pendente que o move para *ready* — é assim que
+"não abra o PR sem testes passando e review sem blocker" se aplica aos modos.
 
 Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin), em `gh pr create` e no
 tool de criação de PR do MCP do `code-host`: ele descobre e roda format, lint, typecheck e testes

@@ -133,6 +133,15 @@
     ]
   },
   {
+    "id": "major-falsifies-plan-stays-draft",
+    "prompt": "Revise o PR #88. O único achado é um MAJOR sem BLOCKER: o limite diário definido como KR do plano não cobre transferências agendadas, e o e2e mostra isso.",
+    "required": [
+      "Dizer no comentário que o achado MAJOR falsifica um KR do plano",
+      "Manter o PR em draft mesmo sem BLOCKER, enquanto a revisão do plano estiver pendente",
+      "Só marcar ready depois da nova revisão aprovada e de revisar o diff novo contra ela"
+    ]
+  },
+  {
     "id": "structural-static-proof",
     "prompt": "Revise o PR #91: o módulo de domínio passou a importar o cliente HTTP do banco.",
     "required": [
