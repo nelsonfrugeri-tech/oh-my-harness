@@ -28,7 +28,10 @@ Select the smallest mode that owns the outcome and read only its reference.
 
 For overlap, order modes by dependency: integration or retrieval, agent engineering, evaluation,
 then production. Do not load all references by default. Use model knowledge for a simple definition.
-Prefer a direct model call or deterministic workflow when no agent is needed.
+Prefer a direct model call or deterministic workflow when no agent is needed. When tools are the
+named extension axis, one agent loop discovers the tools, and deterministic code still decides and
+gates every side effect. For another named axis, such as providers or rules, design for that
+variation only.
 
 ## Compose authoritative skills
 
@@ -77,120 +80,10 @@ controls against the configured model and SDK before relying on them.
 
 ### Cost tracking
 
-```python
-from collections.abc import Mapping
-from dataclasses import dataclass
-from datetime import date
-from decimal import Decimal
-from types import MappingProxyType
-from urllib.parse import urlsplit
-
-def _require_nonempty(name: str, value: str) -> str:
-    if not isinstance(value, str):
-        raise TypeError(f"{name} must be a string")
-    normalized = value.strip()
-    if not normalized:
-        raise ValueError(f"{name} must be nonempty")
-    return normalized
-
-def _require_rate(name: str, value: Decimal) -> None:
-    if not isinstance(value, Decimal):
-        raise TypeError(f"{name} must be a Decimal")
-    if not value.is_finite() or value < 0:
-        raise ValueError(f"{name} must be finite and nonnegative")
-
-def _require_token_count(name: str, value: int) -> None:
-    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
-        raise ValueError(f"{name} must be a nonnegative integer")
-
-@dataclass(frozen=True)
-class PricingKey:
-    provider: str
-    model: str
-    tier: str
-
-    def __post_init__(self) -> None:
-        for name in ("provider", "model", "tier"):
-            object.__setattr__(self, name, _require_nonempty(name, getattr(self, name)))
-
-@dataclass(frozen=True)
-class TokenRates:
-    input_per_million_usd: Decimal
-    output_per_million_usd: Decimal
-
-    def __post_init__(self) -> None:
-        _require_rate("input_per_million_usd", self.input_per_million_usd)
-        _require_rate("output_per_million_usd", self.output_per_million_usd)
-
-@dataclass(frozen=True)
-class PricingSnapshot:
-    rates: Mapping[PricingKey, TokenRates]
-    source_url: str
-    as_of: str
-    observed_on: date
-
-    def __post_init__(self) -> None:
-        source_url = _require_nonempty("source_url", self.source_url)
-        parsed_source = urlsplit(source_url)
-        if parsed_source.scheme != "https" or not parsed_source.netloc:
-            raise ValueError("source_url must be an absolute HTTPS URL")
-        as_of = _require_nonempty("as_of", self.as_of)
-        if not isinstance(self.observed_on, date):
-            raise TypeError("observed_on must be a date")
-        try:
-            parsed_date = date.fromisoformat(as_of)
-        except ValueError as error:
-            raise ValueError("as_of must be an ISO 8601 calendar date") from error
-        if parsed_date.isoformat() != as_of:
-            raise ValueError("as_of must use YYYY-MM-DD")
-        if parsed_date > self.observed_on:
-            raise ValueError("as_of cannot be later than observed_on")
-        copied_rates = dict(self.rates)
-        if not all(
-            isinstance(key, PricingKey) and isinstance(rate, TokenRates)
-            for key, rate in copied_rates.items()
-        ):
-            raise TypeError("rates must map PricingKey to TokenRates")
-        object.__setattr__(self, "source_url", source_url)
-        object.__setattr__(self, "rates", MappingProxyType(copied_rates))
-
-class UnknownModelPricingError(LookupError):
-    """Raised when provider, model, or tier is absent from the snapshot."""
-
-def calculate_cost(
-    key: PricingKey,
-    input_tokens: int,
-    output_tokens: int,
-    pricing: PricingSnapshot,
-) -> Decimal:
-    _require_token_count("input_tokens", input_tokens)
-    _require_token_count("output_tokens", output_tokens)
-    if key not in pricing.rates:
-        raise UnknownModelPricingError(key)
-    rates = pricing.rates[key]
-    million = Decimal(1_000_000)
-    return (
-        Decimal(input_tokens) * rates.input_per_million_usd / million
-        + Decimal(output_tokens) * rates.output_per_million_usd / million
-    )
-
-# Log both cost and the evidence used to derive it.
-pricing_key = PricingKey(provider=provider, model=model, tier=service_tier)
-logger.info(
-    "llm_call_completed",
-    provider=pricing_key.provider,
-    model=pricing_key.model,
-    tier=pricing_key.tier,
-    input_tokens=usage.input_tokens,
-    output_tokens=usage.output_tokens,
-    cost_usd=calculate_cost(
-        pricing_key, usage.input_tokens, usage.output_tokens, verified_pricing
-    ),
-    price_source=verified_pricing.source_url,
-    price_as_of=verified_pricing.as_of,
-    price_observed_on=verified_pricing.observed_on.isoformat(),
-)
-```
+Compute cost from a dated pricing snapshot keyed by provider, model, and tier, with its source URL
+and as-of date, using exact decimal arithmetic, never float. Raise on a missing key instead of
+returning zero, and log token counts, cost, and the snapshot's source and date together so every
+reported cost is traceable to its price evidence.
 
 ## Completion gate
 

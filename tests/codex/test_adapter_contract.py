@@ -287,11 +287,99 @@ class AdapterContractTest(unittest.TestCase):
         names = [path.parent.name for path in sources]
         self.assertEqual(len(names), len(set(names)))
 
-    def test_feature_skill_uses_portable_orchestration(self) -> None:
-        content = _ROOT.joinpath("core/skills/feature/SKILL.md").read_text(encoding="utf-8")
+    def test_session_modes_use_portable_orchestration(self) -> None:
+        paths = (
+            "core/skills/discoverer/SKILL.md",
+            "core/skills/developer/SKILL.md",
+            "core/skills/reviewer/SKILL.md",
+            "core/skills/developer/references/modes.md",
+            "core/skills/discoverer/references/plan.md",
+        )
         forbidden = ("Workflow({", "AskUserQuestion", "use the tool `Agent`")
-        self.assertFalse(any(token in content for token in forbidden))
-        self.assertIn("Keep resumable state", content)
+        for relative in paths:
+            content = _ROOT.joinpath(relative).read_text(encoding="utf-8")
+            with self.subTest(path=relative):
+                self.assertFalse(any(token in content for token in forbidden))
+        # State that crosses sessions lives in harness-neutral artifacts the user hands over:
+        # the plan in the knowledge base and the pull request on the code host.
+        modes = " ".join(
+            _ROOT.joinpath("core/skills/developer/references/modes.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        self.assertIn("never harness-specific tool names", modes)
+        self.assertIn("The user controls every handoff", modes)
+        self.assertIn("The plan is the only artifact the modes persist there", modes)
+        for relative in paths:
+            with self.subTest(path=relative, check="no handoff directory"):
+                content = _ROOT.joinpath(relative).read_text(encoding="utf-8")
+                self.assertNotIn("handoff directory", content)
+                self.assertNotIn("oh-my-harness/handoffs", content)
+
+    def test_review_proof_matches_the_kind_of_claim(self) -> None:
+        def read(relative: str) -> str:
+            return " ".join(_ROOT.joinpath(relative).read_text(encoding="utf-8").split())
+
+        reviewer = read("core/skills/reviewer/SKILL.md")
+        developer = read("core/skills/developer/SKILL.md")
+        self.assertIn("a reproducible static check", reviewer)
+        self.assertIn("whose impact depends on the runtime", reviewer)
+        self.assertIn("Purely textual finding", developer)
+
+    def test_developer_reflects_before_accepting_or_defending(self) -> None:
+        developer = " ".join(
+            _ROOT.joinpath("core/skills/developer/SKILL.md").read_text(encoding="utf-8").split()
+        )
+
+        self.assertIn("Never accept a comment by default, and never defend code by default", developer)
+        self.assertIn("what you defend, why, and how", developer)
+        reviewer = " ".join(
+            _ROOT.joinpath("core/skills/reviewer/SKILL.md").read_text(encoding="utf-8").split()
+        )
+        for mode in (developer, reviewer):
+            with self.subTest(check="plan is the arbiter"):
+                self.assertIn("the plan is the arbiter", mode)
+            with self.subTest(check="proven Standards defects keep their severity"):
+                self.assertIn("keeps its severity even when the plan did not foresee it", mode)
+            with self.subTest(check="a finding that falsifies the plan triggers a replan"):
+                self.assertIn("falsifies the plan", mode)
+                self.assertIn("Falsifying result", mode)
+
+    def test_session_modes_share_one_pull_request_lifecycle(self) -> None:
+        def read(relative: str) -> str:
+            return " ".join(_ROOT.joinpath(relative).read_text(encoding="utf-8").split())
+
+        developer = read("core/skills/developer/SKILL.md")
+        pull_request = read("core/skills/developer/references/pull-request.md")
+        reviewer = read("core/skills/reviewer/SKILL.md")
+        modes = read("core/skills/developer/references/modes.md")
+        self.assertIn("a draft pull request, opened through the `code-host` capability", developer)
+        self.assertIn("Only the reviewer mode moves the pull request to ready.", developer)
+        self.assertIn("[pull-request.md](references/pull-request.md)", developer)
+        self.assertIn("plan revision <n | fast lane>", pull_request)
+        sections = ("TL;DR", "Why", "Decisions", "Review guide", "Where to look hardest", "Not verified")
+        for section in sections:
+            with self.subTest(section=section):
+                self.assertIn(f"**{section}.**", pull_request)
+        self.assertIn("review guide", reviewer)
+        self.assertIn(
+            "With no BLOCKER and no pending plan revision, mark the draft pull request ready",
+            reviewer,
+        )
+        self.assertIn("With a BLOCKER, it stays draft", reviewer)
+        self.assertIn("On the fast lane, the Spec is the one-sentence request", reviewer)
+        self.assertIn("never as a loose general comment", reviewer)
+        self.assertIn("The pull request moves from draft to ready only through the reviewer", modes)
+        self.assertIn("no BLOCKER and no pending plan revision", modes)
+        for relative in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
+            with self.subTest(path=relative):
+                self.assertIn("o developer abre o PR como **draft**", read(relative))
+                self.assertIn("sem blocker e sem revisão de plano pendente", read(relative))
+
+    def test_session_modes_are_the_only_feature_workflow(self) -> None:
+        # The three modes replaced the feature skill; the fast lane is the developer mode.
+        self.assertFalse(_ROOT.joinpath("core/skills/feature").exists())
+        self.assertFalse(_ROOT.joinpath("harness/claude/workflows").exists())
 
     def test_engineering_agents_load_the_evidence_skill(self) -> None:
         roles = (

@@ -1,0 +1,63 @@
+[
+  {
+    "id": "no-product-code",
+    "prompt": "Quero adicionar exportação de extratos em PDF no nosso serviço. Já pode ir criando os arquivos do módulo enquanto a gente conversa.",
+    "required": [
+      "Não criar nem editar arquivos no repositório do produto durante a descoberta",
+      "Manter rascunhos e diagramas fora do repositório",
+      "Explicar que o código fica para o modo developer depois do plano aprovado"
+    ]
+  },
+  {
+    "id": "kr-scenario-mapping",
+    "prompt": "Queremos que a busca de produtos fique mais rápida. Ninguém mediu o tempo atual. Monte o plano.",
+    "required": [
+      "Definir key results com métrica, método de medição e meta",
+      "Marcar a baseline como desconhecida, sem inventar número",
+      "Mapear cada key result a pelo menos um cenário com nível de teste"
+    ]
+  },
+  {
+    "id": "reuse-search",
+    "prompt": "Neste repositório existente, precisamos chamar a API de frete de um parceiro novo. Planeje onde isso entra.",
+    "required": [
+      "Buscar no repositório código reutilizável, como um cliente HTTP existente, antes de propor arquivo novo",
+      "Registrar no plano o que é reutilizado e o que é novo, com o motivo",
+      "Não propor interface, herança ou padrão sem um gatilho observado"
+    ]
+  },
+  {
+    "id": "fast-lane-redirect",
+    "prompt": "O rótulo do botão de salvar está escrito errado na tela de perfil. Faça a descoberta disso.",
+    "required": [
+      "Reconhecer que a mudança cabe na via rápida",
+      "Indicar o modo developer em vez de produzir um plano completo, sem cerimônia"
+    ]
+  },
+  {
+    "id": "tool-agents-by-function",
+    "prompt": "Vamos começar a descoberta da feature de cashback neste repositório que eu nunca abri.",
+    "required": [
+      "Chamar o explorer para mapear o repositório desconhecido",
+      "Consultar o knowledge-base sobre o histórico do projeto no início",
+      "Anunciar em uma linha os especialistas chamados e os pulados, com a razão de cada decisão"
+    ]
+  },
+  {
+    "id": "approved-plan-persisted",
+    "prompt": "O plano está bom, está aprovado. Pode seguir.",
+    "required": [
+      "Pedir ao knowledge-base para persistir a revisão aprovada com o texto literal do plano, sem escrever na base diretamente",
+      "Incluir no plano as alternativas consideradas e o resultado que falsificaria o plano",
+      "Informar o número da revisão e como iniciar o modo developer"
+    ]
+  },
+  {
+    "id": "mandatory-requirements",
+    "prompt": "O documento do cliente diz 'o sistema DEVE registrar auditoria de cada transferência' e 'o sistema PODE exportar CSV'. Monte os critérios de aceite.",
+    "required": [
+      "Marcar a auditoria como obrigatória e o CSV como opcional, citando a linha da fonte",
+      "Não rebaixar o requisito obrigatório por suposição"
+    ]
+  }
+]

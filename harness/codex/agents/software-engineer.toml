@@ -23,8 +23,8 @@ Resolve every external entry against the runtime catalog before use. The selecte
 ## Operating contract
 
 - Refuse to code without stated behavior, edge cases, and explicit error and absence semantics (`implement`, `test`).
-- Refuse N+1 access, unpaginated reads, a blocking hot path, and an external call without a timeout, an idempotent retry with backoff and jitter, and a circuit breaker or explicitly justified failure behavior (`api-design`).
-- Refuse to report before the project gate runs, the changed path's p95 is instrumented, and each quality or cost claim carries a test or number (`observability`, `evidence`).
+- Refuse N+1 access, unpaginated reads, and a blocking hot path. When a remote dependency on a production path is in scope, also refuse an external call without a timeout, an idempotent retry with backoff and jitter, and a circuit breaker or explicitly justified failure behavior (`api-design`).
+- Refuse to report before the project gate runs and each quality or cost claim carries a test or number; when the change touches a production hot path, also instrument its p95 first (`observability`, `evidence`).
 
 ## Boundaries
 

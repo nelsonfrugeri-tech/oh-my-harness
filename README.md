@@ -10,8 +10,8 @@ work—even when you change AI coding assistants, machines, or providers.
 [![License](https://img.shields.io/badge/license-Apache%202.0-4CAF50?style=flat-square)](LICENSE)
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
-[![Agents](https://img.shields.io/badge/agents-9-2496ED?style=flat-square)](#agents)
-[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#skills)
+[![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#agents)
+[![Skills](https://img.shields.io/badge/skills-30-DC5F00?style=flat-square)](#skills)
 
 </div>
 
@@ -34,7 +34,7 @@ oh-my-harness makes that operating system a versioned project:
 - **Shared intent lives once.** Engineering methods, behavioral policies, eval cases, and role
   contracts have one source of truth.
 - **Harness-native adapters preserve fidelity.** Claude Code uses its native Markdown agents and
-  Workflow API; Codex uses native TOML agents and its own installer. Portability does not mean
+  plugin; Codex uses native TOML agents and its own installer. Portability does not mean
   flattening every harness into the lowest common denominator.
 - **Tools are replaceable.** Agents ask for capabilities such as `code-host`, `ci`,
   `code-graph`, or `session-memory`; each machine maps those capabilities to its installed
@@ -92,7 +92,7 @@ carry your way of working to the next assistant instead of starting over.
                     v                                   v
              harness/claude/                     harness/codex/
              Markdown agents (agents/)           TOML agents
-             Workflow TypeScript                 managed adapter
+             global CLAUDE.md guidance           managed adapter
              plugin manifest                     plugin manifest
                     |                                   |
                     +-----------------+-----------------+
@@ -224,7 +224,7 @@ exist.
 | Custom agents | Native Markdown agents in the plugin | Native TOML agents through the full adapter |
 | Global policy | Merge the managed `CLAUDE.md` guidance | Installer-managed `AGENTS.md` block |
 | Hooks | Native plugin descriptor | Native plugin descriptor; explicit hook trust required |
-| Feature workflow | Shared `feature` skill; TypeScript prototype is source-only | `feature` skill with Codex-native orchestration |
+| Session modes | `claude --agent oh-my-harness:<mode>` | Mode instructions injected with `-c developer_instructions`; [documented gaps](harness/codex/README.md#start-a-session-mode) |
 | Tool providers | Machine capability table | Machine capability table |
 | Knowledge base | `knowledge-base` agent | `knowledge-base` agent |
 | Behavioral evals | Fresh-session protocol | Fresh-session protocol |
@@ -316,11 +316,22 @@ reported emergency bypass—not an access-control boundary.
 
 ### Agents
 
-Eight portable roles are represented natively in both harnesses. Each adapter adds its own ninth,
-harness-specific installation agent:
+Eleven portable roles are represented natively in both harnesses. Each adapter adds its own
+twelfth, harness-specific installation agent. The roles form three tiers plus an auditor:
+
+- **Modes** are primary sessions the user starts explicitly. They orchestrate and may call every
+  other agent; they are never spawned as subagents.
+- **Specialists** (the Engineering theme) are subagents a mode calls by triage on objective
+  signals: new module or boundary to `architect`, production code to `software-engineer`, LLM
+  surface to `ai-engineer`, ambiguous scope to `tech-pm`.
+- **Tool agents** are called by function at fixed points, without triage.
+- `evidence-reviewer` audits claims independently; the reviewer mode may use it for meta-review.
 
 | Theme | Agent | Responsibility |
 | --- | --- | --- |
+| Mode | `discoverer` | Research the objective and produce a user-approved plan with measurable key results and test scenarios, writing no product code |
+| Mode | `developer` | Build the latest plan revision test-first in an isolated worktree and runtime, prove it end to end, and open a draft pull request whose description carries a conformance matrix |
+| Mode | `reviewer` | Review the pull request or local worktree the user points it to: triage specialists into parallel independent reviews, test before commenting, comment inline, report one verdict in the terminal, and mark the pull request ready when no BLOCKER remains |
 | Engineering | `architect` | System design, ADRs, C4, API design, and explicit trade-offs |
 | Engineering | `software-engineer` | End-to-end implementation with scalability, resilience, responsiveness, quality, and cost constraints |
 | Engineering | `ai-engineer` | LLM integration, RAG, embeddings, data pipelines, and AI evaluation |
@@ -339,12 +350,14 @@ live under `harness/codex/agents/`.
 
 ### Skills
 
-The package contains 28 skills: 26 shared skills and one adapter skill for each harness. The catalog
+The package contains 30 skills: 28 shared skills and one adapter skill for each harness. The catalog
 below is intentionally complete and is checked against both plugin manifests.
 
 **Reasoning and presentation:** `evidence` · `didactic-visual`
 
-**Software delivery:** `implement` · `design` · `test` · `review` · `research` · `manage` · `environment` · `ci-cd` · `operate` · `feature`
+**Software delivery:** `implement` · `design` · `test` · `review` · `research` · `manage` · `environment` · `ci-cd` · `operate`
+
+**Session modes:** `discoverer` · `developer` · `reviewer`
 
 **Engineering knowledge:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
@@ -354,12 +367,29 @@ below is intentionally complete and is checked against both plugin manifests.
 
 ### Workflows
 
-The shared `feature` skill resolves material scope, keeps resumable state outside the product
-tree, delegates implementation and testing, and requests independent handoffs only when required.
-The repository also contains a more prescriptive Claude-native `create-feature.ts` prototype. It is
-source-only today: neither the native plugin manifest nor the synchronization runbook installs it,
-and there is no versioned runtime-discovery test. Treat the shared `feature` skill as the delivered
-contract, not the prototype as evidence of an equivalent cross-harness workflow runtime.
+Feature work runs through three session modes. Each is the primary session, started explicitly by
+the user; it is never spawned as a subagent or routed to automatically. Start one session per mode,
+preferably on different harnesses:
+
+```bash
+claude --agent oh-my-harness:discoverer   # approved plan, no product code
+claude --agent oh-my-harness:developer    # build the plan in an isolated worktree, open a draft PR
+claude --agent oh-my-harness:reviewer     # triaged review with inline comments and one verdict
+```
+
+A change describable in one sentence that creates no module, changes no public contract or LLM
+behavior, and migrates no data takes the fast lane: start the developer mode directly. That is the
+only shortcut; there is no lighter workflow.
+
+The user controls every handoff by telling each mode what to read. The plan is the only artifact the
+modes store in the knowledge base, through the `knowledge-base` agent, as revisions that supersede
+each other. The developer delivers a draft pull request whose description explains the change and
+carries the conformance matrix. The reviewer reviews the pull request, or unpushed code in a local
+worktree, comments inline, reports in the terminal, and marks the pull request ready for review
+only when no BLOCKER remains. The discoverer owns the plan contract in
+[`plan.md`](core/skills/discoverer/references/plan.md); the developer, the mode every path runs,
+holds the shared contract in [`modes.md`](core/skills/developer/references/modes.md). On Codex, see
+[Start a session mode](harness/codex/README.md#start-a-session-mode).
 
 ### Policies
 
@@ -372,10 +402,11 @@ Two shared policy blocks are embedded into each harness's global guidance:
 
 ### Evals
 
-`core/evals/` contains behavioral corpora for `evidence` and `didactic-visual`. They are manual,
-fresh-session protocols: repository tests validate corpus structure, while an evaluation run must
-record harness, model, configuration, commit, observation time, evaluator, and per-requirement
-evidence. A local test passing does not claim that a model behavior passed.
+`core/evals/` contains behavioral corpora for `evidence`, `didactic-visual`, `implement`, and the
+`discoverer`, `developer`, and `reviewer` session modes. They
+are manual, fresh-session protocols: repository tests validate corpus structure, while an evaluation
+run must record harness, model, configuration, commit, observation time, evaluator, and
+per-requirement evidence. A local test passing does not claim that a model behavior passed.
 
 ## Knowledge base
 

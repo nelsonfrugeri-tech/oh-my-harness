@@ -1,0 +1,78 @@
+[
+  {
+    "id": "greenfield-closed-categories",
+    "prompt": "Crie do zero um serviço Python que recebe pedidos de reembolso e os classifica em uma de quatro categorias fixas: produto com defeito, atraso na entrega, cobrança duplicada ou arrependimento. Cada categoria tem dados próprios. O repositório está vazio.",
+    "required": [
+      "Modelar as quatro categorias como enum ou Literal, não como strings livres",
+      "Usar um tipo nomeado com payload tipado por categoria, sem dict[str, str]",
+      "Configurar formatter, linter e type checker estrito já no primeiro slice",
+      "Adicionar um teste de arquitetura que verifica a direção das dependências"
+    ]
+  },
+  {
+    "id": "greenfield-llm-app",
+    "prompt": "Monte do zero um assistente de atendimento com LLM exposto por uma API HTTP, com tracing no Langfuse. O repositório não tem nenhuma convenção ainda. Me avise quando estiver pronto.",
+    "required": [
+      "Colocar o prompt em um arquivo .md ao lado do componente que o usa",
+      "Manter as mensagens ao usuário fora do entry point da API",
+      "Verificar um trace real no backend antes de declarar o tracing pronto",
+      "Não declarar pronto apenas com testes offline passando"
+    ]
+  },
+  {
+    "id": "extensible-tools",
+    "prompt": "O agente de um banco hoje paga faturas e resgata investimentos, mas novas tools vão chegar pelo servidor MCP do banco e precisam funcionar sem código novo. Implemente o agente.",
+    "required": [
+      "Usar um único loop de agente que descobre as tools no servidor MCP",
+      "Não criar um classificador com fluxos fixos por intenção",
+      "Manter cálculos e a decisão de efeitos colaterais em código determinístico",
+      "Passar toda escrita por um gate de confirmação, tratando tool desconhecida como escrita"
+    ]
+  },
+  {
+    "id": "repository-convention-wins",
+    "prompt": "Neste repositório existente, os resultados de domínio são TypedDict, os prompts ficam em prompts.py e o CONTRIBUTING.md exige esse padrão. Adicione o resultado de saldo insuficiente.",
+    "required": [
+      "Seguir a convenção do repositório com TypedDict e prompts.py",
+      "Não migrar para o padrão da referência nem propô-lo como correção sem pedido do usuário",
+      "Citar a convenção do repositório como fonte da decisão"
+    ]
+  },
+  {
+    "id": "settled-decision",
+    "prompt": "Já decidimos usar o create_agent do LangChain com middleware para o gate de escrita. Implemente o gate; é uma mudança pequena em um arquivo.",
+    "required": [
+      "Não perguntar de novo qual abordagem usar",
+      "Consultar a documentação atual do framework antes de escrever o código",
+      "Executar o teste ou o runtime antes de reportar a mudança como concluída"
+    ]
+  },
+  {
+    "id": "silent-legacy-bugfix",
+    "prompt": "Neste repositório existente, sem type checker, sem camadas e sem teste de arquitetura, a função que soma o total do carrinho ignora o desconto. Corrija o bug.",
+    "required": [
+      "Corrigir o bug com a menor mudança local e um teste que falha antes da correção",
+      "Não adicionar type checker, linter, teste de arquitetura, camadas ou ports",
+      "Não refatorar código vizinho que o bug não exige"
+    ]
+  },
+  {
+    "id": "edge-payload-parsed",
+    "prompt": "Crie do zero um serviço Python que recebe o webhook JSON de pagamento do gateway e aplica a baixa na fatura. Se o gateway estiver fora do ar, a baixa não pode ser perdida. O repositório está vazio.",
+    "required": [
+      "Converter o JSON do webhook em um modelo tipado logo na borda, sem passar dict para o domínio",
+      "Retornar os resultados de negócio esperados, como fatura já paga, como tipos nomeados, não como exceção",
+      "Usar exceção apenas para a falha de infraestrutura do gateway",
+      "Declarar o que roda uma vez, o que pode repetir e como a repetição é testada"
+    ]
+  },
+  {
+    "id": "independent-expected-values",
+    "prompt": "A função que calcula juros de atraso já existe e o documento de regras traz uma tabela com cinco exemplos de valores. Escreva os testes dessa função.",
+    "required": [
+      "Derivar os valores esperados da tabela do documento, não da saída atual da função",
+      "Escrever um teste por comportamento, com o nome descrevendo a regra em forma de frase",
+      "Mostrar que cada teste falha ao quebrar a regra uma vez antes de declarar a cobertura"
+    ]
+  }
+]

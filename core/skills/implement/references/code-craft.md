@@ -2,13 +2,15 @@
 
 Apply these constraints to changed code after reading the repository's own instructions, nearby
 code, and configured gates. Project contracts override generic preferences unless they would make
-the requested change unsafe or incorrect.
+the requested change unsafe or incorrect. For a concern the repository leaves undefined, also apply
+[way-of-building.md](way-of-building.md).
 
 ## Keep the design sufficient
 
 - Implement the smallest design that satisfies the observed behavior and acceptance criteria.
 - Keep related behavior together and split code when cohesion, ownership, testability, or change
-  rate gives a concrete reason. Do not split by a universal line or symbol count.
+  rate gives a concrete reason. Do not split by a universal line or symbol count; size is a signal
+  to inspect, and responsibility is the reason to split.
 - Keep the public surface no larger than current consumers require. A module may expose multiple
   related concepts when that is the cohesive project convention.
 - Add an abstraction or pattern only when observed variation, duplication, coupling, or a required
