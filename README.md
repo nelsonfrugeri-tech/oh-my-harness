@@ -225,6 +225,7 @@ exist.
 | Global policy | Merge the managed `CLAUDE.md` guidance | Installer-managed `AGENTS.md` block |
 | Hooks | Native plugin descriptor | Native plugin descriptor; explicit hook trust required |
 | Feature workflow | Shared `feature` skill; TypeScript prototype is source-only | `feature` skill with Codex-native orchestration |
+| Session modes | `claude --agent oh-my-harness:<mode>` | Mode instructions injected with `-c developer_instructions`; [documented gaps](harness/codex/README.md#start-a-session-mode) |
 | Tool providers | Machine capability table | Machine capability table |
 | Knowledge base | `knowledge-base` agent | `knowledge-base` agent |
 | Behavioral evals | Fresh-session protocol | Fresh-session protocol |
@@ -373,6 +374,23 @@ The repository also contains a more prescriptive Claude-native `create-feature.t
 source-only today: neither the native plugin manifest nor the synchronization runbook installs it,
 and there is no versioned runtime-discovery test. Treat the shared `feature` skill as the delivered
 contract, not the prototype as evidence of an equivalent cross-harness workflow runtime.
+
+For the full flow, start one session per mode, preferably on different harnesses:
+
+```bash
+claude --agent oh-my-harness:discoverer   # approved plan, no product code
+claude --agent oh-my-harness:developer    # build the plan in an isolated worktree
+claude --agent oh-my-harness:reviewer     # triaged review with proof and one verdict
+```
+
+A change describable in one sentence that creates no module, changes no public contract or LLM
+behavior, and migrates no data takes the fast lane straight to the developer. The plan persists in
+the knowledge base through the `knowledge-base` agent as revisions that supersede each other, and
+round artifacts such as the conformance matrix and the review report are Markdown files outside
+the repository, so any harness can pick them up. The shared contracts live in
+[`modes.md`](core/skills/feature/references/modes.md) and
+[`plan.md`](core/skills/feature/references/plan.md). On Codex, see
+[Start a session mode](harness/codex/README.md#start-a-session-mode).
 
 ### Policies
 

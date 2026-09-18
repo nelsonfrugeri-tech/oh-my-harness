@@ -107,6 +107,36 @@ Custom-agent TOMLs are copied instead of symlinked because current Codex release
 symlinked files reliably. A content manifest permits safe upgrades while refusing to overwrite a
 managed copy that the user changed locally.
 
+## Start a session mode
+
+Claude Code starts a mode with `claude --agent oh-my-harness:<mode>`. Codex has no equivalent flag:
+its documentation describes custom agents only as spawned subagents, and `codex --help` in
+`codex-cli 0.155.0` lists no agent selector. The closest equivalent injects the installed mode
+TOML's `developer_instructions` into the main session through the `-c` config override:
+
+```bash
+omh_mode() {
+  codex -c "developer_instructions=$(python3 -c 'import json, sys; t = open(sys.argv[1], encoding="utf-8").read(); print(json.dumps(t.split("\"\"\"\n", 1)[1].rsplit("\n\"\"\"", 1)[0]))' "${CODEX_HOME:-$HOME/.codex}/agents/$1.toml")" "${@:2}"
+}
+omh_mode discoverer   # or developer, reviewer
+```
+
+It requires the global adapter, which installs the mode TOMLs. The extraction relies on the
+`developer_instructions = """..."""` shape that the adapter renderer emits and on the absence of
+backslash escapes in that body.
+
+Verified on 2026-09-18 with `codex-cli 0.155.0` through `codex exec`: with the reviewer TOML
+injected, the main session identified itself as the reviewer mode, and without it, as the default
+agent. Known gaps against Claude Code:
+
+- The override replaces any `developer_instructions` already set in the user's config for that
+  session.
+- The mode's skills are not preloaded as Claude's `skills:` frontmatter does; the instructions name
+  them, and the user can invoke one explicitly, for example `$developer`.
+- The model and reasoning effort stay those of the user's config.
+- Spawning specialists from this main session follows Codex's documented subagent behavior; it was
+  not exercised by this probe.
+
 ## MCP integrations
 
 The installer wires Deja when its CLI is present. It also installs the official LangChain marketplace and its `langchain-skills` and
