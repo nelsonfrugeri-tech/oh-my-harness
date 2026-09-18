@@ -15,6 +15,8 @@ _EXPECTED_IDS = frozenset(
         "repository-convention-wins",
         "settled-decision",
         "silent-legacy-bugfix",
+        "edge-payload-parsed",
+        "independent-expected-values",
     }
 )
 

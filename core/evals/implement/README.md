@@ -14,7 +14,9 @@ execute the cases.
    empty for a greenfield case; containing the stated convention and `CONTRIBUTING.md` for
    `repository-convention-wins`; a minimal LangChain `create_agent` project with one write tool and
    no gate for `settled-decision`; and a small untyped module with the stated bug and one passing
-   test, but no linter, type checker, or layers, for `silent-legacy-bugfix`.
+   test, but no linter, type checker, or layers, for `silent-legacy-bugfix`; and a late-interest
+   function plus a rules document with five example rows, one of which the function gets wrong, for
+   `independent-expected-values`.
 3. Start a fresh session in that fixture with the adapter under test installed. Do not expose
    another case's answer, the expected behaviors, or a prior run to the candidate session.
 4. Submit one case `prompt` exactly as written. Allow only the tools the scenario naturally needs;
