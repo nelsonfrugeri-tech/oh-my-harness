@@ -156,6 +156,6 @@ Greenfield only. In an existing repository, use the gates it already has.
 ## Deliver
 
 - Update the README in the same change as any interface or command change, and run every command
-  it shows.
+  the change added or altered, after inspecting its effects per `implement`.
 - Keep temporary scripts, reports, and scratch files out of the repository.
 - Report what ran, where, the result, and what was not verified.
