@@ -136,6 +136,12 @@ agent. Known gaps against Claude Code:
 - The model and reasoning effort stay those of the user's config.
 - Spawning specialists from this main session follows Codex's documented subagent behavior; it was
   not exercised by this probe.
+- The adapter installs the modes as custom agents under `~/.codex/agents/`, so Codex can also spawn
+  them as subagents. Their instructions forbid that use, but nothing in Codex enforces it.
+- Hypothesis, untested: Codex's default `workspace-write` sandbox may block writes to sibling
+  worktrees outside the workspace, which the developer and reviewer create, and network access
+  that `code-host` needs through a CLI such as `gh` to open, comment on, or mark a pull request
+  ready.
 
 ## MCP integrations
 
