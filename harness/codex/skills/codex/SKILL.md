@@ -35,6 +35,12 @@ copies, and provider state are derived/provider-owned. Keep credentials, account
 paths, and personal directories out of repository. Keep diagnostics outside projects and do not
 modify Claude adapter files during Codex-only work.
 
+## Package migration to 3.0.0
+
+The `feature` skill is removed; the installer drops its orphaned link on the next run. The
+discoverer, developer, and reviewer session modes replace it: start one as described in
+`harness/codex/README.md`, section "Start a session mode", which also lists the Codex gaps.
+
 ## Package migration to 2.0.1
 
 The hook descriptor and commands move to `harness/codex/hooks/` and `core/hooks/`.
