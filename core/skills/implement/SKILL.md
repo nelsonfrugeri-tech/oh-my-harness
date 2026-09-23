@@ -138,7 +138,10 @@ passes does not reproduce the defect.
 ### IMPLEMENT
 
 1. Choose the smallest sufficient design and apply
-   [code-craft.md](references/code-craft.md) to the changed code.
+   [code-craft.md](references/code-craft.md) to the changed code. For a concern the repository
+   leaves undefined, such as a greenfield project or a layout the approved plan declares, also apply
+   [way-of-building.md](references/way-of-building.md), whose code organization, form, size, and
+   first-slice checks this skill does not restate.
 2. Change one coherent behavior at a time. Re-run the focused observation after each meaningful
    increment so diagnosis remains tight.
 3. Preserve established public contracts unless the task explicitly changes them. Update consumers

@@ -198,7 +198,7 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         implement_step = skill.split("### IMPLEMENT", 1)[1].split("### FOCUSED_GATE")[0]
 
         self.assertIn("[way-of-building.md](references/way-of-building.md)", implement_step)
-        self.assertIn("for a concern the repository leaves undefined", implement_step)
+        self.assertIn("For a concern the repository leaves undefined", implement_step)
         self.assertIn("[code-craft.md](references/code-craft.md)", implement_step)
 
     def test_each_mode_references_the_one_spec_with_its_own_verb(self) -> None:
