@@ -233,6 +233,7 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         }
         prompt = str(cases["code-organization-by-domain"]["prompt"])
 
+        self.assertIn("saldo restante como uma regra de negócio sem estado", prompt)
         self.assertIn("middleware com estado", prompt)
         self.assertIn("conta as chamadas do agente na sessão", prompt)
 
