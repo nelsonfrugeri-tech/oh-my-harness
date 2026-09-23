@@ -17,6 +17,7 @@ _EXPECTED_IDS = frozenset(
         "silent-legacy-bugfix",
         "edge-payload-parsed",
         "independent-expected-values",
+        "code-organization-by-domain",
     }
 )
 

@@ -17,6 +17,7 @@ _EXPECTED_IDS = {
             "tool-agents-by-function",
             "approved-plan-persisted",
             "mandatory-requirements",
+            "architecture-in-the-plan",
         }
     ),
     "developer": frozenset(
@@ -36,6 +37,11 @@ _EXPECTED_IDS = {
             "defect-local-fix",
             "defect-falsifies-plan",
             "real-tests-every-line",
+            "architecture-checks-first-slice",
+            "split-tool-module-by-family",
+            "oversized-file-re-evaluation",
+            "form-follows-state",
+            "comments-only-when-needed",
         }
     ),
     "reviewer": frozenset(
@@ -59,6 +65,10 @@ _EXPECTED_IDS = {
             "structural-static-proof",
             "rereview-reruns-proof",
             "teardown-after-merge",
+            "public-method-cap-major",
+            "domain-purity-major",
+            "mixed-file-types-major",
+            "stateless-class-major",
         }
     ),
 }
