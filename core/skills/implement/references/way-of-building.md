@@ -232,10 +232,9 @@ Greenfield only. In an existing repository, use the gates it already has.
   through the same entry point, with the `Protocol` exemption for adapters.
 - Optionally add a file-size check whose limit the user chooses. It flags a file for review; it
   does not decide the design.
-- Prove every required check is red-capable: introduce one omission or violation at a time, observe
-  that check fail, then restore it and observe the shared entry point pass. This applies separately
-  to formatter, linter, strict type checker, branch coverage, every disallowed architecture edge,
-  function length, and public method count.
+- Prove the checks you wrote are red-capable: violate one disallowed edge, one oversized function,
+  and one class over the cap, observe each check fail, then restore and observe the entry point
+  pass. The configured tools need no such proof; running them once is enough.
 
 ## Before writing
 

@@ -218,9 +218,11 @@ class CodeOrganizationSpecTest(unittest.TestCase):
     def test_first_slice_checks_each_have_red_capable_mutation_proof(self) -> None:
         spec = _flat(_SPEC)
 
-        self.assertIn("one omission or violation at a time", spec)
-        self.assertIn("observe that check fail", spec)
-        self.assertIn("then restore it and observe the shared entry point pass", spec)
+        self.assertIn("Prove the checks you wrote are red-capable", spec)
+        self.assertIn("one disallowed edge", spec)
+        self.assertIn("then restore and observe the entry point pass", spec)
+        # The configured tools are run, not mutated: proving ruff or mypy can fail is busywork.
+        self.assertIn("The configured tools need no such proof", spec)
 
     def test_implement_activates_on_greenfield_work(self) -> None:
         # Measured: with the reference one hop away the skill applies the specification, but two
@@ -250,10 +252,10 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("[code-craft.md](references/code-craft.md)", implement_step)
 
     def test_greenfield_spec_becomes_acceptance_and_completion_gate(self) -> None:
-        # Measured: loading the reference was necessary but not sufficient. Fresh Codex runs read
-        # it, then omitted first-slice tooling, the complete dependency graph, and stateless form.
-        # The workflow must turn the reference into observable criteria before writing and refuse
-        # completion when any applicable rule lacks a red-capable proof.
+        # Measured on this branch: a fresh session that loaded `implement` read the reference and
+        # satisfied every spec-derived requirement; the two failures never loaded the skill. So the
+        # workflow names the applicable rules before writing and audits them at the self-check,
+        # without turning each configured tool into a separate red-capability exercise.
         skill = _flat("core/skills/implement/SKILL.md")
         observe_step = skill.split("### OBSERVE_OR_DEFINE", 1)[1].split(
             "### RED_CAPABILITY"
@@ -264,13 +266,12 @@ class CodeOrganizationSpecTest(unittest.TestCase):
 
         for section in (observe_step, self_check):
             with self.subTest(section=section[:40]):
-                self.assertIn(
-                    "[way-of-building.md](references/way-of-building.md)", section
-                )
                 self.assertIn("rule-by-rule", section)
-                self.assertIn("red-capable", section)
 
+        self.assertIn("[way-of-building.md](references/way-of-building.md)", observe_step)
         self.assertIn("before writing", observe_step)
+        self.assertIn("the check that would catch each omission", observe_step)
+        self.assertIn("red-capable check that proved each one", self_check)
         self.assertIn("incomplete", self_check)
 
     def test_each_mode_references_the_one_spec_with_its_own_verb(self) -> None:
