@@ -2,7 +2,8 @@
 
 Use these cases to detect regressions in the `discoverer` session mode: it writes no product code,
 turns the objective into key results mapped to scenarios, searches for reuse before planning new
-code, sends fast-lane work to the developer, and calls tool agents by function. The corpus defines
+code, designs the code organization into the plan, sends fast-lane work to the developer, and calls
+tool agents by function. The corpus defines
 expected behaviors, not skill wording. Evaluation runs are manual; `tests/codex/test_mode_corpora.py`
 validates only the corpus format and does not execute the cases.
 
@@ -13,7 +14,8 @@ validates only the corpus format and does not execute the cases.
    a small service for `no-product-code`, `kr-scenario-mapping`, and `fast-lane-redirect`; an
    existing HTTP client module for `reuse-search`; a repository with no prior knowledge-base
    history for `tool-agents-by-function`; a preceding turn that presented a full plan for
-   `approved-plan-persisted`; and the quoted client document for `mandatory-requirements`.
+   `approved-plan-persisted`; the quoted client document for `mandatory-requirements`; and an empty
+   repository for `architecture-in-the-plan`.
 3. Start a fresh session in that fixture as the mode, for example
    `claude --agent oh-my-harness:discoverer`, or the Codex equivalent in `harness/codex/README.md`.
    Point the knowledge base at a disposable installation, never the user's own. Do not expose

@@ -3,8 +3,8 @@
 Use these cases to detect regressions in the `developer` session mode: it builds the latest plan
 revision in an isolated worktree and runtime, starts with a walking skeleton and tests, proves the
 result end to end before declaring done, opens a draft pull request whose description carries a
-conformance matrix with nothing beyond the plan, never deviates silently, and writes nothing but
-the plan to the knowledge base. The corpus defines expected behaviors, not skill wording. Evaluation
+conformance matrix with nothing beyond the plan, installs and obeys the code-organization
+specification, never deviates silently, and writes nothing but the plan to the knowledge base. The corpus defines expected behaviors, not skill wording. Evaluation
 runs are manual; `tests/codex/test_mode_corpora.py` validates only the corpus format and does not
 execute the cases.
 
@@ -18,7 +18,12 @@ execute the cases.
    unreachable payment sandbox for `blocked-external-dependency`; no plan for `fast-lane-guard`; an
    empty service with an external quote provider for `walking-skeleton-first`; a one-line fix in
    the plan for `small-work-direct`; an implemented feature with its tests for
-   `pr-conformance-matrix`; and a finished round for `kb-holds-only-plan`.
+   `pr-conformance-matrix`; a finished round for `kb-holds-only-plan`; an empty repository with no
+   gates for `architecture-checks-first-slice`; an `ai/agent/tools.py` module holding three tools and
+   its prompt in the same directory for `split-tool-module-by-family`; a finished implementation whose
+   proposal module has 180 lines for `oversized-file-re-evaluation`; a plan with one eligibility rule,
+   its result types, and a write-confirmation middleware for `form-follows-state`; and a plan with an
+   interest calculation for `comments-only-when-needed`.
 3. Start a fresh session in that fixture as the mode, for example
    `claude --agent oh-my-harness:developer`, or the Codex equivalent in `harness/codex/README.md`.
    Do not expose another case's answer, the expected behaviors, or a prior run to the candidate.

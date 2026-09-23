@@ -59,5 +59,17 @@
       "Marcar a auditoria como obrigatória e o CSV como opcional, citando a linha da fonte",
       "Não rebaixar o requisito obrigatório por suposição"
     ]
+  },
+  {
+    "id": "architecture-in-the-plan",
+    "prompt": "Vamos criar do zero um serviço de conciliação de pagamentos. Monte o plano para o developer construir.",
+    "required": [
+      "Nomear os bounded contexts do plano dizendo o que cada um possui e o que não possui",
+      "Desenhar a árvore de camadas com a direção de dependência, mantendo o domínio sem framework e sem I/O",
+      "Desenhar a árvore de diretórios com um único tipo de arquivo por diretório e o subdiretório de assets de cada componente",
+      "Listar as entidades e os value objects do domínio com seus relacionamentos",
+      "Dizer, para cada regra de negócio, qual módulo será o dono dela e qual a forma: função, classe ou tipo de dado",
+      "Não tratar o plano como pronto para aprovação enquanto esses campos faltarem"
+    ]
   }
 ]

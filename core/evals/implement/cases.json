@@ -74,5 +74,16 @@
       "Escrever um teste por comportamento, com o nome descrevendo a regra em forma de frase",
       "Mostrar que cada teste falha ao quebrar a regra uma vez antes de declarar a cobertura"
     ]
+  },
+  {
+    "id": "code-organization-by-domain",
+    "prompt": "Crie do zero um serviço Python de cobrança com um agente LLM que usa um prompt fixo. O repositório está vazio e ainda não tem convenção nenhuma.",
+    "required": [
+      "Organizar o código em diretórios por domínio, com camadas e direção de dependência declarada",
+      "Manter o domínio sem framework, sem I/O e sem cliente de modelo",
+      "Guardar o prompt em um subdiretório de assets do próprio componente, sem misturar .py e .md no mesmo diretório",
+      "Escrever a regra de negócio como função de módulo, o dado de domínio como tipo imutável e o middleware com estado como classe de uma responsabilidade",
+      "Instalar no primeiro slice o teste de arquitetura, o limite de tamanho de função e o limite de métodos públicos pelo entry point do repositório"
+    ]
   }
 ]
