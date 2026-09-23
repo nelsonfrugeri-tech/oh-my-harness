@@ -142,6 +142,21 @@ passes does not reproduce the defect.
 
 ### IMPLEMENT
 
+For a greenfield repository, or a new concern whose repository conventions leave these gates
+undefined, the first slice follows this order:
+
+```text
+INSTALL_GREENFIELD_GATES -> IMPLEMENT_PRODUCT -> RUN_GREENFIELD_GATES -> FIRST_GREEN
+```
+
+`INSTALL_GREENFIELD_GATES` happens before writing product code: apply the linked greenfield section
+of [way-of-building.md](references/way-of-building.md), with checked-in formatter, linter, strict
+type-checker, architecture, function-length, and public-method checks wired through the repository's
+own entry point. `RUN_GREENFIELD_GATES` runs that entry point against the implemented slice and
+includes the reference's red-capable proofs. The agent must not call the first slice green, move to
+`FOCUSED_GATE`, or report progress as green until that run passes. In an existing repository whose
+conventions already define the concern, use its gates instead of installing competing ones.
+
 1. Choose the smallest sufficient design and apply
    [code-craft.md](references/code-craft.md) to the changed code. For a concern the repository
    leaves undefined, such as a greenfield project or a layout the approved plan declares, also apply

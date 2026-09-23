@@ -23,6 +23,20 @@ def _section() -> str:
     return _flat(_SPEC).split("## Organize code by domain", 1)[1].split("## Add structure")[0]
 
 
+def _greenfield_gate_order_is_valid(workflow: str) -> bool:
+    markers = (
+        "INSTALL_GREENFIELD_GATES",
+        "IMPLEMENT_PRODUCT",
+        "RUN_GREENFIELD_GATES",
+        "FIRST_GREEN",
+    )
+    try:
+        positions = tuple(workflow.index(marker) for marker in markers)
+    except ValueError:
+        return False
+    return positions == tuple(sorted(positions))
+
+
 class CodeOrganizationSpecTest(unittest.TestCase):
     def test_spec_lives_in_one_dedicated_section_of_way_of_building(self) -> None:
         spec = _read(_SPEC)
@@ -286,6 +300,20 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("the check that would catch each omission", observe_step)
         self.assertIn("red-capable check that proved each one", self_check)
         self.assertIn("incomplete", self_check)
+
+    def test_greenfield_gates_run_before_product_code_and_the_first_green(self) -> None:
+        skill = _read("core/skills/implement/SKILL.md")
+        workflow = skill.split("### IMPLEMENT", 1)[1].split("### FOCUSED_GATE")[0]
+
+        self.assertTrue(_greenfield_gate_order_is_valid(workflow))
+        self.assertIn("before writing product code", workflow)
+        self.assertIn("must not call the first slice green", workflow)
+
+        late_gate_mutation = workflow.replace(
+            "INSTALL_GREENFIELD_GATES -> IMPLEMENT_PRODUCT -> RUN_GREENFIELD_GATES -> FIRST_GREEN",
+            "IMPLEMENT_PRODUCT -> FIRST_GREEN -> INSTALL_GREENFIELD_GATES -> RUN_GREENFIELD_GATES",
+        )
+        self.assertFalse(_greenfield_gate_order_is_valid(late_gate_mutation))
 
     def test_each_mode_references_the_one_spec_with_its_own_verb(self) -> None:
         verbs = {
