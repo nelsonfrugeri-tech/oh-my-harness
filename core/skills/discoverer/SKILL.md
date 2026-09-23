@@ -60,9 +60,9 @@ a key result; add nothing that no key result needs.
 - **Reuse first.** Search the repository, with `code-graph` when relationships matter, for code that
   already does the job. Record each reused path and each new file with the reason reuse does not
   fit.
-- **Layout.** For a new project, propose the folder layout. For existing code, say where each change
-  goes and whether it extends an existing file or needs a new one, following the repository's
-  conventions.
+- **Layout.** For existing code, say where each change goes and whether it extends an existing file
+  or needs a new one, following the repository's conventions. For a new project, the tree belongs to
+  the `Architecture` fields below.
 - **Contracts before code.** Name the entities and values with their fields, units, and
   invariants in the domain's own words; the ports between packages; and one outcome type per
   result each use case returns. Give each new module a one-line responsibility. The developer
@@ -70,9 +70,10 @@ a key result; add nothing that no key result needs.
 - **Language.** Load the language skill, such as `python` or `typescript`, for its idioms.
 - **Architecture.** Design the code organization per
   [organize code by domain](../implement/references/way-of-building.md#organize-code-by-domain) and
-  record it in the plan's `Architecture` fields: the bounded contexts, the layers with their
-  dependency direction, the directory tree, the domain entities with their relationships, and, for
-  every business rule, the module that will own it and its form. A plan without them is not ready.
+  record it in the plan's `Architecture` and `Domain entities` fields: the bounded contexts, the
+  layers with their dependency direction, the directory tree, and, for every business rule, the
+  module that will own it and its form, with the entities and their relationships in `Domain
+  entities`. A plan without them is not ready.
 - **Structure.** Apply the "Add structure only when it pays" table in
   [way-of-building.md](../implement/references/way-of-building.md) for interfaces, inheritance,
   SOLID, and design patterns. Record the code-standard revision and every concern that fell back to

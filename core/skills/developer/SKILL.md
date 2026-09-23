@@ -43,7 +43,10 @@ explanation of a failure stays a hypothesis until an observation in the runtime 
    [organize code by domain](../implement/references/way-of-building.md#organize-code-by-domain)
    through the repository's own entry point, so the pull request quality gate runs them: the
    architecture import test, with the layer allow-list and domain purity; the function-length cap;
-   and the public-method cap with its `Protocol` exemption. Every later slice obeys the spec.
+   and the public-method cap with its `Protocol` exemption. Install them only in a greenfield
+   repository, or when the approved plan declares this standard, and never on the fast lane; in any
+   other existing repository, use the gates it already has and record the gap in the pull request.
+   Every later slice obeys the spec the plan declared.
 4. Add one thin vertical slice at a time with `implement`, applying its code-craft and
    way-of-building references. Run the slice's unit and integration tests and the gates, then run
    it against the real system before the next slice.

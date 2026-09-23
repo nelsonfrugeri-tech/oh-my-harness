@@ -39,18 +39,18 @@ fields in the same order. A field with no content says `none`; a value not yet k
 ## Alternatives
 - <option considered> - <trade-off against the objective and key results> - <why it was not chosen>
 
-## Folder layout and reuse
+## Reuse
 - Reused: <path> - <what it provides>
 - New: <path> - <one-line responsibility>; <why reuse does not fit>
 
 ## Architecture
 - Bounded contexts: <name> - <what it owns, and what it does not>
 - Layers: <layer> may import <layer>; the domain imports no framework, I/O, or model client
-- Directory tree: <every directory and file, one file type per directory, with each component's asset subdirectory>
+- Directory tree: <every directory and file the change creates, with each component's asset subdirectory and no asset inside a module directory>
 - Business rules:
   | Rule | Module that owns it | Form |
   | --- | --- | --- |
-  | <rule in the domain's language> | <path> | <function | class | data type> |
+  | <rule in the domain's language> | <path> | <function, class, or data type> |
 
 ## Domain entities
 - <entity or value>: <fields with units, and invariant>; relates to <entity> as <relationship>
