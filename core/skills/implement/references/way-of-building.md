@@ -55,9 +55,10 @@ Each rule is stated so the author can check it against the diff.
 14. **Read top to bottom.** Guard clauses first and the happy path last, with no deep nesting.
     Names say what a thing is in the business language: no `utils`, `helpers`, or `manager`
     modules. No dead code, speculative parameters, or just-in-case branches.
-15. **Comments state why.** None by default; one line for a non-obvious constraint or rule.
-    Docstrings on public entry points and ports state the contract in one or two lines. Never
-    narrate what the code does or how it came to be.
+15. **Comments state why, and rarely.** Do not fill code with comments. Write one only for
+    genuinely complex code, in one line, explaining a non-obvious why. Docstrings only on the public
+    API of a library or a published interface, not on every entry point or port, and never on a
+    private function. No narration, no history, no restating the code.
 16. **Done means observed.** A slice is done when it ran in the real runtime at the smallest safe
     scope: each real dependency the slice uses answered, and, when the slice emits telemetry, the
     trace or metric is visible in its backend. Offline gates passing is necessary, not sufficient. Report the observed result, including a failing
@@ -71,6 +72,75 @@ return {"status": "error", "reason": "insufficient_balance", "missing": "1500.00
 class NotEnoughMoney(BaseModel, frozen=True):
     missing: Money  # int cents, formatted only when serialized
 ```
+
+## Organize code by domain
+
+One specification, three owners: the `discoverer` designs it into the plan, the `developer` builds
+it and installs its mechanical checks, and the `reviewer` polices it in the diff. It governs every
+file the change creates, including eval, harness, and experiment code, which measured as the worst
+area in both reference projects: a 302-line report module holding eleven mixed classes, and a
+293-line experiment runner holding a 112-line function.
+
+### Structure
+
+- Organize code by domain, in directories: declared layers with a one-way dependency direction. The
+  domain imports no framework, no I/O, and no model client.
+- Name and scope each bounded context. Modules, classes, methods, and files speak the domain's
+  language. A business rule lives in the domain, never in the entry point or an adapter.
+- **Keep assets out of the module directory.** Never mix source modules with the assets or
+  documentation they use. A component keeps its prompt or template in its own asset subdirectory,
+  such as `ai/agent/prompts/prompt.md` beside `ai/agent/*.py`, so the asset stays with its component
+  and neither listing mixes the two. A directory of sibling data or documentation artifacts, such as
+  an eval corpus with its README or a manifest beside its README, is not a violation, and neither is
+  the README or manifest a directory's own tooling requires.
+- A module holds one responsibility: two reasons to change means two modules. A module that
+  accumulates independent behaviors, such as three tools in one file, splits so each public function
+  keeps its private helpers beside it. Responsibility is the reason to split; the line count only
+  asks the question.
+- Integration between contexts crosses an explicit port: a `Protocol` owned by the consumer.
+
+### Choose the form: class, function, or data type
+
+| Kind of code | Form | Per module | Why |
+| --- | --- | --- | --- |
+| Domain data: entity, value object, result type | Frozen model or dataclass, no behavior beyond reading its own data | Many, while the module reads as one family; when it holds more than one family, split by family into a package with re-exports | The module reads as the domain's vocabulary |
+| Business rule | Module-level function, private helpers beside it | One public function | No state, directly testable, no lifecycle |
+| State with identity or a lifecycle, such as a middleware, gate, or session | Class with at most three public methods | One | The state justifies the object |
+| Adapter to an external system | Class implementing a declared `Protocol` | One | It mirrors the external contract; exempt from the public-method cap |
+| Class whose base declares its public methods, such as a `unittest.TestCase` subclass | Follow the framework | One | The framework names those methods, so the cap does not count them; a method the author adds is counted |
+| Orchestration facade | Function | One public | Composition, not an object |
+
+No state: a function. Data: an immutable type. A lifecycle: one class with one responsibility. A
+stateless class with public methods is a function in disguise. A stateful service or repository does
+not absorb a stateless business rule: pass state into the module-level function explicitly, and keep
+the lifecycle in the class that owns it.
+
+Measured in the reference project: `domain/planning.py` has no class at all and holds the rule as
+module functions, `propose` public beside the private `_propose_for` and `_calculate`;
+`ai/agent/gate.py` is a stateful middleware class; and `domain/proposal.py` today holds three
+families in one module, the payment plan, the questions, and the refusals, which this standard splits
+by family rather than keeps together.
+
+### Size
+
+- Target about 100 lines per file; up to about 130 is fine when the file is cohesive, as in the
+  136-line `domain/planning.py` that holds one rule plus its private helpers.
+- Between about 131 and 150 lines, inspect cohesion and split when a second responsibility appears.
+  No written re-evaluation is required in that band.
+- **Over 150 lines: a mandatory deep re-evaluation, not a block.** The developer writes in the pull
+  request description the module's single responsibility and either the split applied or why
+  splitting would spread one rule across files; the reviewer checks that analysis. A test module
+  carries the same re-evaluation, and its single responsibility is the behavior it exercises.
+- **A function over 50 lines is a hard limit.**
+- **A class with behavior exposes at most three public methods, a hard limit**, exempting an adapter
+  that implements a declared `Protocol`. A method a framework's base declares is not counted; a
+  method the author adds is counted, whatever the base.
+- A vocabulary module splits when its types stop reading as one family, never because of how many
+  types it holds: the package re-exports each family.
+
+The file-size numbers never become a failing gate: size is a signal to inspect, and responsibility
+is the reason to split. Only the function-length and public-method caps are enforced by the check the
+developer installs on the first slice of a greenfield project.
 
 ## Add structure only when it pays
 
@@ -130,8 +200,9 @@ framework APIs from official sources before use.
 
 **LLM and agent applications**
 
-- A prompt is a Markdown file next to the module that uses it, loaded once as a module constant by
-  one small helper.
+- A prompt is a Markdown file in the component's own asset subdirectory, such as
+  `ai/agent/prompts/prompt.md` beside `ai/agent/*.py`, loaded once as a module constant by one small
+  helper, so the asset never sits in the module directory.
 - When tools are an extension axis, use one agent loop over tools discovered from the tool server,
   such as MCP, instead of a classifier routing into fixed flows. Treat an unknown tool as a write.
 - Writes pass through a gate, such as middleware or an interrupt, that runs only a plan computed by
@@ -147,14 +218,23 @@ framework APIs from official sources before use.
 
 Greenfield only. In an existing repository, use the gates it already has.
 
-- Configure the formatter, linter, strict type checker, and branch coverage with a fail-under
-  threshold the user agrees to, and expose them through one repository entry point, such as a
-  Make target, so the PR quality gate discovers and runs them.
-- Add an architecture test that parses imports, maps each module to a layer, asserts only allowed
-  edges, and asserts the domain imports only the standard library plus the chosen validation
-  library.
+- Configure, in checked-in project configuration, an actual formatter, linter, and strict type
+  checker, plus branch coverage with a fail-under threshold the user agrees to. Expose them through
+  one repository entry point, such as a Make target, so the PR quality gate discovers and runs them.
+  A tool being absent from the current workstation is not an exemption: declare it as a development
+  dependency and report the gate unavailable if installation cannot run. A hand-written syntax or
+  AST checker is not a substitute for any of those tools.
+- Add an architecture test that parses imports, maps each module to a layer, declares the complete
+  allowed dependency graph, rejects every disallowed edge, and asserts the domain imports only the
+  standard library plus the chosen validation library. Checking only that the domain is pure is
+  incomplete because it leaves every edge between the other layers unspecified.
+- Add the function-length cap and the public-method cap of "Organize code by domain" as checks
+  through the same entry point, with the `Protocol` exemption for adapters.
 - Optionally add a file-size check whose limit the user chooses. It flags a file for review; it
   does not decide the design.
+- Prove the checks you wrote are red-capable: violate one disallowed edge, one oversized function,
+  and one class over the cap, observe each check fail, then restore and observe the entry point
+  pass. The configured tools need no such proof; running them once is enough.
 
 ## Before writing
 

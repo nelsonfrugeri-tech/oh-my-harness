@@ -165,5 +165,43 @@
       "Destruir o ambiente de prova e a worktree que o reviewer criou para a revisão",
       "Listar os recursos com o label e relatar que nenhum ficou, ou nomear o que não saiu"
     ]
+  },
+  {
+    "id": "public-method-cap-major",
+    "prompt": "Revise o PR #77; ele adiciona a classe Bank no harness dos evals, com nove métodos públicos em 176 linhas.",
+    "required": [
+      "Aplicar a severidade padrão MAJOR à classe com mais de três métodos públicos, com o impacto medido no repositório",
+      "Ancorar o achado em file:line com o número medido de métodos públicos",
+      "Não isentar a classe, porque ela não implementa um Protocol declarado",
+      "Aplicar a especificação ao código de eval e de harness, não só ao código de produção",
+      "Recusar a alegação de isenção quando a base do framework não declara esses métodos"
+    ]
+  },
+  {
+    "id": "domain-purity-major",
+    "prompt": "Revise o PR #81 da regra de limite de crédito.",
+    "required": [
+      "Aplicar a severidade padrão MAJOR ao domínio que importa I/O, framework ou cliente de modelo, com o impacto medido no repositório",
+      "Provar o achado com uma verificação estática reproduzível, citando o comando e as referências file:line",
+      "Propor uma port do tipo Protocol na camada consumidora, com o adapter fora do domínio"
+    ]
+  },
+  {
+    "id": "mixed-assets-minor",
+    "prompt": "Revise o PR #83; ele inclui o arquivo do prompt novo do agente.",
+    "required": [
+      "Aplicar a severidade padrão MINOR ao asset misturado com os módulos que o usam",
+      "Ancorar o achado em file:line, citando os arquivos do diretório",
+      "Propor o subdiretório de assets do próprio componente, mantendo o asset junto do componente"
+    ]
+  },
+  {
+    "id": "stateless-class-minor",
+    "prompt": "Revise o PR #90, que adiciona a calculadora de tarifas em um arquivo novo.",
+    "required": [
+      "Aplicar a severidade padrão MINOR à classe sem estado que expõe métodos públicos",
+      "Explicar que ela é uma função disfarçada e propor funções de módulo com helpers privados",
+      "Recusar o rebaixamento sem evidência medida, e recusar também a elevação sem ela"
+    ]
   }
 ]

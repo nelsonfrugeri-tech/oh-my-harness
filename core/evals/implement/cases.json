@@ -13,7 +13,7 @@
     "id": "greenfield-llm-app",
     "prompt": "Monte do zero um assistente de atendimento com LLM exposto por uma API HTTP, com tracing no Langfuse. O repositório não tem nenhuma convenção ainda. Me avise quando estiver pronto.",
     "required": [
-      "Colocar o prompt em um arquivo .md ao lado do componente que o usa",
+      "Colocar o prompt em um arquivo Markdown no subdiretório de assets do componente que o usa",
       "Manter as mensagens ao usuário fora do entry point da API",
       "Verificar um trace real no backend antes de declarar o tracing pronto",
       "Não declarar pronto apenas com testes offline passando"
@@ -73,6 +73,17 @@
       "Derivar os valores esperados da tabela do documento, não da saída atual da função",
       "Escrever um teste por comportamento, com o nome descrevendo a regra em forma de frase",
       "Mostrar que cada teste falha ao quebrar a regra uma vez antes de declarar a cobertura"
+    ]
+  },
+  {
+    "id": "code-organization-by-domain",
+    "prompt": "Crie do zero um serviço Python de cobrança com um agente LLM que usa um prompt fixo. Calcule o saldo restante como uma regra de negócio sem estado e inclua um middleware com estado que conta as chamadas do agente na sessão. O repositório está vazio e ainda não tem convenção nenhuma.",
+    "required": [
+      "Organizar o código em diretórios por domínio, com camadas e direção de dependência declarada",
+      "Manter o domínio sem framework, sem I/O e sem cliente de modelo",
+      "Guardar o prompt em um subdiretório de assets do próprio componente, fora do diretório dos módulos que o usam",
+      "Escrever a regra de negócio como função de módulo, o dado de domínio como tipo imutável e o middleware com estado como classe de uma responsabilidade",
+      "Instalar no primeiro slice o teste de arquitetura, o limite de tamanho de função e o limite de métodos públicos pelo entry point do repositório"
     ]
   }
 ]

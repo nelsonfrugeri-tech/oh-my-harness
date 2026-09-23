@@ -48,6 +48,7 @@ reviewer can check, not only a status.
 | S1 | <scenario> | <pass / fail> | <test name and run output> |
 | AC1 | <criterion> | <pass / fail> | <command and result> |
 
+**Files over 150 lines:** <none, or each file with its single responsibility and the split applied, or why splitting would spread one rule>
 **Nothing beyond the plan:** <none, or each extra change with its justification>
 **Deviations:** <none, or each one with the user's decision>
 **Environment:** <owner, label, endpoints, teardown command>

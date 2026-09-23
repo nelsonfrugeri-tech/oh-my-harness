@@ -194,6 +194,12 @@ The mandatory implementation constraints live in
 Project contracts override generic preferences. Do not split by a universal line or symbol count,
 and do not force a pattern where the repository provides no evidence that it helps.
 
+For a concern the repository leaves undefined, such as a greenfield project,
+[`way-of-building.md`](core/skills/implement/references/way-of-building.md#organize-code-by-domain)
+adds the code-organization specification the three session modes share. Its function-length and
+public-method caps, and the re-evaluation it asks for in an oversized file, are the one exception to
+the universal-count rule, and all three apply only where a project adopted them.
+
 ### Language contract
 
 Language follows the artifact's role:

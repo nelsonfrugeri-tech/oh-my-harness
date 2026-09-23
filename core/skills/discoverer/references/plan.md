@@ -28,7 +28,7 @@ fields in the same order. A field with no content says `none`; a value not yet k
 ## Scenarios
 | ID | KR | Scenario | Level |
 | --- | --- | --- | --- |
-| S1 | KR1 | <given, when, then> | <unit | integration | eval-deterministic | eval-probabilistic> |
+| S1 | KR1 | <given, when, then> | <unit, integration, eval-deterministic, or eval-probabilistic> |
 
 ## Acceptance criteria
 - <mandatory | optional> <observable criterion> - source: "<exact source line>" - proof: <command or check>
@@ -39,12 +39,21 @@ fields in the same order. A field with no content says `none`; a value not yet k
 ## Alternatives
 - <option considered> - <trade-off against the objective and key results> - <why it was not chosen>
 
-## Folder layout and reuse
+## Reuse
 - Reused: <path> - <what it provides>
 - New: <path> - <one-line responsibility>; <why reuse does not fit>
 
+## Architecture
+- Bounded contexts: <name> - <what it owns, and what it does not>
+- Layers: <layer> may import <layer>; the domain imports no framework, I/O, or model client
+- Directory tree: <every directory and file the change creates, with each component's asset subdirectory and no asset inside a module directory>
+- Business rules:
+  | Rule | Module that owns it | Form |
+  | --- | --- | --- |
+  | <rule in the domain's language> | <path> | <function, class, or data type> |
+
 ## Domain entities
-- <entity or value>: <fields with units, and invariant>
+- <entity or value>: <fields with units, and invariant>; relates to <entity> as <relationship>
 - Port <name>: <operations the consumer needs>
 - Outcomes of <use case>: <one named type per result the caller handles differently>
 
@@ -63,6 +72,10 @@ fields in the same order. A field with no content says `none`; a value not yet k
 ## Falsifying result
 - <the observation that would show this plan is wrong, and what it triggers: a deviation returned to the user, or a new discovery>
 ```
+
+The `Architecture` fields and the relationships between domain entities are required, designed
+against [organize code by domain](../../implement/references/way-of-building.md#organize-code-by-domain):
+a plan without them is not ready.
 
 Every requirement from the sources is an acceptance criterion marked mandatory or optional with the
 exact line that says so. Never downgrade a mandatory one by assumption; re-check the list when a

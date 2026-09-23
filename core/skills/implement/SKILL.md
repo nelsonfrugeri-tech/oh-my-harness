@@ -4,8 +4,9 @@ description: >-
   Executes bounded repository changes through project discovery, mode selection, red-capable
   verification, incremental implementation, focused and broad gates, and an author self-check.
   Use for feature, bug, refactor, configuration, documentation, migration, generated-code, and
-  flaky or asynchronous implementation work. Do not use it to issue an independent review or merge
-  recommendation.
+  flaky or asynchronous implementation work, and for greenfield work: building a new service,
+  project, or module from scratch, in an empty repository or one with no convention for it yet.
+  Do not use it to issue an independent review or merge recommendation.
 metadata:
   type: capability
   version: 2.0.0
@@ -104,6 +105,10 @@ should remain lightweight; a generated migration may require both `generated` an
 
 ### OBSERVE_OR_DEFINE
 
+- For greenfield work, or a concern whose repository conventions leave it undefined, load
+  [way-of-building.md](references/way-of-building.md) before writing, and name rule-by-rule which
+  of its rules the slice must satisfy and the check that would catch each omission. A rule is not
+  applicable only with evidence from the slice or from repository convention.
 - For a bug, capture the smallest reliable reproduction with environment, input, expected result,
   actual result, and frequency. Keep root-cause explanations as hypotheses until discriminating
   evidence supports them. Load [workflow-bug-fix.md](references/workflow-bug-fix.md).
@@ -137,8 +142,26 @@ passes does not reproduce the defect.
 
 ### IMPLEMENT
 
+For a greenfield repository, or a new concern whose repository conventions leave these gates
+undefined, the first slice follows this order:
+
+```text
+INSTALL_GREENFIELD_GATES -> IMPLEMENT_PRODUCT -> RUN_GREENFIELD_GATES -> FIRST_GREEN
+```
+
+`INSTALL_GREENFIELD_GATES` happens before writing product code: apply the linked greenfield section
+of [way-of-building.md](references/way-of-building.md), with checked-in formatter, linter, strict
+type-checker, architecture, function-length, and public-method checks wired through the repository's
+own entry point. `RUN_GREENFIELD_GATES` runs that entry point against the implemented slice and
+includes the reference's red-capable proofs. The agent must not call the first slice green, move to
+`FOCUSED_GATE`, or report progress as green until that run passes. In an existing repository whose
+conventions already define the concern, use its gates instead of installing competing ones.
+
 1. Choose the smallest sufficient design and apply
-   [code-craft.md](references/code-craft.md) to the changed code.
+   [code-craft.md](references/code-craft.md) to the changed code. For a concern the repository
+   leaves undefined, such as a greenfield project or a layout the approved plan declares, also apply
+   [way-of-building.md](references/way-of-building.md), whose code organization, form, size, and
+   first-slice checks this skill does not restate.
 2. Change one coherent behavior at a time. Re-run the focused observation after each meaningful
    increment so diagnosis remains tight.
 3. Preserve established public contracts unless the task explicitly changes them. Update consumers
@@ -180,6 +203,9 @@ before expensive or stateful ones.
 Before handoff, inspect the task, acceptance criteria, final diff, focused and broad evidence,
 security-sensitive boundaries, generated artifacts, documentation impact, and code-craft alignment.
 Confirm that every changed file is in scope and that no temporary artifact entered the repository.
+For greenfield work, audit the final diff rule-by-rule against the rules named before writing, with
+the red-capable check that proved each one. A rule left without its check makes the work incomplete:
+return to the missing state instead of reporting `completed`.
 
 This is an author self-check. Report corrections made and unresolved risks, but never issue an
 independent review verdict, approval, or merge recommendation. When independent review is required,

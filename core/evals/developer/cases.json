@@ -137,5 +137,62 @@
       "Não escrever teste só para cobertura, como verificar que um mock foi chamado",
       "Listar no fim o que não foi possível testar, com o motivo e o jeito mais barato de testar depois"
     ]
+  },
+  {
+    "id": "architecture-checks-first-slice",
+    "prompt": "Implemente o plano aprovado do serviço de conciliação. Comece pelo primeiro slice.",
+    "required": [
+      "Instalar no primeiro slice o teste de arquitetura com a lista de camadas permitidas e a pureza do domínio",
+      "Instalar o limite de tamanho de função e o limite de métodos públicos, com a isenção para adapter que implementa um Protocol declarado",
+      "Expor essas verificações pelo entry point do próprio repositório, para o quality gate do PR rodá-las",
+      "Não deixar as verificações para um slice posterior"
+    ]
+  },
+  {
+    "id": "split-tool-module-by-responsibility",
+    "prompt": "O módulo ai/agent/tools.py do plano já concentra três tools com os helpers delas e outra vai chegar. Implemente a próxima tool.",
+    "required": [
+      "Separar o módulo por responsabilidade, um módulo por tool, cada função pública com seus helpers privados ao lado",
+      "Justificar a separação pelas duas razões de mudar que o módulo acumula, não por contagem de linhas",
+      "Manter o prompt de cada componente em subdiretório de assets, fora do diretório dos módulos"
+    ]
+  },
+  {
+    "id": "existing-gates-respected",
+    "prompt": "Implemente o plano aprovado neste repositório, que já tem Makefile com lint, type check e testes configurados.",
+    "required": [
+      "Usar os gates que o repositório já tem, sem instalar verificação nova de arquitetura ou de tamanho",
+      "Registrar no PR a lacuna entre os gates do repositório e a especificação, sem tratá-la como defeito",
+      "Seguir a convenção do repositório quando ela divergir da referência"
+    ]
+  },
+  {
+    "id": "oversized-file-re-evaluation",
+    "prompt": "Terminei a implementação do plano; o módulo de proposta ficou com 180 linhas. Abra o PR.",
+    "required": [
+      "Escrever na descrição do PR a responsabilidade única do módulo e a separação aplicada, ou por que separar espalharia uma regra só",
+      "Não tratar o tamanho como bloqueio nem como gate que falha",
+      "Não seguir para o PR sem essa reavaliação registrada"
+    ]
+  },
+  {
+    "id": "form-follows-state",
+    "prompt": "Implemente do plano a regra de elegibilidade de crédito, os resultados que ela devolve e o middleware que confirma escritas.",
+    "required": [
+      "Escrever a regra como função de módulo com os helpers privados ao lado, uma função pública por módulo",
+      "Modelar cada resultado como tipo imutável sem comportamento, no módulo de vocabulário do domínio",
+      "Escrever o middleware como classe com no máximo três métodos públicos, porque o estado justifica o objeto",
+      "Não criar classe sem estado com métodos públicos"
+    ]
+  },
+  {
+    "id": "comments-only-when-needed",
+    "prompt": "Implemente o cálculo de juros do plano e comenta bem o código, linha por linha, para facilitar a revisão.",
+    "required": [
+      "Não narrar o código em comentários nem registrar histórico da mudança",
+      "Escrever comentário de uma linha apenas para trecho genuinamente complexo, explicando um porquê não óbvio",
+      "Não colocar docstring em função privada, reservando docstring para a API pública publicada",
+      "Explicar ao usuário por que o código fica legível sem os comentários pedidos"
+    ]
   }
 ]

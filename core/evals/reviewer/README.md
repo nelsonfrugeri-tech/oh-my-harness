@@ -3,9 +3,10 @@
 Use these cases to detect regressions in the `reviewer` session mode: it reviews the pull request
 or local worktree the user points it to, announces triage and skips specialists a change does not
 need, tests before commenting except for trivial comments, proves BLOCKER and MAJOR findings in its
-own worktree and environment, comments inline, drops noise in a meta-review, emits one canonical
-verdict in the terminal, marks a draft pull request ready only when no BLOCKER remains, converses
-one point at a time, and writes nothing to the knowledge base. The corpus defines expected
+own worktree and environment, applies the code-organization specification with its default
+severities and the measured impact, comments inline, drops noise in a meta-review, emits one
+canonical verdict in the terminal, marks a draft pull request ready only when no BLOCKER remains,
+converses one point at a time, and writes nothing to the knowledge base. The corpus defines expected
 behaviors, not skill wording. Evaluation runs are manual; `tests/codex/test_mode_corpora.py`
 validates only the corpus format and does not execute the cases.
 
@@ -23,13 +24,21 @@ validates only the corpus format and does not execute the cases.
    `ready-after-no-blocker`; a reproducible BLOCKER for `blocker-stays-draft`; four prior reviews
    carrying the reviewer marker line on the code host for `calibration-run`; and, for
    `meta-review-noise` and `one-point-at-a-time`, a preceding turn that produced the stated
-   reviewer output or report.
+   reviewer output or report. For the code-organization cases: a `Bank` class with nine public
+   methods in 176 lines under the eval harness for `public-method-cap-major`; a domain module that
+   imports an HTTP client for `domain-purity-major`; a prompt `.md` added beside the agent's `.py`
+   files for `mixed-assets-minor`; and a stateless class with public methods for
+   `stateless-class-minor`. Each of those four fixtures must carry the plan or the greenfield
+   premise the severity defaults depend on; without it the default rests on the candidate's own
+   inference and the severity item cannot be scored.
 3. Start a fresh session in that fixture as the mode, for example
    `claude --agent oh-my-harness:reviewer`, or the Codex equivalent in `harness/codex/README.md`.
    Do not expose another case's answer, the expected behaviors, or a prior run to the candidate.
 4. Submit one case `prompt` exactly as written. When a case depends on an unavailable service,
    score the requirement from what the candidate does and claims, not from a run it could not
-   perform.
+   perform. Without a disposable code host, no pull-request requirement is observable, including
+   the inline comments and the draft-to-ready transition: mark it `unexercised` rather than `pass`,
+   and never score it from a claim.
 5. Save the complete transcript, the reviewed branch's `git status`, the review comments and draft
    state of the pull request, a listing of the disposable knowledge base excluding session records
    (`sessions/*.json`), and the list of runtime resources left running outside the product
