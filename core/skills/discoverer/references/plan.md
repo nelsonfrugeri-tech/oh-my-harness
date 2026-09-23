@@ -28,7 +28,7 @@ fields in the same order. A field with no content says `none`; a value not yet k
 ## Scenarios
 | ID | KR | Scenario | Level |
 | --- | --- | --- | --- |
-| S1 | KR1 | <given, when, then> | <unit | integration | eval-deterministic | eval-probabilistic> |
+| S1 | KR1 | <given, when, then> | <unit, integration, eval-deterministic, or eval-probabilistic> |
 
 ## Acceptance criteria
 - <mandatory | optional> <observable criterion> - source: "<exact source line>" - proof: <command or check>

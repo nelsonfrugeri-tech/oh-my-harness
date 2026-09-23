@@ -89,9 +89,9 @@ why with evidence, design, decisions with the alternatives rejected, a review gu
 order, where to look hardest, how to verify, verification done with the conformance matrix, and
 what was not verified.
 
-Every file the change leaves over 150 lines carries its deep re-evaluation in the description: the
-module's single responsibility and either the split applied or why splitting would spread one rule
-across files.
+In a repository that adopted this standard, or when the plan declares it, every file the change
+leaves over 150 lines carries its deep re-evaluation in the description: the module's single
+responsibility and either the split applied or why splitting would spread one rule across files.
 
 The matrix is an author self-check and input to independent review; it can never become a verdict
 or a merge recommendation.

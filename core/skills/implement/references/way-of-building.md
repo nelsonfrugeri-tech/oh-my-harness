@@ -93,19 +93,21 @@ area in both reference projects: a 302-line report module holding eleven mixed c
   and neither listing mixes the two. A directory of sibling data or documentation artifacts, such as
   an eval corpus with its README or a manifest beside its README, is not a violation, and neither is
   the README or manifest a directory's own tooling requires.
-- A module holds one behavior. A module that holds more than one behavior splits by behavior, each
-  public function keeping its private helpers beside it.
+- A module holds one responsibility: two reasons to change means two modules. A module that
+  accumulates independent behaviors, such as three tools in one file, splits so each public function
+  keeps its private helpers beside it. Responsibility is the reason to split; the line count only
+  asks the question.
 - Integration between contexts crosses an explicit port: a `Protocol` owned by the consumer.
 
 ### Choose the form: class, function, or data type
 
 | Kind of code | Form | Per module | Why |
 | --- | --- | --- | --- |
-| Domain data: entity, value object, result type | Frozen model or dataclass, no behavior beyond reading its own data | Many, while the module still reads as one family; when it stops, split by family into a package with re-exports | The module reads as the domain's vocabulary |
+| Domain data: entity, value object, result type | Frozen model or dataclass, no behavior beyond reading its own data | Many, while the module reads as one family; when it holds more than one family, split by family into a package with re-exports | The module reads as the domain's vocabulary |
 | Business rule | Module-level function, private helpers beside it | One public function | No state, directly testable, no lifecycle |
 | State with identity or a lifecycle, such as a middleware, gate, or session | Class with at most three public methods | One | The state justifies the object |
 | Adapter to an external system | Class implementing a declared `Protocol` | One | It mirrors the external contract; exempt from the public-method cap |
-| Class whose public surface a framework owns, such as a `unittest.TestCase` subclass or a framework-declared base | Follow the framework | One | The framework, not the design, names the methods; exempt from the public-method cap |
+| Class whose base declares its public methods, such as a `unittest.TestCase` subclass | Follow the framework | One | The framework names those methods, so the cap does not count them; a method the author adds is counted |
 | Orchestration facade | Function | One public | Composition, not an object |
 
 No state: a function. Data: an immutable type. A lifecycle: one class with one responsibility. A
@@ -113,8 +115,9 @@ stateless class with public methods is a function in disguise.
 
 Measured in the reference project: `domain/planning.py` has no class at all and holds the rule as
 module functions, `propose` public beside the private `_propose_for` and `_calculate`;
-`domain/proposal.py` holds ten frozen data classes and no behavior, which is the size at which the
-vocabulary splits by family; `ai/agent/gate.py` is a stateful middleware class.
+`ai/agent/gate.py` is a stateful middleware class; and `domain/proposal.py` today holds three
+families in one module, the payment plan, the questions, and the refusals, which this standard splits
+by family rather than keeps together.
 
 ### Size
 
@@ -128,9 +131,10 @@ vocabulary splits by family; `ai/agent/gate.py` is a stateful middleware class.
   carries the same re-evaluation, and its single responsibility is the behavior it exercises.
 - **A function over 50 lines is a hard limit.**
 - **A class with behavior exposes at most three public methods, a hard limit**, exempting an adapter
-  that implements a declared `Protocol` and a class whose public surface a framework owns.
-- A module that becomes a large vocabulary, such as ten result types in 126 lines, splits by family
-  into a package that re-exports them.
+  that implements a declared `Protocol`. A method a framework's base declares is not counted; a
+  method the author adds is counted, whatever the base.
+- A vocabulary module splits when its types stop reading as one family, never because of how many
+  types it holds: the package re-exports each family.
 
 The file-size numbers never become a failing gate: size is a signal to inspect, and responsibility
 is the reason to split. Only the function-length and public-method caps are enforced by the check the
@@ -196,7 +200,7 @@ framework APIs from official sources before use.
 
 - A prompt is a Markdown file in the component's own asset subdirectory, such as
   `ai/agent/prompts/prompt.md` beside `ai/agent/*.py`, loaded once as a module constant by one small
-  helper. One file type per directory still holds.
+  helper, so the asset never sits in the module directory.
 - When tools are an extension axis, use one agent loop over tools discovered from the tool server,
   such as MCP, instead of a classifier routing into fixed flows. Treat an unknown tool as a write.
 - Writes pass through a gate, such as middleware or an interrupt, that runs only a plan computed by

@@ -95,15 +95,19 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         section = _section()
 
         self.assertNotIn("unlimited", section)
+        # The criterion is family cohesion, never a type count: `code-craft` forbids splitting
+        # by a symbol count, so no number may appear in this rule.
         self.assertIn(
-            "Many, while the module still reads as one family; when it stops, split by family",
+            "Many, while the module reads as one family; when it holds more than one family, split",
             section,
         )
-        # The citation stays factual about what the reference project does today, and the
-        # standard's verdict on it is the split. It is never presented as the example to copy.
-        self.assertIn("`domain/proposal.py` today holds ten frozen data classes in 126 lines", section)
-        self.assertIn("which this standard splits by family rather than keeps in one module", section)
-        self.assertNotIn("holds ten frozen data classes and no behavior", section)
+        self.assertIn(
+            "`domain/proposal.py` today holds three families in one module", section
+        )
+        self.assertIn("which this standard splits by family", section)
+        self.assertNotIn("ten frozen data classes", section)
+        self.assertNotIn("ten result types", section)
+        self.assertNotIn("126", section)
 
     def test_size_rules_use_only_the_measured_numbers(self) -> None:
         section = _section()
@@ -115,7 +119,7 @@ class CodeOrganizationSpecTest(unittest.TestCase):
             "Over 150 lines: a mandatory deep re-evaluation, not a block",
             "A function over 50 lines is a hard limit",
             "at most three public methods",
-            "splits by family into a package",
+            "splits when its types stop reading as one family, never because of how many",
         ):
             with self.subTest(required=required):
                 self.assertIn(required, section)
@@ -134,17 +138,17 @@ class CodeOrganizationSpecTest(unittest.TestCase):
             _read("core/skills/implement/references/code-craft.md"),
         )
         # Every number in the section is a measurement of one of the two reference projects:
-        # 100/130/131/150/50 are the calibrated limits, 136/126 the good project's
-        # `domain/planning.py` and `domain/proposal.py`, and 302/293/112 the worst eval,
-        # harness, and experiment files. A number outside this set is an invented threshold,
-        # so the pattern stays `\d+` rather than a fixed width.
+        # 100/130/131/150/50 are the calibrated limits, 136 is the good project's
+        # `domain/planning.py`, and 302/293/112 are the worst eval, harness, and experiment
+        # files. No number belongs to the vocabulary rule, whose criterion is family cohesion.
+        # A number outside this set is an invented threshold, so the pattern stays `\d+`
+        # rather than a fixed width.
         self.assertEqual(
             (),
             tuple(
                 number
                 for number in re.findall(r"\d+", section)
-                if number
-                not in {"100", "112", "126", "130", "131", "136", "150", "302", "293", "50"}
+                if number not in {"100", "112", "130", "131", "136", "150", "302", "293", "50"}
             ),
         )
 
@@ -292,11 +296,15 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         reviewer = _flat("core/skills/reviewer/SKILL.md")
 
         self.assertIn(
-            "these severities hold when the repository has adopted this specification",
+            "these are the default severities where the repository has adopted this specification",
             reviewer,
         )
         self.assertIn("follow the repository's own convention", reviewer)
         self.assertNotIn("not a preference the plan can waive", reviewer)
+        # Adoption establishes applicability, not impact: `review` still owns severity, so a
+        # default may be downgraded with stated evidence and never raised without it.
+        self.assertIn("carries the impact you measured", reviewer)
+        self.assertIn("downgrade the default with that evidence", reviewer)
 
     def test_reviewer_carries_one_severity_per_rule(self) -> None:
         reviewer = _flat("core/skills/reviewer/SKILL.md")
@@ -354,9 +362,30 @@ class CodeOrganizationSpecTest(unittest.TestCase):
                 self.assertIn(severity, required)
                 for other in {"BLOCKER", "MAJOR", "MINOR", "NIT"} - {severity}:
                     self.assertNotIn(other, required)
+                # No case may forbid a downgrade that evidence supports.
+                self.assertNotIn("Não rebaixar", required)
+
+    def test_one_reviewer_case_rejects_an_unjustified_downgrade(self) -> None:
+        cases = {
+            case["id"]: " ".join(case["required"])
+            for case in json.loads(
+                (_ROOT / "core/evals/reviewer/cases.json").read_text(encoding="utf-8")
+            )
+        }
+
+        self.assertIn(
+            "Recusar o rebaixamento sem evidência medida", cases["stateless-class-minor"]
+        )
 
     def test_no_corpus_restates_the_deleted_absolute(self) -> None:
-        deleted = ("tipo de arquivo por diretório", "misturar .py e .md", "por comportamento")
+        # "um teste por comportamento" is a legitimate, unrelated phrase, so the guard names
+        # the module-level formulations the branch deleted.
+        deleted = (
+            "tipo de arquivo por diretório",
+            "misturar .py e .md",
+            "módulo por comportamento",
+            "separação por comportamento",
+        )
         for path in sorted((_ROOT / "core/evals").glob("*/cases.json")):
             corpus = path.read_text(encoding="utf-8")
             for phrase in deleted:
