@@ -39,14 +39,19 @@ explanation of a failure stays a hypothesis until an observation in the runtime 
    point, the real external services, and observability, seen running.
 2. Write the plan's scenarios as tests first and observe them fail for the intended reason. Derive
    expected values from the plan or the dataset, never from what the code returns.
-3. Add one thin vertical slice at a time with `implement`, applying its code-craft and
+3. In the first slice, install the mechanical checks of
+   [organize code by domain](../implement/references/way-of-building.md#organize-code-by-domain)
+   through the repository's own entry point, so the pull request quality gate runs them: the
+   architecture import test, with the layer allow-list and domain purity; the function-length cap;
+   and the public-method cap with its `Protocol` exemption. Every later slice obeys the spec.
+4. Add one thin vertical slice at a time with `implement`, applying its code-craft and
    way-of-building references. Run the slice's unit and integration tests and the gates, then run
    it against the real system before the next slice.
-4. Cover every line you write with a test that exercises its behavior, per way-of-building: be
+5. Cover every line you write with a test that exercises its behavior, per way-of-building: be
    critical of each test, mock as little as possible, and run real dependencies in disposable
    containers. Before declaring done, list what could not be tested and why in the pull request's
    "Not verified" section.
-5. Run the repository's broad gates.
+6. Run the repository's broad gates.
 
 Do small or sequential work directly. Delegate only substantial, independent, parallelizable work,
 and name in the brief the skills to load before code.
@@ -80,6 +85,10 @@ to look. Write the title and description per [pull-request.md](references/pull-r
 why with evidence, design, decisions with the alternatives rejected, a review guide in reading
 order, where to look hardest, how to verify, verification done with the conformance matrix, and
 what was not verified.
+
+Every file the change leaves over 150 lines carries its deep re-evaluation in the description: the
+module's single responsibility and either the split applied or why splitting would spread one rule
+across files.
 
 The matrix is an author self-check and input to independent review; it can never become a verdict
 or a merge recommendation.

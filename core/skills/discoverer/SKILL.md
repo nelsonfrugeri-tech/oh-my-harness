@@ -68,6 +68,11 @@ a key result; add nothing that no key result needs.
   result each use case returns. Give each new module a one-line responsibility. The developer
   writes no code until the user approves these contracts in the plan.
 - **Language.** Load the language skill, such as `python` or `typescript`, for its idioms.
+- **Architecture.** Design the code organization per
+  [organize code by domain](../implement/references/way-of-building.md#organize-code-by-domain) and
+  record it in the plan's `Architecture` fields: the bounded contexts, the layers with their
+  dependency direction, the directory tree, the domain entities with their relationships, and, for
+  every business rule, the module that will own it and its form. A plan without them is not ready.
 - **Structure.** Apply the "Add structure only when it pays" table in
   [way-of-building.md](../implement/references/way-of-building.md) for interfaces, inheritance,
   SOLID, and design patterns. Record the code-standard revision and every concern that fell back to

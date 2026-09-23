@@ -90,6 +90,29 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
    severity that falsifies the plan, it stays draft until the discoverer's new revision is
    approved, the developer resumes, and you review the new diff against that revision.
 
+## Police the code organization
+
+Check the diff against
+[organize code by domain](../implement/references/way-of-building.md#organize-code-by-domain). Each
+rule is one checkable item with a fixed severity:
+
+| Finding in the diff | Severity |
+| --- | --- |
+| Layer violation, or a domain that imports a framework, I/O, or a model client | MAJOR |
+| Business rule outside the domain | MAJOR |
+| Mixed file types in one directory | MAJOR |
+| Stateless class with public methods | MAJOR |
+| Function over 50 lines | MAJOR |
+| Class with more than three public methods, unless it implements a declared `Protocol` | MAJOR |
+| Missing re-evaluation of a file over 150 lines | MINOR |
+| Module that should split by family into a package | MINOR |
+| Unnecessary comment or docstring | MINOR |
+
+Anchor each finding at `file:line` with the measured number: the counted lines, the counted public
+methods, or the import that crosses the layer. This is a structural finding, so the proof is the
+reproducible static check of step 4. The spec is not a preference the plan can waive, and file size
+alone is never a finding.
+
 ## Write comments that help
 
 Every comment is clear, didactic, propositive, and collaborative. In this order:
