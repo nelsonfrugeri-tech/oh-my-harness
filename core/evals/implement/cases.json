@@ -77,7 +77,7 @@
   },
   {
     "id": "code-organization-by-domain",
-    "prompt": "Crie do zero um serviço Python de cobrança com um agente LLM que usa um prompt fixo. O repositório está vazio e ainda não tem convenção nenhuma.",
+    "prompt": "Crie do zero um serviço Python de cobrança com um agente LLM que usa um prompt fixo. Inclua um middleware com estado que conta as chamadas do agente na sessão. O repositório está vazio e ainda não tem convenção nenhuma.",
     "required": [
       "Organizar o código em diretórios por domínio, com camadas e direção de dependência declarada",
       "Manter o domínio sem framework, sem I/O e sem cliente de modelo",

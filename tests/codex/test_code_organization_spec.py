@@ -224,6 +224,18 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         # The configured tools are run, not mutated: proving ruff or mypy can fail is busywork.
         self.assertIn("The configured tools need no such proof", spec)
 
+    def test_organization_eval_names_the_state_its_required_middleware_owns(self) -> None:
+        cases = {
+            case["id"]: case
+            for case in json.loads(
+                (_ROOT / "core/evals/implement/cases.json").read_text(encoding="utf-8")
+            )
+        }
+        prompt = str(cases["code-organization-by-domain"]["prompt"])
+
+        self.assertIn("middleware com estado", prompt)
+        self.assertIn("conta as chamadas do agente na sessão", prompt)
+
     def test_implement_activates_on_greenfield_work(self) -> None:
         # Measured: with the reference one hop away the skill applies the specification, but two
         # greenfield prompts never invoked it, and its trigger surface named only change
