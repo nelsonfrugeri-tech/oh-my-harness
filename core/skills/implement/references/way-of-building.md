@@ -78,7 +78,7 @@ class NotEnoughMoney(BaseModel, frozen=True):
 One specification, three owners: the `discoverer` designs it into the plan, the `developer` builds
 it and installs its mechanical checks, and the `reviewer` polices it in the diff. It governs every
 file the change creates, including eval, harness, and experiment code, which measured as the worst
-area of both reference projects: a 302-line report module holding eleven mixed classes, and a
+area in both reference projects: a 302-line report module holding eleven mixed classes, and a
 293-line experiment runner holding a 112-line function.
 
 ### Structure
