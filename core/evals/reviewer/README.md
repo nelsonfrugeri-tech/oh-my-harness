@@ -28,13 +28,17 @@ validates only the corpus format and does not execute the cases.
    methods in 176 lines under the eval harness for `public-method-cap-major`; a domain module that
    imports an HTTP client for `domain-purity-major`; a prompt `.md` added beside the agent's `.py`
    files for `mixed-assets-minor`; and a stateless class with public methods for
-   `stateless-class-minor`.
+   `stateless-class-minor`. Each of those four fixtures must carry the plan or the greenfield
+   premise the severity defaults depend on; without it the default rests on the candidate's own
+   inference and the severity item cannot be scored.
 3. Start a fresh session in that fixture as the mode, for example
    `claude --agent oh-my-harness:reviewer`, or the Codex equivalent in `harness/codex/README.md`.
    Do not expose another case's answer, the expected behaviors, or a prior run to the candidate.
 4. Submit one case `prompt` exactly as written. When a case depends on an unavailable service,
    score the requirement from what the candidate does and claims, not from a run it could not
-   perform.
+   perform. Without a disposable code host, no pull-request requirement is observable, including
+   the inline comments and the draft-to-ready transition: mark it `unexercised` rather than `pass`,
+   and never score it from a claim.
 5. Save the complete transcript, the reviewed branch's `git status`, the review comments and draft
    state of the pull request, a listing of the disposable knowledge base excluding session records
    (`sessions/*.json`), and the list of runtime resources left running outside the product

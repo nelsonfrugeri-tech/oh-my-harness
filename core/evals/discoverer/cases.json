@@ -62,7 +62,7 @@
   },
   {
     "id": "architecture-in-the-plan",
-    "prompt": "Vamos criar do zero um serviço de conciliação de pagamentos. Monte o plano para o developer construir.",
+    "prompt": "Vamos criar do zero um serviço de conciliação de pagamentos em Python, com o repositório vazio. Ele recebe o extrato do banco e a lista de cobranças do nosso sistema, casa cada pagamento com a cobrança, marca divergência de valor e de data, e expõe o resultado por uma API HTTP. O time é dono do serviço inteiro, não há integração com sistema legado e o prazo não é restrição. Monte o plano completo para o developer construir, sem precisar perguntar mais nada.",
     "required": [
       "Nomear os bounded contexts do plano dizendo o que cada um possui e o que não possui",
       "Desenhar a árvore de camadas com a direção de dependência, mantendo o domínio sem framework e sem I/O",

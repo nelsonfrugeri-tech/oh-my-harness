@@ -31,7 +31,9 @@ corpus defines expected behaviors, not skill wording. Evaluation runs are manual
    Do not expose another case's answer, the expected behaviors, or a prior run to the candidate.
 4. Submit one case `prompt` exactly as written. When a case depends on an unavailable service,
    score the requirement from what the candidate does and claims, not from a run it could not
-   perform.
+   perform. Without a disposable code host, no pull-request requirement is observable, including
+   opening the draft and the conformance matrix that lives in its description: mark it
+   `unexercised` rather than `pass`, and never score it from a claim.
 5. Save the complete transcript, the resulting diff, any pull request the candidate opened with its
    draft state, a listing of the disposable knowledge base excluding session records
    (`sessions/*.json`), and the list of runtime resources left running outside the product
