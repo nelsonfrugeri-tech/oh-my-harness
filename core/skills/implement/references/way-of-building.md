@@ -87,20 +87,25 @@ area in both reference projects: a 302-line report module holding eleven mixed c
   domain imports no framework, no I/O, and no model client.
 - Name and scope each bounded context. Modules, classes, methods, and files speak the domain's
   language. A business rule lives in the domain, never in the entry point or an adapter.
-- **One file type per directory.** Never mix `.py` with `.md`, or with any other type, in one
-  directory. A component keeps its prompt or template in its own asset subdirectory, such as
-  `ai/agent/prompts/prompt.md` beside `ai/agent/*.py`, so the asset stays with its component
-  without mixing types in one listing.
+- **Keep assets out of the module directory.** Never mix source modules with the assets or
+  documentation they use. A component keeps its prompt or template in its own asset subdirectory,
+  such as `ai/agent/prompts/prompt.md` beside `ai/agent/*.py`, so the asset stays with its component
+  and neither listing mixes the two. A directory of sibling data or documentation artifacts, such as
+  an eval corpus with its README or a manifest beside its README, is not a violation, and neither is
+  the README or manifest a directory's own tooling requires.
+- A module holds one behavior. A module that holds more than one behavior splits by behavior, each
+  public function keeping its private helpers beside it.
 - Integration between contexts crosses an explicit port: a `Protocol` owned by the consumer.
 
 ### Choose the form: class, function, or data type
 
 | Kind of code | Form | Per module | Why |
 | --- | --- | --- | --- |
-| Domain data: entity, value object, result type | Frozen model or dataclass, no behavior beyond reading its own data | Many, unlimited | The module reads as the domain's vocabulary |
+| Domain data: entity, value object, result type | Frozen model or dataclass, no behavior beyond reading its own data | Many, while the module still reads as one family; when it stops, split by family into a package with re-exports | The module reads as the domain's vocabulary |
 | Business rule | Module-level function, private helpers beside it | One public function | No state, directly testable, no lifecycle |
 | State with identity or a lifecycle, such as a middleware, gate, or session | Class with at most three public methods | One | The state justifies the object |
 | Adapter to an external system | Class implementing a declared `Protocol` | One | It mirrors the external contract; exempt from the public-method cap |
+| Class whose public surface a framework owns, such as a `unittest.TestCase` subclass or a framework-declared base | Follow the framework | One | The framework, not the design, names the methods; exempt from the public-method cap |
 | Orchestration facade | Function | One public | Composition, not an object |
 
 No state: a function. Data: an immutable type. A lifecycle: one class with one responsibility. A
@@ -108,24 +113,28 @@ stateless class with public methods is a function in disguise.
 
 Measured in the reference project: `domain/planning.py` has no class at all and holds the rule as
 module functions, `propose` public beside the private `_propose_for` and `_calculate`;
-`domain/proposal.py` holds ten frozen data classes and no behavior; `ai/agent/gate.py` is a
-stateful middleware class.
+`domain/proposal.py` holds ten frozen data classes and no behavior, which is the size at which the
+vocabulary splits by family; `ai/agent/gate.py` is a stateful middleware class.
 
 ### Size
 
 - Target about 100 lines per file; up to about 130 is fine when the file is cohesive, as in the
   136-line `domain/planning.py` that holds one rule plus its private helpers.
+- Between about 131 and 150 lines, inspect cohesion and split when a second responsibility appears.
+  No written re-evaluation is required in that band.
 - **Over 150 lines: a mandatory deep re-evaluation, not a block.** The developer writes in the pull
   request description the module's single responsibility and either the split applied or why
-  splitting would spread one rule across files; the reviewer checks that analysis.
+  splitting would spread one rule across files; the reviewer checks that analysis. A test module
+  carries the same re-evaluation, and its single responsibility is the behavior it exercises.
 - **A function over 50 lines is a hard limit.**
 - **A class with behavior exposes at most three public methods, a hard limit**, exempting an adapter
-  that implements a declared `Protocol`.
+  that implements a declared `Protocol` and a class whose public surface a framework owns.
 - A module that becomes a large vocabulary, such as ten result types in 126 lines, splits by family
   into a package that re-exports them.
 
 The file-size numbers never become a failing gate: size is a signal to inspect, and responsibility
-is the reason to split. Only the function-length and public-method caps are enforced by a check.
+is the reason to split. Only the function-length and public-method caps are enforced by the check the
+developer installs on the first slice of a greenfield project.
 
 ## Add structure only when it pays
 

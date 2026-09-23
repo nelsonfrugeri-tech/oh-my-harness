@@ -143,7 +143,7 @@ class CodeOrganizationSpecTest(unittest.TestCase):
     def test_public_method_cap_exempts_a_framework_owned_surface(self) -> None:
         section = _section()
 
-        self.assertIn("a framework owns its public surface", section)
+        self.assertIn("whose public surface a framework owns", section)
         self.assertIn("`unittest.TestCase`", section)
         self.assertIn("A test module carries the same re-evaluation", section)
 
@@ -297,7 +297,7 @@ class CodeOrganizationSpecTest(unittest.TestCase):
                 self.assertIn(row, reviewer)
         self.assertIn("| Unnecessary comment or docstring | NIT |", reviewer)
         self.assertIn("Anchor each finding at `file:line` with the measured number", reviewer)
-        self.assertIn("file size alone is never a finding", reviewer)
+        self.assertIn("File size alone is never a finding", reviewer)
 
     def test_readme_points_at_the_specification(self) -> None:
         readme = _flat("README.md")
