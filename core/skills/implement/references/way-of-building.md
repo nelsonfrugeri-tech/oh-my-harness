@@ -111,7 +111,9 @@ area in both reference projects: a 302-line report module holding eleven mixed c
 | Orchestration facade | Function | One public | Composition, not an object |
 
 No state: a function. Data: an immutable type. A lifecycle: one class with one responsibility. A
-stateless class with public methods is a function in disguise.
+stateless class with public methods is a function in disguise. A stateful service or repository does
+not absorb a stateless business rule: pass state into the module-level function explicitly, and keep
+the lifecycle in the class that owns it.
 
 Measured in the reference project: `domain/planning.py` has no class at all and holds the rule as
 module functions, `propose` public beside the private `_propose_for` and `_calculate`;
@@ -216,16 +218,24 @@ framework APIs from official sources before use.
 
 Greenfield only. In an existing repository, use the gates it already has.
 
-- Configure the formatter, linter, strict type checker, and branch coverage with a fail-under
-  threshold the user agrees to, and expose them through one repository entry point, such as a
-  Make target, so the PR quality gate discovers and runs them.
-- Add an architecture test that parses imports, maps each module to a layer, asserts only allowed
-  edges, and asserts the domain imports only the standard library plus the chosen validation
-  library.
+- Configure, in checked-in project configuration, an actual formatter, linter, and strict type
+  checker, plus branch coverage with a fail-under threshold the user agrees to. Expose them through
+  one repository entry point, such as a Make target, so the PR quality gate discovers and runs them.
+  A tool being absent from the current workstation is not an exemption: declare it as a development
+  dependency and report the gate unavailable if installation cannot run. A hand-written syntax or
+  AST checker is not a substitute for any of those tools.
+- Add an architecture test that parses imports, maps each module to a layer, declares the complete
+  allowed dependency graph, rejects every disallowed edge, and asserts the domain imports only the
+  standard library plus the chosen validation library. Checking only that the domain is pure is
+  incomplete because it leaves every edge between the other layers unspecified.
 - Add the function-length cap and the public-method cap of "Organize code by domain" as checks
   through the same entry point, with the `Protocol` exemption for adapters.
 - Optionally add a file-size check whose limit the user chooses. It flags a file for review; it
   does not decide the design.
+- Prove every required check is red-capable: introduce one omission or violation at a time, observe
+  that check fail, then restore it and observe the shared entry point pass. This applies separately
+  to formatter, linter, strict type checker, branch coverage, every disallowed architecture edge,
+  function length, and public method count.
 
 ## Before writing
 

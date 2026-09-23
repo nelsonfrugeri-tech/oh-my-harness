@@ -191,6 +191,37 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("function-length cap", spec)
         self.assertIn("public-method cap", spec)
 
+    def test_greenfield_tooling_is_real_and_absence_is_not_an_exemption(self) -> None:
+        spec = _flat(_SPEC)
+
+        self.assertIn("checked-in project configuration", spec)
+        self.assertIn("an actual formatter, linter, and strict type checker", spec)
+        self.assertIn("not an exemption", spec)
+        self.assertIn("A hand-written syntax or AST checker is not a substitute", spec)
+
+    def test_architecture_gate_covers_the_complete_allowed_graph(self) -> None:
+        spec = _flat(_SPEC)
+
+        self.assertIn("complete allowed dependency graph", spec)
+        self.assertIn("every disallowed edge", spec)
+        self.assertIn("Checking only that the domain is pure is incomplete", spec)
+
+    def test_stateful_shell_does_not_absorb_a_stateless_business_rule(self) -> None:
+        section = _section()
+
+        self.assertIn(
+            "A stateful service or repository does not absorb a stateless business rule",
+            section,
+        )
+        self.assertIn("pass state into the module-level function explicitly", section)
+
+    def test_first_slice_checks_each_have_red_capable_mutation_proof(self) -> None:
+        spec = _flat(_SPEC)
+
+        self.assertIn("one omission or violation at a time", spec)
+        self.assertIn("observe that check fail", spec)
+        self.assertIn("then restore it and observe the shared entry point pass", spec)
+
     def test_implement_activates_on_greenfield_work(self) -> None:
         # Measured: with the reference one hop away the skill applies the specification, but two
         # greenfield prompts never invoked it, and its trigger surface named only change
