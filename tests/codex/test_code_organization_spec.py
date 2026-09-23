@@ -191,6 +191,16 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("function-length cap", spec)
         self.assertIn("public-method cap", spec)
 
+    def test_implement_names_the_reference_where_code_gets_written(self) -> None:
+        # Measured: the spec sat three hops from this entry point and greenfield runs never
+        # reached it, while the three mode skills that link it directly all applied it.
+        skill = _flat("core/skills/implement/SKILL.md")
+        implement_step = skill.split("### IMPLEMENT", 1)[1].split("### FOCUSED_GATE")[0]
+
+        self.assertIn("[way-of-building.md](references/way-of-building.md)", implement_step)
+        self.assertIn("for a concern the repository leaves undefined", implement_step)
+        self.assertIn("[code-craft.md](references/code-craft.md)", implement_step)
+
     def test_each_mode_references_the_one_spec_with_its_own_verb(self) -> None:
         verbs = {
             "core/skills/discoverer/SKILL.md": "Design the code organization",
@@ -404,6 +414,33 @@ class CodeOrganizationSpecTest(unittest.TestCase):
             if line.startswith("|") and "<" in line:
                 with self.subTest(line=line):
                     self.assertNotRegex(line, r"<[^>|]*\|[^>]*>")
+
+    def test_protocols_record_what_a_run_cannot_score(self) -> None:
+        # Both gaps were measured in the executed run: no disposable code host, and a reviewer
+        # fixture whose adoption premise the candidate had to infer.
+        developer = _flat("core/evals/developer/README.md")
+        reviewer = _flat("core/evals/reviewer/README.md")
+
+        for protocol in (developer, reviewer):
+            self.assertIn("mark it `unexercised` rather than `pass`", protocol)
+        self.assertIn("carry the plan or the greenfield premise", reviewer)
+
+    def test_the_architecture_case_is_answerable_in_one_turn(self) -> None:
+        cases = {
+            case["id"]: case
+            for case in json.loads(
+                (_ROOT / "core/evals/discoverer/cases.json").read_text(encoding="utf-8")
+            )
+        }
+        prompt = str(cases["architecture-in-the-plan"]["prompt"])
+        protocol = _flat("core/evals/discoverer/README.md")
+
+        # The mode was right to ask when the objective was underdetermined, so the prompt now
+        # carries the objective, the inputs, the interface, and the stack.
+        for settled in ("extrato", "API HTTP", "Python", "sem precisar perguntar"):
+            with self.subTest(settled=settled):
+                self.assertIn(settled, prompt)
+        self.assertIn("self-contained, so one turn can produce the plan", protocol)
 
     def test_eval_protocols_wrap_at_one_hundred_columns(self) -> None:
         for path in sorted((_ROOT / "core/evals").glob("*/README.md")):
