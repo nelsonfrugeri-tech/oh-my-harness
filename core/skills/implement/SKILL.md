@@ -105,6 +105,12 @@ should remain lightweight; a generated migration may require both `generated` an
 
 ### OBSERVE_OR_DEFINE
 
+- For greenfield work, or a concern whose repository conventions leave it undefined, load
+  [way-of-building.md](references/way-of-building.md) before writing. Convert every applicable
+  rule into a rule-by-rule acceptance checklist and name the red-capable observation that would
+  fail if that rule were omitted. Record a rule as not applicable only with evidence from the
+  requested slice or repository convention; reading the reference without producing this checklist
+  is not completion of this state.
 - For a bug, capture the smallest reliable reproduction with environment, input, expected result,
   actual result, and frequency. Keep root-cause explanations as hypotheses until discriminating
   evidence supports them. Load [workflow-bug-fix.md](references/workflow-bug-fix.md).
@@ -184,6 +190,10 @@ before expensive or stateful ones.
 Before handoff, inspect the task, acceptance criteria, final diff, focused and broad evidence,
 security-sensitive boundaries, generated artifacts, documentation impact, and code-craft alignment.
 Confirm that every changed file is in scope and that no temporary artifact entered the repository.
+For greenfield work, re-open [way-of-building.md](references/way-of-building.md) and audit the final
+diff rule-by-rule against the checklist created before writing, including the observed failure and
+pass of every applicable red-capable check. If an applicable rule or its proof is absent, the work is
+incomplete: return to the first missing state and do not report `completed`.
 
 This is an author self-check. Report corrections made and unresolved risks, but never issue an
 independent review verdict, approval, or merge recommendation. When independent review is required,

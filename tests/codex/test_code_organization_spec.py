@@ -218,6 +218,30 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("For a concern the repository leaves undefined", implement_step)
         self.assertIn("[code-craft.md](references/code-craft.md)", implement_step)
 
+    def test_greenfield_spec_becomes_acceptance_and_completion_gate(self) -> None:
+        # Measured: loading the reference was necessary but not sufficient. Fresh Codex runs read
+        # it, then omitted first-slice tooling, the complete dependency graph, and stateless form.
+        # The workflow must turn the reference into observable criteria before writing and refuse
+        # completion when any applicable rule lacks a red-capable proof.
+        skill = _flat("core/skills/implement/SKILL.md")
+        observe_step = skill.split("### OBSERVE_OR_DEFINE", 1)[1].split(
+            "### RED_CAPABILITY"
+        )[0]
+        self_check = skill.split("### AUTHOR_SELF_CHECK", 1)[1].split(
+            "## Command safety"
+        )[0]
+
+        for section in (observe_step, self_check):
+            with self.subTest(section=section[:40]):
+                self.assertIn(
+                    "[way-of-building.md](references/way-of-building.md)", section
+                )
+                self.assertIn("rule-by-rule", section)
+                self.assertIn("red-capable", section)
+
+        self.assertIn("before writing", observe_step)
+        self.assertIn("incomplete", self_check)
+
     def test_each_mode_references_the_one_spec_with_its_own_verb(self) -> None:
         verbs = {
             "core/skills/discoverer/SKILL.md": "Design the code organization",
