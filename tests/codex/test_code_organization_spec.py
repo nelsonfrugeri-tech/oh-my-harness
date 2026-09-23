@@ -191,6 +191,23 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("function-length cap", spec)
         self.assertIn("public-method cap", spec)
 
+    def test_implement_activates_on_greenfield_work(self) -> None:
+        # Measured: with the reference one hop away the skill applies the specification, but two
+        # greenfield prompts never invoked it, and its trigger surface named only change
+        # categories. These phrases are the prompts' own vocabulary, not keyword stuffing.
+        description = _flat("core/skills/implement/SKILL.md").split("description: >-", 1)[1]
+        description = description.split("metadata:")[0]
+
+        for trigger in (
+            "greenfield",
+            "from scratch",
+            "empty repository",
+            "no convention",
+            "new service, project, or module",
+        ):
+            with self.subTest(trigger=trigger):
+                self.assertIn(trigger, description)
+
     def test_implement_names_the_reference_where_code_gets_written(self) -> None:
         # Measured: the spec sat three hops from this entry point and greenfield runs never
         # reached it, while the three mode skills that link it directly all applied it.
