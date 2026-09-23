@@ -4,8 +4,9 @@ description: >-
   Executes bounded repository changes through project discovery, mode selection, red-capable
   verification, incremental implementation, focused and broad gates, and an author self-check.
   Use for feature, bug, refactor, configuration, documentation, migration, generated-code, and
-  flaky or asynchronous implementation work. Do not use it to issue an independent review or merge
-  recommendation.
+  flaky or asynchronous implementation work, and for greenfield work: building a new service,
+  project, or module from scratch, in an empty repository or one with no convention for it yet.
+  Do not use it to issue an independent review or merge recommendation.
 metadata:
   type: capability
   version: 2.0.0
