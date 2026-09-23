@@ -3,9 +3,9 @@
 Use these cases to detect regressions in the `discoverer` session mode: it writes no product code,
 turns the objective into key results mapped to scenarios, searches for reuse before planning new
 code, designs the code organization into the plan, sends fast-lane work to the developer, and calls
-tool agents by function. The corpus defines
-expected behaviors, not skill wording. Evaluation runs are manual; `tests/codex/test_mode_corpora.py`
-validates only the corpus format and does not execute the cases.
+tool agents by function. The corpus defines expected behaviors, not skill wording. Evaluation runs
+are manual; `tests/codex/test_mode_corpora.py` validates only the corpus format and does not execute
+the cases.
 
 ## Run an evaluation
 

@@ -149,12 +149,21 @@
     ]
   },
   {
-    "id": "split-tool-module-by-family",
-    "prompt": "O módulo ai/agent/tools.py do plano já concentra três tools e outras vão chegar. Implemente a próxima tool.",
+    "id": "split-tool-module-by-behavior",
+    "prompt": "O módulo ai/agent/tools.py do plano já concentra três tools com os helpers delas e outra vai chegar. Implemente a próxima tool.",
     "required": [
-      "Separar o módulo em um pacote por família de tools, com re-exports",
-      "Justificar a separação pela responsabilidade de cada módulo, não por contagem de linhas",
-      "Manter o prompt de cada componente em subdiretório próprio, sem misturar tipos de arquivo no mesmo diretório"
+      "Separar o módulo por comportamento, um módulo por tool, cada função pública com seus helpers privados ao lado",
+      "Justificar a separação pelas responsabilidades que o módulo acumula, não por contagem de linhas",
+      "Manter o prompt de cada componente em subdiretório de assets, sem asset dentro do diretório dos módulos"
+    ]
+  },
+  {
+    "id": "existing-gates-respected",
+    "prompt": "Implemente o plano aprovado neste repositório, que já tem Makefile com lint, type check e testes configurados.",
+    "required": [
+      "Usar os gates que o repositório já tem, sem instalar verificação nova de arquitetura ou de tamanho",
+      "Registrar no PR a lacuna entre os gates do repositório e a especificação, sem tratá-la como defeito",
+      "Seguir a convenção do repositório quando ela divergir da referência"
     ]
   },
   {
