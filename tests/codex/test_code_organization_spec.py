@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -43,20 +44,29 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         # Narrowed to the measured problem, a prompt beside its module: a directory of
         # sibling data or documentation artifacts, such as an eval corpus with its README,
         # is not a violation. The census in the pull request shows zero findings in this
-        # repository under this wording.
-        section = _section()
+        # repository under this wording. The scan covers the whole reference, because the
+        # stack patterns restate the rule outside the specification section.
+        spec = _flat(_SPEC)
 
-        self.assertIn(
-            "Never mix source modules with the assets or documentation they use", section
-        )
-        self.assertIn("its own asset subdirectory", section)
-        self.assertIn("is not a violation", section)
-        self.assertNotIn("**One file type per directory.**", section)
+        self.assertIn("Never mix source modules with the assets or documentation they use", spec)
+        self.assertIn("its own asset subdirectory", spec)
+        self.assertIn("is not a violation", spec)
+        self.assertNotIn("One file type per directory", spec)
 
-    def test_a_module_holds_one_behavior(self) -> None:
-        self.assertIn(
-            "A module that holds more than one behavior splits by behavior", _section()
-        )
+    def test_the_split_criterion_uses_one_vocabulary(self) -> None:
+        # way-of-building, code-craft and the reviewer must state the same criterion:
+        # responsibility, not behavior count and not size.
+        spec = _flat(_SPEC)
+        craft = _flat("core/skills/implement/references/code-craft.md")
+        reviewer = _flat("core/skills/reviewer/SKILL.md")
+
+        self.assertIn("A module holds one responsibility: two reasons to change", spec)
+        self.assertIn("such as three tools in one file", spec)
+        self.assertIn("responsibility is the reason to split", spec)
+        self.assertIn("responsibility is the reason to split", craft)
+        self.assertIn("more than one responsibility", reviewer)
+        self.assertNotIn("splits by behavior", spec)
+        self.assertNotIn("split by behavior", reviewer)
 
     def test_form_follows_state_through_one_decision_table(self) -> None:
         section = _section()
@@ -89,10 +99,11 @@ class CodeOrganizationSpecTest(unittest.TestCase):
             "Many, while the module still reads as one family; when it stops, split by family",
             section,
         )
-        # The measured example and the split rule must agree: ten types in 126 lines is the
-        # size at which the vocabulary splits, not a size the table blesses.
-        proposal = section.split("`domain/proposal.py` holds ten frozen data classes", 1)[1]
-        self.assertIn("the size at which the vocabulary splits by family", proposal[:120])
+        # The citation stays factual about what the reference project does today, and the
+        # standard's verdict on it is the split. It is never presented as the example to copy.
+        self.assertIn("`domain/proposal.py` today holds ten frozen data classes in 126 lines", section)
+        self.assertIn("which this standard splits by family rather than keeps in one module", section)
+        self.assertNotIn("holds ten frozen data classes and no behavior", section)
 
     def test_size_rules_use_only_the_measured_numbers(self) -> None:
         section = _section()
@@ -140,11 +151,12 @@ class CodeOrganizationSpecTest(unittest.TestCase):
     def test_spec_covers_eval_harness_and_experiment_code(self) -> None:
         self.assertIn("including eval, harness, and experiment code", _section())
 
-    def test_public_method_cap_exempts_a_framework_owned_surface(self) -> None:
+    def test_public_method_cap_exempts_only_framework_declared_methods(self) -> None:
         section = _section()
 
-        self.assertIn("whose public surface a framework owns", section)
+        self.assertIn("whose base declares its public methods", section)
         self.assertIn("`unittest.TestCase`", section)
+        self.assertIn("a method the author adds is counted", section)
         self.assertIn("A test module carries the same re-evaluation", section)
 
     def test_component_assets_live_in_their_own_subdirectory(self) -> None:
@@ -211,6 +223,9 @@ class CodeOrganizationSpecTest(unittest.TestCase):
             "three public methods": {_SPEC},
             # The 150-line trigger also belongs to the two author-side artifacts that must
             # write the re-evaluation. The reviewer reads the cap from the spec instead.
+            # The scan covers prose only: `core/evals/**/*.json` legitimately restates a cap
+            # in pt-BR, because a case's `required` describes the behavior an evaluator scores,
+            # not the rule's authoritative statement.
             "150 lines": {
                 _SPEC,
                 "core/skills/developer/SKILL.md",
@@ -265,6 +280,11 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("in a greenfield repository, or when the approved plan declares", developer)
         self.assertIn("use the gates it already has and record the gap", developer)
         self.assertIn("never on the fast lane", developer)
+        # The re-evaluation is a universal count too, so it carries the same adoption gate.
+        self.assertIn(
+            "In a repository that adopted this standard, or when the plan declares it, every file",
+            developer,
+        )
         self.assertIn("**Files over 150 lines:**", pull_request)
         self.assertIn("single responsibility", pull_request)
 
@@ -283,13 +303,13 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         major = (
             "| Layer violation, or a domain that imports a framework, I/O, or a model client | MAJOR |",
             "| Business rule outside the domain | MAJOR |",
-            "| Stateless class with public methods | MAJOR |",
             "| Function over the length cap | MAJOR |",
             "| Class over the public-method cap, with no exemption | MAJOR |",
         )
         minor = (
             "| Assets or documentation mixed with the modules that use them | MINOR |",
-            "| Module that should split by behavior or by family | MINOR |",
+            "| Module with more than one responsibility, or a vocabulary to split by family | MINOR |",
+            "| Stateless class with public methods | MINOR |",
             "| Missing re-evaluation of an oversized file | MINOR |",
         )
         for row in (*major, *minor):
@@ -299,11 +319,62 @@ class CodeOrganizationSpecTest(unittest.TestCase):
         self.assertIn("Anchor each finding at `file:line` with the measured number", reviewer)
         self.assertIn("File size alone is never a finding", reviewer)
 
+    def test_corpora_agree_with_the_reviewer_severities(self) -> None:
+        reviewer_skill = _flat("core/skills/reviewer/SKILL.md")
+        cases = {
+            case["id"]: case
+            for case in json.loads(
+                (_ROOT / "core/evals/reviewer/cases.json").read_text(encoding="utf-8")
+            )
+        }
+        # Each code-organization case names the rule's row in the reviewer table, so a
+        # severity change in the skill cannot leave the corpus behind.
+        expected = {
+            "public-method-cap-major": (
+                "| Class over the public-method cap, with no exemption | MAJOR |",
+                "MAJOR",
+            ),
+            "domain-purity-major": (
+                "| Layer violation, or a domain that imports a framework, I/O, or a model client | MAJOR |",
+                "MAJOR",
+            ),
+            "mixed-assets-minor": (
+                "| Assets or documentation mixed with the modules that use them | MINOR |",
+                "MINOR",
+            ),
+            "stateless-class-minor": (
+                "| Stateless class with public methods | MINOR |",
+                "MINOR",
+            ),
+        }
+        for identifier, (row, severity) in expected.items():
+            with self.subTest(case=identifier):
+                self.assertIn(row, reviewer_skill)
+                required = " ".join(cases[identifier]["required"])
+                self.assertIn(severity, required)
+                for other in {"BLOCKER", "MAJOR", "MINOR", "NIT"} - {severity}:
+                    self.assertNotIn(other, required)
+
+    def test_no_corpus_restates_the_deleted_absolute(self) -> None:
+        deleted = ("tipo de arquivo por diretório", "misturar .py e .md", "por comportamento")
+        for path in sorted((_ROOT / "core/evals").glob("*/cases.json")):
+            corpus = path.read_text(encoding="utf-8")
+            for phrase in deleted:
+                with self.subTest(path=path.relative_to(_ROOT), phrase=phrase):
+                    self.assertNotIn(phrase, corpus)
+
     def test_readme_points_at_the_specification(self) -> None:
         readme = _flat("README.md")
 
         self.assertIn(_ANCHOR, readme)
         self.assertIn("function-length and public-method caps", readme)
+        self.assertIn("the re-evaluation it asks for in an oversized file", readme)
+
+    def test_plan_tables_escape_their_pipes(self) -> None:
+        for line in _read("core/skills/discoverer/references/plan.md").splitlines():
+            if line.startswith("|") and "<" in line:
+                with self.subTest(line=line):
+                    self.assertNotRegex(line, r"<[^>|]*\|[^>]*>")
 
     def test_eval_protocols_wrap_at_one_hundred_columns(self) -> None:
         for path in sorted((_ROOT / "core/evals").glob("*/README.md")):

@@ -38,7 +38,7 @@ _EXPECTED_IDS = {
             "defect-falsifies-plan",
             "real-tests-every-line",
             "architecture-checks-first-slice",
-            "split-tool-module-by-behavior",
+            "split-tool-module-by-responsibility",
             "existing-gates-respected",
             "oversized-file-re-evaluation",
             "form-follows-state",
@@ -68,8 +68,8 @@ _EXPECTED_IDS = {
             "teardown-after-merge",
             "public-method-cap-major",
             "domain-purity-major",
-            "mixed-file-types-major",
-            "stateless-class-major",
+            "mixed-assets-minor",
+            "stateless-class-minor",
         }
     ),
 }
