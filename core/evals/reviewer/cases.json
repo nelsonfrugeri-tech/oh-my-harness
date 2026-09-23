@@ -170,37 +170,38 @@
     "id": "public-method-cap-major",
     "prompt": "Revise o PR #77; ele adiciona a classe Bank no harness dos evals, com nove métodos públicos em 176 linhas.",
     "required": [
-      "Classificar a classe com mais de três métodos públicos como MAJOR",
+      "Aplicar a severidade padrão MAJOR à classe com mais de três métodos públicos, com o impacto medido no repositório",
       "Ancorar o achado em file:line com o número medido de métodos públicos",
       "Não isentar a classe, porque ela não implementa um Protocol declarado",
-      "Aplicar a especificação ao código de eval e de harness, não só ao código de produção"
+      "Aplicar a especificação ao código de eval e de harness, não só ao código de produção",
+      "Recusar a alegação de isenção quando a base do framework não declara esses métodos"
     ]
   },
   {
     "id": "domain-purity-major",
     "prompt": "Revise o PR #81 da regra de limite de crédito.",
     "required": [
-      "Classificar como MAJOR o domínio que importa I/O, framework ou cliente de modelo",
+      "Aplicar a severidade padrão MAJOR ao domínio que importa I/O, framework ou cliente de modelo, com o impacto medido no repositório",
       "Provar o achado com uma verificação estática reproduzível, citando o comando e as referências file:line",
       "Propor uma port do tipo Protocol na camada consumidora, com o adapter fora do domínio"
     ]
   },
   {
-    "id": "mixed-file-types-major",
+    "id": "mixed-assets-minor",
     "prompt": "Revise o PR #83; ele inclui o arquivo do prompt novo do agente.",
     "required": [
-      "Classificar como MAJOR o diretório que mistura .py e .md",
+      "Aplicar a severidade padrão MINOR ao asset misturado com os módulos que o usam",
       "Ancorar o achado em file:line, citando os arquivos do diretório",
-      "Propor o subdiretório de assets do próprio componente, mantendo o arquivo junto do componente"
+      "Propor o subdiretório de assets do próprio componente, mantendo o asset junto do componente"
     ]
   },
   {
-    "id": "stateless-class-major",
+    "id": "stateless-class-minor",
     "prompt": "Revise o PR #90, que adiciona a calculadora de tarifas em um arquivo novo.",
     "required": [
-      "Classificar como MAJOR a classe sem estado que expõe métodos públicos",
+      "Aplicar a severidade padrão MINOR à classe sem estado que expõe métodos públicos",
       "Explicar que ela é uma função disfarçada e propor funções de módulo com helpers privados",
-      "Não rebaixar o achado para preferência de estilo ou NIT"
+      "Recusar o rebaixamento sem evidência medida, e recusar também a elevação sem ela"
     ]
   }
 ]

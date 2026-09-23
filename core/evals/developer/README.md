@@ -22,10 +22,10 @@ corpus defines expected behaviors, not skill wording. Evaluation runs are manual
    gates for `architecture-checks-first-slice`; an existing repository whose Makefile already runs
    lint, type check, and tests for `existing-gates-respected`; an `ai/agent/tools.py` module holding
    three tools with their helpers and its prompt in the same directory for
-   `split-tool-module-by-behavior`; a finished implementation whose proposal module has 180 lines
-   for `oversized-file-re-evaluation`; a plan with one eligibility rule, its result types, and a
-   write-confirmation middleware for `form-follows-state`; and a plan with an interest calculation
-   for `comments-only-when-needed`.
+   `split-tool-module-by-responsibility`; a finished implementation whose proposal module has 180
+   lines for `oversized-file-re-evaluation`; a plan with one eligibility rule, its result types,
+   and a write-confirmation middleware for `form-follows-state`; and a plan with an interest
+   calculation for `comments-only-when-needed`.
 3. Start a fresh session in that fixture as the mode, for example
    `claude --agent oh-my-harness:developer`, or the Codex equivalent in `harness/codex/README.md`.
    Do not expose another case's answer, the expected behaviors, or a prior run to the candidate.

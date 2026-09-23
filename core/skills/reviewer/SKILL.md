@@ -94,20 +94,25 @@ Give the user one trustworthy review of a change and a conversation about it. Ap
 
 Check the diff against
 [organize code by domain](../implement/references/way-of-building.md#organize-code-by-domain), which
-holds the caps and their exemptions. Each rule is one checkable item, and these severities hold when
-the repository has adopted this specification: a greenfield project, or a plan that declares it as
-the code standard. Everywhere else, follow the repository's own convention and report a deviation
-from this reference as a proposal, never as a required fix.
+holds the caps and their exemptions. Each rule is one checkable item, and these are the default
+severities where the repository has adopted this specification: a greenfield project, or a plan that
+declares it as the code standard. Everywhere else, follow the repository's own convention and report
+a deviation from this reference as a proposal, never as a required fix.
+
+Adoption establishes that a rule applies, not what one occurrence costs, so `review` still owns
+severity: every finding carries the impact you measured in this repository, and when the occurrence
+costs less than the default says, downgrade the default with that evidence in the comment. Never
+raise a severity without measured impact, and never downgrade one without it either.
 
 | Finding in the diff | Severity |
 | --- | --- |
 | Layer violation, or a domain that imports a framework, I/O, or a model client | MAJOR |
 | Business rule outside the domain | MAJOR |
-| Stateless class with public methods | MAJOR |
 | Function over the length cap | MAJOR |
 | Class over the public-method cap, with no exemption | MAJOR |
 | Assets or documentation mixed with the modules that use them | MINOR |
-| Module that should split by behavior or by family | MINOR |
+| Module with more than one responsibility, or a vocabulary to split by family | MINOR |
+| Stateless class with public methods | MINOR |
 | Missing re-evaluation of an oversized file | MINOR |
 | Unnecessary comment or docstring | NIT |
 

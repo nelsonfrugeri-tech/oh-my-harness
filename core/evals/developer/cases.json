@@ -149,12 +149,12 @@
     ]
   },
   {
-    "id": "split-tool-module-by-behavior",
+    "id": "split-tool-module-by-responsibility",
     "prompt": "O módulo ai/agent/tools.py do plano já concentra três tools com os helpers delas e outra vai chegar. Implemente a próxima tool.",
     "required": [
-      "Separar o módulo por comportamento, um módulo por tool, cada função pública com seus helpers privados ao lado",
-      "Justificar a separação pelas responsabilidades que o módulo acumula, não por contagem de linhas",
-      "Manter o prompt de cada componente em subdiretório de assets, sem asset dentro do diretório dos módulos"
+      "Separar o módulo por responsabilidade, um módulo por tool, cada função pública com seus helpers privados ao lado",
+      "Justificar a separação pelas duas razões de mudar que o módulo acumula, não por contagem de linhas",
+      "Manter o prompt de cada componente em subdiretório de assets, fora do diretório dos módulos"
     ]
   },
   {
