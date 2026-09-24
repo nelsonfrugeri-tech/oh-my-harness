@@ -1,6 +1,6 @@
 {
   "name": "oh-my-harness",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "A portable, harness-agnostic library of expert agents, skills, and workflows for AI coding assistants.",
   "author": {
     "name": "Nelson Frugeri",
