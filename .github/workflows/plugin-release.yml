@@ -1,0 +1,50 @@
+name: Plugin release contract
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - name: Require a synchronized version bump for every change
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+
+          paths = ('.claude-plugin/plugin.json', '.claude-plugin/marketplace.json',
+                   '.codex-plugin/plugin.json')
+          current = [json.loads(Path(path).read_text()) for path in paths]
+          versions = (current[0]['version'], current[1]['metadata']['version'], current[2]['version'])
+          if len(set(versions)) != 1 or not re.fullmatch(r'\d+\.\d+\.\d+', versions[0]):
+              raise SystemExit('Claude, marketplace, and Codex plugin versions must match SemVer.')
+          base, head = os.environ.get('BASE_SHA'), os.environ.get('HEAD_SHA')
+          if not base or not head:
+              print('No base comparison (manual run); version parity verified.')
+              raise SystemExit(0)
+          changed = subprocess.check_output(['git', 'diff', '--name-only', base, head], text=True).splitlines()
+          if not changed:
+              print('No changes in compared revisions.')
+              raise SystemExit(0)
+          previous = json.loads(subprocess.check_output(
+              ['git', 'show', f'{base}:.claude-plugin/plugin.json'], text=True))['version']
+          if tuple(map(int, versions[0].split('.'))) <= tuple(map(int, previous.split('.'))):
+              raise SystemExit(f'OMH changed: bump plugin version above {previous}.')
+          print(f'Plugin release {previous} -> {versions[0]} covers {len(changed)} changed files.')
+          PY

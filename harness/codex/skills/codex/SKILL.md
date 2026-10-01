@@ -35,6 +35,15 @@ copies, and provider state are derived/provider-owned. Keep credentials, account
 paths, and personal directories out of repository. Keep diagnostics outside projects and do not
 modify Claude adapter files during Codex-only work.
 
+## Package migration to 4.0.0
+
+The knowledge base uses validated pending notes and explicit approval, with previous versions in
+`.history/`; the `kb-session` skill and mutable session records are retired. Plugin installation
+does not migrate the user's bundle. After the release reaches the marketplace, update the plugin,
+then run `installers/codex/install.py --skip-integrations` and `--check` from a durable checkout of
+that release. This refreshes managed global instructions and copied native agents. Open `/hooks`
+in a new Codex session and review trust for changed hook definitions before relying on them.
+
 ## Package migration to 3.0.0
 
 The `feature` skill is removed; the installer drops its orphaned link on the next run. The
