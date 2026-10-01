@@ -113,9 +113,8 @@ and no pending plan revision, the reviewer marks it ready for review through `co
 in its report. With a BLOCKER, or while a finding that falsifies the plan waits for the
 discoverer's new revision, it stays draft and the loop continues.
 
-When the developer or the reviewer needs detail the plan does not hold, the plan note's provenance
-and the discoverer's session record in the knowledge base name the harness and session that wrote
-it. Read that transcript through the `session-memory` capability, read-only, and revalidate what it
+When the developer or the reviewer needs detail the plan does not hold, the plan note's generated provenance names the harness and session that wrote it; raw
+transcripts remain in that harness. Read that transcript through the `session-memory` capability, read-only, and revalidate what it
 says against the plan.
 
 ## Converse

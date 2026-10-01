@@ -86,20 +86,16 @@ checkable property, probabilistic when quality needs a judge or a sample.
 
 ## Persist and read
 
-- Only `knowledge-base` persists the plan, and the plan is the only thing the modes persist there.
-  Brief it with the full plan as an immutable note of `knowledge_type: decision`, project
-  `<project>`, topic `<feature>`, and tags `plan` and `revision-<n>`.
-- The note body follows the decision body contract of `kb-write`: a brief context paragraph, then
-  the approved plan verbatim inside one fenced `markdown` code block, so its tables stay within the
-  minimal formatting that contract allows. The plan's fields cover that contract: the objective and
-  refinement are the choice; `Alternatives` holds the alternatives and trade-offs; key-result
-  baselines hold the evidence; `Approved by`, scenarios, and acceptance criteria hold the owner and
-  validation; revision and supersession hold the review path; and `Falsifying result` holds the
-  falsifier.
-- Create a new revision only at a milestone: plan approved, deviation accepted, or key result
-  changed. The new note supersedes the previous revision through `supersedes`.
-- Readers ask `knowledge-base` for the latest non-deprecated plan of the project and feature, read
-  back the fenced plan exactly as approved, and cite its revision number in every artifact that
-  depends on it.
-- Progress, conformance, review rounds, and the final result are not written to the knowledge
-  base. They live in the pull request, the terminal, and the repository.
+- Only `knowledge-base` persists the plan, and the plan is the only mode artifact stored there.
+  Use `<scope>/<domain>/plans/<feature>/<feature>.md`, `type: decision`, tags identifying the plan,
+  and the schema's required decision sections. Preserve the approved plan verbatim inside a fenced
+  Markdown block in the appropriate section; supply the surrounding schema sections meaningfully.
+- Persist through kb-write pending review. The principal shows the full note or diff and asks for
+  explicit approval; approval of a plan supplies its path, not permission to publish unseen changes.
+- Create revisions only at milestones: plan approved, deviation accepted, or key result changed.
+  An update keeps id and created_at, increments version, and freezes the prior version in .history/
+  with superseded_reason only when the pending revision is approved.
+- Readers ask knowledge-base for the latest active approved plan, read its fenced content exactly,
+  and cite the revision in dependent artifacts. Pending changes are not the implementation contract.
+- Progress, conformance, review rounds, and final results live in the PR, terminal, and repository,
+  never as derivative session JSON in the knowledge bundle.

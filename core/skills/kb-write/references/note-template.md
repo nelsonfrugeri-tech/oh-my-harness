@@ -1,127 +1,550 @@
 # Note template
 
-Use this complete frontmatter shape; replace placeholders with observed values, use empty arrays
-when no material items exist, and omit optional `verified` and `stale_after` when inapplicable.
-`okf_version: "0.2"` belongs only in the bundle-root `index.md`, never in a note.
+Generated from `kb.note` schema. Regenerate with `render_reference()`; do not edit by hand.
+All narrative text is written in pt-BR. The placeholders below must be replaced before validation.
+Required headings keep their relative order. Optional headings may appear anywhere.
+Remove unused optional sections and unused conditional tables; do not leave empty sections.
+Entities, Dates and Figures are required when the corresponding declarations or facts exist.
+Timeline rows require RFC 3339 timestamps and nonempty evidence; Dates and Figures also use
+RFC 3339 timestamps. Currency units use ISO 4217. Entity types are the 13 frontmatter keys.
 
-```yaml
+New notes start pending. Only approval publishes them. A domain identity note is a reference at
+`<scope>/<domain>/identity/identity.md`; a code project also supplies `repository_path`,
+`remote_url` and `default_branch` (`remote_url: null` when unavailable or redacted). Frozen versions add `superseded_at` and
+`superseded_reason` (30–500 characters), and use status superseded. Neither set of fields belongs
+to the ordinary new-note skeleton. Tags contain 1–6 distinct kebab-case values.
+
+## decision
+
+```markdown
 ---
-type: <entity-or-concept-noun>
-title: <short-specific-title>
-description: <one-sentence-description>
-tags: []
-status: stable
+id: "<UUID v4>"
+type: decision
+title: "<10–70 caracteres>"
+description: "<120–300 caracteres em pt-BR>"
+summary: "<600–1500 caracteres em pt-BR>"
+tags: ["<kebab-case>"]
+status: pending
+version: 1
+created_at: "<RFC 3339 UTC>"
+updated_at: "<RFC 3339 UTC>"
 generated:
-  by: <producer/version>
-  at: <ISO-8601-UTC>
-provenance:
-  harness:
-    name: <observed-harness>
-    session_id: <real-session-id>
-    session_name: null
-    app_name: null
-  execution:
-    cwd: /absolute/observed/cwd
-    transcript_path: null
-  machine:
-    id: <stable-machine-uuid>
-    label: <operational-label>
-    hostname: <observed-hostname>
-    username: <observed-username>
-verified:
-  - by: human:<id>
-    at: <ISO-8601-UTC>
-stale_after: <YYYY-MM-DD>
-id: <uuid4>
-distillation_key: null
-knowledge_type: reference
-domain: work/projects/<project>
-topic: <stable-subject>
-created_at: <ISO-8601-UTC>
-entities: [<canonical-name>]
-aliases: []
-entity_refs:
-  - kind: project
-    name: <canonical-name>
-    aliases: []
-references:
-  - kind: repository-url
-    label: <source-label>
-    target: https://example.com/team/repo
-    entity: <canonical-name>
-    status: observed
-occurred_at: null
-temporal_refs:
-  - value: <ISO-8601-date-time-or-interval>
-    timezone: unknown
-    meaning: <temporal-significance>
-supersedes: null
-summary: >-
-  <Self-contained retrieval prose of 200-800 characters, distinct from title and description.>
+  harness: "<claude-code|codex|cursor>"
+  model: null
+  session_id: "<ID real da sessão>"
+  cwd: "<caminho absoluto>"
+  machine_id: "<UUID da identidade estável>"
+parent: null
+related: []
+children: []
+entities:
+  people: []
+  companies: []
+  products: []
+  brands: []
+  roles: []
+  projects: []
+  apps: []
+  urls: []
+  repos: []
+  paths: []
+  documents: []
+  emails: []
+  names: []
 ---
+
+## Decision
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Context
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Options
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Consequences
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## How to apply
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Drivers
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Confirmation
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Sources
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Entities
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Entidade | Tipo | Quem/o que é | Relação | Período | Fonte |
+| --- | --- | --- | --- | --- | --- |
+
+## Dates
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Data | O que é | Quem | Status | Fonte |
+| --- | --- | --- | --- | --- |
+
+## Figures
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Valor | Unidade | O que mede | Quando | Fonte |
+| --- | --- | --- | --- | --- |
 ```
 
-`type` is a free-form entity noun; `knowledge_type` selects one body contract below. Status is
-`stable | draft | deprecated`. `generated` identifies the actual writer and time; `verified` is a
-list added only after real human confirmation, with the mandatory `human:` prefix in each `by`.
-Never fill it from the example alone. `created_at` is immutable; do not add the old `timestamp` field.
-Preserve observed nullable provenance; missing required provenance blocks writing per `kb-write`.
-Use `distillation_key` only for session distillation, otherwise `null`; `supersedes` is the prior
-note's UUID or `null`. `stale_after` is optional when validity is known.
+## event
 
-Keep source `occurred_at` as an observed ISO 8601 instant, date, or `null`. Only timezone-aware
-RFC 3339 instants populate indexed `occurred_at`; date-only and unknown-timezone values remain
-retrievable through `temporal_values`, with `occurred_at: null` in the index.
+```markdown
+---
+id: "<UUID v4>"
+type: event
+title: "<10–70 caracteres>"
+description: "<120–300 caracteres em pt-BR>"
+summary: "<600–1500 caracteres em pt-BR>"
+tags: ["<kebab-case>"]
+status: pending
+version: 1
+created_at: "<RFC 3339 UTC>"
+updated_at: "<RFC 3339 UTC>"
+generated:
+  harness: "<claude-code|codex|cursor>"
+  model: null
+  session_id: "<ID real da sessão>"
+  cwd: "<caminho absoluto>"
+  machine_id: "<UUID da identidade estável>"
+occurred_at: "<RFC 3339 com fuso>"
+parent: null
+related: []
+children: []
+entities:
+  people: []
+  companies: []
+  products: []
+  brands: []
+  roles: []
+  projects: []
+  apps: []
+  urls: []
+  repos: []
+  paths: []
+  documents: []
+  emails: []
+  names: []
+---
 
-## Project identity frontmatter
+## What happened
 
-A `knowledge_type: project` note carries the identity in the same frontmatter block, because
-`kb-retrieval` reads `repository_path`, `remote_url`, and `default_branch` from there for exact
-lookup. Add these keys to the shape above, replacing the placeholder values:
+<!-- Obrigatória -->
 
-```yaml
-knowledge_type: project
-domain: work/projects/<project>
-topic: identity
-name: <canonical-project-name>
-aliases: [<observed-alias>]
-repository_path: /absolute/observed/repository/root
-remote_url: git@example.com:team/repo.git
-default_branch: <observed-default-branch>
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Timeline
+
+<!-- Obrigatória -->
+
+| Quando | Quem | O quê | Como | Evidência |
+| --- | --- | --- | --- | --- |
+
+## Outcome
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Impact
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Causes
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Resolution
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Lessons
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Follow-ups
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Sources
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Entities
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Entidade | Tipo | Quem/o que é | Relação | Período | Fonte |
+| --- | --- | --- | --- | --- | --- |
+
+## Dates
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Data | O que é | Quem | Status | Fonte |
+| --- | --- | --- | --- | --- |
+
+## Figures
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Valor | Unidade | O que mede | Quando | Fonte |
+| --- | --- | --- | --- | --- |
 ```
 
-`name` is the canonical project name and `aliases` holds the observed alternatives; both feed exact
-lookup, so never invent either. `repository_path` is the absolute observed Git root.
-`default_branch` is the observed branch, never an assumed `main`. `remote_url` is the safe remote or
-`null` when the sensitive-target guard of `kb-write` rejects it; a rejected remote is never echoed,
-and its `references` entry is `redacted` with no target. A field that was not observed stays absent
-rather than guessed.
+## procedure
 
-## Body contracts
+```markdown
+---
+id: "<UUID v4>"
+type: procedure
+title: "<10–70 caracteres>"
+description: "<120–300 caracteres em pt-BR>"
+summary: "<600–1500 caracteres em pt-BR>"
+tags: ["<kebab-case>"]
+status: pending
+version: 1
+created_at: "<RFC 3339 UTC>"
+updated_at: "<RFC 3339 UTC>"
+generated:
+  harness: "<claude-code|codex|cursor>"
+  model: null
+  session_id: "<ID real da sessão>"
+  cwd: "<caminho absoluto>"
+  machine_id: "<UUID da identidade estável>"
+parent: null
+related: []
+children: []
+entities:
+  people: []
+  companies: []
+  products: []
+  brands: []
+  roles: []
+  projects: []
+  apps: []
+  urls: []
+  repos: []
+  paths: []
+  documents: []
+  emails: []
+  names: []
+---
 
-Select by knowledge_type, never free-form OKF type. Start with a brief context explaining why the
-note exists; retain the required content below and omit optional sections when inapplicable.
+## Goal
 
-- decision: context/choice, alternatives, evidence/trade-offs, owner/validation, rollback/review,
-  and a falsifying result.
-- event: time/actors, occurrence, impact, response/status, unresolved follow-up.
-- procedure: purpose/prerequisites, ordered steps, verification, failure handling, teardown/rollback.
-- reference: fact/constraint, scope/evidence, consequences, freshness/version boundary.
-- conversation: participants/context, positions, durable outcome, open questions.
-- project: name and observed aliases, repository_path, remote_url or null when the guard rejects it,
-  default_branch, and the supersession pointer when a later note replaces it.
+<!-- Obrigatória -->
 
-If conversation produced another class, use that stronger knowledge_type. Express relationships as
-Markdown links in sentences naming the relationship. Use bundle-rooted paths; omit related-link dumps.
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
 
-A source with a material address also requires a structured `references` entry, even when the body
-mentions it. Preserve canonical entities and observed aliases in `entity_refs`. Never include
-credentials, HTTP(S) userinfo, secret query parameters, or signed URLs; a reference that cannot be
-made safe is `redacted` and has no target.
+## When to use
 
-Keep exact safe targets and absolute local paths; reference status is
-`verified | observed | unverified | redacted`, based on actual validation, not plausibility.
-Do not copy the summary into the body or paste raw transcripts unless the transcript itself is the
-knowledge. Date facts that can drift, such as versions, costs, and policy values. State an event's
-root cause only when established; otherwise link the investigation. Use executable procedure steps
-with expected outputs. Keep Markdown formatting minimal: headings, paragraphs, and code blocks.
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Prerequisites
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Steps
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Verification
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Rollback
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Pitfalls
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Sources
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Entities
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Entidade | Tipo | Quem/o que é | Relação | Período | Fonte |
+| --- | --- | --- | --- | --- | --- |
+
+## Dates
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Data | O que é | Quem | Status | Fonte |
+| --- | --- | --- | --- | --- |
+
+## Figures
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Valor | Unidade | O que mede | Quando | Fonte |
+| --- | --- | --- | --- | --- |
+```
+
+## reference
+
+```markdown
+---
+id: "<UUID v4>"
+type: reference
+title: "<10–70 caracteres>"
+description: "<120–300 caracteres em pt-BR>"
+summary: "<600–1500 caracteres em pt-BR>"
+tags: ["<kebab-case>"]
+status: pending
+version: 1
+created_at: "<RFC 3339 UTC>"
+updated_at: "<RFC 3339 UTC>"
+generated:
+  harness: "<claude-code|codex|cursor>"
+  model: null
+  session_id: "<ID real da sessão>"
+  cwd: "<caminho absoluto>"
+  machine_id: "<UUID da identidade estável>"
+parent: null
+related: []
+children: []
+entities:
+  people: []
+  companies: []
+  products: []
+  brands: []
+  roles: []
+  projects: []
+  apps: []
+  urls: []
+  repos: []
+  paths: []
+  documents: []
+  emails: []
+  names: []
+---
+
+## Facts
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Scope
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Examples
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Caveats
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Where to find more
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Sources
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Entities
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Entidade | Tipo | Quem/o que é | Relação | Período | Fonte |
+| --- | --- | --- | --- | --- | --- |
+
+## Dates
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Data | O que é | Quem | Status | Fonte |
+| --- | --- | --- | --- | --- |
+
+## Figures
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Valor | Unidade | O que mede | Quando | Fonte |
+| --- | --- | --- | --- | --- |
+```
+
+## conversation
+
+```markdown
+---
+id: "<UUID v4>"
+type: conversation
+title: "<10–70 caracteres>"
+description: "<120–300 caracteres em pt-BR>"
+summary: "<600–1500 caracteres em pt-BR>"
+tags: ["<kebab-case>"]
+status: pending
+version: 1
+created_at: "<RFC 3339 UTC>"
+updated_at: "<RFC 3339 UTC>"
+generated:
+  harness: "<claude-code|codex|cursor>"
+  model: null
+  session_id: "<ID real da sessão>"
+  cwd: "<caminho absoluto>"
+  machine_id: "<UUID da identidade estável>"
+parent: null
+related: []
+children: []
+entities:
+  people: []
+  companies: []
+  products: []
+  brands: []
+  roles: []
+  projects: []
+  apps: []
+  urls: []
+  repos: []
+  paths: []
+  documents: []
+  emails: []
+  names: []
+---
+
+## Participants
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Key facts
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Outcome
+
+<!-- Obrigatória -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Discussion
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Action items
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Open questions
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Sources
+
+<!-- Opcional -->
+
+<Descreva os fatos em pt-BR com contexto, papel e relação.>
+
+## Entities
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Entidade | Tipo | Quem/o que é | Relação | Período | Fonte |
+| --- | --- | --- | --- | --- | --- |
+
+## Dates
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Data | O que é | Quem | Status | Fonte |
+| --- | --- | --- | --- | --- |
+
+## Figures
+
+<!-- Condicional: inclua quando houver dados correspondentes -->
+
+| Valor | Unidade | O que mede | Quando | Fonte |
+| --- | --- | --- | --- | --- |
+```

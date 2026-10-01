@@ -119,8 +119,7 @@ patch não precisam de entradas no adapter.
 O Codex armazena transcripts ativos em
 `$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; o `CODEX_HOME` default é
 `~/.codex`. A lógica de session memory deve descobrir o rollout correspondente em vez de assumir um
-diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, escreva o session
-record com `transcript_path: null` e informe o modo degradado.
+diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, informe o modo degradado e exija aprovação explícita antes de escrita sem prova contra o transcript.
 
 ### Destinos de instalação do Codex
 

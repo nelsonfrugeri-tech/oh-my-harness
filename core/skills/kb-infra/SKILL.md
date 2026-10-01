@@ -5,7 +5,7 @@ description: "Internal workflow owned by the knowledge-base agent for Qdrant, BA
 
 # KB Infra
 
-OKF v0.2 Markdown and JSON sessions are source of truth. Qdrant and embeddings are derived. Keep the
+Approved Markdown notes are source of truth; raw transcripts stay in their harness. Qdrant and embeddings are derived. Keep the
 bundle outside repositories and runtime outside the bundle. Resolve roots from the adapter; never
 hardcode personal paths. Use this skill's [docker-compose.yml](docker-compose.yml).
 
@@ -73,40 +73,43 @@ Verify independently: owned container running; Qdrant health; collection knowled
 dense/sparse vectors; dense size/cosine distance; payload indexes; and a valid short embedding.
 Configured never proves healthy. Container presence never proves Qdrant health.
 
-One collection uses kind for note/session. Index `created_at` and `occurred_at` with
-`PayloadSchemaType.DATETIME`. Create keyword indexes for `kind`, `domain`, `topic`, `type`,
-`knowledge_type`, `harness`, `session_id`, `session_name`, `machine_id`, `machine_label`,
-`distillation_key`, `entities`, `aliases`, `entity_kinds`, `entity_keys`,
-`reference_targets`, and `temporal_values` with `PayloadSchemaType.KEYWORD`. Reapplying indexes is
-idempotent; adding exact-lookup fields to an existing collection requires a full reindex, not
-destructive recreation.
+One collection indexes approved notes and frozen versions; it creates no new episodic points.
+Embedding text is `title + description + summary`; point ID is uuid5 of the fixed namespace and
+`f"{id}:{version}"`. Current and frozen versions have distinct stable IDs. Pending never enters
+Qdrant. On approval, upsert current and set the old point status/path to superseded/.history/.
+
+Create keyword indexes for `kind`, `scope`, `domain`, `entity_path`, `type`, `status`, `legacy`,
+`tags`, all thirteen `entities.<kind>` keys, `path_prefixes`, and `url_hosts` with
+`PayloadSchemaType.KEYWORD`. Index `version` as integer and `created_at`, `updated_at`,
+`occurred_at`, and `dates[].at` with `PayloadSchemaType.DATETIME`. For Figures, validate the nested
+float filter in the isolated Qdrant instance; if unsupported, use the approved flattened
+`amount_<currency>` fallback. Do not infer query support from an index declaration.
 
 | Record | Payload fields |
 | --- | --- |
-| Note point (`kind: "note"`) | `kind`, `id`, `title`, `type`, `knowledge_type`, `domain`, `topic`, `distillation_key`, `created_at`, `summary`, `path`, `supersedes`, `archived`, `entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `occurred_at`, `temporal_values`, `harness`, `session_id`, `session_name`, `app_name`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
-| Session point (`kind: "session"`) | `kind`, `harness`, `session_id`, `session_name`, `app_name`, `domain`, `name`, `created_at`, `updated_at`, `entities`, `aliases`, `entity_kinds`, `entity_keys`, `reference_targets`, `temporal_values`, `cwd`, `transcript_path`, `machine_id`, `machine_label`, `hostname`, `username` |
+| Note point (`kind: "note"`) | id, version, path, title, description, summary, type, status, scope, domain, entity_path, tags, entities, path_prefixes, url_hosts, dates, figures, created_at, updated_at, occurred_at |
 
-Reconcile from disk: safely parse YAML/JSON; exclude indexes and logs from notes;
-validate fields; resolve supersession; embed; upsert deterministic IDs; remove stale points only
-after proving no disk source. Derive payload fields deterministically from source metadata:
+Derive scope/domain/entity_path from the validated note path; derive path_prefixes and url_hosts
+from declared safe paths/URLs. Dates and Figures are structured from validated tables; never invent
+a timezone or midnight. Live upsert and full reindex use this same mapping. Every dense and sparse
+prefetch and the final RRF query exclude superseded and legacy by default. History and legacy flags
+relax only their own exclusion. Never make pending searchable as an outage fallback.
 
-- `entity_kinds` from `entity_refs[*].kind`; legacy flat entities never manufacture kinds;
-- `entity_keys` from `entity_refs[*].name` and observed aliases, falling back to legacy
-  `entities`/`aliases`, using NFKC + Unicode casefold + whitespace collapse;
-- `reference_targets` from safe, present `references[*].target` values; redacted references without
-  a target contribute nothing;
-- `temporal_values` from `temporal_refs[*].value` plus a valid `occurred_at`;
-- indexed `occurred_at` only from a timezone-aware RFC 3339 timestamp, never invented midnight or
-  timezone.
+Reconcile from disk with the CLI: validate active notes, frozen history, and links; repair derived
+indexes without modifying source evidence. Do not delete a point merely because its old path moved:
+look under backup/ and .history/ first. Reindexing never modifies source JSON or Markdown or assigns
+current provenance to historical data. Invalid sources are reported and skipped. No automatic
+legacy snapshot migration is performed.
 
-Live upsert and full reindex use this same mapping.
-
-Project missing multi-value fields as `[]` and nullable scalar fields as `null`, report each legacy
-record, and continue the batch. Structured `entity_refs`, `references`, and `temporal_refs` remain
-disk-only. Reindexing never modifies source JSON or source Markdown, manufactures historical metadata,
-or assigns the current machine to a past session. Be resumable and report counts, failures, and
-whether a full reindex remains pending.
+At the explicitly reviewed cutover, `backup --dry-run` inventories local files and reports iCloud
+files without downloaded bytes; blocked files prevent apply. Review the SHA-256 manifest before
+`backup --apply`. Preserve .obsidian/ and .trash/; move the remaining legacy files byte for byte.
+Generate backup/INSTRUCTION.md in pt-BR idempotently with date, reason, plan, counts, manifest hash
+reference, and legacy point state. Existing legacy points receive legacy=true and backup/ paths
+without re-embedding; repeated or resumed marking never doubles the prefix. Partial failures report
+completed and remaining points. Preserve historical payloads rather than manufacturing new fields.
+Legacy reads begin with backup/INSTRUCTION.md. Never treat backup sources as stale garbage.
 
 Normal teardown stops only owned compose resources and preserves data. Volume/cache deletion is
-destructive and requires confirmation. Never delete the Markdown/JSON bundle. Missing Qdrant leaves
-indexing pending but does not block provenance-valid disk writes/navigation.
+destructive and requires confirmation. Never delete the knowledge bundle. Without Qdrant, write can save provenance-valid pending notes and disk navigation continues.
+Approval requires the index and embedder; publication remains pending until they are available.

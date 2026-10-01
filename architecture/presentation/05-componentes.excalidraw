@@ -1329,13 +1329,13 @@
         "board": "05-componentes",
         "sourceRevision": "bf6eb4d53feffa3d135c0fef8afc46e215b26dc4"
       },
-      "text": "explorer · kb-infra · kb-write · kb-retrieval\nkb-session · site-report · site-expose\nAdapters: claude-code · codex",
+      "text": "explorer · kb-infra · kb-write · kb-retrieval\nsite-report · site-expose\nAdapters: claude-code · codex",
       "fontSize": 22,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "explorer · kb-infra · kb-write · kb-retrieval\nkb-session · site-report · site-expose\nAdapters: claude-code · codex",
+      "originalText": "explorer · kb-infra · kb-write · kb-retrieval\nsite-report · site-expose\nAdapters: claude-code · codex",
       "autoResize": true,
       "lineHeight": 1.25
     },

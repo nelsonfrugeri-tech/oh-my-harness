@@ -44,7 +44,7 @@ export const scenes: readonly Scene[] = [
       "Histórico disponível não significa conhecimento organizado e reutilizável.",
     references: [],
     files: [
-      "core/skills/kb-session/SKILL.md",
+      "core/skills/kb-retrieval/SKILL.md",
       "core/skills/kb-retrieval/SKILL.md",
     ],
   },
@@ -80,7 +80,7 @@ export const scenes: readonly Scene[] = [
     title: "O conhecimento fica.\nA sessão pode mudar.",
     lead: "Separar o que aconteceu daquilo que merece continuar válido.",
     takeaway:
-      "Markdown e JSON preservam o conhecimento. O índice pode ser reconstruído.",
+      "Markdown aprovado preserva o conhecimento. O índice pode ser reconstruído.",
     references: [],
     files: [
       "agents/knowledge-base.md",
@@ -89,7 +89,7 @@ export const scenes: readonly Scene[] = [
       "core/skills/kb-infra/SKILL.md",
       "core/hooks/kb-pointer.sh",
     ],
-    note: "O hook de início de sessão fornece um pointer para a KB. Ele não injeta a base inteira: retrieval e preservação são operações explícitas. Transcripts são memória episódica; notas curadas e session records mantêm funções distintas.",
+    note: "O hook de início de sessão fornece um pointer para a KB. Ele não injeta a base inteira: retrieval e preservação são operações explícitas. Transcripts são memória episódica; notas curadas exigem aprovação e preservam versões em .history/.",
   },
   {
     id: "coordenacao",

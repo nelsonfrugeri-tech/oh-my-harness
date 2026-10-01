@@ -40,8 +40,8 @@ validates only the corpus format and does not execute the cases.
    the inline comments and the draft-to-ready transition: mark it `unexercised` rather than `pass`,
    and never score it from a claim.
 5. Save the complete transcript, the reviewed branch's `git status`, the review comments and draft
-   state of the pull request, a listing of the disposable knowledge base excluding session records
-   (`sessions/*.json`), and the list of runtime resources left running outside the product
+   state of the pull request, a listing of the disposable knowledge base including pending notes and
+   frozen versions, and the list of runtime resources left running outside the product
    repository. Tear those resources down with the
    command the candidate reported, and record whether it worked.
 6. Score every item in `required` as `pass` or `fail`, quoting the smallest supporting excerpt. A

@@ -167,7 +167,7 @@ Tool agents operam infraestrutura compartilhada consumida por outros agents.
 
 | Agent | Responsabilidade | Skills |
 | --- | --- | --- |
-| `knowledge-base` | Operar Qdrant, embeddings, notas imutáveis, retrieval em três etapas e session records | `kb-infra`, `kb-write`, `kb-retrieval`, `kb-session` |
+| `knowledge-base` | Operar Qdrant, embeddings, notas pendentes, aprovação, versões congeladas e retrieval | `kb-infra`, `kb-write`, `kb-retrieval` |
 | `explorer` | Mapear um repositório desconhecido e entregar site, proposta de `CLAUDE.md` e handoff de conhecimento | `explorer`, `site-report` |
 | `site` | Criar sites visuais com fontes e expô-los opcionalmente após aprovação | `site-report`, `site-expose` |
 
@@ -202,7 +202,7 @@ dos dois aqui.
 ### Memória — o agent `knowledge-base`
 
 **O que é.** O dono da memória do usuário: conhecimento durável, a identidade de cada projeto e
-o registro das sessões. É **um agent desta biblioteca, não uma capability** — logo não é
+a recuperação dos transcripts dos harnesses. É **um agent desta biblioteca, não uma capability** — logo não é
 substituível, e é isso que sustenta o invariante abaixo.
 
 **Quando.** Quando a resposta depender de algo **privado, episódico ou passado** ("o que decidimos
@@ -222,14 +222,19 @@ e declara.
 
 1. Tool agents nunca escrevem no repositório do usuário. Escritas de conhecimento vão para
    `~/knowledge-base/`; destinos de instalação do adapter ficam no delta do runtime.
-2. Sem Qdrant, escritas em disco continuam e a indexação permanece pendente. O retrieval usa
-   navegação estruturada em disco como fallback e informa explicitamente o modo degradado.
-3. Notas são imutáveis. Correções criam uma nova nota com `supersedes`; session records são
-   documentos mutáveis nomeados e reescritos in-place.
-4. Toda nova nota e todo session record carregam provenance real de harness, sessão, cwd e máquina
-   conforme `kb-write`/`kb-session`. A identidade estável vem de
-   `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente bloqueia a escrita, enquanto
-   metadata que o harness não fornece permanece explicitamente `null`.
+2. Sem Qdrant, `write` grava notas pendentes e a navegação em disco continua. `approve` exige
+   índice e embedder disponíveis; a publicação fica pendente. O retrieval usa navegação estruturada
+   em disco como fallback e informa explicitamente o modo degradado.
+3. Toda nota nova ou atualização fica `pending`. A sessão principal mostra o conteúdo integral ou
+   diff e pede aprovação explícita de caminho e conteúdo. Só então `kb approve` publica a nota.
+   Atualizações congelam a versão anterior em `.history/`, com motivo; mantêm `id` e `created_at`.
+4. Toda nota carrega `generated` com harness, sessão, cwd e machine_id reais conforme `kb-write`.
+   A identidade estável vem de `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente
+   bloqueia a escrita. O modelo fica `null` quando não fornecido pelo harness.
+5. Histórico episódico permanece nos transcripts dos harnesses, consultados por `session-memory`.
+   Não crie JSON de sessão na KB. Escritas de notas passam pelo CLI; nunca edite Markdown diretamente.
+6. `backup/` só é lido a pedido explícito; leia `backup/INSTRUCTION.md` antes de qualquer outro
+   arquivo do legado. Busca e navegação atuais excluem pendentes, versões antigas e legado.
 
 ---
 
@@ -382,8 +387,7 @@ patch não precisam de entradas no adapter.
 O Codex armazena transcripts ativos em
 `$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; o `CODEX_HOME` default é
 `~/.codex`. A lógica de session memory deve descobrir o rollout correspondente em vez de assumir um
-diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, escreva o session
-record com `transcript_path: null` e informe o modo degradado.
+diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, informe o modo degradado e exija aprovação explícita antes de escrita sem prova contra o transcript.
 
 ### Destinos de instalação do Codex
 

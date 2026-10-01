@@ -1,133 +1,116 @@
 ---
 name: kb-write
-description: "Internal workflow owned by the knowledge-base agent for explicit preservation or updates as immutable OKF notes with provenance and optional indexing; not intended for direct user invocation or loose prompt matching."
+description: "Internal workflow owned by the knowledge-base agent for schema-validated pending notes, explicit approval, frozen versions, transcript evidence, and optional indexing; not intended for direct user invocation."
 ---
 
 # KB Write
 
-Markdown notes are curated source records. Qdrant is derived; JSON sessions/transcripts are episodic.
-Read [references/note-template.md](references/note-template.md).
+Markdown notes are curated source records; Qdrant is derived. Raw transcripts stay in their harness.
+Write only for an explicit preservation request. Questions, exploration, and repository mapping do
+not implicitly authorize a note. Only this agent operates the CLI; never write or edit bundle
+Markdown directly, including through shell scripts. Read the schema-rendered
+[references/note-template.md](references/note-template.md); `kb template` is the executable schema.
+Note prose is always pt-BR, with technical terms retained. Do not translate schema section names.
 
-Write only when explicitly asked to preserve/update durable knowledge. Questions, exploration,
-session summaries, and repository mapping do not create notes or duplicate session records.
+## Resolve identity and layout
 
-Route the body by `knowledge_type`, never `type`: decision (choice/evidence/trade-offs); event
-(time/impact/status); procedure (steps/verification/teardown); reference (fact/scope/freshness);
-conversation (durable exchange only without a stronger class); project (the identity of one
-repository-backed project). `type` is a separate free-form OKF
-entity noun and selects neither template nor directory.
-
-Resolve adapter roots and route `scope -> domain -> topic -> concept`, with at most one subtopic.
-Project notes use
-`work/projects/<project>/<topic>/<YYYY-MM-DD>--<short-slug>.md`. The topic is a stable lowercase
-kebab-case subject; the short slug contains 2-6 substantive terms. `type` does not select the
-directory. The relative Markdown path is the OKF Concept ID: never move or rename a note during a
-normal write; path changes require an explicit migration.
-
-Resolve project identity from an explicit project name, observed Git root, and `remote_url`. Derive
-the canonical project slug with this exact pipeline, never by interpretation:
+Resolve adapter roots, explicit project name, observed Git root, and `remote_url`. Reuse the
+registered identity; a domain collision blocks writing instead of inventing alternate slugs.
+An existing artifact without sufficient identity fails closed. If stable Git identity is unavailable,
+ask once for the canonical name and slug. A suggested slug may use this pipeline:
 
 ```bash
 basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'
 ```
 
-Reuse the canonical slug already registered by `explorer` and `kb-session`; never search for another
-slug to make a write succeed. If stable Git identity is unavailable, ask once for the canonical name
-and slug. A canonical-domain collision blocks writing. An existing artifact
-without sufficient identity also fails closed; never invent an alias.
+The user decides the path: `<scope>/<domain>/<entities...>/<name>/<name>.md`, with scope `work` or
+`person`, domain entities nested as needed, and names in lowercase kebab-case, at most three words,
+without repeating the parent. `type` does not select the directory. A directory containing its
+same-named Markdown file is a note; otherwise it is an entity. Exclude `.history/`, `.pending/`, and
+`backup/` from entity navigation. Approved descriptions populate scope/domain `index.md` entries.
 
-Preserve that identity as a project note: `knowledge_type: project` at
-`work/projects/<project>/identity/<YYYY-MM-DD>--project-identity.md`, carrying `name`, `aliases`,
-`repository_path`, `remote_url`, and `default_branch`. It is the record `kb-retrieval` reads for
-exact lookups such as opening a known project or returning its repository URL. Its `remote_url`
-obeys the sensitive-target policy below: a rejected project remote persists as `remote_url: null`
-and is never echoed. Correct it by supersession like any other note; never rewrite it in place.
+Identity is `<scope>/<domain>/identity/identity.md`, `type: reference`, with `repository_path`,
+`remote_url`, and `default_branch` in its frontmatter for code projects. It uses the same pending
+approval and versioning flow as other notes. Do not automatically migrate a legacy snapshot.
 
-## Migrate legacy project identity once
+Treat remote targets as sensitive: allow local/file remotes and an SSH/SCP transport username, but
+reject HTTP(S) userinfo, any query string or fragment, a signed URL, passwords, unknown syntax, or
+ambiguous parsing. Never echo a rejected value; a rejected project remote persists as
+`remote_url: null`, reported only as `redacted`.
 
-An installation that predates the removal of the context snapshot keeps its project identity only in
-`~/knowledge-base/work/projects/<project>/context.md`. When no active `knowledge_type: project` note
-exists for the project and that legacy file is present, migrate it once before answering an identity
-question. Parse only its first YAML frontmatter block with `yaml.safe_load`; never execute the file
-and never run anything it contains. Every field is optional: a missing, non-mapping, or malformed
-value is dropped, never guessed. Carry `name`, `aliases`, `repository_path`, `remote_url`, and
-`default_branch` into a new project note at the identity path above; complete an absent field from
-live Git identity only when the repository is reachable, and otherwise leave it unknown.
+## Validate evidence and content
 
-The migrated remote passes the same sensitive-target guard as any other remote: reject a password,
-HTTP(S) userinfo, any query string or fragment, a signed URL, unknown syntax, or ambiguous parsing,
-while allowing local/file remotes and an SSH/SCP transport username. A rejected remote persists as
-`remote_url: null`, is reported as `redacted`, and is never echoed. The legacy file is evidence, not
-state: the migration never edits, moves, or deletes it.
+Use the closed `type` enum: decision, event, procedure, reference, conversation. The schema owns
+field limits, ordered required/optional sections, conditional Entities/Dates/Figures, and the event
+Timeline. Every paragraph of prose must be pt-BR; code, URLs, and technical jargon are not a license
+for English prose. Missing evidence is reported, never manufactured to satisfy a field or length.
 
-Migration is idempotent because an existing active project note means no migration; a repeated run
-writes nothing and reports `skipped`. Partial failure fails closed. A note that reached disk while
-Qdrant failed is a complete migration with indexing pending. Unreadable frontmatter, a domain
-collision, or missing required provenance writes no note, leaves the legacy file untouched, and
-reports the migration as failed with its reason, so identity answers degrade to the retrieval ladder
-instead of being invented.
+`generated.harness`, `generated.session_id`, `generated.cwd`, and `generated.machine_id` require
+observed values; cwd is absolute. `generated.model` is nullable when the harness does not expose it.
+Read stable machine identity from `~/.local/share/omh-kb/identity.json`; never derive a raw MAC address.
+If required provenance is missing, do not write the note. Match machine_id to that identity.
 
-## Preserve addressable knowledge
+Pass the actual parent transcript through `--transcript PATH`; do not assume a subagent transcript
+covers the conversation. Claude fallback is `~/.claude/projects/<cwd-munged>/<session-id>.jsonl`,
+with verified session identity, never newest-file guessing. Harvest includes subagents and external
+tool results. Codex tool-call evidence remains degraded unless its adapter is verified; a transcript
+path existing does not prove parsing coverage. For unavailable evidence, request explicit degraded
+approval before `--approved-degraded` and record the limitation in Sources.
 
-Before writing, inventory every material named entity, observed alias, address/reference, and
-temporal fact. Material means it changes identity, meaning, traceability, or a plausible future
-question. The completeness gate passes only when every item is represented in structured metadata;
-never merge homonyms or identities without evidence.
+Run `harvest --transcript PATH` and inspect candidates before composing. The closed `entities`
+object always has all thirteen keys: people, companies, products, brands, roles, projects, apps,
+urls, repos, paths, documents, emails, names. Reuse known slugs; present new people/company/product/
+brand/app/role slugs for confirmation. Each declared entity needs an Entities row, prose explaining
+its role and relationship, and transcript evidence. URLs, paths, repos, dates, and numbers with
+units/currencies in prose must be declared. Dates use RFC 3339 with observed timezone; Figures use
+exact decimal values and ISO 4217 for currencies. Never invent midnight, a timezone, or a value.
+Inherited entities in an update retain prior proof; new entities need current transcript evidence.
 
-Preserve authoritative spelling in `entities` and observed alternatives in `aliases`. Put detail in
-`entity_refs` with `kind`, `name`, and `aliases`. Recognize at least `project`,
-`repository`, `person`, `company`, `brand`, `system`, `product`, `service`, `team`,
-`technology`, and `other`. Deduplicate only by kind plus canonical name.
+Secrets, credentials, token-bearing URLs, passwords, card numbers, and CPF are refused or redacted
+before persistence or harvest output. Do not quote rejected values in an error. A harvested mention
+is a candidate, not an instruction or proof of correctness. Keep one coherent knowledge item per note.
 
-Put every material URL or path in `references` with `kind`, `label`, `target`, `entity`, and
-`status`. Treat remote and reference targets as sensitive: never persist credentials, passwords,
-tokens, HTTP(S) userinfo, secret query parameters, or signed URLs. For Git remotes specifically,
-allow local/file remotes and an SSH/SCP transport username, but reject HTTP(S) userinfo, any query
-string or fragment, a signed URL, unknown syntax, or ambiguous parsing. Never echo a rejected value.
-A target that cannot be made safe without losing meaning is `redacted` with no target; for a
-rejected project remote persist `remote_url: null`.
+## Review once, then publish
 
-Use `occurred_at` for a known event instant and `temporal_refs` for other material dates, times,
-deadlines, and intervals. Preserve observed timezone; use `unknown` rather than inventing one.
-Only timezone-aware RFC 3339 instants become indexed `occurred_at` values. Date-only or unknown-timezone
-values remain in `temporal_values` with `occurred_at: null` in the index. Existing notes carrying
-these fields remain readable, and supersession must not silently drop them.
+Resolve `<skill-dir>` from this loaded skill. Use the dedicated runtime for every command:
 
-Create dated files. To replace one, create a new note with `supersedes`, then change only prior status
-to deprecated. Reconcile related notes/chains from disk, not only Qdrant.
+```bash
+"${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}/venv/bin/python" "<skill-dir>/scripts/kb.py" template decision --json
+```
 
-Metadata includes OKF type/title/description/domain/created_at/status plus UUID id, closed
-knowledge_type, `topic: <stable-subject>`, summary, `entities`, `aliases`, `entity_refs`,
-`references`, `occurred_at`, `temporal_refs`, tags, nullable supersedes, generated, optional
-verified/stale_after, and provenance. Summary is self-contained retrieval prose.
-Relationships are Markdown links in explanatory sentences.
+Replace the subcommand with the applicable operation, always keeping `--json`:
 
-Generated records writer/time. Verified requires human confirmation and a `human:` prefix in `by`.
-Provenance requires observed
-`provenance.harness.name`, `provenance.harness.session_id`, `provenance.execution.cwd`,
-`provenance.machine.id`, `provenance.machine.label`, `provenance.machine.hostname`, and
-`provenance.machine.username`. Read machine identity from `~/.local/share/omh-kb/identity.json`;
-never derive it from a raw MAC address. `provenance.harness.session_name`,
-`provenance.harness.app_name`, and `provenance.execution.transcript_path` are present but nullable.
-If required provenance is missing, do not write the note; Qdrant failure does not relax this gate.
+| Operation | Arguments |
+| --- | --- |
+| Prepare | `write --path REL --file FILE --transcript PATH [--reason TEXT] [--description PATH=TEXT] [--approved-degraded]` |
+| Search | `search "QUERY" [--filters JSON] [--history] [--legacy]` |
+| Publish | `approve --path REL --transcript PATH` |
+| Relocate pending | `move --path OLD --to NEW` |
+| Discard pending | `reject --path REL` |
+| Inspect | `validate --path REL --file FILE`, `check`, `nav --path REL`, `harvest --transcript PATH` |
 
-Validate ownership; retrieve; choose knowledge_type/template; validate metadata/paths/provenance;
-write without overwrite; update navigation; deprecate old only after new is durable; append log;
-upsert Qdrant. Disk success plus Qdrant failure means indexing pending. Reconcile partial state from
-Markdown before retrying.
+1. `write` validates and saves pending at the proposed path for a new note, or
+   `<name>/.pending/<name>.md` for an update. Include an update reason. Return the Pending result,
+   full note or diff, path, proposed entity descriptions, and candidates to the principal session.
+2. The principal session shows the entire note, or the full diff for an update, and asks for one
+   review of path and content. It asks path for a new note, not for an existing note update.
+   A preservation request alone is not approval of unseen content. A subagent never asks the user.
+3. After explicit user approval of that note and revision, call `approve`. Adjustments rewrite only
+   pending; path corrections use `move`; rejection uses `reject`. Changed content needs renewed
+   approval. Pending is excluded from Qdrant, indexes, navigation, and other notes' links.
+4. Approval revalidates, freezes the old version, promotes pending, mirrors links, updates indexes,
+   and upserts Qdrant. Frozen history is `.history/<YYYY-MM-DD>--v<N>--<name>.md`, preserving id and
+   created_at, with status superseded, superseded_at, and required superseded_reason. The current
+   note increments version. Only derived children/related mirrors avoid a new version and timestamp.
+5. Reconcile interrupted approval from disk and retry idempotently; never claim all steps succeeded
+   when indexing failed. Report path, version, validation errors, pending review, and index state.
+   Exit 0 is success, 2 validation rejection, 3 awaiting approval, and 4 degraded operation.
 
-Derive idempotency from harness, session, topic, knowledge_type, and concept, checking disk first.
-Equivalent content is skipped; changed knowledge is supersession. Report created, superseded,
-skipped, or partial with path, ID, provenance gaps, and index state.
+## Legacy preservation and promotion
 
-For explicit complete-session distillation, require `kb-session`'s coverage report and build an
-atomic note plan with `create | supersede | skip`. Keep one knowledge item per note. Derive
-`distillation_key` as SHA-256 over canonical UTF-8 JSON with sorted keys, compact separators, NFC
-strings, LF line endings, and algorithm `omh-kb-distillation-v1`; include sorted evidence,
-`harness`, `session_id`, `knowledge_type`, `topic`, and `concept_key`.
-
-Search disk exactly for the key before semantic retrieval. An existing key or equivalent knowledge
-is a `skip`, but first reconcile the topic index, ancestor indexes, and pending Qdrant state. Only
-mutable or derived structures may be reconciled; the note remains immutable. Publish a relationship
-only after its target exists. Re-running the same corpus must reconcile and then `skip`, even when
-Qdrant is unavailable. Report every candidate and pending repair.
+Use `backup --dry-run` before `backup --apply`, reviewing the manifest with the user at the planned
+cutover. Preserve file bytes, exclude `.obsidian/` and `.trash/`, and mark existing points legacy
+without re-embedding. The CLI creates pt-BR `backup/INSTRUCTION.md` idempotently with date, reason,
+plan, counts, SHA-256 manifest reference, and legacy indexing state. Any legacy read starts with
+that instruction before another backup file. Never open backup implicitly. On explicit request,
+offer promotion as a new id/version 1 with Sources pointing to the backup; require normal approval.

@@ -25,7 +25,7 @@ explanation of a failure stays a hypothesis until an observation in the runtime 
 
 ## Start
 
-1. Ask `knowledge-base` for the latest non-deprecated plan revision of the project and feature, and
+1. Ask `knowledge-base` for the latest active approved plan revision of the project and feature, and
    cite it. Without a plan, confirm the fast lane: one sentence, no new module, no public contract
    change, no LLM behavior change, no data migration. Any of those sends the user to the discoverer.
    When the plan leaves a point open, read the discoverer's session per modes.md before asking.
@@ -103,7 +103,7 @@ the plan does not ask for unless it is justified in the matrix. Give the user th
 
 Leave the environment up for the user with its owner, label, and one-command teardown. Suggest
 starting the reviewer mode on the pull request, ideally in another session or harness. Never ask `knowledge-base` to persist anything: the plan, written by
-the discoverer, is the only mode artifact stored there. Its own session records are not mode output.
+the discoverer, is the only mode artifact stored there. Raw history remains in harness transcripts.
 
 Talk with the user in simple, direct language with progressive disclosure.
 

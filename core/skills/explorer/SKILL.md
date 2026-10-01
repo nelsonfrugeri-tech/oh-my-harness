@@ -12,8 +12,8 @@ project identity note belong to `kb-write`, called only by `knowledge-base`. Nev
 duplicate this analysis; notes need a separate explicit request from the caller.
 
 Resolve the Git root and report the project identity the caller needs to register: canonical name,
-observed aliases, repository path, remote, and default branch. Verify existing domain identity from
-root and remote, then note or session provenance if needed. Conflict or ambiguity blocks the
+repository path, remote, and default branch. Verify existing domain identity from
+root and remote, then note provenance if needed. Conflict or ambiguity blocks the
 handoff; never invent an alias.
 
 Treat the Git remote as untrusted sensitive input. Never emit the raw remote into tool output, logs,
@@ -27,7 +27,7 @@ Fictitious example: `https://user:token@example.com/repo.git?signature=secret` i
 persist `remote_url: null` and never echo the rejected value. In contrast,
 `git@example.com:team/repo.git` has a safe SSH/SCP transport username, not a password.
 
-Markdown notes and JSON sessions remain curated and episodic sources; derived indexes such as the
+Approved Markdown notes and raw harness transcripts remain curated and episodic sources; derived indexes such as the
 vector index and the code graph are not sources.
 
 Inspect identity/scope, interfaces, entry points, architecture/flows, persistence/integrations,
@@ -46,7 +46,7 @@ health requires a probe.
    writes the approved proposal, this skill never does — it has no write access to the analyzed
    repository, only to the external site. Absent approval, keep the proposal in the response only.
 3. **Handoff to `knowledge-base`.** Return the project identity (the same fields as the project
-   note: name, aliases, repository path, remote, default branch, with the remote guard above) and
+   note: repository_path, remote_url, default_branch, with the remote guard above) and
    any candidate decision/procedure notes found during mapping, in one explicit block, to the main
    thread. This skill and the `explorer` agent never write to the knowledge base themselves — a
    subagent does not call another subagent, and `knowledge-base` is the only curated-knowledge
@@ -58,3 +58,6 @@ quantities, label inference, and omit generic empty sections.
 
 Degrade explicitly for unavailable remote, code-host, code-graph, web, or runtime. Report scope,
 revision, unknowns, and what was left uninspected.
+
+Identity is a reference note at `<scope>/<domain>/identity/identity.md`. Return candidates to the
+principal session; kb-write stages pending and the principal requests explicit content/path approval.
