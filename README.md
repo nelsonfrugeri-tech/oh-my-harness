@@ -286,6 +286,30 @@ test suite proves the exercised filesystem states, not every possible local conf
 
 For a new machine, [`INSTRUCTIONS.md`](INSTRUCTIONS.md) is the bootstrap entrypoint.
 
+### Updating the harness plugins
+
+Every change to this repository requires a coordinated version bump in
+`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, and
+`.codex-plugin/plugin.json`. Pushing the source alone does not update installed plugins. Once the
+release reaches the marketplace source, update Claude Code and Codex, then verify the loaded version:
+
+```bash
+claude plugin marketplace update oh-my-harness
+claude plugin update oh-my-harness@oh-my-harness
+claude plugin list
+
+codex plugin marketplace upgrade oh-my-harness
+codex plugin add oh-my-harness@oh-my-harness
+codex plugin list
+python3 installers/codex/install.py --skip-integrations
+python3 installers/codex/install.py --check
+```
+
+Run the Codex installer from the released repository revision. Its managed adapter carries global
+instructions and native agents outside the plugin. Claude Code's global `CLAUDE.md` and permissions
+also live outside its plugin; reconcile their managed source when changed, preserving local settings.
+Restart the harness sessions after plugin updates to observe the new components.
+
 ## The PR quality gate
 
 The shared `PreToolUse` hook moves validation to the moment a Pull Request is opened, leaving

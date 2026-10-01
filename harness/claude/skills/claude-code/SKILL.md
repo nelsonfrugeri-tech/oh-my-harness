@@ -232,6 +232,15 @@ merge from Step 2.
 
 ## Step 7 — Verification
 
+### Package migration: 3.1.0 to 4.0.0
+
+The knowledge base moves to validated, approval-gated notes with frozen history. The `kb-session`
+skill and mutable session records are retired. Keep the existing bundle intact until the separate
+post-merge migration and manifest review; installing the plugin does not migrate user notes. After
+updating the plugin, reconcile the changed global `CLAUDE.md` managed section while preserving local
+capability bindings and permissions. Start a new Claude Code session to observe the new skills,
+agents, and hooks.
+
 ### Package migration: 2.0.2 to 3.0.0
 
 Breaking: the `feature` skill and the `harness/claude/workflows/create-feature.ts` prototype are
