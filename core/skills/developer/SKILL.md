@@ -102,10 +102,11 @@ the plan does not ask for unless it is justified in the matrix. Give the user th
 ## Hand off and iterate
 
 Every change to this library bumps the Claude plugin, Claude marketplace, and Codex plugin versions
-together in the delivery. After the release is published, update the installed plugins in
-both harnesses and synchronize the Codex adapter; verify the installed revision and runtime loading.
-If publication or a runtime is unavailable, report that installation as pending rather than
-claiming that a repository push updated it. Preserve user-owned configuration and other plugins.
+together in the delivery. The session handling publication owns the post-merge follow-up: route
+installation to the `claude-code` agent and the Codex `codex` adapter, then verify the installed
+revision and runtime loading in both harnesses. If publication or a runtime is unavailable, name
+the pending owner and step rather than claiming that a repository push updated it. Preserve
+user-owned configuration and other plugins.
 
 Leave the environment up for the user with its owner, label, and one-command teardown. Suggest
 starting the reviewer mode on the pull request, ideally in another session or harness. Never ask `knowledge-base` to persist anything: the plan, written by
