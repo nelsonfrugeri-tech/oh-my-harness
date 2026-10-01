@@ -52,6 +52,15 @@ class KbWriteGuardTests(unittest.TestCase):
         (self.bundle / 'link').symlink_to(outside, target_is_directory=True)
         self.assertEqual('deny', self._run(self.bundle / 'link/note.md')['permissionDecision'])
 
+    def test_case_alias_matches_filesystem_identity(self):
+        alias = self.root / 'KB'
+        if alias.exists():
+            self.assertTrue(alias.samefile(self.bundle))
+            self.assertEqual('deny', self._run(alias / 'work/new.md')['permissionDecision'])
+        else:
+            alias.mkdir()
+            self.assertIsNone(self._run(alias / 'work/new.md'))
+
     def test_cli_and_other_tool_calls_are_not_matched(self):
         self.assertIsNone(self._run(self.bundle / 'note.md', tool='Bash'))
         self.assertIsNone(self._run(self.bundle / 'note.md', tool='Read'))

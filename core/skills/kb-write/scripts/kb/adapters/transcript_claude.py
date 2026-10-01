@@ -3,6 +3,7 @@ from pathlib import Path
 import re
 import shlex
 
+from kb.app.errors import TranscriptFailure
 from kb.app.harvest import HarvestSourcePort
 from kb.app.ports import TranscriptSourcePort
 from kb.entities.extraction import extract
@@ -41,23 +42,45 @@ def _records(path: str) -> tuple[object, ...]:
             files.extend(item for item in directory.rglob('*') if item.is_file()
                          and not item.is_symlink() and item.resolve().is_relative_to(root.resolve()))
     records: list[object] = []
-    for file in sorted(files):
-        content = file.read_text(encoding='utf-8')
+    for file in files:
+        if file != source and file.suffix.lower() in {'.pdf', '.png', '.jpg', '.jpeg', '.gif',
+                                                     '.webp', '.mp3', '.mp4', '.wav', '.zip'}:
+            continue  # Binary tool artifacts are not transcript text evidence.
+        try:
+            content = file.read_text(encoding='utf-8')
+        except UnicodeDecodeError as error:
+            raise TranscriptFailure('Transcript text artifact is not valid UTF-8') from error
         if file != source and file.suffix != '.jsonl':
             records.append(content)
             continue
-        parsed = [json.loads(line) for line in content.splitlines() if line.strip()]
+        try:
+            parsed = [json.loads(line) for line in content.splitlines() if line.strip()]
+        except json.JSONDecodeError as error:
+            raise TranscriptFailure('Transcript contains invalid JSON') from error
         if not parsed:
-            raise ValueError('Empty transcript')
+            raise TranscriptFailure('Empty transcript')
+        supported = 0
         for record in parsed:
             if not isinstance(record, dict):
-                raise ValueError('Transcript records must be JSON objects')
+                raise TranscriptFailure('Transcript records must be JSON objects')
             if record.get('type') in ('session_meta', 'response_item', 'turn_context', 'event_msg'):
-                raise ValueError('Codex transcript proof is unsupported; use approved degraded mode')
-            if record.get('type') not in ('user', 'assistant', 'system', 'summary', 'progress',
-                                           'queue-operation', 'file-history-snapshot', 'last-prompt', 'pr-link'):
-                raise ValueError('Unsupported Claude transcript record')
-        records.extend(parsed)
+                raise TranscriptFailure('Codex transcript proof is unsupported; use approved degraded mode')
+            if record.get('type') in ('user', 'assistant', 'system', 'summary'):
+                before = len(records)
+                message = record.get('message')
+                if isinstance(message, dict) and 'content' in message:
+                    records.append(message['content'])
+                elif isinstance(record.get('content'), (str, list)):
+                    records.append(record['content'])
+                elif record.get('type') == 'summary' and isinstance(record.get('summary'), str):
+                    records.append(record['summary'])
+                if len(records) == before:
+                    if record.get('type') in ('user', 'assistant'):
+                        raise TranscriptFailure('Unsupported message content shape')
+                else:
+                    supported += 1
+        if file == source and not supported:
+            raise TranscriptFailure('Transcript contains no supported message content')
     return tuple(records)
 
 

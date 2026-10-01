@@ -49,8 +49,10 @@ and persistence. The approved plan is the only artifact any mode persists in the
    integration when a boundary is crossed, and deterministic or probabilistic evals only when LLM
    behavior is in scope.
 8. **Approve.** Present the full plan. Revise until the user approves it explicitly.
-9. **Persist.** Ask `knowledge-base` to store the approved plan verbatim as the next revision, then
-   tell the user how to start the developer mode with the project, feature, and revision.
+9. **Persist.** Ask `knowledge-base` to store the approved plan verbatim as a pending revision. Complete
+   the note review and explicit publication approval described in the plan reference. Only after
+   knowledge-base confirms that revision is active, tell the user how to start the developer mode
+   with the project, feature, and revision.
 
 ## Refine the technical shape
 

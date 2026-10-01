@@ -111,5 +111,5 @@ completed and remaining points. Preserve historical payloads rather than manufac
 Legacy reads begin with backup/INSTRUCTION.md. Never treat backup sources as stale garbage.
 
 Normal teardown stops only owned compose resources and preserves data. Volume/cache deletion is
-destructive and requires confirmation. Never delete the knowledge bundle. Missing Qdrant leaves
-indexing pending but does not block provenance-valid disk writes/navigation.
+destructive and requires confirmation. Never delete the knowledge bundle. Without Qdrant, write can save provenance-valid pending notes and disk navigation continues.
+Approval requires the index and embedder; publication remains pending until they are available.

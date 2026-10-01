@@ -29,7 +29,7 @@ def main(argv=None) -> int:
     status = payload.get('status') if isinstance(payload, dict) else None
     if status == 'Pending':
         return 3
-    if status in {'Degraded', 'LegacyPending', 'Unavailable'}:
+    if status in {'Degraded', 'LegacyPending', 'Unavailable', 'Blocked'}:
         return 4
     if status == 'Rejected' or status == 'Checked' and payload.get('errors'):
         return 2

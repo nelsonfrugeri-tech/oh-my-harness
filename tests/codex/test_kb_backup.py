@@ -46,14 +46,14 @@ class BackupPreservationTest(unittest.TestCase):
             self.assertEqual(instruction, store.read_text('backup/INSTRUCTION.md'))
 
     def test_unavailable_icloud_placeholder_blocks_apply(self):
-        from kb.app.outcomes import Rejected
+        from kb.app.backup_model import Blocked
         with tempfile.TemporaryDirectory() as root:
             store = FileNoteStore(Path(root))
             store.write_text('.missing.md.icloud', 'placeholder')
             context = Context(store, FixedClock(), 'unused', LegacyIndex())
             result = backup(context, FileBackupStore(Path(root)), apply=True,
                             template='', reason='migration', plan='plan')
-            self.assertIsInstance(result, Rejected)
+            self.assertIsInstance(result, Blocked)
             self.assertFalse(store.exists('backup/.manifest.json'))
 
     def test_tampered_manifest_cannot_move_a_file_outside_bundle(self):

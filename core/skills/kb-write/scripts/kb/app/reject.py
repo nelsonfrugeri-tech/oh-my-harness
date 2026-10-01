@@ -8,7 +8,7 @@ def reject(path: str, context: Context) -> Discarded | Rejected:
     candidate, metadata = pending.paths(path)
     if not context.store.exists(metadata):
         return Rejected(('No pending operation exists',))
-    if context.store.exists(metadata.replace('metadata.json', 'approved.md')):
+    if context.store.exists(pending.receipt_path(path)):
         return Rejected(('Publication already started; resume approve',))
     operation = pending.load(context.store, path)
     target = candidate if operation.updating else path

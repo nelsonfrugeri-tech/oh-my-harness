@@ -31,6 +31,7 @@ class Event:
     candidates_shown: bool = False
     asks_path: bool = False
     approved: bool = False
+    session_record: bool = False
 
 
 def parse_event(raw: object) -> Event:
@@ -56,6 +57,8 @@ def parse_event(raw: object) -> Event:
     if event.kind in {Kind.PENDING, Kind.PRESENT, Kind.ASK, Kind.CONSENT, Kind.APPROVE}:
         if not event.note or not event.revision:
             raise ValueError('note events need note and revision')
+    if event.kind == Kind.WRITE and 'session_record' not in values:
+        raise ValueError('write events need an observed session_record classification')
     if event.kind in {Kind.READ, Kind.WRITE} and not event.path:
         raise ValueError('file events need a path')
     return event

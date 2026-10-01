@@ -33,7 +33,7 @@ def check(context: Context) -> Checked:
         parts = path.split('/')
         if 'backup' in parts or parts[-1] in RESERVED_FILES:
             continue
-        if parts[-1] == 'approved.md':
+        if len(parts) > 1 and parts[-2:] == ['.pending', '.receipt.md']:
             continue
         if re.search(r' \d+\.md$', path):
             errors.append(f'{path}: iCloud conflict copy')

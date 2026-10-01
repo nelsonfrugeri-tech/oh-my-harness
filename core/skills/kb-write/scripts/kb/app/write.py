@@ -6,19 +6,20 @@ from kb.app.descriptions import validate_descriptions
 from kb.app.outcomes import Pending, Rejected
 from kb.app.validation import validate_candidate
 from kb.note.model import Note
-from kb.note.vocabulary import Status
+from kb.note.vocabulary import REASON_LIMITS, Status
 
 
 def write(note: Note, context: Context, *, transcript: str | None,
           descriptions: tuple[tuple[str, str], ...] = (), reason: str = '',
           approved_degraded: bool = False) -> Pending | Rejected:
+    reason = reason.strip()
     path = note.path.relative_path
-    receipt = pending.paths(path)[1].replace('metadata.json', 'approved.md')
+    receipt = pending.receipt_path(path)
     if context.store.exists(receipt):
         return Rejected(('Publication has started; resume approve before proposing another revision',))
     existing = context.store.read(path) if context.store.exists(path) else None
     previous = existing if existing and existing.frontmatter.status == Status.ACTIVE else None
-    if previous and not 30 <= len(reason) <= 500:
+    if previous and not REASON_LIMITS[0] <= len(reason) <= REASON_LIMITS[1]:
         return Rejected(('Updates require a reason of 30–500 characters',))
     if previous and (note.frontmatter.id != previous.frontmatter.id
                      or note.frontmatter.created_at != previous.frontmatter.created_at):

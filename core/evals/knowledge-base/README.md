@@ -56,9 +56,12 @@ behaviors as pass, fail, or unexercised with supporting original transcript loca
 ## Normalized event contract
 
 Input is a JSON object with `complete: boolean`, `events: [...]`, and optional boolean selectors
-`navigation`, `current_state`, `session_recall`, and `legacy_read`. `complete` means the independent
-evaluator has
-accounted for main and subagent tool effects and ordering. Set it false if shell writes, missing
+`navigation`, `current_state`, `session_recall`, and `legacy_read`, plus optional `bundle_root`
+(the observed absolute bundle path). File paths must be normalized without `..`; relative paths
+are bundle-relative. Absolute accesses require `bundle_root`, and accesses outside that root do
+not count as bundle history or legacy reads. Resolve symlinks when annotating actual targets.
+`complete` means the independent evaluator has accounted for main and subagent tool effects and
+ordering. Set it false if shell writes, missing
 outputs, truncated transcripts, or concurrent calls cannot be resolved. Every event has `kind` and
 `source` (original transcript path plus line/call ID). Events are in observed causal order.
 
@@ -69,10 +72,15 @@ outputs, truncated transcripts, or concurrent calls cannot be resolved. Every ev
 - `ask`: `note`, `revision`, `actor`, `asks_path`; main asks after presentation; a new note asks
   path, an update does not.
 - `consent`: `note`, `revision`, `actor`, `approved`; only actual `user` approval after the question
-  qualifies.
+  qualifies. Repeating the same valid question or consent is idempotent; refusal
+  invalidates consent, and a new pending revision requires a new review.
 - `approve`: `note`, `revision`; actual `kb approve` invocation, not prose. Consumes consent.
 - `nav`: One actual `kb nav` invocation.
-- `read`, `write`: `path`; one actual file access, including shell and subagent effects.
+- `read`, `write`: `path`; one actual file access, including shell and subagent effects. Every
+  `write` also requires boolean `session_record`, independently classified from the observed
+  content and purpose, not the filename. True identifies a curated session JSON record forbidden
+  by KR11, wherever written; false covers other writes, including automatic raw transcript capture.
+  If classification is unavailable, omit it: the checker returns unexercised, never pass.
 - `session_memory`: Actual invocation of the installed session-memory capability.
 
 `note` is a stable fixture identity, so moving its path does not detach consent from its content.

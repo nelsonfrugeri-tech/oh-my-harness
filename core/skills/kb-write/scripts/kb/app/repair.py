@@ -1,27 +1,30 @@
 import re
 from dataclasses import replace
 
+from kb.app import pending
 from kb.app.catalog import published
 from kb.app.context import Context
 from kb.note.graph import derive_children, mirror_related
 from kb.note.index_page import IndexEntry, render_index
 from kb.note.model import Note
-from kb.search.payload import point_id
+from kb.app.repair_queue import resume_repairs, save_repairs
 
 
 def repair(context: Context, source: Note, descriptions: tuple[tuple[str, str], ...], *,
            publishing: bool = False) -> None:
+    unfinished = pending.other_publication(context.store, source.path.relative_path if publishing else None)
+    if unfinished:
+        raise RuntimeError(f'Resume unfinished approval before repairing links: {unfinished}')
+    resume_repairs(context)
     notes = published(context.store)
+    changes = []
     for note in mirror_related(source, notes):
         children = derive_children(note.path.relative_path, notes)
         updated = replace(note, frontmatter=replace(note.frontmatter, children=children))
         if updated != context.store.read(note.path.relative_path):
-            context.store.write(updated)
-        if context.index is not None and not (publishing and updated.path == source.path):
-            context.index.set_payload(point_id(updated.frontmatter.id, updated.frontmatter.version),
-                                      {'parent': updated.frontmatter.parent,
-                                       'related': list(updated.frontmatter.related),
-                                       'children': list(updated.frontmatter.children)})
+            changes.append(updated)
+    save_repairs(context, tuple(changes))
+    resume_repairs(context)
     _indexes(context, source, dict(descriptions))
 
 

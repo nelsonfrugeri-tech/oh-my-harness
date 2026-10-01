@@ -18,7 +18,7 @@ def move(path: str, target: NotePath, context: Context, *,
     old_directories = metadata.created_dirs
     if metadata.updating:
         return Rejected(('Moving an existing active note is outside this operation',))
-    if context.store.exists(metadata_path.replace('metadata.json', 'approved.md')):
+    if context.store.exists(pending.receipt_path(path)):
         return Rejected(('Publication has started; resume approve',))
     if context.store.exists(destination):
         return Rejected(('Destination already exists',))

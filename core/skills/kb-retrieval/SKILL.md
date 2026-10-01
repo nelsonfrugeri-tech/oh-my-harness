@@ -39,7 +39,15 @@ Embed with fixed BAAI/bge-m3, dense/sparse prefetch and RRF. Apply `must_not sta
 pending notes never enter Qdrant. Filter scope, domain, entity_path, type, tags, entities, dates,
 figures, path_prefixes, and url_hosts as appropriate. Unknown metadata is not evidence of absence.
 
-Resolve `<skill-dir>` to the installed kb-write skill and navigate with:
+Resolve `<skill-dir>` to the installed kb-write skill. Use the CLI for search so its default
+filters apply to both prefetches and the final query:
+
+```bash
+"${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}/venv/bin/python" "<skill-dir>/scripts/kb.py" search "QUERY" --filters '{}' --json
+```
+
+Add `--history` and/or `--legacy` only for the corresponding explicit request; the flags can be
+combined and each relaxes only its own exclusion. Navigate with:
 
 ```bash
 "${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}/venv/bin/python" "<skill-dir>/scripts/kb.py" nav --path REL --json

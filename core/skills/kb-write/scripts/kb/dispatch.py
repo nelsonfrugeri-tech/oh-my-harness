@@ -3,7 +3,8 @@ from pathlib import Path
 
 from kb.adapters.markdown import parse_note
 from kb.adapters.transcript_claude import ClaudeTranscriptSource
-from kb.app.outcomes import Rejected
+from kb.app.errors import TranscriptFailure
+from kb.app.outcomes import Degraded, Rejected
 from kb.note.model import NotePath
 from kb.note.vocabulary import NoteType, Scope
 
@@ -37,7 +38,15 @@ def _publication(args, context):
     if args.transcript:
         try:
             transcript = ClaudeTranscriptSource().load(args.transcript)
-        except (OSError, ValueError):
+        except (OSError, ValueError) as error:
+            allowed = getattr(args, 'approved_degraded', False)
+            if args.command == 'approve':
+                from kb.app import pending
+                if context.store.exists(pending.paths(args.path)[1]):
+                    allowed = pending.load(context.store, args.path).approved_degraded
+            if not allowed:
+                reason = str(error) if isinstance(error, TranscriptFailure) else type(error).__name__
+                return Degraded('Transcript evidence unavailable: ' + reason)
             transcript = None
     if args.command == 'approve':
         from kb.app.approve import approve

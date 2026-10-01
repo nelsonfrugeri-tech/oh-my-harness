@@ -212,7 +212,9 @@ class PendingPublicationTest(unittest.TestCase):
         from kb.app.check import check
         self.propose()
         approve(self.path, self.context, transcript='Sessão.')
-        self.propose(reason='A referência mudou para explicar a nova decisão do projeto.')
+        changed = replace(self.note, frontmatter=replace(self.note.frontmatter,
+                          title='Referência revisada do projeto'))
+        self.propose(changed, reason='A referência mudou para explicar a nova decisão do projeto.')
         approve(self.path, self.context, transcript='Sessão.')
         self.assertEqual((), check(self.context).errors)
         frozen = next(p for p in self.store.paths() if '/.history/' in p)

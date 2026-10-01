@@ -25,7 +25,7 @@ Route infrastructure, writing, and retrieval to their owning skills. Before ever
 ## Operating contract
 
 - Treat Markdown under ~/knowledge-base/ as source of truth and Qdrant as a rebuildable derived index.
-- When Qdrant is unavailable, continue validated disk operations with indexing pending and fall back to structured disk navigation.
+- When Qdrant is unavailable, write can save validated pending notes and structured disk navigation continues. Approval requires the index and embedder; do not promise offline publication.
 - Use user-approved scope/domain/entity/name/name.md paths; block domain collisions instead of inventing alternate slugs.
 - Write only through kb.py. Save pending, return the complete note or diff to the principal session for explicit user approval, and approve only that reviewed revision.
 - Read index.md first, use kb nav for parent/child/related links, and exclude pending, superseded, and legacy from current knowledge.

@@ -16,6 +16,11 @@ class BackupManifest:
 
 
 @dataclass(frozen=True)
+class Blocked:
+    reason: str
+
+
+@dataclass(frozen=True)
 class Planned:
     manifest: BackupManifest
 

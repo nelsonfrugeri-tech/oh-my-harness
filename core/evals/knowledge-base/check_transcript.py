@@ -25,10 +25,10 @@ def advance(event: Event, review: Review) -> Review:
         stage = 1 if valid else 0
     elif event.kind == Kind.ASK:
         valid = event.actor == 'main' and event.asks_path != review.update
-        stage = 2 if stage == 1 and valid else 0
+        stage = max(stage, 2) if stage >= 1 and valid else 0
     elif event.kind == Kind.CONSENT:
         valid = event.actor == 'user' and event.approved
-        stage = 3 if stage == 2 and valid else 0
+        stage = 3 if stage >= 2 and valid else 0
     return Review(review.content, review.update, stage)
 
 
@@ -56,19 +56,25 @@ def check(raw: object) -> dict[str, object]:
         if flag in raw and type(raw[flag]) is not bool:
             raise ValueError(f'{flag} must be boolean')
     events = tuple(parse_event(item) for item in raw['events'])
+    bundle_root = raw.get('bundle_root')
+    if bundle_root is not None:
+        if not isinstance(bundle_root, str) or not PurePosixPath(bundle_root).is_absolute():
+            raise ValueError('bundle_root must be an absolute path')
+        if '..' in PurePosixPath(bundle_root).parts:
+            raise ValueError('bundle_root must be normalized')
     failures = approval_failures(events)
     nav_calls = sum(event.kind == Kind.NAV for event in events)
     if raw.get('navigation') and nav_calls > 2:
         failures.append('navigation exceeds two calls')
     for event in events:
-        parts = PurePosixPath(event.path).parts
+        parts = bundle_parts(event.path, bundle_root)
         if raw.get('current_state') and event.kind == Kind.READ:
-            if '.history' in parts or 'backup' in parts:
+            if '.history' in parts or parts[:1] == ('backup',):
                 failures.append(f'{event.source}: current-state read opened historical data')
-        if event.kind == Kind.WRITE and 'sessions' in parts and event.path.endswith('.json'):
+        if event.kind == Kind.WRITE and event.session_record:
             failures.append(f'{event.source}: session record written')
     if raw.get('legacy_read'):
-        failures.extend(legacy_failures(events))
+        failures.extend(legacy_failures(events, bundle_root))
     missing = []
     if raw.get('complete') is not True or not events:
         missing.append('complete observed transcript required')
@@ -81,14 +87,28 @@ def check(raw: object) -> dict[str, object]:
             'nav_calls': nav_calls, 'approval_calls': sum(e.kind == Kind.APPROVE for e in events)}
 
 
-def legacy_failures(events: tuple[Event, ...]) -> list[str]:
+def bundle_parts(path: str, root: str | None) -> tuple[str, ...]:
+    parsed = PurePosixPath(path)
+    if '..' in parsed.parts:
+        raise ValueError('file paths must be normalized without parent traversal')
+    if not parsed.is_absolute():
+        return parsed.parts
+    if root is None:
+        raise ValueError('absolute file paths require an observed bundle_root')
+    try:
+        return parsed.relative_to(root).parts
+    except ValueError:
+        return ()
+
+
+def legacy_failures(events: tuple[Event, ...], root: str | None) -> list[str]:
     instruction_seen = False
     failures: list[str] = []
     for event in events:
-        parts = PurePosixPath(event.path).parts
-        if event.kind != Kind.READ or 'backup' not in parts:
+        parts = bundle_parts(event.path, root)
+        if event.kind != Kind.READ or parts[:1] != ('backup',):
             continue
-        relative = parts[parts.index('backup') + 1:]
+        relative = parts[1:]
         if relative == ('INSTRUCTION.md',):
             instruction_seen = True
         elif not instruction_seen:

@@ -222,8 +222,9 @@ e declara.
 
 1. Tool agents nunca escrevem no repositório do usuário. Escritas de conhecimento vão para
    `~/knowledge-base/`; destinos de instalação do adapter ficam no delta do runtime.
-2. Sem Qdrant, escritas em disco continuam e a indexação permanece pendente. O retrieval usa
-   navegação estruturada em disco como fallback e informa explicitamente o modo degradado.
+2. Sem Qdrant, `write` grava notas pendentes e a navegação em disco continua. `approve` exige
+   índice e embedder disponíveis; a publicação fica pendente. O retrieval usa navegação estruturada
+   em disco como fallback e informa explicitamente o modo degradado.
 3. Toda nota nova ou atualização fica `pending`. A sessão principal mostra o conteúdo integral ou
    diff e pede aprovação explícita de caminho e conteúdo. Só então `kb approve` publica a nota.
    Atualizações congelam a versão anterior em `.history/`, com motivo; mantêm `id` e `created_at`.

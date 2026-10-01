@@ -8,6 +8,8 @@ from typing import TypeVar
 from qdrant_client import QdrantClient, models
 from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedResponse
 
+from kb.app.errors import EnvironmentFailure
+
 from kb.app.ports import SearchIndexPort
 from kb.entities.kinds import EntityKind
 from kb.note.model import Note
@@ -32,9 +34,9 @@ class QdrantIndex(SearchIndexPort):
         configuration = _retry(lambda: self.client.get_collection(self.collection)).config.params
         vectors = configuration.vectors
         if not isinstance(vectors, dict) or 'dense' not in vectors or vectors['dense'].size != dimension:
-            raise ValueError('Collection dense dimension does not match the fixed embedding model.')
+            raise EnvironmentFailure('Collection dense dimension does not match the fixed embedding model.')
         if not configuration.sparse_vectors or 'sparse' not in configuration.sparse_vectors:
-            raise ValueError('Collection must define the sparse vector.')
+            raise EnvironmentFailure('Collection must define the sparse vector.')
         keywords = ('kind', 'scope', 'domain', 'entity_path', 'type', 'status', 'tags',
                     'path_prefixes', 'url_hosts', 'figures[].currency', 'figures[].unit')
         for name in (*keywords, *(f'entities.{kind.value}' for kind in EntityKind)):
@@ -73,37 +75,42 @@ class QdrantIndex(SearchIndexPort):
             raise ValueError('Legacy migration requires the backup/ prefix.')
         sources = frozenset(source_paths) if source_paths is not None else None
         offset = None
+        matched = 0
         while True:
             points, next_offset = _retry(lambda: self.client.scroll(
                 self.collection, limit=100, offset=offset, with_payload=True, with_vectors=False))
             updates: list[models.SetPayloadOperation] = []
             for point in points:
                 payload = point.payload or {}
-                path = payload.get('path')
-                if not isinstance(path, str) or not path:
-                    raise RuntimeError('Legacy migration cannot match a point without its source path.')
-                original_path = path.removeprefix(prefix)
-                if sources is not None and original_path not in sources:
-                    continue
-                if path.split('/')[-1] in {'INSTRUCTION.md', 'index.md'}:
-                    continue
-                target = path if path.startswith(prefix) else prefix + path
-                if payload.get('legacy') is True and target == path:
+                if payload.get('kind') == 'session':
+                    session_id = payload.get('session_id') or str(point.id)
+                    domain = payload.get('domain')
+                    if sources is not None and not isinstance(domain, str):
+                        raise EnvironmentFailure('Legacy session point has no domain for manifest matching.')
+                    if sources is not None and f'{domain}/sessions/{session_id}.json' not in sources:
+                        continue
+                    fields = {'legacy': True}
+                else:
+                    path = payload.get('path')
+                    if not isinstance(path, str) or not path:
+                        raise EnvironmentFailure('Legacy migration cannot match a note without its source path.')
+                    original_path = path.removeprefix(prefix)
+                    if sources is not None and original_path not in sources:
+                        continue
+                    if path.split('/')[-1] in {'INSTRUCTION.md', 'index.md'}:
+                        continue
+                    fields = {'legacy': True, 'path': prefix + original_path}
+                matched += 1
+                if all(payload.get(key) == value for key, value in fields.items()):
                     continue
                 updates.append(models.SetPayloadOperation(set_payload=models.SetPayload(
-                    payload={'legacy': True, 'path': target}, points=[point.id])))
+                    payload=fields, points=[point.id])))
             if updates:
                 _retry(lambda: self.client.batch_update_points(self.collection, updates, wait=True))
             if next_offset is None:
                 break
             offset = next_offset
-        conditions = [models.FieldCondition(key='legacy', match=models.MatchValue(value=True))]
-        if sources is not None:
-            conditions.append(models.FieldCondition(key='path', match=models.MatchAny(
-                any=[prefix + source for source in sources])))
-        result = _retry(lambda: self.client.count(self.collection, count_filter=models.Filter(
-            must=conditions), exact=True))
-        return result.count
+        return matched
 
     def _index(self, field: str, schema: models.PayloadSchemaType) -> None:
         _retry(lambda: self.client.create_payload_index(self.collection, field, schema, wait=True))

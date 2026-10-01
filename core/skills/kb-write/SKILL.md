@@ -83,6 +83,7 @@ Replace the subcommand with the applicable operation, always keeping `--json`:
 | Operation | Arguments |
 | --- | --- |
 | Prepare | `write --path REL --file FILE --transcript PATH [--reason TEXT] [--description PATH=TEXT] [--approved-degraded]` |
+| Search | `search "QUERY" [--filters JSON] [--history] [--legacy]` |
 | Publish | `approve --path REL --transcript PATH` |
 | Relocate pending | `move --path OLD --to NEW` |
 | Discard pending | `reject --path REL` |

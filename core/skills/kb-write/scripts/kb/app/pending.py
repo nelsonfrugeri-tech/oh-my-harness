@@ -2,6 +2,7 @@ import json
 from dataclasses import dataclass
 
 from kb.app.ports import NoteStorePort
+from kb.app.catalog import note_path
 
 
 @dataclass(frozen=True)
@@ -39,3 +40,18 @@ def created_dirs(store: NoteStorePort, path: str) -> tuple[str, ...]:
     parents.append('/'.join(parts) + '/.pending')
     existing = set(store.directories())
     return tuple(parent for parent in parents if parent not in existing)
+
+
+def receipt_path(path: str) -> str:
+    return path.rsplit("/", 1)[0] + "/.pending/.receipt.md"
+
+
+def other_publication(store: NoteStorePort, path: str | None = None) -> str | None:
+    own = receipt_path(path) if path is not None else None
+    for candidate in store.paths():
+        if candidate.endswith('/.pending/.receipt.md') and candidate != own:
+            folder = candidate.rsplit('/.pending/', 1)[0]
+            logical = folder + '/' + folder.rsplit('/', 1)[-1] + '.md'
+            if note_path(logical):
+                return logical
+    return None

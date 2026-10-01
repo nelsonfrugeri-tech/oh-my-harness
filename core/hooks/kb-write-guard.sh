@@ -37,6 +37,9 @@ def main():
     root = Path(os.path.abspath(Path(sys.argv[1]).expanduser()))
     canonical = target.resolve()
     protected = lexical.is_relative_to(root) or canonical.is_relative_to(root.resolve())
+    if not protected and root.exists():
+        protected = any(ancestor.exists() and ancestor.samefile(root)
+                        for ancestor in (target, *target.parents))
     if protected and (lexical.suffix.casefold() == '.md' or canonical.suffix.casefold() == '.md'):
         deny('Escrita direta de Markdown na knowledge base recusada. Use o agent knowledge-base '
              'e o CLI kb.py para validar, propor e aprovar a nota.')

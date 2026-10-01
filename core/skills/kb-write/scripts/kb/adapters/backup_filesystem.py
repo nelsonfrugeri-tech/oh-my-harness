@@ -2,6 +2,8 @@ import hashlib
 import os
 from pathlib import Path
 
+from kb.app.errors import EnvironmentFailure
+
 from kb.app.backup_model import BackupManifest, BackupStorePort, ManifestEntry
 
 
@@ -43,10 +45,10 @@ class FileBackupStore(BackupStorePort):
             target = self._resolve('backup/' + entry.path)
             if target.exists():
                 if _digest(target) != entry.sha256 or source.exists():
-                    raise ValueError(f'Backup collision: {entry.path}')
+                    raise EnvironmentFailure(f'Backup collision: {entry.path}')
                 continue
             if _digest(source) != entry.sha256:
-                raise ValueError(f'File changed after inventory: {entry.path}')
+                raise EnvironmentFailure(f'File changed after inventory: {entry.path}')
             target.parent.mkdir(parents=True, exist_ok=True)
             source.rename(target)
         for base, directories, _ in os.walk(self.root, topdown=False):

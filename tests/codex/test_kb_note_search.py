@@ -87,7 +87,8 @@ class QdrantIntegrationTests(unittest.TestCase):
         self.index.client.close()
 
     def test_existing_collection_dimension_must_match_the_model(self):
-        with self.assertRaises(ValueError):
+        from kb.app.errors import EnvironmentFailure
+        with self.assertRaises(EnvironmentFailure):
             self.index.ensure_collection(dimension=1024)
 
     def test_status_and_legacy_filters_apply_to_hybrid_search(self):
