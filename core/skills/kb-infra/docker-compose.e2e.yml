@@ -1,0 +1,15 @@
+name: kb-note-model-e2e
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.18.0
+    labels:
+      omh.owner: kb-note-model-developer
+    ports:
+      - "127.0.0.1:${OMH_KB_E2E_PORT:-16333}:6333"
+    volumes:
+      - kb-note-model-e2e:/qdrant/storage
+    restart: "no"
+volumes:
+  kb-note-model-e2e:
+    labels:
+      omh.owner: kb-note-model-developer

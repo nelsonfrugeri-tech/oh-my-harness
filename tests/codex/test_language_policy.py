@@ -9,6 +9,8 @@ from pathlib import Path
 
 
 _ROOT = Path(__file__).resolve().parents[2]
+_NOTE_TEMPLATE = "core/skills/kb-write/references/note-template.md"
+_BACKUP_INSTRUCTION = "core/skills/kb-write/scripts/kb/app/assets/backup-instruction.md"
 _PORTUGUESE = re.compile(
     r"[áàâãéêíóôõúç]|"
     r"\b(?:não|você|vocês|usuário|usuários|arquivo|arquivos|projeto|projetos|"
@@ -99,7 +101,10 @@ class LanguagePolicyTest(unittest.TestCase):
     def test_english_instruction_surfaces_reject_portuguese_prose(self) -> None:
         for path in _english_instruction_files():
             with self.subTest(path=path.relative_to(_ROOT)):
-                match = _PORTUGUESE.search(path.read_text(encoding="utf-8"))
+                text = path.read_text(encoding="utf-8")
+                if path.relative_to(_ROOT).as_posix() == _NOTE_TEMPLATE:
+                    text = re.sub(r"```markdown\n.*?\n```", "", text, flags=re.DOTALL)
+                match = _PORTUGUESE.search(text)
                 self.assertIsNone(match, f"unexpected pt-BR token: {match.group(0) if match else ''}")
 
     def test_response_language_instruction_is_exact(self) -> None:
@@ -181,6 +186,27 @@ class LanguagePolicyTest(unittest.TestCase):
             for prose in (*comments, *docstrings):
                 with self.subTest(path=path.relative_to(_ROOT), prose=prose):
                     self.assertIsNone(_PORTUGUESE.search(prose))
+
+
+class KnowledgeContentLanguageTest(unittest.TestCase):
+    def test_only_generated_note_examples_use_portuguese_in_reference(self) -> None:
+        text = _read(_NOTE_TEMPLATE)
+        self.assertTrue(text.startswith("# Note template\n"))
+        self.assertIn("Generated from `kb.note` schema", text)
+        examples = re.findall(r"```markdown\n(.*?)\n```", text, flags=re.DOTALL)
+        self.assertGreaterEqual(len(examples), 5)
+        for example in examples:
+            self.assertRegex(example, _PORTUGUESE)
+        instructions = re.sub(r"```markdown\n.*?\n```", "", text, flags=re.DOTALL)
+        self.assertIsNone(_PORTUGUESE.search(instructions))
+
+    def test_backup_instruction_is_portuguese_user_content(self) -> None:
+        text = _read(_BACKUP_INSTRUCTION)
+        self.assertTrue(text.startswith("# Como consultar este backup\n"))
+        self.assertRegex(text, _PORTUGUESE)
+        for field in ("{at}", "{reason}", "{plan}", "{files}",
+                      "{manifest_sha256}", "{legacy_points}"):
+            self.assertIn(field, text)
 
 
 if __name__ == "__main__":

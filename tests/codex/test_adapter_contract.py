@@ -411,142 +411,42 @@ class AdapterContractTest(unittest.TestCase):
                 self.assertIn("`evidence`", codex)
 
     def test_kb_write_requires_machine_and_session_provenance(self) -> None:
-        content = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        required = (
-            "`provenance.harness.name`",
-            "`provenance.harness.session_id`",
-            "`provenance.harness.session_name`",
-            "`provenance.harness.app_name`",
-            "`provenance.execution.cwd`",
-            "`provenance.execution.transcript_path`",
-            "`provenance.machine.id`",
-            "`provenance.machine.label`",
-            "`provenance.machine.hostname`",
-            "`provenance.machine.username`",
-            "~/.local/share/omh-kb/identity.json",
-        )
-
-        self.assertTrue(all(field in content for field in required))
-        self.assertIn("do not write the note", " ".join(content.split()))
+        content = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text()
+        for field in ("generated.harness", "generated.session_id", "generated.cwd",
+                      "generated.machine_id", "generated.model", "identity.json"):
+            self.assertIn(field, content)
+        self.assertIn("do not write the note", content)
         self.assertIn("raw MAC address", content)
 
-    def test_kb_session_record_carries_nullable_runtime_metadata(self) -> None:
-        content = _ROOT.joinpath("core/skills/kb-session/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        required = (
-            '"session_name"',
-            '"app_name"',
-            '"cwd"',
-            '"machine_id"',
-            '"machine_label"',
-            '"hostname"',
-            '"username"',
-        )
+    def test_kb_requires_explicit_parent_transcript_and_degraded_approval(self) -> None:
+        content = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text()
+        for rule in ("actual parent transcript", "--transcript PATH", "--approved-degraded",
+                     "explicit degraded", "Sources", "nullable"):
+            self.assertIn(rule, content)
 
-        self.assertTrue(all(field in content for field in required))
-        self.assertIn("fields always exist but may be `null`", " ".join(content.split()))
-        self.assertIn("whitespace-only", content)
-        self.assertIn("every non-null path must be absolute", " ".join(content.split()))
+    def test_kb_legacy_backup_preserves_source_and_reconciles_paths(self) -> None:
+        content = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text()
+        for rule in ("Reindexing never modifies source JSON", "without re-embedding",
+                     "backup/INSTRUCTION.md", "SHA-256", "never doubles the prefix"):
+            self.assertIn(rule, content)
 
-    def test_kb_legacy_session_records_have_a_lossless_v3_migration(self) -> None:
-        session = _ROOT.joinpath("core/skills/kb-session/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        infra = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        session_flat = " ".join(session.split())
-        infra_flat = " ".join(infra.split())
-        for phrase in (
-            "Project missing multi-value fields as `[]` and nullable scalar fields as `null`",
-            "never rewrite historical JSON",
-            "never assign the current machine to a past session",
-            "Promote only the current session to schema v3 and only with values observed",
-            "preserve the legacy record unchanged",
-        ):
-            self.assertIn(phrase, session_flat)
-        self.assertIn("continue the batch", infra_flat)
-        self.assertIn("Reindexing never modifies source JSON", infra_flat)
+    def test_kb_note_payload_separates_versions_and_excludes_pending(self) -> None:
+        content = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text()
+        for rule in ('f"{id}:{version}"', 'Pending never enters', 'superseded',
+                     'path_prefixes', 'url_hosts', 'dates', 'figures'):
+            self.assertIn(rule, content)
 
-    def test_kb_session_schema_matches_qdrant_provenance_payload(self) -> None:
-        session = _ROOT.joinpath("core/skills/kb-session/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        infra = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        provenance_fields = {
-            "harness",
-            "session_id",
-            "session_name",
-            "app_name",
-            "cwd",
-            "transcript_path",
-            "machine_id",
-            "machine_label",
-            "hostname",
-            "username",
-        }
-        schema_match = re.search(r"Schema:\n\n```json\n(.*?)\n```", session, re.DOTALL)
-        payload_match = re.search(
-            r'\| Session point \(`kind: "session"`\) \| ([^|]+) \|', infra
-        )
+    def test_kb_qdrant_indexes_structured_note_fields(self) -> None:
+        content = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text()
+        for field in ("`scope`", "`domain`", "`entity_path`", "`version`",
+                      "`entities.<kind>`", "PayloadSchemaType.DATETIME"):
+            self.assertIn(field, content)
 
-        self.assertIsNotNone(schema_match)
-        self.assertIsNotNone(payload_match)
-        schema_fields = set(json.loads(schema_match.group(1)))
-        payload_fields = set(re.findall(r"`([^`]+)`", payload_match.group(1)))
-        disk_only_fields = {
-            "description",
-            "resume",
-            "entity_refs",
-            "references",
-            "temporal_refs",
-        }
-        derived_fields = {
-            "kind",
-            "entity_kinds",
-            "entity_keys",
-            "reference_targets",
-            "temporal_values",
-        }
-        expected_payload_fields = (schema_fields - disk_only_fields) | derived_fields
-
-        self.assertTrue(provenance_fields <= schema_fields)
-        self.assertEqual(expected_payload_fields, payload_fields)
-
-    def test_kb_qdrant_indexes_provenance_fields(self) -> None:
-        content = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        indexed_fields = (
-            "`harness`",
-            "`session_id`",
-            "`session_name`",
-            "`machine_id`",
-            "`machine_label`",
-        )
-
-        self.assertTrue(all(field in content for field in indexed_fields))
-        self.assertIn("PayloadSchemaType.KEYWORD", content)
-
-    def test_kb_retrieval_can_filter_by_provenance(self) -> None:
-        content = _ROOT.joinpath("core/skills/kb-retrieval/SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        fields = (
-            "`harness`",
-            "`session_id`",
-            "`session_name`",
-            "`machine_id`",
-            "`machine_label`",
-        )
-
-        self.assertTrue(all(field in content for field in fields))
-        self.assertIn("Legacy points", content)
+    def test_kb_retrieval_filters_current_notes_and_cites_sources(self) -> None:
+        content = _ROOT.joinpath("core/skills/kb-retrieval/SKILL.md").read_text()
+        for rule in ("must_not status=superseded", "must_not legacy=true",
+                     "each prefetch", "Cite exact sources and provenance"):
+            self.assertIn(rule, content)
 
     def test_kb_agents_enforce_provenance_before_writing(self) -> None:
         shared = _ROOT.joinpath("agents/knowledge-base.md").read_text(
@@ -577,14 +477,13 @@ class AdapterContractTest(unittest.TestCase):
         data = json.loads(_ROOT.joinpath("harness/codex/adapter-hooks-removal.json").read_text(encoding="utf-8"))
         self.assertEqual({}, data["hooks"])
 
-    def test_shared_hooks_are_the_quality_gate_and_kb_pointer(self) -> None:
-        # Extended by #134 (Group F, wave 2) to admit the SessionStart KB pointer
-        # alongside the pre-existing PreToolUse quality gate; both stay the only
-        # shared hook scripts and both stay executable.
+    def test_shared_hooks_include_the_knowledge_write_guard(self) -> None:
         gate = _ROOT / "core/hooks/quality-gate.sh"
         pointer = _ROOT / "core/hooks/kb-pointer.sh"
 
-        self.assertEqual([pointer, gate], sorted(_ROOT.glob("core/hooks/*.sh")))
+        guard = _ROOT / "core/hooks/kb-write-guard.sh"
+        self.assertEqual([pointer, guard, gate], sorted(_ROOT.glob("core/hooks/*.sh")))
+        self.assertTrue(guard.stat().st_mode & 0o111)
         self.assertTrue(gate.stat().st_mode & 0o111)
         self.assertTrue(pointer.stat().st_mode & 0o111)
         self.assertEqual([], list(_ROOT.glob("harness/*/hooks/*.sh")))
@@ -663,7 +562,7 @@ class AdapterContractTest(unittest.TestCase):
     def test_operational_skills_keep_executable_boundaries(self) -> None:
         site = _ROOT.joinpath("core/skills/site-report/SKILL.md").read_text(encoding="utf-8")
         writer = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text(encoding="utf-8")
-        session = _ROOT.joinpath("core/skills/kb-session/SKILL.md").read_text(encoding="utf-8")
+        session = _ROOT.joinpath("core/skills/kb-retrieval/SKILL.md").read_text(encoding="utf-8")
         infra = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text(encoding="utf-8")
 
         self.assertIn("`${OMH_SITES_ROOT:-$HOME/projects/sites}`", site)

@@ -11,7 +11,7 @@ work—even when you change AI coding assistants, machines, or providers.
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
 [![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#agents)
-[![Skills](https://img.shields.io/badge/skills-30-DC5F00?style=flat-square)](#skills)
+[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#skills)
 
 </div>
 
@@ -182,7 +182,7 @@ Bash, so its boundary is behavioral rather than equivalent filesystem isolation.
 `didactic-visual` skill then chooses the smallest useful representation; it cannot turn weak
 evidence into a stronger claim.
 
-Knowledge writes follow the same rule. Notes and session records carry real harness, session,
+Knowledge writes follow the same rule. Notes carry real harness, session,
 working-directory, and machine provenance. Missing required provenance blocks the write instead of
 being guessed.
 
@@ -344,7 +344,7 @@ twelfth, harness-specific installation agent. The roles form three tiers plus an
 | Engineering | `tech-pm` | Product discovery, observable acceptance criteria, prioritization, roadmaps, and PRDs |
 | Policy | `evidence-reviewer` | Independent read-only audit of claims, metrics, decisions, and validation evidence |
 | Harness | `claude-code` / `codex` | Install and synchronize the active harness adapter |
-| Tool | `knowledge-base` | Operate persistent knowledge, retrieval, session records, and project identity |
+| Tool | `knowledge-base` | Operate persistent knowledge, retrieval, approved versions, and project identity |
 | Tool | `site` | Produce cited visual reports outside the analyzed repository and optionally expose them |
 | Tool | `explorer` | Onboard into unfamiliar repositories with a site report, a CLAUDE.md proposal, and a knowledge handoff |
 
@@ -356,7 +356,7 @@ live under `harness/codex/agents/`.
 
 ### Skills
 
-The package contains 30 skills: 28 shared skills and one adapter skill for each harness. The catalog
+The package contains 29 skills: 27 shared skills and one adapter skill for each harness. The catalog
 below is intentionally complete and is checked against both plugin manifests.
 
 **Reasoning and presentation:** `evidence` · `didactic-visual`
@@ -367,7 +367,7 @@ below is intentionally complete and is checked against both plugin manifests.
 
 **Engineering knowledge:** `python` · `typescript` · `ai-engineer` · `api-design` · `frontend-ui` · `security` · `observability`
 
-**Knowledge and tool capabilities:** `explorer` · `kb-infra` · `kb-write` · `kb-retrieval` · `kb-session` · `site-report` · `site-expose`
+**Knowledge and tool capabilities:** `explorer` · `kb-infra` · `kb-write` · `kb-retrieval` · `site-report` · `site-expose`
 
 **Harness adapters:** `claude-code` · `codex`
 
@@ -416,42 +416,42 @@ per-requirement evidence. A local test passing does not claim that a model behav
 
 ## Knowledge base
 
-The knowledge base is deliberately outside every product repository. This repository ships the
-operational skills, schemas, templates, and local Qdrant Compose contract; the
-`knowledge-base` agent executes that lifecycle. It is not a bundled always-running knowledge
-daemon or a finished cross-harness CLI.
+The knowledge base lives outside product repositories. The knowledge-base agent uses the Python
+CLI shipped with kb-write to validate notes, stage review, publish approved versions, and maintain
+derived links and indexes. Raw transcripts stay in their harness; there is no second session store.
 
 ```text
-~/knowledge-base/                 # OKF v0.2 Markdown bundle; source of truth
-  index.md
+~/knowledge-base/
   <scope>/
+    index.md
     <domain>/
-      <topic>/
-        index.md
-        <date>--<short-slug>.md    # immutable note
-      sessions/
-        <session-id>.json          # living session record
+      index.md
+      identity/identity.md
+      <entity>/
+        <name>/
+          <name>.md               # pending new note or approved current note
+          .pending/<name>.md      # proposed update
+          .history/<date>--v1--<name>.md
+  backup/
+    INSTRUCTION.md               # read first, only on explicit legacy request
+    ...                          # byte-preserved legacy bundle
 
-~/.local/share/omh-kb/            # machine runtime; derived or local state
+~/.local/share/omh-kb/
   identity.json
   qdrant/
   venv/
 ```
 
-Routing is topic-first: scope → domain → topic → concept. Project identity is itself an immutable
-`knowledge_type: project` note; legacy `context.md` files can be migrated once and are preserved,
-not deleted.
-
-The collision at the canonical domain blocks writes until a persistent resolver shared by note and
-session writers is defined; a local alias is never created. This prevents two writers from silently
-creating different knowledge universes for the same project.
+Paths follow scope → domain → entity → name and are approved by the user. Project identity is a
+reference note. The schema validates metadata, Portuguese prose, declared entities, and transcript
+proof. A canonical-domain collision blocks writing rather than creating another project identity.
 
 Key properties:
 
 - **Markdown is authoritative.** Qdrant is a rebuildable local index, not the knowledge source.
-- **Notes are immutable.** Corrections create a new note with `supersedes`; session records are
-  named mutable exceptions.
-- **Retrieval is address-first, then semantic.** Exact entities, aliases, paths, repository URLs,
+- **Publication requires review.** Pending content is shown by the principal session; explicit
+  approval publishes it. Updates freeze earlier versions in `.history/` with a reason.
+- **Retrieval starts with index pages and exact identity.** Entities, paths, repository URLs,
   and temporal fields are resolved before hybrid dense+sparse search.
 - **Search degrades truthfully.** Without Qdrant, retrieval falls back to structured disk
   navigation; session-memory can then inspect relevant raw transcripts.

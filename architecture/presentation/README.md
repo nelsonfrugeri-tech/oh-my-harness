@@ -35,7 +35,7 @@ feature work now runs through the discoverer, developer, and reviewer modes.
   capabilities. Additional harnesses require their own adapter.
 - The product contains eight portable roles and one native role per adapter. There are 26 shared
   skills and two adapter skills in the package; each harness uses its own adapter skill.
-- The OKF bundle contains immutable Markdown notes and mutable JSON session records. Qdrant is a
+- The bundle contains approved Markdown notes and frozen historical versions. Qdrant is a
   rebuildable index; BAAI/bge-m3 supplies dense and sparse representations combined through RRF.
   Ranking is not calibrated confidence. Raw transcripts and Deja form a separate episodic layer.
 - SessionStart emits a content-free pointer. It does not run the knowledge-base agent or retrieve
@@ -70,3 +70,10 @@ Primary source paths for future updates:
 The original exports used the official Excalidraw 0.18.0 export utilities. All five frames were
 visually inspected, with text bounds and native bindings checked. This validates the presentation
 artifacts, not the empirical effectiveness of the agents.
+
+The knowledge chapter and catalog were updated for kb-note-model on October 1, 2026: pending
+review precedes publication and raw transcripts remain in their harness. Other chapters retain
+the historical scope above.
+
+The two updated PNG exports were rendered from the corresponding SVGs with macOS Quick Look
+and cropped to the original 3840 × 2160 frame; their content was visually inspected.

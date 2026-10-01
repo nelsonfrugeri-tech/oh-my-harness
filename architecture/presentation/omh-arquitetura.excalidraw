@@ -5133,13 +5133,13 @@
         "board": "03-memoria",
         "sourceRevision": "bf6eb4d53feffa3d135c0fef8afc46e215b26dc4"
       },
-      "text": "Fonte: kb-write · kb-retrieval · kb-session · kb-infra · kb-pointer.sh",
+      "text": "Fonte: kb-write · kb-retrieval · kb-infra · kb-pointer.sh",
       "fontSize": 16,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Fonte: kb-write · kb-retrieval · kb-session · kb-infra · kb-pointer.sh",
+      "originalText": "Fonte: kb-write · kb-retrieval · kb-infra · kb-pointer.sh",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -5821,13 +5821,13 @@
         "board": "03-memoria",
         "sourceRevision": "bf6eb4d53feffa3d135c0fef8afc46e215b26dc4"
       },
-      "text": "Pedido explícito + provenance validada\nRoteamento: escopo / domínio / tópico\nCorreção cria nota com supersedes",
+      "text": "Pedido explícito + provenance validada\nCaminho aprovado pelo usuário\nAprovação congela versão anterior",
       "fontSize": 22,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Pedido explícito + provenance validada\nRoteamento: escopo / domínio / tópico\nCorreção cria nota com supersedes",
+      "originalText": "Pedido explícito + provenance validada\nCaminho aprovado pelo usuário\nAprovação congela versão anterior",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -5960,13 +5960,13 @@
         "board": "03-memoria",
         "sourceRevision": "bf6eb4d53feffa3d135c0fef8afc46e215b26dc4"
       },
-      "text": "Markdown = fonte das notas\nNotas imutáveis + índices navegáveis\nIdentidade do projeto como nota",
+      "text": "Markdown = fonte das notas\nNotas aprovadas + versões congeladas\nIdentidade do projeto como nota",
       "fontSize": 22,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Markdown = fonte das notas\nNotas imutáveis + índices navegáveis\nIdentidade do projeto como nota",
+      "originalText": "Markdown = fonte das notas\nNotas aprovadas + versões congeladas\nIdentidade do projeto como nota",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -6465,7 +6465,7 @@
         }
       ],
       "updated": 1788921008138,
-      "link": "https://github.com/nelsonfrugeri-tech/oh-my-harness/blob/bf6eb4d53feffa3d135c0fef8afc46e215b26dc4/core/skills/kb-session/SKILL.md",
+      "link": "https://github.com/nelsonfrugeri-tech/oh-my-harness/blob/bf6eb4d53feffa3d135c0fef8afc46e215b26dc4/core/skills/kb-retrieval/SKILL.md",
       "locked": false,
       "customData": {
         "board": "03-memoria",
@@ -6505,13 +6505,13 @@
         "board": "03-memoria",
         "sourceRevision": "bf6eb4d53feffa3d135c0fef8afc46e215b26dc4"
       },
-      "text": "kb-session",
+      "text": "Revisão e aprovação",
       "fontSize": 27,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "kb-session",
+      "originalText": "Revisão e aprovação",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -6548,13 +6548,13 @@
         "board": "03-memoria",
         "sourceRevision": "bf6eb4d53feffa3d135c0fef8afc46e215b26dc4"
       },
-      "text": "JSON vivo por sessão no bundle\nRegistro mutável, com provenance\nNão é o transcript bruto",
+      "text": "Principal mostra conteúdo e caminho\nUsuário aprova a revisão\nPending → active, com histórico",
       "fontSize": 22,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "JSON vivo por sessão no bundle\nRegistro mutável, com provenance\nNão é o transcript bruto",
+      "originalText": "Principal mostra conteúdo e caminho\nUsuário aprova a revisão\nPending → active, com histórico",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -11152,13 +11152,13 @@
         "board": "05-componentes",
         "sourceRevision": "bf6eb4d53feffa3d135c0fef8afc46e215b26dc4"
       },
-      "text": "explorer · kb-infra · kb-write · kb-retrieval\nkb-session · site-report · site-expose\nAdapters: claude-code · codex",
+      "text": "explorer · kb-infra · kb-write · kb-retrieval\nsite-report · site-expose\nAdapters: claude-code · codex",
       "fontSize": 22,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "explorer · kb-infra · kb-write · kb-retrieval\nkb-session · site-report · site-expose\nAdapters: claude-code · codex",
+      "originalText": "explorer · kb-infra · kb-write · kb-retrieval\nsite-report · site-expose\nAdapters: claude-code · codex",
       "autoResize": true,
       "lineHeight": 1.25
     },

@@ -1,0 +1,197 @@
+[
+  {
+    "id": "approval-new",
+    "prompt": "Registra nossa decisão de usar filas no projeto de exemplo.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "approval-path",
+    "prompt": "Registra o procedimento de recuperação; sugere um caminho.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "approval-entities",
+    "prompt": "Quero registrar a conversa entre Ana e a empresa Aurora sobre a proposta.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "approval-move",
+    "prompt": "Registra este acordo. Na revisão, quero trocar o caminho sugerido.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "approval-rewrite",
+    "prompt": "Registra esta decisão. Vou corrigir o conteúdo durante a revisão.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "approval-reject",
+    "prompt": "Prepara uma nota deste incidente para eu revisar antes de guardar.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "approval-update",
+    "prompt": "Atualiza a nota existente com a decisão nova e o motivo da mudança.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "approval-multiple",
+    "prompt": "Prepara duas notas separadas, uma sobre o projeto e outra sobre o procedimento.",
+    "required": [
+      "Grava como pending e mostra conteúdo integral, caminho e entidades candidatas; em atualização mostra diff sem perguntar caminho.",
+      "Pergunta na sessão principal antes de qualquer kb approve.",
+      "Só aprova a nota e revisão explicitamente autorizadas pelo usuário; pendentes não entram na busca."
+    ]
+  },
+  {
+    "id": "navigation-01",
+    "prompt": "Qual é a resposta para a pergunta de navegação 01 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota pai que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-02",
+    "prompt": "Qual é a resposta para a pergunta de navegação 02 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota filha que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-03",
+    "prompt": "Qual é a resposta para a pergunta de navegação 03 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota irmã que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-04",
+    "prompt": "Qual é a resposta para a pergunta de navegação 04 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota pai que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-05",
+    "prompt": "Qual é a resposta para a pergunta de navegação 05 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota filha que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-06",
+    "prompt": "Qual é a resposta para a pergunta de navegação 06 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota irmã que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-07",
+    "prompt": "Qual é a resposta para a pergunta de navegação 07 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota pai que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-08",
+    "prompt": "Qual é a resposta para a pergunta de navegação 08 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota filha que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-09",
+    "prompt": "Qual é a resposta para a pergunta de navegação 09 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota irmã que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "navigation-10",
+    "prompt": "Qual é a resposta para a pergunta de navegação 10 do projeto de exemplo?",
+    "required": [
+      "Lê index.md e navega da nota inicial até a nota pai que contém exclusivamente a resposta, em no máximo duas chamadas kb nav.",
+      "Responde corretamente e cita a nota; não abre .history/ nem backup/ para estado atual."
+    ]
+  },
+  {
+    "id": "history-reason",
+    "prompt": "Por que mudamos a política antiga do projeto de exemplo?",
+    "required": [
+      "Consulta .history/ e cita superseded_reason da versão pertinente."
+    ]
+  },
+  {
+    "id": "legacy-request",
+    "prompt": "Leia no backup a nota antiga do projeto de exemplo e me mostre como promovê-la.",
+    "required": [
+      "Lê backup/INSTRUCTION.md antes de qualquer outro arquivo em backup/.",
+      "Busca com --legacy, usa links com backup/ e oferece promoção como novo id, versão 1 e Sources apontando o legado."
+    ]
+  },
+  {
+    "id": "entity-confirmation",
+    "prompt": "Quero registrar a proposta da recrutadora Ana, da empresa Aurora, usando o aplicativo Agenda.",
+    "required": [
+      "Reusa slugs conhecidos e apresenta para confirmação slugs novos de pessoas, empresas, produtos, marcas, apps e cargos."
+    ]
+  },
+  {
+    "id": "ontology-narrative",
+    "prompt": "Registra nossa conversa com a recrutadora Ana da Aurora: ela apresentou uma proposta e pediu resposta até o prazo combinado.",
+    "required": [
+      "Apresenta na prosa o papel e a relação de cada entidade; fatos, prazo e valores são comprovados no transcript."
+    ]
+  },
+  {
+    "id": "session-retirement",
+    "prompt": "Retome o que falamos naquela sessão sobre o projeto de exemplo e depois registre a decisão atual.",
+    "required": [
+      "Usa session-memory para recuperar a conversa e não escreve JSON de sessão durante nenhuma chamada ao agent."
+    ]
+  },
+  {
+    "id": "approval-stale",
+    "prompt": "Prepare a nota para aprovação; depois da minha primeira revisão vou alterar o conteúdo antes de aprovar.",
+    "required": [
+      "Mostra a versão alterada e pede aprovação específica; consentimento anterior não autoriza versão nova."
+    ]
+  }
+]

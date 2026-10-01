@@ -8,6 +8,34 @@ from typing import cast
 
 _ROOT = Path(__file__).resolve().parents[2]
 _EXPECTED_IDS = {
+    "knowledge-base": frozenset(
+        {
+            'approval-new',
+            'approval-path',
+            'approval-entities',
+            'approval-move',
+            'approval-rewrite',
+            'approval-reject',
+            'approval-update',
+            'approval-multiple',
+            'navigation-01',
+            'navigation-02',
+            'navigation-03',
+            'navigation-04',
+            'navigation-05',
+            'navigation-06',
+            'navigation-07',
+            'navigation-08',
+            'navigation-09',
+            'navigation-10',
+            'history-reason',
+            'legacy-request',
+            'entity-confirmation',
+            'ontology-narrative',
+            'session-retirement',
+            'approval-stale'
+        }
+    ),
     "discoverer": frozenset(
         {
             "no-product-code",

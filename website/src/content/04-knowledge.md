@@ -20,7 +20,7 @@ source: core/skills/kb-write/SKILL.md
 1. **Recuperar antes de escrever:** procurar notas existentes, decisões anteriores e possíveis conflitos.
 2. **Destilar:** transformar a sessão em uma unidade de conhecimento reutilizável — não copiar o transcript.
 3. **Registrar provenance:** identificar harness, sessão, diretório de trabalho e máquina que originaram a nota.
-4. **Persistir de forma imutável:** correções criam uma nova nota com `supersedes`; o histórico não é silenciosamente reescrito.
+4. **Revisar e aprovar:** a sessão principal apresenta conteúdo e caminho; a aprovação publica a nota e congela a versão anterior em `.history/`.
 5. **Indexar:** gerar representações densas e esparsas com `BAAI/bge-m3` para retrieval híbrido.
 
 Se provenance obrigatória estiver ausente, a escrita é bloqueada. A memória de longo prazo não deve aceitar conhecimento cuja origem não possa ser reconstruída.
@@ -33,6 +33,6 @@ O Markdown é a fonte de verdade. O Qdrant é um índice derivado e reconstruív
 
 ### Uma base fora do harness
 
-A knowledge base pertence ao operador, não ao Claude Code, ao Codex ou ao repositório de um produto. Os adapters suportados acessam o mesmo bundle por meio do agent `knowledge-base` e das skills de escrita, retrieval, sessão e infraestrutura.
+A knowledge base pertence ao operador, não ao Claude Code, ao Codex ou ao repositório de um produto. Os adapters suportados acessam o mesmo bundle por meio do agent `knowledge-base` e das skills de escrita, retrieval e infraestrutura.
 
 Novos harnesses não ganham compatibilidade por mágica: precisam de um adapter que preserve o contrato, conecte as capabilities necessárias e seja validado naquele ambiente. A arquitetura torna essa extensão possível sem duplicar a fonte de verdade.
