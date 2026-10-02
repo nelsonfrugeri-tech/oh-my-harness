@@ -59,6 +59,36 @@ class CountedTextTest(unittest.TestCase):
         self.assertEqual("ação 🟢 fim", text)
         self.assertEqual(10, budget.count_chars(text))
 
+    def test_fence_closes_only_on_same_character_and_at_least_same_length(self) -> None:
+        shorter = "A.\n````\nx\n```\ny\n````\nB.\n"
+        other_char = "A.\n```\nx\n~~~\ny\n```\nB.\n"
+
+        longer_closer = "A.\n```\nx\n`````\nB.\n"
+
+        self.assertEqual("A. B.", budget.counted_text(shorter))
+        self.assertEqual("A. B.", budget.counted_text(longer_closer))
+        self.assertEqual("A. B.", budget.counted_text(other_char))
+
+    def test_closing_fence_cannot_carry_an_info_string(self) -> None:
+        response = "A.\n```\nx\n``` python\ny\n```\nB.\n"
+
+        self.assertEqual("A. B.", budget.counted_text(response))
+
+    def test_backtick_opener_with_backtick_in_info_string_is_not_a_fence(self) -> None:
+        response = "A.\n``` a`b\nB.\n"
+
+        self.assertEqual("A. ``` a`b B.", budget.counted_text(response))
+
+    def test_unclosed_fence_runs_to_the_end(self) -> None:
+        self.assertEqual("Antes.", budget.counted_text("Antes.\n```\ncodigo\nmais\n"))
+
+    def test_crlf_and_empty_input(self) -> None:
+        self.assertEqual("A. B.", budget.counted_text("A.\r\n| x |\r\nB.\r\n"))
+        self.assertEqual(0, budget.count_chars(budget.counted_text("")))
+
+    def test_blockquote_table_rows_are_dropped(self) -> None:
+        self.assertEqual("> Nota.", budget.counted_text("> Nota.\n> | a | b |\n"))
+
     def test_forty_row_table_and_fenced_flow_do_not_count(self) -> None:
         rows = "\n".join(f"| linha {index} | valor {index} |" for index in range(40))
         flow = "```\n[API] --> [Auth] --> [App] --> [DB]\n```"
@@ -105,6 +135,16 @@ class LongSentenceTest(unittest.TestCase):
 
         self.assertEqual((), budget.long_sentences(budget.blocks(f"{heading}\n{item}\n")))
 
+    def test_blockquote_marker_is_not_a_word(self) -> None:
+        response = "> " + " ".join(["citado"] * 26) + ".\n"
+
+        self.assertEqual((26,), tuple(s.words for s in budget.long_sentences(budget.blocks(response))))
+
+    def test_abbreviations_do_not_end_a_sentence(self) -> None:
+        response = " ".join(["a"] * 14) + " e.g. " + " ".join(["b"] * 14) + ".\n"
+
+        self.assertEqual((29,), tuple(s.words for s in budget.long_sentences(budget.blocks(response))))
+
     def test_wrapped_paragraph_lines_form_one_sentence(self) -> None:
         response = " ".join(["a"] * 15) + "\n" + " ".join(["b"] * 15) + ".\n"
 
@@ -137,6 +177,22 @@ class CommandLineTest(unittest.TestCase):
         self.assertEqual("exempt", report["status"])
         self.assertIsNone(report["limit"])
         self.assertEqual(30, report["long_sentences"][0]["words"])
+
+    def test_unreadable_response_is_a_usage_error_not_over_budget(self) -> None:
+        missing = subprocess.run(
+            [sys.executable, str(_COUNTER), "--kind", "direct", "/nonexistent/response.md"],
+            capture_output=True, text=True, check=False,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            garbled = Path(directory) / "response.md"
+            garbled.write_bytes(b"\xff\xfe")
+            decoded = subprocess.run(
+                [sys.executable, str(_COUNTER), "--kind", "direct", str(garbled)],
+                capture_output=True, text=True, check=False,
+            )
+
+        self.assertEqual(2, missing.returncode)
+        self.assertEqual(2, decoded.returncode)
 
     def test_unknown_kind_is_a_usage_error(self) -> None:
         self.assertEqual(2, _run("essay", "x").returncode)

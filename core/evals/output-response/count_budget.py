@@ -7,19 +7,26 @@ import re
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from types import MappingProxyType
+from typing import Final, Literal
 
-LIMITS: dict[str, int | None] = {
+ResponseKind = Literal["direct", "explanation", "decision", "code_review", "diagnosis", "plan"]
+LIMITS: Final = MappingProxyType({
     "direct": 800,
     "explanation": 1600,
     "decision": 1600,
     "code_review": None,
     "diagnosis": None,
     "plan": None,
-}
-SENTENCE_WORD_LIMIT = 25
-_FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+})
+SENTENCE_WORD_LIMIT: Final = 25
+_OPEN = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+_CLOSE = re.compile(r"^\s*(`{3,}|~{3,})\s*$")
+_QUOTE = re.compile(r"^\s*(?:>\s?)+")
 _BLOCK_START = re.compile(r"^\s*(#{1,6}\s|[-*+]\s|\d+[.)]\s)")
 _SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+# Abbreviations whose period does not end a sentence; the list is deliberately short.
+_ABBREVIATIONS: Final = frozenset({"e.g.", "i.e.", "vs.", "p.", "ex.", "sr.", "sra.", "dr.", "dra."})
 
 
 @dataclass(frozen=True)
@@ -52,22 +59,33 @@ class Report:
     long_sentences: tuple[Sentence, ...]
 
 
-def budget_for(kind: str) -> int | None:
+def budget_for(kind: ResponseKind | str) -> int | None:
     if kind not in LIMITS:
         raise ValueError(f"unknown response kind: {kind}")
     return LIMITS[kind]
+
+
+def _opening_fence(line: str) -> str | None:
+    marker = _OPEN.match(line)
+    if marker is None or (marker.group(1)[0] == "`" and "`" in marker.group(2)):
+        return None
+    return marker.group(1)
+
+
+def _closes(line: str, fence: str) -> bool:
+    marker = _CLOSE.match(line)
+    return marker is not None and marker.group(1).startswith(fence)
 
 
 def counted_lines(response: str) -> tuple[str, ...]:
     kept: list[str] = []
     fence: str | None = None
     for line in response.splitlines():
-        marker = _FENCE.match(line)
-        if fence is None and marker:
-            fence = marker.group(1)
-        elif fence is not None:
-            fence = None if marker and marker.group(1).startswith(fence) else fence
-        elif not line.lstrip().startswith("|"):
+        if fence is not None:
+            fence = None if _closes(line, fence) else fence
+        elif (opened := _opening_fence(line)) is not None:
+            fence = opened
+        elif not _QUOTE.sub("", line).lstrip().startswith("|"):
             kept.append(line)
     return tuple(kept)
 
@@ -82,7 +100,8 @@ def count_chars(text: str) -> int:
 
 def blocks(response: str) -> tuple[str, ...]:
     grouped: list[list[str]] = []
-    for line in counted_lines(response):
+    for quoted in counted_lines(response):
+        line = _QUOTE.sub("", quoted)
         if not line.strip():
             grouped.append([])
         elif _BLOCK_START.match(line) or not grouped:
@@ -93,13 +112,23 @@ def blocks(response: str) -> tuple[str, ...]:
     return tuple(_BLOCK_START.sub("", text, count=1) for text in joined)
 
 
+def _sentences(block: str) -> tuple[str, ...]:
+    merged: list[str] = []
+    for part in _SENTENCE_END.split(block):
+        if merged and merged[-1].split()[-1].lower() in _ABBREVIATIONS:
+            merged[-1] = f"{merged[-1]} {part}"
+        else:
+            merged.append(part)
+    return tuple(merged)
+
+
 def long_sentences(paragraphs: tuple[str, ...]) -> tuple[Sentence, ...]:
-    sentences = (part for block in paragraphs for part in _SENTENCE_END.split(block))
+    sentences = (part for block in paragraphs for part in _sentences(block))
     measured = (Sentence(len(text.split()), text) for text in sentences)
     return tuple(s for s in measured if s.words > SENTENCE_WORD_LIMIT)
 
 
-def check(kind: str, response: str) -> Report:
+def check(kind: ResponseKind | str, response: str) -> Report:
     limit = budget_for(kind)
     chars = count_chars(counted_text(response))
     sentences = long_sentences(blocks(response))
@@ -127,7 +156,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--kind", required=True, choices=sorted(LIMITS))
     parser.add_argument("response", type=Path)
     args = parser.parse_args(argv)
-    report = check(args.kind, args.response.read_text(encoding="utf-8"))
+    try:
+        response = args.response.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as error:
+        parser.error(f"cannot read {args.response}: {error}")
+    report = check(args.kind, response)
     print(json.dumps(render(report), ensure_ascii=False, indent=2))
     return 1 if isinstance(report.status, OverBudget) else 0
 
