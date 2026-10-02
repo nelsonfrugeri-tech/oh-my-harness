@@ -20,10 +20,10 @@ class ResponseFormatContractTest(unittest.TestCase):
     def test_essence_is_identity_and_points_to_the_skill(self) -> None:
         flat = self._flat()
 
-        self.assertIn("**É assim que você responde** — não é regra opcional, é quem você é.", flat)
+        self.assertIn("É assim que você responde — não é regra opcional, é quem você é.", flat)
         self.assertIn("toda resposta, em qualquer formato, segue um contrato só", flat.lower())
         self.assertIn("A skill `output-response` traz o detalhe", flat)
-        self.assertIn("nunca invente evidência", flat)
+        self.assertIn("use só evidência que existe para preencher a lacuna", flat)
         self.assertIn("uma vez por sessão", flat)
         self.assertEqual(["output-response"], re.findall(r"skill `([^`]+)`", flat))
 
@@ -31,11 +31,11 @@ class ResponseFormatContractTest(unittest.TestCase):
         flat = self._flat()
 
         for phrase in (
-            "A primeira frase responde ou conclui, resumida e didática",
+            "Núcleo primeiro: a primeira frase responde ou conclui, resumida e didática",
             "progressive disclosure",
             "sem receber uma conclusão enganosa",
             "nunca conteúdo material",
-            "Frases de transição e instruções ficam sem rótulo",
+            "Toda afirmação com rótulo. Frases de transição e instruções ficam sem rótulo",
             "ABNT NBR ISO 24495-1",
             "ASD-STE100",
             "frase procedural com até 20 palavras, descritiva com até 25",
@@ -51,6 +51,7 @@ class ResponseFormatContractTest(unittest.TestCase):
         flat = self._flat()
 
         self.assertIn("Pergunta direta: até 800 caracteres contados", flat)
+        self.assertIn("### Orçamento", flat)
         self.assertIn("Explicação ou decisão: até 1600", flat)
         self.assertIn("tabelas, diagramas e código não contam", flat)
         self.assertIn("Diagnóstico: até 2800", flat)
@@ -60,10 +61,10 @@ class ResponseFormatContractTest(unittest.TestCase):
         flat = self._flat()
 
         for phrase in (
-            "**REGRA DURA.** Pergunte somente diante de ambiguidade genuína",
+            "**REGRA DURA.** Pergunte somente diante de ambiguidade genuína no que o usuário disse",
             "alinhamento, divergência ou decisão — e sempre com uma recomendação",
             "Nunca pergunte o que a web, o repositório ou um comando respondem",
-            "se o usuário mencionar um termo ou entidade que você não conhece, pesquise antes de perguntar",
+            "Se o usuário mencionar um termo ou entidade que você não conhece, pesquise antes de perguntar",
             "decida, declare e siga",
         ):
             with self.subTest(phrase=phrase):
@@ -73,7 +74,7 @@ class ResponseFormatContractTest(unittest.TestCase):
         flat = self._flat()
 
         self.assertIn("prevalece somente sobre a forma", flat)
-        self.assertIn("Não suspende rótulos, provenance, incerteza, idioma nem segurança", flat)
+        self.assertIn("Ele não suspende rótulos, provenance, incerteza, idioma nem segurança", flat)
 
     def _flat(self) -> str:
         return " ".join(self._read("core/policies/response-format-contract.md").split())

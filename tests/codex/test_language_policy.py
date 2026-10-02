@@ -61,7 +61,7 @@ def _english_instruction_files() -> tuple[Path, ...]:
 def _canonical_labels() -> tuple[str, ...]:
     # The seven response labels are pt-BR by contract and must ship literally in the
     # output-response skill for plugin-only installs; read them from their one source.
-    return tuple(re.findall(r"(?m)^\| (\S+ \*\*[^*]+\*\*) \|", _read(_LABEL_SOURCE)))
+    return tuple(re.findall(r"(?m)^\s*\| (\S+ \*\*[^*]+\*\*) \|", _read(_LABEL_SOURCE)))
 
 
 def _without_canonical_labels(relative: str, text: str) -> str:

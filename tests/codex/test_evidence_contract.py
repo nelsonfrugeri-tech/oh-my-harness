@@ -41,7 +41,7 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertIn("unidade, população, janela temporal, fonte e método", flat)
         self.assertIn("dados de calibração", flat)
         self.assertIn("engenharia de software", flat)
-        self.assertIn("**Toda afirmação** abre com o rótulo", flat)
+        self.assertIn("Toda afirmação abre com o rótulo do seu status epistêmico", flat)
         self.assertIn("Frases de transição e instruções ao usuário não levam rótulo", flat)
         self.assertNotIn("onde há mistura", flat)
         self.assertIn("a skill `output-response` traz o workflow", flat)
