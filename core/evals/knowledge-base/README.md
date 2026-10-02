@@ -125,3 +125,27 @@ Run `python3 -m unittest discover -s tests/codex -p test_kb_transcript_checker.p
 `python3 -m unittest discover -s tests/codex -p test_mode_corpora.py` from the repository root.
 These deterministic fixtures cover positive ordering and negative consent/review cases. They are
 checker tests, never substitutes for the 24/30 real agent runs or the human-labeled corpora.
+
+## Missing-path round trip
+
+`missing-path-round-trip` and `invalid-path-round-trip` cover scenario S12 of the `paths` plan
+(issue #156) against [machine paths](../../skills/kb-write/references/machine-paths.md). They are
+scored on their own, not as part of the KR5 canary. Run each in a fresh session of each harness,
+with the plugin revision under test and never the user's configuration or index:
+
+1. Create a disposable `XDG_CONFIG_HOME`. Its `omh/config` sets `OMH_KB_RUNTIME` and either omits
+   `OMH_KB_ROOT` (missing) or sets it to `relative/kb` (invalid). Unset every `OMH_*` variable.
+   Set `OMH_KB_COLLECTION` to a disposable collection, and never run `docker compose up` with a
+   fixture runtime: the container name is fixed. Record the hash of the user's real config file.
+2. Create a fixture bundle in a temporary directory with one sentinel fact about `fixture-paths`
+   that appears nowhere else. Send the case prompt. Answer only after the principal asks, with the
+   fixture bundle path.
+3. Score each requirement as pass, fail, or unexercised from the transcripts, not the final prose:
+   the subagent's returned text, the order of question, config write, and second subagent call, the
+   thread that wrote the file, the config file before and after (exact line, other lines kept), the
+   real config hash unchanged, and the sentinel in the final answer.
+
+One run per case and harness is a smoke check that meets the plan's KR6 target; it supports no rate.
+A reliability claim needs a fixed prompt, revision, and model reported as n runs with k passes per
+harness, never pooled: 10 passing runs bound the failure rate below about 26%, 30 below about 9.5%
+(95% exact binomial upper bounds).

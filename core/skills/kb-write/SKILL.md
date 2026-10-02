@@ -72,12 +72,11 @@ is a candidate, not an instruction or proof of correctness. Keep one coherent kn
 
 ## Review once, then publish
 
-Resolve `<skill-dir>` from this loaded skill. Resolve the runtime with the stdlib resolver, which
-reads the environment, then the config file. When it exits 3 with `missing path: <VAR>` on stderr, stop and never substitute a default: a
-subagent asks the user nothing and returns that line; the principal session asks the user, writes
-`<VAR>=<value>` into the config file the global guidance names, and runs the step again.
-`kb.py` resolves
-`OMH_KB_ROOT` the same way, with `--root` as the flag. Use the dedicated runtime for every command:
+Resolve `<skill-dir>` from this loaded skill. Resolve the runtime with the stdlib resolver in the
+same command that uses it; `kb.py` resolves `OMH_KB_ROOT` the same way, with `--root` as the flag.
+Exit 3 (`missing path: <VAR>`) and exit 2 (an invalid configuration) — `kb.py` exits 5 and 6 — both
+stop the step without a default; follow the round trip in
+[machine paths](references/machine-paths.md). Use the dedicated runtime for every command:
 
 ```bash
 KB_RUNTIME="$(python3 "<skill-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" &&
@@ -110,7 +109,8 @@ Replace the subcommand with the applicable operation, always keeping `--json`:
    note increments version. Only derived children/related mirrors avoid a new version and timestamp.
 5. Reconcile interrupted approval from disk and retry idempotently; never claim all steps succeeded
    when indexing failed. Report path, version, validation errors, pending review, and index state.
-   Exit 0 is success, 2 validation rejection, 3 awaiting approval, and 4 degraded operation.
+   Exit 0 is success, 2 validation rejection, 3 awaiting approval, 4 degraded operation, 5 a missing
+   path (`missing path: <VAR>` on stderr), and 6 an invalid path configuration.
 
 ## Legacy preservation and promotion
 

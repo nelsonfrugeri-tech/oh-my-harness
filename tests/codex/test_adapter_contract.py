@@ -578,8 +578,8 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("~/.claude/projects/<cwd-munged>/<session-id>.jsonl", session)
 
         bootstrap_contract = (
-            'KB_RUNTIME="$(python3 "<kb-write-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" || exit 3',
-            'export OMH_KB_RUNTIME="$KB_RUNTIME"',
+            'KB_RUNTIME="$(python3 "<kb-write-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" || exit  #',
+            'export OMH_KB_RUNTIME && docker compose -f <resolved-skill-dir>/docker-compose.yml up -d',
             'KB_VENV="$KB_RUNTIME/venv"',
             'uv venv "$KB_VENV"',
             'uv pip install --python "$KB_VENV/bin/python" FlagEmbedding qdrant-client PyYAML',

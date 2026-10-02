@@ -10,15 +10,13 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 0
 fi
 # An unconfigured OMH_KB_ROOT (resolver exit 3) means no bundle to guard: fail open, as the
-# pointer does. Any other resolver failure is a broken configuration and denies, like parsing.
-KB_ROOT="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>/dev/null)"
-case $? in
-  0) ;;
-  3) exit 0 ;;
-  *) printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Não foi possível resolver OMH_KB_ROOT: corrija ~/.config/omh/config (ou $XDG_CONFIG_HOME/omh/config)."}}'
-     exit 0 ;;
-esac
-python3 - "$KB_ROOT" "$PWD" 3<&0 <<'PY'
+# pointer does. Any other resolver failure is a broken configuration: the bundle is unknown, so
+# every Markdown write is denied with the resolver's reason, and other files — including the
+# config file that fixes it — stay writable.
+RESOLVED="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>&1)"
+STATUS=$?
+[ "$STATUS" -eq 3 ] && exit 0
+python3 - "$STATUS" "$RESOLVED" "$PWD" 3<&0 <<'PY'
 import json
 import os
 from pathlib import Path
@@ -30,6 +28,24 @@ def deny(reason):
           'permissionDecision': 'deny', 'permissionDecisionReason': reason}}, ensure_ascii=False))
 
 
+def is_markdown(*paths):
+    return any(path.suffix.casefold() == '.md' for path in paths)
+
+
+def config_file():
+    base = os.environ.get('XDG_CONFIG_HOME', '')
+    return Path(base if os.path.isabs(base) else os.path.expanduser('~/.config')) / 'omh' / 'config'
+
+
+def unresolved(error, lexical, canonical):
+    config = Path(os.path.abspath(config_file()))
+    if config in (lexical, canonical) or not is_markdown(lexical, canonical):
+        return
+    reason = (error.strip().splitlines() or ['erro desconhecido'])[-1]
+    deny(f'Não foi possível resolver OMH_KB_ROOT ({reason}); corrija {config}. '
+         'Escritas de Markdown ficam bloqueadas até lá.')
+
+
 def main():
     payload = json.load(os.fdopen(3))
     if payload.get('tool_name') not in ('Write', 'Edit'):
@@ -38,18 +54,21 @@ def main():
     if not isinstance(raw, str) or not raw.strip():
         deny('Não foi possível validar o destino da escrita.')
         return
-    cwd = Path(payload.get('cwd') or sys.argv[2])
+    cwd = Path(payload.get('cwd') or sys.argv[3])
     target = Path(raw).expanduser()
     if not target.is_absolute():
         target = cwd / target
     lexical = Path(os.path.abspath(target))
-    root = Path(os.path.abspath(Path(sys.argv[1]).expanduser()))
     canonical = target.resolve()
+    if sys.argv[1] != '0':
+        unresolved(sys.argv[2], lexical, canonical)
+        return
+    root = Path(os.path.abspath(Path(sys.argv[2]).expanduser()))
     protected = lexical.is_relative_to(root) or canonical.is_relative_to(root.resolve())
     if not protected and root.exists():
         protected = any(ancestor.exists() and ancestor.samefile(root)
                         for ancestor in (target, *target.parents))
-    if protected and (lexical.suffix.casefold() == '.md' or canonical.suffix.casefold() == '.md'):
+    if protected and is_markdown(lexical, canonical):
         deny('Escrita direta de Markdown na knowledge base recusada. Use o agent knowledge-base '
              'e o CLI kb.py para validar, propor e aprovar a nota.')
 

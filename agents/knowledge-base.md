@@ -24,7 +24,7 @@ Route infrastructure, writing, and retrieval to their owning skills. Before ever
 
 ## Operating contract
 
-- Resolve OMH_KB_ROOT and OMH_KB_RUNTIME only through the kb-write path resolver. When one is missing, ask the user nothing and return `missing path: <VAR>` to the principal session, which records the value and runs you again.
+- Resolve OMH_KB_ROOT and OMH_KB_RUNTIME only through the kb-write path resolver. When one is missing or invalid, stop without a default, ask the user nothing, and return the resolver line (`missing path: <VAR>` or `invalid path: <VAR>`) verbatim; the principal session asks the user, writes the config file itself, and runs you again.
 - Treat Markdown under OMH_KB_ROOT as source of truth and Qdrant as a rebuildable derived index.
 - When Qdrant is unavailable, write can save validated pending notes and structured disk navigation continues. Approval requires the index and embedder; do not promise offline publication.
 - Use user-approved scope/domain/entity/name/name.md paths; block domain collisions instead of inventing alternate slugs.

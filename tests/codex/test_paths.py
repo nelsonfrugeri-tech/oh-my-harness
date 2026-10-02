@@ -1,8 +1,6 @@
 """The repository names no machine path: one resolver reads flag > env > XDG config file."""
-import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -85,12 +83,27 @@ class PathResolutionTest(Sandbox):
         self.assertEqual(2, self._cli('OMH_PLANS_DIR').returncode)
 
     def test_values_must_be_literal_absolute_or_home_paths(self):
-        for value in ('"/q"', '$HOME/kb', 'rel/dir'):
-            with self.subTest(value=value):
+        invalid = ('"/q"', '$HOME/kb', 'rel/dir', '/tmp/$HOME/kb', '/tmp/"quoted"/kb', "/tmp/'q'/kb",
+                   '~root/kb', '~omh-no-such-user/kb', '~')
+        for value in invalid:
+            with self.subTest(layer='config', value=value):
                 self._config(f'OMH_KB_ROOT={value}\n')
                 result = self._cli('OMH_KB_ROOT')
                 self.assertEqual((2, '', 'invalid path: OMH_KB_ROOT\n'),
                                  (result.returncode, result.stdout, result.stderr))
+            with self.subTest(layer='env and flag', value=value):
+                with self.assertRaisesRegex(ValueError, 'invalid path: OMH_KB_ROOT'):
+                    self._resolve('OMH_KB_ROOT', OMH_KB_ROOT=value)
+                with self.assertRaisesRegex(ValueError, 'invalid path: OMH_KB_ROOT'):
+                    self._resolve('OMH_KB_ROOT', value)
+
+    def test_tilde_inside_an_absolute_path_is_literal(self):
+        icloud = '/Volumes/data/Mobile Documents/iCloud~md~obsidian/Documents/kb'
+        self.assertEqual(Path(icloud), self._resolve('OMH_KB_ROOT', OMH_KB_ROOT=icloud))
+
+    def test_last_assignment_wins_so_an_appended_fix_takes_effect(self):
+        self._config('OMH_KB_ROOT=relative\nOMH_KB_ROOT=/fixed\n')
+        self.assertEqual(Path('/fixed'), self._resolve('OMH_KB_ROOT'))
 
     def test_unreadable_config_is_reported_not_treated_as_missing(self):
         (self.config / 'omh/config').mkdir()
@@ -105,68 +118,31 @@ class PathResolutionTest(Sandbox):
                 self._config(text)
                 self.assertEqual(Path(expected), self._resolve('OMH_KB_ROOT'))
 
+    def test_values_are_stripped_in_every_layer(self):
+        self.assertEqual(Path('/a'), self._resolve('OMH_KB_ROOT', OMH_KB_ROOT='  /a  '))
+        with self.assertRaisesRegex(MissingPath, 'missing path: OMH_KB_ROOT'):
+            self._resolve('OMH_KB_ROOT', OMH_KB_ROOT='   ')
 
-class PathConsumersTest(Sandbox):
-    def test_kb_cli_reports_missing_runtime(self):
-        result = subprocess.run([sys.executable, str(SCRIPTS / 'kb.py'), 'check', '--root', self.tmp.name,
-                                 '--json'], capture_output=True, text=True, env=self.env, timeout=30)
-        self.assertEqual(4, result.returncode, result.stderr)
-        self.assertIn('missing path: OMH_KB_RUNTIME', json.loads(result.stdout)['reason'])
+    def test_filesystem_root_home_and_shell_syntax_are_rejected(self):
+        for value in ('/', '~/', '/a # note'):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, 'invalid path: OMH_KB_ROOT'):
+                    self._resolve('OMH_KB_ROOT', OMH_KB_ROOT=value)
+        self._config('export OMH_KB_ROOT=/a\n')
+        with self.assertRaisesRegex(ValueError, 'invalid line'):
+            self._resolve('OMH_KB_ROOT')
 
-    def test_hooks_fail_open_silently_when_kb_root_is_missing(self):
-        for hook, payload in (('kb-pointer.sh', {'cwd': str(ROOT)}),
-                              ('kb-write-guard.sh', {'tool_name': 'Write', 'cwd': str(ROOT),
-                                                     'tool_input': {'file_path': '/any/x.md'}})):
-            with self.subTest(hook=hook):
-                result = subprocess.run(['bash', str(ROOT / 'core/hooks' / hook)], input=json.dumps(payload),
-                                        capture_output=True, text=True, env=self.env, timeout=5)
-                self.assertEqual((0, '', ''), (result.returncode, result.stdout, result.stderr))
+    def test_an_empty_home_never_yields_a_relative_path_or_config(self):
+        with self.assertRaisesRegex(ValueError, 'invalid path: OMH_KB_ROOT'):
+            self._resolve('OMH_KB_ROOT', OMH_KB_ROOT='~/kb', HOME='')
+        del self.env['XDG_CONFIG_HOME']
+        with self.assertRaisesRegex(ValueError, 'unusable home'):
+            self._resolve('OMH_KB_ROOT', HOME='')
 
-    def test_write_guard_reads_kb_root_from_config_file(self):
-        bundle = Path(self.tmp.name) / 'kb'
-        bundle.mkdir()
-        self._config(f'OMH_KB_ROOT={bundle}\n')
-        payload = {'tool_name': 'Write', 'cwd': str(ROOT), 'tool_input': {'file_path': str(bundle / 'x.md')}}
-        result = subprocess.run(['bash', str(ROOT / 'core/hooks/kb-write-guard.sh')], input=json.dumps(payload),
-                                capture_output=True, text=True, env=self.env, timeout=5)
-        self.assertEqual('deny', json.loads(result.stdout)['hookSpecificOutput']['permissionDecision'])
-
-    def _guard(self, target, **extra):
-        payload = {'tool_name': 'Write', 'cwd': str(ROOT), 'tool_input': {'file_path': str(target)}}
-        result = subprocess.run(['bash', str(ROOT / 'core/hooks/kb-write-guard.sh')], input=json.dumps(payload),
-                                capture_output=True, text=True, env={**self.env, **extra}, timeout=10)
-        return json.loads(result.stdout)['hookSpecificOutput']['permissionDecision'] if result.stdout else None
-
-    def test_write_guard_denies_when_the_config_cannot_be_read(self):
-        (self.config / 'omh/config').mkdir()
-        self.assertEqual('deny', self._guard('/any/x.md'))
-
-    @unittest.skipUnless(Path('/usr/bin/python3').exists(), 'no system python3 to pin')
-    def test_hooks_run_under_the_oldest_system_python(self):
-        bundle = Path(self.tmp.name) / 'kb'
-        bundle.mkdir()
-        self._config(f'OMH_KB_ROOT={bundle}\n')
-        pinned = Path(self.tmp.name) / 'bin'
-        pinned.mkdir()
-        (pinned / 'python3').symlink_to('/usr/bin/python3')
-        path = f"{pinned}:{self.env['PATH']}"
-        self.assertEqual('deny', self._guard(bundle / 'x.md', PATH=path))
-        result = subprocess.run([str(pinned / 'python3'), str(RESOLVER), 'OMH_KB_ROOT'], capture_output=True,
-                                text=True, env=self.env, timeout=5)
-        self.assertEqual((0, f'{bundle}\n'), (result.returncode, result.stdout))
-
-    @unittest.skipIf(shutil.which('docker') is None, 'docker unavailable')
-    def test_compose_volume_comes_from_kb_runtime(self):
-        command = ['docker', 'compose', '-f', str(ROOT / 'core/skills/kb-infra/docker-compose.yml'),
-                   'config', '--format', 'json']
-        self.env['HOME'] = os.environ['HOME']  # the compose CLI plugin lives under the real ~/.docker
-        rendered = subprocess.run(command, capture_output=True, text=True, check=True,
-                                  env={**self.env, 'OMH_KB_RUNTIME': '/srv/omh'})
-        volume = json.loads(rendered.stdout)['services']['qdrant']['volumes'][0]
-        self.assertEqual('/srv/omh/qdrant', volume['source'])
-        missing = subprocess.run(command, capture_output=True, text=True, env=self.env)
-        self.assertNotEqual(0, missing.returncode)
-        self.assertIn('missing path: OMH_KB_RUNTIME', missing.stderr)
+    def test_a_dangling_config_symlink_is_reported(self):
+        (self.config / 'omh/config').symlink_to(self.config / 'omh/nowhere')
+        with self.assertRaisesRegex(ValueError, 'unreadable config'):
+            self._resolve('OMH_KB_ROOT')
 
 
 class NoMachinePathTest(unittest.TestCase):

@@ -501,13 +501,16 @@ The repository names no machine path. Three variables locate everything outside 
 | `OMH_SITES_ROOT` | generated analysis sites |
 
 Each machine sets them in `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, one `KEY=value` line per
-variable; `#` starts a comment line. Values are literal absolute paths or `~/` paths: quotes,
-`$VAR`, and relative paths are rejected as `invalid path: <VAR>`. A value comes from the CLI
+variable; `#` starts a comment line and the last assignment wins. Values are literal absolute paths
+or `~/` paths: quotes, `$VAR`, inline comments, and relative paths are rejected as
+`invalid path: <VAR>`. A value comes from the CLI
 flag (`kb.py --root`), else the process environment, else that file; a missing value is never
 defaulted. `core/skills/kb-write/scripts/kb/adapters/paths.py` is the single resolver; it uses only the
-standard library and exits 3 with `missing path: <VAR>` when no layer defines the variable. A
-subagent returns that line; the main session asks the user, writes the line into the file, and
-runs the step again. Before upgrading a machine that already has a knowledge base, write its current
+standard library, exits 3 with `missing path: <VAR>` when no layer defines the variable, and exits 2
+when the configuration is broken (`kb.py` reports these as exits 5 and 6). A subagent returns that
+line; the main session asks the user, writes the line into the file itself, and runs the step
+again. The full round trip lives in
+[`machine-paths.md`](core/skills/kb-write/references/machine-paths.md). Before upgrading a machine that already has a knowledge base, write its current
 values first: without them the write guard has no bundle to protect and fails open.
 
 ## Optional ecosystem integrations

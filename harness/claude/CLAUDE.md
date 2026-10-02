@@ -194,11 +194,13 @@ dos dois aqui.
    específicos da máquina nunca entram no repositório.
 7. O repositório não nomeia path da máquina: `OMH_KB_ROOT`, `OMH_KB_RUNTIME` e `OMH_SITES_ROOT`
    localizam tudo. Os valores ficam em `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, uma linha
-   `CHAVE=valor` cada; vale flag de CLI > variável de ambiente > arquivo, e valor ausente nunca
-   ganha default. Ausência volta como `missing path: <VAR>`: subagent não pergunta e devolve a
-   linha; a sessão principal pergunta ao usuário, podendo sugerir um diretório XDG de dados, grava
-   a linha no arquivo e roda o passo de novo. O valor é literal: path absoluto ou `~/`, sem aspas
-   nem `$VAR`; outro formato falha como `invalid path: <VAR>`.
+   `CHAVE=valor` cada (a última vence); vale flag de CLI > variável de ambiente > arquivo, e valor
+   ausente nunca ganha default. O valor é literal: path absoluto ou `~/`, sem aspas nem `$VAR`.
+   Ausência volta como `missing path: <VAR>` e config quebrado como `invalid path: <VAR>`: o
+   subagent não pergunta e devolve a linha; a sessão principal, ou quem roda a skill direto,
+   pergunta ao usuário (sugestão só dentro da pergunta), não grava nada antes da resposta, grava
+   ela mesma a linha no arquivo e roda o passo de novo. Ciclo completo na referência
+   `machine-paths` da skill `kb-write`.
 
 ### Duas camadas de memória, dois responsáveis
 
