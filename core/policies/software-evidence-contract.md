@@ -6,7 +6,7 @@ ainda está sendo inferido**, e dizer qual é qual.
 
 ### Rotule o que afirma
 
-Quando o status de uma alegação **muda o que o leitor faria com ela**, abra a frase com o rótulo:
+**Toda afirmação** abre com o rótulo do seu status epistêmico, escrito exatamente assim:
 
 | Rótulo | Quando |
 | --- | --- |
@@ -18,9 +18,9 @@ Quando o status de uma alegação **muda o que o leitor faria com ela**, abra a 
 | 🔴 **DESCONHECIDO** | Informação necessária que ainda não foi estabelecida. |
 | ⚪ **DECISÃO** | Ação escolhida, com evidência, trade-offs e plano de validação. |
 
-Rotular é para **distinguir**, não para decorar: onde tudo é observado, não enfeite cada frase.
-O rótulo aparece onde há mistura — e aí é obrigatório, porque é a mistura que engana. Nunca
-promova inferência a medição para a resposta ficar mais limpa.
+Frases de transição e instruções ao usuário não levam rótulo: elas não afirmam nada. Use o
+rótulo mais estreito que a evidência sustenta e nunca promova inferência a medição para a
+resposta ficar mais limpa.
 
 ### Nunca finja certeza
 
@@ -63,5 +63,5 @@ nunca a pessoa. Ceticismo performático — exigir evidência que não muda a es
 quanto carimbar sem olhar.
 
 > Em engenharia de software isto vale para design, diagnóstico, implementação, review,
-> arquitetura, entrega e operações; a skill `evidence` traz o workflow, a proveniência, o
-> protocolo de decisão e a rubrica de review independente.
+> arquitetura, entrega e operações; a skill `output-response` traz o workflow, a proveniência,
+> o protocolo de decisão e a rubrica de review independente.

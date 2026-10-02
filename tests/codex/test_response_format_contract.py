@@ -17,34 +17,66 @@ class ResponseFormatContractTest(unittest.TestCase):
         self.assertEqual(canonical, self._embedded_contract("harness/codex/AGENTS.md"))
         self.assertEqual(canonical, self._embedded_contract("harness/claude/CLAUDE.md"))
 
-    def test_specific_output_contract_overrides_only_presentation_shape(self) -> None:
-        contract = self._read("core/policies/response-format-contract.md")
-        flat = " ".join(contract.split())
+    def test_essence_is_identity_and_points_to_the_skill(self) -> None:
+        flat = self._flat()
 
-        self.assertIn("`evidence` é o mindset primário", flat)
-        self.assertIn("toda resposta e em qualquer formato", flat)
-        self.assertIn("evidence → didactic-visual → formato específico", flat)
-        self.assertIn("fallback vinculante", flat)
+        self.assertIn("**É assim que você responde** — não é regra opcional, é quem você é.", flat)
+        self.assertIn("toda resposta, em qualquer formato, segue um contrato só", flat.lower())
+        self.assertIn("A skill `output-response` traz o detalhe", flat)
         self.assertIn("nunca invente evidência", flat)
-        self.assertIn("toda resposta final", flat)
-        self.assertIn("`didactic-visual`", flat)
-        self.assertIn("**REGRA DURA.** É obrigatório", flat)
-        self.assertIn("fallback degradado", flat)
         self.assertIn("uma vez por sessão", flat)
-        self.assertIn("não obriga a criar um visual", flat)
+        self.assertNotIn("`evidence`", flat)
+        self.assertNotIn("didactic-visual", flat)
+
+    def test_essence_states_core_first_labels_and_writing_standards(self) -> None:
+        flat = self._flat()
+
+        for phrase in (
+            "A primeira frase responde ou conclui, resumida e didática",
+            "progressive disclosure",
+            "sem receber uma conclusão enganosa",
+            "nunca conteúdo material",
+            "Frases de transição e instruções ficam sem rótulo",
+            "ABNT NBR ISO 24495-1",
+            "ASD-STE100",
+            "frase procedural com até 20 palavras, descritiva com até 25",
+            "uma instrução por frase, voz ativa e um termo por conceito",
+            "Termos técnicos, jargões e nomes próprios ficam em inglês inline",
+            "três ou mais elementos",
+            "O tamanho sozinho não justifica",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, flat)
+
+    def test_essence_states_budget_and_exemptions(self) -> None:
+        flat = self._flat()
+
+        self.assertIn("Pergunta direta: até 800 caracteres contados", flat)
+        self.assertIn("Explicação ou decisão: até 1600", flat)
+        self.assertIn("tabelas, diagramas e código não contam", flat)
+        self.assertIn("Code review, diagnóstico e plano estão isentos", flat)
+
+    def test_question_rule_is_hard_and_bounded(self) -> None:
+        flat = self._flat()
+
+        for phrase in (
+            "**REGRA DURA.** Pergunte somente diante de ambiguidade genuína",
+            "alinhamento, divergência ou decisão — e sempre com uma recomendação",
+            "Nunca pergunte o que a web, o repositório ou um comando respondem",
+            "pesquise, no mínimo, todo termo ou entidade que o usuário mencionar",
+            "decida, declare e siga",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, flat)
+
+    def test_specific_output_contract_overrides_only_presentation_shape(self) -> None:
+        flat = self._flat()
+
         self.assertIn("prevalece somente sobre a forma", flat)
-        self.assertIn("evidence, provenance, incerteza", flat)
-        self.assertIn("conclusão ou resposta direta na primeira frase", flat)
-        self.assertIn("parágrafos curtos e coesos", flat)
-        self.assertIn("Use bullets somente", flat)
-        self.assertIn("progressive disclosure", flat)
-        self.assertIn("todas as camadas materialmente necessárias", flat)
-        self.assertIn("não depende de widgets colapsáveis", flat)
-        self.assertIn("nunca removendo conteúdo material", flat)
-        self.assertIn("requisito, mecanismo, evidência decisiva", flat)
-        self.assertIn("três ou mais elementos", flat)
-        self.assertIn("O tamanho sozinho não justifica", flat)
-        self.assertIn("Não repita a conclusão", flat)
+        self.assertIn("Não suspende rótulos, provenance, incerteza, idioma nem segurança", flat)
+
+    def _flat(self) -> str:
+        return " ".join(self._read("core/policies/response-format-contract.md").split())
 
     def _embedded_contract(self, relative: str) -> str:
         content = self._read(relative)

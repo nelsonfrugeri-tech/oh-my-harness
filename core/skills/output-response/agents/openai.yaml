@@ -1,0 +1,4 @@
+interface:
+  display_name: "Output Response"
+  short_description: "Label every claim and answer core-first within budget"
+  default_prompt: "Use $output-response to label every assertion, make this decision testable, and answer core-first."

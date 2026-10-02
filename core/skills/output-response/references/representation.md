@@ -1,31 +1,11 @@
----
-name: didactic-visual
-description: >-
-  Chooses the clearest final representation for an already established explanation: prose, list,
-  table, flow, timeline, tree, or wireframe. Use when relationships, sequence, hierarchy, repeated
-  fields, or spatial layout would be materially easier to understand visually. Do not use for
-  decoration, fact finding, claim reclassification, or repository documentation.
-metadata:
-  type: capability
-  version: 2.0.0
-  origin: native
-  last_verified: 2026-09-06
----
-
-# Didactic Visual
+# Representation
 
 Choose the smallest representation that materially reduces cognitive effort without changing any
-fact, status, provenance, uncertainty, or decision established by `evidence`.
+fact, label, provenance, uncertainty, or decision already established by the claim record.
 
-## Prerequisite: evidence first
-
-Load `oh-my-harness:evidence` before representation. In a plugin-only installation, the absence of
-a global evidence contract is not a blocker when the evidence skill itself is available. If evidence
-is unavailable, do not format uncertain content into apparent authority; report the missing
-prerequisite.
-
-This skill owns presentation only. It must not acquire evidence, introduce a claim, alter certainty,
-resolve a conflict, invent a metric, or choose the underlying decision.
+Representation is presentation only. It must not acquire evidence, introduce a claim, alter
+certainty, resolve a conflict, invent a metric, or choose the underlying decision. If the claim
+record is not complete, do not format uncertain content into apparent authority.
 
 ## Apply the visual guard
 
@@ -46,12 +26,14 @@ Otherwise select exactly one primary form with this rubric:
 | None of these | Prose or list | A visual would only decorate the answer. |
 
 Use a second form only when it explains a different material relationship. Do not turn simple prose
-into a table merely because several nouns appear.
+into a table merely because several nouns appear. In a long answer, use at least one useful visual
+when it shows a sequence, hierarchy, comparison, dependencies among three or more elements, or
+quantitative data; length alone never justifies one.
 
 ## Render without semantic drift
 
 1. Lead with the conclusion.
-2. Preserve the exact claim status and source boundaries from `evidence`.
+2. Preserve the exact label and source boundaries of every claim.
 3. Include every material node, branch, field, or state required to understand the relationship.
 4. Mark unknown, conflicting, unavailable, and not-applicable values explicitly.
 5. Keep labels short, define unfamiliar abbreviations once, and add one sentence interpreting the
@@ -61,7 +43,8 @@ into a table merely because several nouns appear.
    preserve scale and proportionality and never infer causality from visual proximity.
 
 Prefer terminal-native ASCII for text conversations. Use a wireframe only for spatial questions, not
-as a generic box diagram.
+as a generic box diagram. Tables and diagrams do not count toward the character budget, so move
+repeated fields into a table instead of cutting material content.
 
 ## Verify the representation
 

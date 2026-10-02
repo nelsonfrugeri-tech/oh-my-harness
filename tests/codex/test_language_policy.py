@@ -11,6 +11,8 @@ from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[2]
 _NOTE_TEMPLATE = "core/skills/kb-write/references/note-template.md"
 _BACKUP_INSTRUCTION = "core/skills/kb-write/scripts/kb/app/assets/backup-instruction.md"
+_OUTPUT_RESPONSE = "core/skills/output-response/"
+_LABEL_SOURCE = "core/policies/software-evidence-contract.md"
 _PORTUGUESE = re.compile(
     r"[áàâãéêíóôõúç]|"
     r"\b(?:não|você|vocês|usuário|usuários|arquivo|arquivos|projeto|projetos|"
@@ -54,6 +56,20 @@ def _english_instruction_files() -> tuple[Path, ...]:
             if "/assets/" not in path.as_posix() and not _belongs_to_vendored_skill(path)
         )
     )
+
+
+def _canonical_labels() -> tuple[str, ...]:
+    # The seven response labels are pt-BR by contract and must ship literally in the
+    # output-response skill for plugin-only installs; read them from their one source.
+    return tuple(re.findall(r"(?m)^\| (\S+ \*\*[^*]+\*\*) \|", _read(_LABEL_SOURCE)))
+
+
+def _without_canonical_labels(relative: str, text: str) -> str:
+    if not relative.startswith(_OUTPUT_RESPONSE):
+        return text
+    for label in _canonical_labels():
+        text = text.replace(label, "")
+    return text
 
 
 def _belongs_to_vendored_skill(path: Path) -> bool:
@@ -102,17 +118,31 @@ class LanguagePolicyTest(unittest.TestCase):
         for path in _english_instruction_files():
             with self.subTest(path=path.relative_to(_ROOT)):
                 text = path.read_text(encoding="utf-8")
-                if path.relative_to(_ROOT).as_posix() == _NOTE_TEMPLATE:
+                relative = path.relative_to(_ROOT).as_posix()
+                if relative == _NOTE_TEMPLATE:
                     text = re.sub(r"```markdown\n.*?\n```", "", text, flags=re.DOTALL)
+                text = _without_canonical_labels(relative, text)
                 match = _PORTUGUESE.search(text)
                 self.assertIsNone(match, f"unexpected pt-BR token: {match.group(0) if match else ''}")
 
+    def test_label_carve_out_is_exact_and_scoped_to_output_response(self) -> None:
+        labels = _canonical_labels()
+        sample = f"| {labels[0]} | Supported by evidence. |\n| {labels[-1]} | Chosen. |\n"
+
+        self.assertEqual(7, len(labels))
+        self.assertIsNone(_PORTUGUESE.search(_without_canonical_labels(_OUTPUT_RESPONSE + "SKILL.md", sample)))
+        self.assertIsNotNone(
+            _PORTUGUESE.search(_without_canonical_labels(_OUTPUT_RESPONSE + "SKILL.md", sample + "não"))
+        )
+        self.assertIsNotNone(_PORTUGUESE.search(_without_canonical_labels("core/skills/review/SKILL.md", sample)))
+        self.assertIsNotNone(_PORTUGUESE.search(_without_canonical_labels(_OUTPUT_RESPONSE + "SKILL.md", "FATO VERIFICADO")))
+
     def test_response_language_instruction_is_exact(self) -> None:
-        evidence = _read("core/skills/evidence/SKILL.md")
+        skill = _read("core/skills/output-response/SKILL.md")
 
         self.assertEqual(
             1,
-            evidence.count(
+            skill.count(
                 "Respond in the user's language; keep established technical terms in English."
             ),
         )

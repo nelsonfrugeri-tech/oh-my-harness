@@ -41,22 +41,10 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertIn("unidade, população, janela temporal, fonte e método", flat)
         self.assertIn("dados de calibração", flat)
         self.assertIn("engenharia de software", flat)
-
-    def test_evidence_skill_contains_only_referenced_resources(self) -> None:
-        skill = _ROOT / "core/skills/evidence/SKILL.md"
-        content = skill.read_text(encoding="utf-8")
-        references = tuple((_ROOT / "core/skills/evidence/references").glob("*.md"))
-        decision = self._read("core/skills/evidence/references/decision-protocol.md")
-
-        self.assertIn("name: evidence", content)
-        self.assertGreaterEqual(len(references), 3)
-        self.assertTrue(all(f"references/{path.name}" in content for path in references))
-        self.assertIn(
-            "Every verified fact, derived result, and inference must point",
-            decision,
-        )
-        self.assertIn("to inspectable evidence", decision)
-        self.assertNotIn("or states why no source exists", decision)
+        self.assertIn("**Toda afirmação** abre com o rótulo", flat)
+        self.assertIn("Frases de transição e instruções ao usuário não levam rótulo", flat)
+        self.assertNotIn("onde há mistura", flat)
+        self.assertIn("a skill `output-response` traz o workflow", flat)
 
     def test_evidence_reviewer_is_read_only_and_has_codex_parity(self) -> None:
         shared = _ROOT.joinpath("agents/evidence-reviewer.md").read_text(
@@ -74,7 +62,7 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertIn("fals", codex.lower())
 
     def test_orchestration_skills_name_the_evidence_reviewer_agent(self) -> None:
-        for skill in ("core/skills/reviewer/SKILL.md", "core/skills/evidence/SKILL.md"):
+        for skill in ("core/skills/reviewer/SKILL.md", "core/skills/output-response/SKILL.md"):
             with self.subTest(skill=skill):
                 self.assertIn("`evidence-reviewer` agent", self._read(skill))
 
