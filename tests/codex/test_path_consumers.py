@@ -71,6 +71,23 @@ class PathConsumersTest(Sandbox):
         self.assertIn('invalid line 1', denied['permissionDecisionReason'])
         self.assertIsNone(self._guard(self.config / 'omh/config'))
 
+    def test_guard_never_names_a_config_destination_it_cannot_locate(self):
+        env = {'PATH': '/usr/bin:/bin', 'HOME': '', 'XDG_CONFIG_HOME': 'relative'}
+        payload = {'tool_name': 'Write', 'cwd': '/tmp', 'tool_input': {'file_path': '/private/tmp/x.md'}}
+        result = subprocess.run(['bash', str(GUARD)], input=json.dumps(payload), capture_output=True, text=True,
+                                env=env, timeout=10)
+        reason = json.loads(result.stdout)['hookSpecificOutput']['permissionDecisionReason']
+        self.assertIn('HOME', reason)
+        self.assertNotIn('/.config/omh/config', reason)
+
+    def test_global_guidance_keeps_the_three_outcomes(self):
+        for relative in ('harness/claude/CLAUDE.md', 'harness/codex/AGENTS.md', 'README.md'):
+            text = ' '.join((ROOT / relative).read_text().split())
+            with self.subTest(file=relative):
+                self.assertIn('machine-paths', text)
+                self.assertRegex(text, r'(corrigir a variável de ambiente|fix or unset the environment variable)')
+                self.assertRegex(text, r'`?HOME`? (ou|or) `?XDG_CONFIG_HOME')
+
     def test_pointer_warns_once_about_a_broken_config(self):
         self._config('OMH_KB_ROOT=relative\n')
         result = subprocess.run(['bash', str(ROOT / 'core/hooks/kb-pointer.sh')],

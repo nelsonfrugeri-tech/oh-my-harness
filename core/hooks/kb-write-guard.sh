@@ -16,7 +16,9 @@ fi
 RESOLVED="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>&1)"
 STATUS=$?
 [ "$STATUS" -eq 3 ] && exit 0
-python3 - "$STATUS" "$RESOLVED" "$PWD" 3<&0 <<'PY'
+# The config destination comes only from the resolver; empty when HOME/XDG cannot locate it.
+CONFIG="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" --config-file 2>/dev/null)"
+python3 - "$STATUS" "$RESOLVED" "$PWD" "$CONFIG" 3<&0 <<'PY'
 import json
 import os
 from pathlib import Path
@@ -32,17 +34,14 @@ def is_markdown(*paths):
     return any(path.suffix.casefold() == '.md' for path in paths)
 
 
-def config_file():
-    base = os.environ.get('XDG_CONFIG_HOME', '')
-    return Path(base if os.path.isabs(base) else os.path.expanduser('~/.config')) / 'omh' / 'config'
-
-
-def unresolved(error, lexical, canonical):
-    config = Path(os.path.abspath(config_file()))
-    if config in (lexical, canonical) or not is_markdown(lexical, canonical):
+def unresolved(error, config, lexical, canonical):
+    located = Path(config) if config else None
+    if located in (lexical, canonical) or not is_markdown(lexical, canonical):
         return
     reason = (error.strip().splitlines() or ['erro desconhecido'])[-1]
-    deny(f'Não foi possível resolver OMH_KB_ROOT ({reason}); corrija {config}. '
+    fix = (f'corrija o valor de OMH_KB_ROOT na variável de ambiente ou em {located}' if located
+           else 'corrija HOME ou XDG_CONFIG_HOME para que o arquivo de config possa ser localizado')
+    deny(f'Não foi possível resolver OMH_KB_ROOT ({reason}); {fix}. '
          'Escritas de Markdown ficam bloqueadas até lá.')
 
 
@@ -61,7 +60,7 @@ def main():
     lexical = Path(os.path.abspath(target))
     canonical = target.resolve()
     if sys.argv[1] != '0':
-        unresolved(sys.argv[2], lexical, canonical)
+        unresolved(sys.argv[2], sys.argv[4], lexical, canonical)
         return
     root = Path(os.path.abspath(Path(sys.argv[2]).expanduser()))
     protected = lexical.is_relative_to(root) or canonical.is_relative_to(root.resolve())

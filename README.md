@@ -508,8 +508,11 @@ flag (`kb.py --root`), else the process environment, else that file; a missing v
 defaulted. `core/skills/kb-write/scripts/kb/adapters/paths.py` is the single resolver; it uses only the
 standard library, exits 3 with `missing path: <VAR>` when no layer defines the variable, and exits 2
 when the configuration is broken (`kb.py` reports these as exits 5 and 6). A subagent returns that
-line; the main session asks the user, writes the line into the file itself, and runs the step
-again. The full round trip lives in
+line; the main session asks the user, then applies one of three outcomes: a missing value is
+written into the file by the main session itself; an invalid value from the environment means the
+user must fix or unset the environment variable, since it wins over the file; and a config file
+that cannot be located means the user fixes `HOME` or `XDG_CONFIG_HOME` before anything is written.
+The full round trip lives in
 [`machine-paths.md`](core/skills/kb-write/references/machine-paths.md). Before upgrading a machine that already has a knowledge base, write its current
 values first: without them the write guard has no bundle to protect and fails open.
 

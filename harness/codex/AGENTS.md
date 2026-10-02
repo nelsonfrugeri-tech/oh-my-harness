@@ -195,11 +195,12 @@ dos dois aqui.
    localizam tudo. Os valores ficam em `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, uma linha
    `CHAVE=valor` cada (a última vence); vale flag de CLI > variável de ambiente > arquivo, e valor
    ausente nunca ganha default. O valor é literal: path absoluto ou `~/`, sem aspas nem `$VAR`.
-   Ausência volta como `missing path: <VAR>` e config quebrado como `invalid path: <VAR>`: o
-   subagent não pergunta e devolve a linha; a sessão principal, ou quem roda a skill direto,
-   pergunta ao usuário (sugestão só dentro da pergunta), não grava nada antes da resposta, grava
-   ela mesma a linha no arquivo e roda o passo de novo. Ciclo completo na referência
-   `machine-paths` da skill `kb-write`.
+   O subagent não pergunta e devolve a linha do resolver; a sessão principal, ou quem roda a skill
+   direto, pergunta ao usuário (sugestão só dentro da pergunta) e não muda nada antes da resposta.
+   Valor ausente: ela mesma grava `CHAVE=valor` no arquivo e roda de novo. Valor inválido vindo da
+   variável de ambiente: pede para corrigir a variável de ambiente, sem gravar linha que seria
+   ignorada. Config não localizável: pede para corrigir `HOME` ou `XDG_CONFIG_HOME`, sem gravar
+   nada. Ciclo completo na referência `machine-paths` da skill `kb-write`.
 
 ### Duas camadas de memória, dois responsáveis
 
