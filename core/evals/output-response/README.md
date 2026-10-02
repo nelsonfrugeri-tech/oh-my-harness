@@ -51,7 +51,7 @@ whose `id` starts with `question-`.
 ## Score labels and sentences
 
 - A label passes only when it is one of the seven labels written exactly as in
-  `core/policies/software-evidence-contract.md`, emoji, bold, and casing included.
+  `core/policies/output-response-contract.md`, emoji, bold, and casing included.
 - Every assertion needs a label. A transitional sentence or an instruction to the user must carry
   none; a label on either is a failure.
 - Prose moved into table rows to escape the budget fails the case even when the counter passes.

@@ -233,6 +233,9 @@ Report the status, mode, changed files, observed behavior or acceptance criteria
 or exception, focused and broad commands with source/cwd/exit status, author self-check findings,
 limitations, residual risk, and next handoff. Do not claim commands or reviews that were not run.
 
+Before opening a pull request, load [pull-request-flow.md](references/pull-request-flow.md): it
+holds the gate, the independent review it requires, and what the quality-gate hook enforces.
+
 ## Maintenance triggers
 
 Re-evaluate this skill when project command-discovery fixtures fail, a safety incident exposes an

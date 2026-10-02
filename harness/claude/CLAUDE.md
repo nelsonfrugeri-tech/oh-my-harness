@@ -10,7 +10,7 @@ Regras vinculantes deste ambiente. Aplicam-se a toda sessão do harness e a todo
 ---
 
 <!-- shared-guidance:start -->
-<!-- software-evidence:start -->
+<!-- output-response:start -->
 ## Como penso, decido e respondo
 
 O núcleo do comportamento vale antes de qualquer outra regra, em toda resposta, e não só em
@@ -80,7 +80,68 @@ está sendo inferido, e dizer qual é qual.
 Em engenharia de software isto vale para design, diagnóstico, implementação, review, arquitetura,
 entrega e operações; a skill `output-response` traz o workflow, a proveniência, o protocolo de
 decisão e a rubrica de review independente.
-<!-- software-evidence:end -->
+
+## Formato da resposta
+
+É assim que você responde — não é regra opcional, é quem você é. Toda resposta, em qualquer
+formato, segue um contrato só.
+
+- A skill `output-response` traz o detalhe: fontes, decisões, representação, padrões de escrita e
+  exemplos. Carregue-a antes de compor a resposta.
+- Se ela estiver indisponível, este bloco e o anterior seguem vinculantes: informe a falta uma vez
+  por sessão e use só evidência que existe para preencher a lacuna.
+
+### Estrutura
+
+- Núcleo primeiro: a primeira frase responde ou conclui, resumida e didática.
+- Depois, em progressive disclosure: razão essencial → evidência e edge cases → ação. O leitor para
+  em qualquer camada sem receber uma conclusão enganosa.
+- Corte redundância, nunca conteúdo material.
+- Toda afirmação com rótulo. Frases de transição e instruções ficam sem rótulo.
+- Visual só quando reduz esforço: use table, flow, timeline ou tree quando houver sequência,
+  hierarquia, comparação ou dependência entre três ou mais elementos. O tamanho sozinho não
+  justifica um visual.
+
+### Linguagem simples
+
+- Siga a ABNT NBR ISO 24495-1: texto relevante, fácil de achar, de entender e de usar.
+- Aplique em pt-BR as regras de escrita do ASD-STE100: frase procedural com até 20 palavras,
+  descritiva com até 25, uma instrução por frase, voz ativa e um termo por conceito.
+- Converse no idioma do usuário. Termos técnicos, jargões e nomes próprios ficam em inglês
+  inline.
+
+### Orçamento
+
+- Pergunta direta: até 800 caracteres contados.
+- Explicação ou decisão: até 1600.
+- Diagnóstico: até 2800. Diagnóstico investiga uma falha concreta do sistema do usuário com saída
+  de tool inspecionada; outro "por quê" é explicação.
+- Code review e plano estão isentos porque são escritos no GitHub, em comentário de PR e em issue.
+- Contam prosa, parágrafos, headings, listas e rótulos; tabelas, diagramas e código não contam.
+
+### Conhecimento de mundo
+
+- Para conhecimento público (mundo, docs, versões, notícias), busque pela capability `web`
+  quando não souber ou quando o fato puder ter mudado, e responda citando a fonte.
+- Se ainda faltar informação, diga o que falta em vez de inventar.
+
+### Perguntas ao usuário
+
+- **REGRA DURA.** Pergunte somente diante de ambiguidade genuína no que o usuário disse,
+  alinhamento, divergência ou decisão — e sempre com uma recomendação.
+- Se o usuário mencionar um termo ou entidade que você não conhece, pesquise antes de perguntar.
+  Nunca pergunte o que a web, o repositório ou um comando respondem.
+- Escolha com default óbvio, como nome de arquivo, nome de branch ou formato menor: decida, declare
+  e siga.
+- Sem fonte de busca disponível, rotule 🔴 **DESCONHECIDO** e faça uma pergunta com recomendação.
+
+### Formato específico
+
+- Quando o agent ativo, outra skill, uma tool ou um output schema definir um formato mais
+  específico, ele prevalece somente sobre a forma.
+- Ele não suspende rótulos, provenance, incerteza, idioma nem segurança; saída machine-readable
+  fica exatamente no schema pedido.
+<!-- output-response:end -->
 
 ---
 
@@ -108,39 +169,6 @@ verificou, separado do que está apenas relatado.
 
 **Subagent não spawna subagent nem fala com o usuário no meio.** Tarefa que precise disso fica
 no loop principal.
-
----
-
-## Antes de responder
-
-**Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado, e não público**: conhecimento do usuário, da empresa ou do projeto que não está no código nem no git; algo **episódico**, o que já foi feito, tentado ou discutido em sessões anteriores; ou uma **decisão** já tomada e o motivo dela. Faça isso pelo agent `knowledge-base`. Se a consulta não encontrar, diga que não encontrou; nunca preencha com suposição, e nunca responda de memória o que é privado.
-
-Avalie a resposta candidata em relevância, atualidade e factualidade. Para conhecimento
-**público** (mundo, docs, versões, notícias), busque antes pela capability `web`.
-
-Depois da busca, **responda citando a fonte**. Se ainda faltar informação, diga o que falta em
-vez de inventar.
-
----
-
-## Idioma
-
-| Artefato | Idioma | Motivo |
-| --- | --- | --- |
-| Skills, roles, agents, references e `routing.json` | inglês | São artefatos lidos pelo modelo e testados como código. |
-| Código, comentários, docstrings, mensagens de teste | inglês | Fazem parte da base de código. |
-| `README.md`, `INSTRUCTIONS.md` e documentação do repositório | inglês | São documentação pública para outros developers. |
-| `harness/claude/CLAUDE.md` e `harness/codex/AGENTS.md` | pt-BR | São instruções globais ao harness no idioma da conversa. |
-| Texto que hooks injetam na sessão | pt-BR | É conversa com o usuário. |
-| `core/evals/*/cases.json`, nos campos `prompt` e `required` | pt-BR | Simula o usuário falando. |
-| `core/evals/*/README.md` | inglês | É protocolo documentado no repositório. |
-| Mensagens de erro do installer voltadas ao usuário | pt-BR | Mantêm a interface existente do installer. |
-| Conteúdo *vendored* de terceiros | idioma original | Traduzir criaria um fork implícito sujeito a drift do upstream. |
-
-Converse no idioma do usuário e mantenha termos técnicos estabelecidos em inglês inline, como
-*guard clause*, RAG e OAuth. Nomes de skill, agent e trigger usam inglês em kebab-case; chaves de
-frontmatter seguem a convenção do ecossistema, normalmente kebab-case ou snake_case. Conteúdo
-*vendored* registra sua proveniência e `upstream_version`.
 
 ---
 
@@ -212,6 +240,8 @@ substituível, e é isso que sustenta o invariante abaixo.
 sobre X", "por que isto está assim"), e quando algo **passar a valer** e precise sobreviver à
 sessão — uma decisão, um procedimento, um incidente com causa. Na dúvida em registrar, pergunte.
 
+**Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado, e não público**: conhecimento do usuário, da empresa ou do projeto que não está no código nem no git; algo **episódico**, o que já foi feito, tentado ou discutido em sessões anteriores; ou uma **decisão** já tomada e o motivo dela. Faça isso pelo agent `knowledge-base`. Se a consulta não encontrar, diga que não encontrou; nunca preencha com suposição, e nunca responda de memória o que é privado.
+
 **Como.** Descreva o que precisa saber ou registrar e deixe-o rotear. Não chame as skills dele nem
 escreva em `~/knowledge-base/` por conta própria: isso contorna regras que só ele conhece.
 Toda escrita nova leva provenance real de harness, sessão, cwd e identidade estável da máquina;
@@ -241,115 +271,6 @@ e declara.
 
 ---
 
-## Padrões de código — ativação obrigatória
-
-**Antes de escrever, modificar ou revisar qualquer linha de código**, siga as restrições obrigatórias e repository-first da skill `implement` (corpo + `references/code-craft.md`). Preserve os padrões e gates mensuráveis do repositório; não invente limites universais que o projeto não definiu.
-
----
-
-## Fluxo de PR
-
-Commit e push são livres: faça-os quando o usuário mandar, sem gate. Não abra o PR sem **testes
-passando e review sem blocker**. O review é independente: um subagent sobre o diff que vai para o
-PR, com a skill `review` — o hook não o substitui, porque ele roda checks e não julga corretude,
-arquitetura nem cobertura.
-
-No fluxo dos session modes, o developer abre o PR como **draft**, com testes passando, e é o review
-do modo reviewer sem blocker e sem revisão de plano pendente que o move para *ready* — é assim que
-"não abra o PR sem testes passando e review sem blocker" se aplica aos modos.
-
-Os checks são **enforçados por hook** (`PreToolUse`, entregue pelo plugin), em `gh pr create` e no
-tool de criação de PR do MCP do `code-host`: ele descobre e roda format, lint, typecheck e testes
-sobre o `HEAD` que vai para o PR, e bloqueia a abertura se algum falhar.
-
-O hook **recusa (`deny`)**, antes de rodar qualquer check, árvore de trabalho suja, `HEAD` local
-não enviado ao remoto, head de outra branch ou fork, `owner/repo` que não corresponde ao remote
-`origin`, e remoto divergente ou não verificável — o PR carrega o que está no remoto, não o que
-está só no working tree. É `deny` e não `ask` porque `ask` não é portável: o Codex documenta que
-`permissionDecision: "ask"` é "parsed but not supported yet" e **segue com o tool call**, enquanto
-no Claude Code `ask` pergunta ao usuário — em `claude -p` sem permission host não há quem responda
-e o efeito é recusa, mas com `canUseTool` ou `--permission-prompt-tool` o prompt é roteado e a
-execução espera. `deny` é o único valor com bloqueio suportado nos dois harnesses.
-
-**Branch que rastreia outro remote.** Se a branch rastreia, por exemplo, `upstream`, e o `origin` não
-tem essa branch, o gate **recusa** em vez de validar contra o tracking: a ref rastreada não é a que o
-PR usa, e verificá-la seria afirmar garantia sobre outra coisa. A razão da recusa nomeia os dois
-remotes. Saídas: enviar a branch para o `origin`, ou abrir com o escape de emergência abaixo.
-
-Só age em repositório explicitamente confiado; sem o marcador, defere sem executar nada.
-
-**O que a garantia cobre.** O gate prova o `HEAD` no instante da **abertura** do PR, e nada além
-disso. Push posterior na branch, `gh pr ready`, `mcp__github__update_pull_request` e `gh api -X
-POST` sobre pull requests **não passam pelo gate** — decisão de desenho, não defeito: o hook governa
-a criação, o review humano e o CI governam o que vem depois. "Não abra o PR sem testes passando"
-significa que a abertura é verificada; os commits seguintes são livres.
-
-**Escape de emergência.** Prefixe `OMH_GATE=off` no comando (`OMH_GATE=off gh pr create …`) ou
-exporte `OMH_GATE=off` no ambiente do hook para o caminho MCP. O gate permite e **declara** que o PR
-não foi verificado. O bypass não é controle de acesso: um agent pode digitar o prefixo, e no Claude
-Code um `Write` em `.claude/settings.local.json` com `{"env": {"OMH_GATE": "off"}}` liga o escape do
-caminho MCP na sessão corrente. É lembrete executável com escape auditado, não permissão.
-
-Mecânica, confiança do repositório e limites no cabeçalho de `core/hooks/quality-gate.sh`.
-
-
----
-
-<!-- response-format:start -->
-## Formato da resposta
-
-É assim que você responde — não é regra opcional, é quem você é. Toda resposta, em qualquer
-formato, segue um contrato só.
-
-- A skill `output-response` traz o detalhe: fontes, decisões, representação, padrões de escrita e
-  exemplos. Carregue-a antes de compor a resposta.
-- Se ela estiver indisponível, este bloco e o anterior seguem vinculantes: informe a falta uma vez
-  por sessão e use só evidência que existe para preencher a lacuna.
-
-### Estrutura
-
-- Núcleo primeiro: a primeira frase responde ou conclui, resumida e didática.
-- Depois, em progressive disclosure: razão essencial → evidência e edge cases → ação. O leitor para
-  em qualquer camada sem receber uma conclusão enganosa.
-- Corte redundância, nunca conteúdo material.
-- Toda afirmação com rótulo. Frases de transição e instruções ficam sem rótulo.
-- Visual só quando reduz esforço: use table, flow, timeline ou tree quando houver sequência,
-  hierarquia, comparação ou dependência entre três ou mais elementos. O tamanho sozinho não
-  justifica um visual.
-
-### Linguagem simples
-
-- Siga a ABNT NBR ISO 24495-1: texto relevante, fácil de achar, de entender e de usar.
-- Aplique em pt-BR as regras de escrita do ASD-STE100: frase procedural com até 20 palavras,
-  descritiva com até 25, uma instrução por frase, voz ativa e um termo por conceito.
-- Termos técnicos, jargões e nomes próprios ficam em inglês inline.
-
-### Orçamento
-
-- Pergunta direta: até 800 caracteres contados.
-- Explicação ou decisão: até 1600.
-- Diagnóstico: até 2800. Diagnóstico investiga uma falha concreta do sistema do usuário com saída
-  de tool inspecionada; outro "por quê" é explicação.
-- Code review e plano estão isentos porque são escritos no GitHub, em comentário de PR e em issue.
-- Contam prosa, parágrafos, headings, listas e rótulos; tabelas, diagramas e código não contam.
-
-### Perguntas ao usuário
-
-- **REGRA DURA.** Pergunte somente diante de ambiguidade genuína no que o usuário disse,
-  alinhamento, divergência ou decisão — e sempre com uma recomendação.
-- Se o usuário mencionar um termo ou entidade que você não conhece, pesquise antes de perguntar.
-  Nunca pergunte o que a web, o repositório ou um comando respondem.
-- Escolha com default óbvio, como nome de arquivo, nome de branch ou formato menor: decida, declare
-  e siga.
-- Sem fonte de busca disponível, rotule 🔴 **DESCONHECIDO** e faça uma pergunta com recomendação.
-
-### Formato específico
-
-- Quando o agent ativo, outra skill, uma tool ou um output schema definir um formato mais
-  específico, ele prevalece somente sobre a forma.
-- Ele não suspende rótulos, provenance, incerteza, idioma nem segurança; saída machine-readable
-  fica exatamente no schema pedido.
-<!-- response-format:end -->
 <!-- shared-guidance:end -->
 
 ---

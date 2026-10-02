@@ -6,13 +6,13 @@ from pathlib import Path
 
 
 _ROOT = Path(__file__).resolve().parents[2]
-_START = "<!-- response-format:start -->"
-_END = "<!-- response-format:end -->"
+_START = "<!-- output-response:start -->"
+_END = "<!-- output-response:end -->"
 
 
 class ResponseFormatContractTest(unittest.TestCase):
     def test_global_adapters_embed_the_canonical_contract(self) -> None:
-        canonical = self._read("core/policies/response-format-contract.md").strip()
+        canonical = self._read("core/policies/output-response-contract.md").strip()
 
         self.assertEqual(canonical, self._embedded_contract("harness/codex/AGENTS.md"))
         self.assertEqual(canonical, self._embedded_contract("harness/claude/CLAUDE.md"))
@@ -25,7 +25,7 @@ class ResponseFormatContractTest(unittest.TestCase):
         self.assertIn("A skill `output-response` traz o detalhe", flat)
         self.assertIn("use só evidência que existe para preencher a lacuna", flat)
         self.assertIn("uma vez por sessão", flat)
-        self.assertEqual(["output-response"], re.findall(r"skill `([^`]+)`", flat))
+        self.assertEqual({"output-response"}, set(re.findall(r"skill `([^`]+)`", flat)))
 
     def test_essence_states_core_first_labels_and_writing_standards(self) -> None:
         flat = self._flat()
@@ -77,7 +77,7 @@ class ResponseFormatContractTest(unittest.TestCase):
         self.assertIn("Ele não suspende rótulos, provenance, incerteza, idioma nem segurança", flat)
 
     def _flat(self) -> str:
-        return " ".join(self._read("core/policies/response-format-contract.md").split())
+        return " ".join(self._read("core/policies/output-response-contract.md").split())
 
     def _embedded_contract(self, relative: str) -> str:
         content = self._read(relative)

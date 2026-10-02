@@ -432,13 +432,14 @@ holds the shared contract in [`modes.md`](core/skills/developer/references/modes
 
 ### Policies
 
-Two shared policy blocks are embedded into each harness's global guidance:
+One shared policy block, `output-response-contract.md`, is embedded into each harness's global
+guidance. It defines claim status, uncertainty, provenance, and decision discipline, and the output
+identity: the core answer first, labels on every assertion, plain-language writing rules, the
+character budget, world knowledge, and when to ask the user. The `output-response` skill holds the
+detail.
 
-- `software-evidence-contract.md` defines claim status, uncertainty, provenance, and decision
-  discipline.
-- `response-format-contract.md` states the output identity: the core answer first, labels on
-  every assertion, plain-language writing rules, the character budget, and when to ask the user;
-  the `output-response` skill holds the detail.
+The global guidance holds only tone, behavior, world knowledge, tools, and the lateral agents.
+Code standards and the pull request flow live in the `implement` skill and the session modes.
 
 ### Evals
 

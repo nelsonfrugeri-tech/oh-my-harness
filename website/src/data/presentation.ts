@@ -115,7 +115,7 @@ export const scenes: readonly Scene[] = [
       "Um label não é uma prova. É um compromisso com fonte, teste e revisão.",
     references: [],
     files: [
-      "core/policies/software-evidence-contract.md",
+      "core/policies/output-response-contract.md",
       "core/skills/output-response/SKILL.md",
       "core/skills/output-response/references/claim-taxonomy.md",
       "harness/claude/CLAUDE.md",

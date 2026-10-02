@@ -12,7 +12,7 @@ _ROOT = Path(__file__).resolve().parents[2]
 _NOTE_TEMPLATE = "core/skills/kb-write/references/note-template.md"
 _BACKUP_INSTRUCTION = "core/skills/kb-write/scripts/kb/app/assets/backup-instruction.md"
 _OUTPUT_RESPONSE = "core/skills/output-response/"
-_LABEL_SOURCE = "core/policies/software-evidence-contract.md"
+_LABEL_SOURCE = "core/policies/output-response-contract.md"
 _PORTUGUESE = re.compile(
     r"[áàâãéêíóôõúç]|"
     r"\b(?:não|você|vocês|usuário|usuários|arquivo|arquivos|projeto|projetos|"

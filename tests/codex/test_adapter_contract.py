@@ -236,19 +236,16 @@ class AdapterContractTest(unittest.TestCase):
         guidance = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
 
         self.assertLessEqual(len(guidance.encode("utf-8")), 32 * 1024)
-        self.assertIn("## Idioma", guidance)
         self.assertIn("## Nunca poluir o projeto com arquivos que não são do produto", guidance)
         self.assertIn("## Ambiente", guidance)
         self.assertIn("### Fatos vinculantes do ambiente", guidance)
         self.assertIn("### Regras de conhecimento", guidance)
-        self.assertIn("## Antes de responder", guidance)
-        self.assertIn("## Padrões de código — ativação obrigatória", guidance)
-        self.assertIn("## Fluxo de PR", guidance)
+        for removed in ("## Antes de responder", "## Idioma",
+                        "## Padrões de código — ativação obrigatória", "## Fluxo de PR"):
+            self.assertNotIn(removed, guidance)
         self.assertIn("## Como opero", guidance)
         portuguese_prose = (
             "Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado",
-            "Antes de escrever, modificar ou revisar qualquer linha de código",
-            "Commit e push são livres",
             "Delegue por padrão.",
         )
         self.assertTrue(all(sentence in guidance for sentence in portuguese_prose))
@@ -370,10 +367,14 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("never as a loose general comment", reviewer)
         self.assertIn("The pull request moves from draft to ready only through the reviewer", modes)
         self.assertIn("no BLOCKER and no pending plan revision", modes)
+        flow = read("core/skills/implement/references/pull-request-flow.md")
+        self.assertIn("the developer opens the pull request as a draft", flow)
+        self.assertIn("no blocker and no pending plan revision", flow)
+        self.assertIn("[pull-request-flow.md](references/pull-request-flow.md)",
+                      read("core/skills/implement/SKILL.md"))
         for relative in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
             with self.subTest(path=relative):
-                self.assertIn("o developer abre o PR como **draft**", read(relative))
-                self.assertIn("sem blocker e sem revisão de plano pendente", read(relative))
+                self.assertNotIn("## Fluxo de PR", read(relative))
 
     def test_session_modes_are_the_only_feature_workflow(self) -> None:
         # The three modes replaced the feature skill; the fast lane is the developer mode.
@@ -490,8 +491,6 @@ class AdapterContractTest(unittest.TestCase):
     def test_code_craft_contract_is_consistently_repository_first(self) -> None:
         paths = (
             "README.md",
-            "harness/claude/CLAUDE.md",
-            "harness/codex/AGENTS.md",
             "core/skills/implement/references/code-craft.md",
         )
         combined = chr(10).join(
@@ -499,10 +498,12 @@ class AdapterContractTest(unittest.TestCase):
             for path in paths
         )
 
-        for path in paths[:3]:
+        self.assertIn("repository-first", _ROOT.joinpath("README.md").read_text(encoding="utf-8"))
+        # Code standards belong to `implement`; the global prompts hold behavior only.
+        for path in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
             with self.subTest(path=path):
                 document = _ROOT.joinpath(path).read_text(encoding="utf-8")
-                self.assertIn("repository-first", document)
+                self.assertNotIn("## Padrões de código", document)
         self.assertNotIn("code-craft — inviolable rules", combined)
         self.assertNotIn("design pattern instead of `if/elif` chains", combined)
         self.assertIn("Do not split by a universal line or symbol count", combined)

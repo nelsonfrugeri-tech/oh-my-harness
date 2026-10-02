@@ -6,8 +6,8 @@ from pathlib import Path
 
 
 _ROOT = Path(__file__).resolve().parents[2]
-_START = "<!-- software-evidence:start -->"
-_END = "<!-- software-evidence:end -->"
+_START = "<!-- output-response:start -->"
+_END = "<!-- output-response:end -->"
 
 
 class EvidenceContractTest(unittest.TestCase):
@@ -115,7 +115,7 @@ class EvidenceContractTest(unittest.TestCase):
         self.assertIn("## Open unknowns", plan)
 
     def _canonical_contract(self) -> str:
-        path = _ROOT / "core/policies/software-evidence-contract.md"
+        path = _ROOT / "core/policies/output-response-contract.md"
         return path.read_text(encoding="utf-8").strip()
 
     def _embedded_contract(self, relative: str) -> str:

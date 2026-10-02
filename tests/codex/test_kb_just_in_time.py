@@ -37,13 +37,13 @@ class KbRuleContractTests(unittest.TestCase):
         self.assertIn(_KB_RULE, claude)
         self.assertIn(_KB_RULE, codex)
 
-    def test_rule_lives_under_the_before_answering_heading(self) -> None:
+    def test_rule_lives_under_the_knowledge_base_memory_heading(self) -> None:
         claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
         codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
 
-        claude_section = claude.split("## Antes de responder", 1)[1].split("\n---", 1)[0]
-        # Group E (#120) unified the heading: both files now use "Antes de responder".
-        codex_section = codex.split("## Antes de responder", 1)[1].split("\n---", 1)[0]
+        heading = "### Memória — o agent `knowledge-base`"
+        claude_section = claude.split(heading, 1)[1].split("\n### ", 1)[0]
+        codex_section = codex.split(heading, 1)[1].split("\n### ", 1)[0]
         self.assertIn(_KB_RULE, claude_section)
         self.assertIn(_KB_RULE, codex_section)
 
