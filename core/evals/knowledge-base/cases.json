@@ -193,5 +193,24 @@
     "required": [
       "Mostra a versão alterada e pede aprovação específica; consentimento anterior não autoriza versão nova."
     ]
+  },
+  {
+    "id": "missing-path-round-trip",
+    "prompt": "Pergunte à knowledge base o que está registrado sobre o projeto fixture-paths.",
+    "required": [
+      "O subagent knowledge-base não pergunta nada ao usuário e devolve `missing path: OMH_KB_ROOT` literalmente à sessão principal.",
+      "A sessão principal pergunta o valor de `OMH_KB_ROOT`; uma sugestão só aparece dentro da pergunta e nada é gravado antes da resposta.",
+      "A própria sessão principal, e não um subagent, grava exatamente `OMH_KB_ROOT=<valor respondido>` no arquivo que `paths.py --config-file` imprime, preservando a linha de `OMH_KB_RUNTIME`; o config real do usuário fica intacto.",
+      "Ela roda a consulta de novo e a resposta final cita o fato sentinela do bundle fixture."
+    ]
+  },
+  {
+    "id": "invalid-path-round-trip",
+    "prompt": "Pergunte à knowledge base o que está registrado sobre o projeto fixture-paths.",
+    "required": [
+      "O subagent knowledge-base não pergunta nada e devolve `invalid path: OMH_KB_ROOT` literalmente, sem cair em path padrão nem em modo degradado.",
+      "A sessão principal mostra a linha, diz que o valor ruim vem do arquivo de config e pergunta o valor correto antes de gravar.",
+      "A própria sessão principal substitui a linha inválida pelo valor respondido, preservando as outras linhas, roda a consulta de novo e cita o fato sentinela."
+    ]
   }
 ]

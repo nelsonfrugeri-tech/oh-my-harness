@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from kb.app.errors import EnvironmentFailure
+from kb.adapters.paths import resolve
 
 from kb.adapters.clock import SystemClock
 from kb.adapters.filesystem import FileNoteStore
@@ -10,11 +11,10 @@ from kb.app.context import Context
 
 
 def build_context(args) -> Context:
-    root = Path(args.root or os.environ.get('OMH_KB_ROOT', '~/knowledge-base')).expanduser()
-    runtime = Path(os.environ.get('OMH_KB_RUNTIME', '~/.local/share/omh-kb')).expanduser()
+    root = resolve('OMH_KB_ROOT', args.root)
     machine_id = ''
-    if args.command not in {'template', 'harvest', 'backup', 'search'}:
-        identity = Path(args.identity) if args.identity else runtime / 'identity.json'
+    if args.command not in {'backup', 'search'}:
+        identity = Path(args.identity) if args.identity else resolve('OMH_KB_RUNTIME') / 'identity.json'
         try:
             identity_data = json.loads(identity.read_text())
         except (json.JSONDecodeError, UnicodeDecodeError) as error:

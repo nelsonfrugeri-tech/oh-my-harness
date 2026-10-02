@@ -8,7 +8,16 @@
 set -uo pipefail
 [ "${OMH_RUNTIME:-}" = "1" ] && exit 0
 command -v python3 >/dev/null 2>&1 || exit 0
-python3 - "${OMH_KB_ROOT:-$HOME/knowledge-base}" "$PWD" 3<&0 <<'PY'
+# An unconfigured OMH_KB_ROOT (exit 3) is a missing pointer, not a startup failure. A broken
+# configuration (any other failure) gets one warning line so it is never silent; startup continues.
+KB_ROOT="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>&1)"
+STATUS=$?
+[ "$STATUS" -eq 3 ] && exit 0
+if [ "$STATUS" -ne 0 ]; then
+  printf 'Configuração de paths do omh inválida: %s\n' "$(printf '%s\n' "$KB_ROOT" | tail -1)"
+  exit 0
+fi
+python3 - "$KB_ROOT" "$PWD" 3<&0 <<'PY'
 import datetime
 import json
 import os

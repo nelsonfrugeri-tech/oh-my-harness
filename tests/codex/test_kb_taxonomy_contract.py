@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import subprocess
 import tempfile
 import unittest
@@ -66,17 +67,18 @@ class KnowledgeDiskNavigationTest(unittest.TestCase):
     def test_documented_inventory_prunes_history_pending_and_backup(self) -> None:
         text = read('core/skills/kb-retrieval/SKILL.md')
         command = next(line.strip().strip('`.') for line in text.splitlines()
-                       if line.startswith('`find ~/knowledge-base/<domain>'))
+                       if line.startswith('`KB_ROOT="$(python3') and 'find "$KB_ROOT/<domain>"' in line)
+        command = command.replace('<skill-dir>', str(_ROOT / 'core/skills/kb-write'))
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for relative in ('entity/note/note.md', 'entity/note/.history/old.md',
                              'entity/note/.pending/note.md', 'backup/old.md', 'index.md'):
-                path = root / relative
+                path = root / 'domain' / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
-            result = subprocess.run(command.replace('~/knowledge-base/<domain>', str(root)),
-                                    shell=True, capture_output=True, text=True, check=True)
-            self.assertEqual([str(root / 'entity/note/note.md')], result.stdout.splitlines())
+            result = subprocess.run(command.replace('<domain>', 'domain'), shell=True, capture_output=True,
+                                    text=True, check=True, env={**os.environ, 'OMH_KB_ROOT': str(root)})
+            self.assertEqual([str(root / 'domain/entity/note/note.md')], result.stdout.splitlines())
 
 
 if __name__ == '__main__':

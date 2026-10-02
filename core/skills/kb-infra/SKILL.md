@@ -14,11 +14,13 @@ Changing it requires explicit decision, collection rebuild, and full reindex.
 
 ## Bootstrap the runtime
 
-Keep the dedicated environment outside projects and the Markdown bundle. Resolve one runtime path
-and reuse it for every command:
+Keep the dedicated environment outside projects and the Markdown bundle. `<kb-write-dir>` is the
+installed kb-write skill, a sibling of this skill; resolve `OMH_KB_RUNTIME` with its resolver in
+every command that uses it. Exit 3 (`missing path: <VAR>`) and exit 2 (an invalid configuration) both stop the step without a
+default; follow the round trip in [machine paths](../kb-write/references/machine-paths.md).
 
 ```bash
-KB_RUNTIME="${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}"
+KB_RUNTIME="$(python3 "<kb-write-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" || exit  # keeps 3 (missing) vs 2 (invalid)
 KB_VENV="$KB_RUNTIME/venv"
 mkdir -p "$KB_RUNTIME"
 if command -v uv >/dev/null 2>&1; then
@@ -37,6 +39,7 @@ rather than freezing that volatile value here.
 Smoke-test imports and the exact dense/sparse contract from the same interpreter:
 
 ```bash
+KB_VENV="$(python3 "<kb-write-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)/venv" || exit
 "$KB_VENV/bin/python" - <<'PY'
 from FlagEmbedding import BGEM3FlagModel
 
@@ -59,8 +62,16 @@ PY
 The production embedder lazy-loads one `BGEM3FlagModel` instance and converts each
 `lexical_weights` mapping into parallel integer `indices` and float `values` for Qdrant.
 
-Start Qdrant with `docker compose -f <resolved-skill-dir>/docker-compose.yml up -d`; resolve the
-skill directory from the installed plugin rather than a personal path. Diagnose in this order:
+Start Qdrant in one command, so compose sees the resolved runtime (it mounts
+`$OMH_KB_RUNTIME/qdrant`); resolve the skill directory from the installed plugin rather than a
+personal path:
+
+```bash
+OMH_KB_RUNTIME="$(python3 "<kb-write-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" &&
+  export OMH_KB_RUNTIME && docker compose -f <resolved-skill-dir>/docker-compose.yml up -d
+```
+
+Diagnose in this order:
 `docker info`, the owned `oh-my-harness-qdrant` container via `docker ps`, `curl -fsS http://127.0.0.1:6333/healthz` with
 bounded retry, collection/vector/index schema, then a short embedding from the dedicated venv.
 Report the first failed boundary and its repair; never infer health from configuration.

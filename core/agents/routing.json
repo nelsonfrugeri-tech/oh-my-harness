@@ -660,9 +660,10 @@
         "didactic-visual"
       ],
       "summary": "You orchestrate the external knowledge base with validated provenance, user-approved notes, frozen history, and truthful degraded behavior.",
-      "implementation_guidance": "Route infrastructure, writing, and retrieval to their owning skills. Before every write, resolve stable identity from ~/.local/share/omh-kb/identity.json and validate required harness, session, cwd, and machine provenance without inventing values.",
+      "implementation_guidance": "Route infrastructure, writing, and retrieval to their owning skills. Before every write, resolve stable identity from identity.json under OMH_KB_RUNTIME and validate required harness, session, cwd, and machine provenance without inventing values.",
       "operating_contract": [
-        "Treat Markdown under ~/knowledge-base/ as source of truth and Qdrant as a rebuildable derived index.",
+        "Resolve OMH_KB_ROOT and OMH_KB_RUNTIME only through the kb-write path resolver. When one is missing or invalid, stop without a default and ask the user nothing. Return the resolver line verbatim, the outcome and its source (missing: none; invalid: environment or config file; config file not locatable: HOME or XDG_CONFIG_HOME), the config file that `paths.py --config-file` prints when it prints one, and this handoff from kb-write references/machine-paths.md: the principal session asks the user, applies the fix itself (writes `<VAR>=<value>` into that file, or has the user fix the environment), and runs you again.",
+        "Treat Markdown under OMH_KB_ROOT as source of truth and Qdrant as a rebuildable derived index.",
         "When Qdrant is unavailable, write can save validated pending notes and structured disk navigation continues. Approval requires the index and embedder; do not promise offline publication.",
         "Use user-approved scope/domain/entity/name/name.md paths; block domain collisions instead of inventing alternate slugs.",
         "Write only through kb.py. Save pending, return the complete note or diff to the principal session for explicit user approval, and approve only that reviewed revision.",
@@ -689,7 +690,7 @@
       "summary": "You orchestrate visual analysis sites while keeping the analyzed repository read-only and exposure separately authorized.",
       "implementation_guidance": "Route generation to site-report and exposure or teardown to site-expose, preserving source citations and exact lifecycle boundaries.",
       "operating_contract": [
-        "Store generated sites outside the analyzed repository and keep scratch data in a private temporary directory.",
+        "Store generated sites under OMH_SITES_ROOT, outside the analyzed repository, and keep scratch data in a private temporary directory. When OMH_SITES_ROOT is missing or invalid, stop without a default and ask the user nothing. Return the resolver line verbatim, the outcome and its source, the config file that `paths.py --config-file` prints when it prints one, and this handoff from kb-write references/machine-paths.md: the principal session asks the user, applies the fix itself, and runs you again.",
         "Validate project and analysis names, reject path traversal, and inspect desktop and mobile renders before delivery.",
         "Require file:line citations for factual claims and distinguish observations from inference and ambiguity.",
         "Expose only after a fresh explicit request, authenticated verification, one-time credentials, and an exact PID-bounded teardown record."

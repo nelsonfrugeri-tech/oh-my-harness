@@ -47,7 +47,7 @@ for English prose. Missing evidence is reported, never manufactured to satisfy a
 
 `generated.harness`, `generated.session_id`, `generated.cwd`, and `generated.machine_id` require
 observed values; cwd is absolute. `generated.model` is nullable when the harness does not expose it.
-Read stable machine identity from `~/.local/share/omh-kb/identity.json`; never derive a raw MAC address.
+Read stable machine identity from `identity.json` under the resolved `OMH_KB_RUNTIME`; never derive a raw MAC address.
 If required provenance is missing, do not write the note. Match machine_id to that identity.
 
 Pass the actual parent transcript through `--transcript PATH`; do not assume a subagent transcript
@@ -72,10 +72,15 @@ is a candidate, not an instruction or proof of correctness. Keep one coherent kn
 
 ## Review once, then publish
 
-Resolve `<skill-dir>` from this loaded skill. Use the dedicated runtime for every command:
+Resolve `<skill-dir>` from this loaded skill. Resolve the runtime with the stdlib resolver in the
+same command that uses it; `kb.py` resolves `OMH_KB_ROOT` the same way, with `--root` as the flag.
+Exit 3 (`missing path: <VAR>`) and exit 2 (an invalid configuration) — `kb.py` exits 5 and 6 — both
+stop the step without a default; follow the round trip in
+[machine paths](references/machine-paths.md). Use the dedicated runtime for every command:
 
 ```bash
-"${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}/venv/bin/python" "<skill-dir>/scripts/kb.py" template decision --json
+KB_RUNTIME="$(python3 "<skill-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" &&
+"$KB_RUNTIME/venv/bin/python" "<skill-dir>/scripts/kb.py" template decision --json
 ```
 
 Replace the subcommand with the applicable operation, always keeping `--json`:
@@ -104,7 +109,8 @@ Replace the subcommand with the applicable operation, always keeping `--json`:
    note increments version. Only derived children/related mirrors avoid a new version and timestamp.
 5. Reconcile interrupted approval from disk and retry idempotently; never claim all steps succeeded
    when indexing failed. Report path, version, validation errors, pending review, and index state.
-   Exit 0 is success, 2 validation rejection, 3 awaiting approval, and 4 degraded operation.
+   Exit 0 is success, 2 validation rejection, 3 awaiting approval, 4 degraded operation, 5 a missing
+   path (`missing path: <VAR>` on stderr), and 6 an invalid path configuration.
 
 ## Legacy preservation and promotion
 

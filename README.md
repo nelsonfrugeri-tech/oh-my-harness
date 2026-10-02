@@ -103,7 +103,7 @@ carry your way of working to the next assistant instead of starting over.
                     +-----------------+-----------------+
                     |                                   |
                     v                                   v
-          provider-owned tools                  ~/knowledge-base/
+          provider-owned tools                  $OMH_KB_ROOT
           and external plugins                  portable OKF bundle
 ```
 
@@ -445,7 +445,7 @@ CLI shipped with kb-write to validate notes, stage review, publish approved vers
 derived links and indexes. Raw transcripts stay in their harness; there is no second session store.
 
 ```text
-~/knowledge-base/
+$OMH_KB_ROOT/
   <scope>/
     index.md
     <domain>/
@@ -460,7 +460,7 @@ derived links and indexes. Raw transcripts stay in their harness; there is no se
     INSTRUCTION.md               # read first, only on explicit legacy request
     ...                          # byte-preserved legacy bundle
 
-~/.local/share/omh-kb/
+$OMH_KB_RUNTIME/
   identity.json
   qdrant/
   venv/
@@ -489,6 +489,32 @@ Key properties:
 Today the agent invokes KB content retrieval explicitly. `SessionStart` automatically emits only a
 content-free pointer; automatic content retrieval and end-of-session distillation are not current
 runtime behavior.
+
+### Machine paths
+
+The repository names no machine path. Three variables locate everything outside it:
+
+| Variable | Locates |
+| --- | --- |
+| `OMH_KB_ROOT` | the Markdown knowledge bundle |
+| `OMH_KB_RUNTIME` | `identity.json`, the Qdrant volume, the KB venv, and locks |
+| `OMH_SITES_ROOT` | generated analysis sites |
+
+Each machine sets them in `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, one `KEY=value` line per
+variable; `#` starts a comment line and the last assignment wins. Values are literal absolute paths
+or `~/` paths: quotes, `$VAR`, inline comments, and relative paths are rejected as
+`invalid path: <VAR>`. A value comes from the CLI
+flag (`kb.py --root`), else the process environment, else that file; a missing value is never
+defaulted. `core/skills/kb-write/scripts/kb/adapters/paths.py` is the single resolver; it uses only the
+standard library, exits 3 with `missing path: <VAR>` when no layer defines the variable, and exits 2
+when the configuration is broken (`kb.py` reports these as exits 5 and 6). A subagent returns that
+line; the main session asks the user, then applies one of three outcomes: a missing value is
+written into the file by the main session itself; an invalid value from the environment means the
+user must fix or unset the environment variable, since it wins over the file; and a config file
+that cannot be located means the user fixes `HOME` or `XDG_CONFIG_HOME` before anything is written.
+The full round trip lives in
+[`machine-paths.md`](core/skills/kb-write/references/machine-paths.md). Before upgrading a machine that already has a knowledge base, write its current
+values first: without them the write guard has no bundle to protect and fails open.
 
 ## Optional ecosystem integrations
 

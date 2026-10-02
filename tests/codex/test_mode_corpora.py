@@ -33,7 +33,7 @@ _EXPECTED_IDS = {
             'entity-confirmation',
             'ontology-narrative',
             'session-retirement',
-            'approval-stale'
+            'approval-stale', 'missing-path-round-trip', 'invalid-path-round-trip'
         }
     ),
     "discoverer": frozenset(
