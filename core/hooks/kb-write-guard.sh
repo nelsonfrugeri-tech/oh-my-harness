@@ -9,8 +9,15 @@ if ! command -v python3 >/dev/null 2>&1; then
   printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Não foi possível validar o destino da escrita: Python 3 indisponível."}}'
   exit 0
 fi
-# An unconfigured OMH_KB_ROOT means no bundle to guard: fail open, as the pointer does.
-KB_ROOT="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>/dev/null)" || exit 0
+# An unconfigured OMH_KB_ROOT (resolver exit 3) means no bundle to guard: fail open, as the
+# pointer does. Any other resolver failure is a broken configuration and denies, like parsing.
+KB_ROOT="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>/dev/null)"
+case $? in
+  0) ;;
+  3) exit 0 ;;
+  *) printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Não foi possível resolver OMH_KB_ROOT: corrija ~/.config/omh/config (ou $XDG_CONFIG_HOME/omh/config)."}}'
+     exit 0 ;;
+esac
 python3 - "$KB_ROOT" "$PWD" 3<&0 <<'PY'
 import json
 import os

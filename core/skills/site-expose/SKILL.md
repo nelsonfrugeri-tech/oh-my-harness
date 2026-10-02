@@ -5,7 +5,10 @@ description: "Temporarily expose a finished local HTML report through an authent
 
 # Site Expose
 
-Generation never authorizes publication. Resolve final file inside configured sites root, hash exact
+Generation never authorizes publication. Resolve the sites root with
+`python3 "<skill-dir>/../kb-write/scripts/kb/adapters/paths.py" OMH_SITES_ROOT`; on exit 3
+(`missing path: OMH_SITES_ROOT`) stop without a default, as site-report describes. Resolve the
+final file inside that root, hash exact
 bytes, and scan for secrets, personal data, internal hosts, and non-public content. Matches block
 until removed or accepted specifically. Resolve the abstract `tunnel` capability; configured does not mean authorized,
 reachable, or healthy. Never install/authenticate implicitly.

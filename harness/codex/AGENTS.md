@@ -195,8 +195,9 @@ dos dois aqui.
    localizam tudo. Os valores ficam em `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, uma linha
    `CHAVE=valor` cada; vale flag de CLI > variável de ambiente > arquivo, e valor ausente nunca
    ganha default. Ausência volta como `missing path: <VAR>`: subagent não pergunta e devolve a
-   linha; a sessão principal pergunta ao usuário, podendo sugerir um valor XDG como
-   `$XDG_DATA_HOME/omh/...`, grava a linha no arquivo e roda o passo de novo.
+   linha; a sessão principal pergunta ao usuário, podendo sugerir um diretório XDG de dados, grava
+   a linha no arquivo e roda o passo de novo. O valor é literal: path absoluto ou `~/`, sem aspas
+   nem `$VAR`; outro formato falha como `invalid path: <VAR>`.
 
 ### Duas camadas de memória, dois responsáveis
 

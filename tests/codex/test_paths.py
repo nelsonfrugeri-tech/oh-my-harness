@@ -84,6 +84,27 @@ class PathResolutionTest(Sandbox):
             self._resolve('HOME_DIR')
         self.assertEqual(2, self._cli('OMH_PLANS_DIR').returncode)
 
+    def test_values_must_be_literal_absolute_or_home_paths(self):
+        for value in ('"/q"', '$HOME/kb', 'rel/dir'):
+            with self.subTest(value=value):
+                self._config(f'OMH_KB_ROOT={value}\n')
+                result = self._cli('OMH_KB_ROOT')
+                self.assertEqual((2, '', 'invalid path: OMH_KB_ROOT\n'),
+                                 (result.returncode, result.stdout, result.stderr))
+
+    def test_unreadable_config_is_reported_not_treated_as_missing(self):
+        (self.config / 'omh/config').mkdir()
+        result = self._cli('OMH_KB_ROOT')
+        self.assertEqual(2, result.returncode)
+        self.assertIn('unreadable config:', result.stderr)
+
+    def test_bom_and_empty_assignments_do_not_hide_a_value(self):
+        for text, expected in (('\ufeffOMH_KB_ROOT=/first\n', '/first'),
+                               ('OMH_KB_ROOT=\nOMH_KB_ROOT=/second\n', '/second')):
+            with self.subTest(config=text):
+                self._config(text)
+                self.assertEqual(Path(expected), self._resolve('OMH_KB_ROOT'))
+
 
 class PathConsumersTest(Sandbox):
     def test_kb_cli_reports_missing_runtime(self):
@@ -109,6 +130,30 @@ class PathConsumersTest(Sandbox):
         result = subprocess.run(['bash', str(ROOT / 'core/hooks/kb-write-guard.sh')], input=json.dumps(payload),
                                 capture_output=True, text=True, env=self.env, timeout=5)
         self.assertEqual('deny', json.loads(result.stdout)['hookSpecificOutput']['permissionDecision'])
+
+    def _guard(self, target, **extra):
+        payload = {'tool_name': 'Write', 'cwd': str(ROOT), 'tool_input': {'file_path': str(target)}}
+        result = subprocess.run(['bash', str(ROOT / 'core/hooks/kb-write-guard.sh')], input=json.dumps(payload),
+                                capture_output=True, text=True, env={**self.env, **extra}, timeout=10)
+        return json.loads(result.stdout)['hookSpecificOutput']['permissionDecision'] if result.stdout else None
+
+    def test_write_guard_denies_when_the_config_cannot_be_read(self):
+        (self.config / 'omh/config').mkdir()
+        self.assertEqual('deny', self._guard('/any/x.md'))
+
+    @unittest.skipUnless(Path('/usr/bin/python3').exists(), 'no system python3 to pin')
+    def test_hooks_run_under_the_oldest_system_python(self):
+        bundle = Path(self.tmp.name) / 'kb'
+        bundle.mkdir()
+        self._config(f'OMH_KB_ROOT={bundle}\n')
+        pinned = Path(self.tmp.name) / 'bin'
+        pinned.mkdir()
+        (pinned / 'python3').symlink_to('/usr/bin/python3')
+        path = f"{pinned}:{self.env['PATH']}"
+        self.assertEqual('deny', self._guard(bundle / 'x.md', PATH=path))
+        result = subprocess.run([str(pinned / 'python3'), str(RESOLVER), 'OMH_KB_ROOT'], capture_output=True,
+                                text=True, env=self.env, timeout=5)
+        self.assertEqual((0, f'{bundle}\n'), (result.returncode, result.stdout))
 
     @unittest.skipIf(shutil.which('docker') is None, 'docker unavailable')
     def test_compose_volume_comes_from_kb_runtime(self):

@@ -501,7 +501,8 @@ The repository names no machine path. Three variables locate everything outside 
 | `OMH_SITES_ROOT` | generated analysis sites |
 
 Each machine sets them in `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, one `KEY=value` line per
-variable; `#` starts a comment and `~/` expands to the home directory. A value comes from the CLI
+variable; `#` starts a comment line. Values are literal absolute paths or `~/` paths: quotes,
+`$VAR`, and relative paths are rejected as `invalid path: <VAR>`. A value comes from the CLI
 flag (`kb.py --root`), else the process environment, else that file; a missing value is never
 defaulted. `core/skills/kb-write/scripts/kb/adapters/paths.py` is the single resolver; it uses only the
 standard library and exits 3 with `missing path: <VAR>` when no layer defines the variable. A
