@@ -36,7 +36,7 @@ Inspect the repository before selecting a pattern. Prefer, in order:
 3. version history, change clusters, incidents, and measured operational constraints;
 4. project ADRs and current organizational knowledge with provenance.
 
-Classify observed facts, hypotheses, assumptions, unknowns, and estimates through `evidence`. For protocol,
+Classify observed facts, hypotheses, assumptions, unknowns, and estimates through `output-response`. For protocol,
 framework, vendor, or current standard behavior, use `research` against current primary sources;
 record source, revision or inspection date, and limitation. If a required source is unavailable,
 keep the claim unknown and choose a smaller reversible step.

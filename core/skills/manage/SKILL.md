@@ -18,7 +18,7 @@ needs, priority, scope, or acceptance.
 
 ## Guard the boundary
 
-- Apply `evidence` to material claims and decisions. A stakeholder statement establishes that
+- Apply `output-response` to material claims and decisions. A stakeholder statement establishes that
   person's judgment or request; it does not by itself establish user behavior, impact, effort, or
   organizational consensus.
 - For a small, well-specified change, confirm the outcome and observable acceptance directly. Do not

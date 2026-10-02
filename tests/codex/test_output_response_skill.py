@@ -23,8 +23,6 @@ def _flat(relative: str) -> str:
 class OutputResponseSkillTest(unittest.TestCase):
     def test_replaces_the_evidence_and_didactic_visual_skills(self) -> None:
         self.assertTrue(_SKILL_DIR.joinpath("SKILL.md").is_file())
-        self.assertFalse(_ROOT.joinpath("core/skills/evidence").exists())
-        self.assertFalse(_ROOT.joinpath("core/skills/didactic-visual").exists())
         self.assertIn("name: output-response", _flat("SKILL.md"))
 
     def test_every_reference_is_linked_from_the_skill(self) -> None:

@@ -244,7 +244,7 @@ class ExplorerOnboardingContractTests(unittest.TestCase):
         self.assertEqual("tools", manifest["role_families"]["explorer"])
         role = manifest["roles"]["explorer"]
         self.assertEqual(
-            ["evidence", "explorer", "site-report", "didactic-visual"],
+            ["output-response", "explorer", "site-report"],
             role["local_skills"],
         )
         overlay = manifest["adapter_specs"]["shared-markdown"]["overlays"]["explorer"]

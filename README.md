@@ -11,7 +11,7 @@ work—even when you change AI coding assistants, machines, or providers.
 [![Harness](https://img.shields.io/badge/harness-Claude%20Code-8A63D2?style=flat-square)](https://claude.com/claude-code)
 [![Harness](https://img.shields.io/badge/harness-Codex-111111?style=flat-square)](https://openai.com/codex/)
 [![Agents](https://img.shields.io/badge/agents-12-2496ED?style=flat-square)](#agents)
-[![Skills](https://img.shields.io/badge/skills-29-DC5F00?style=flat-square)](#skills)
+[![Skills](https://img.shields.io/badge/skills-28-DC5F00?style=flat-square)](#skills)
 
 </div>
 
@@ -175,12 +175,14 @@ make the decision  --> alternatives · trade-off · falsifier · validation · r
 present clearly    --> progressive prose · table · flow · timeline · tree · wireframe
 ```
 
-The `evidence` skill governs claims, uncertainty, and decisions. The `evidence-reviewer`
+The `output-response` skill governs claims, uncertainty, decisions, and how every answer is
+written: one of seven labels on every assertion, the core answer first, plain-language and
+ASD-STE100 writing rules applied in pt-BR, and a character budget. The `evidence-reviewer`
 independently audits consequential work under a read-only contract. Codex enforces that boundary
 with `sandbox_mode = "read-only"`; Claude Code removes direct write/edit tools but still permits
-Bash, so its boundary is behavioral rather than equivalent filesystem isolation. The
-`didactic-visual` skill then chooses the smallest useful representation; it cannot turn weak
-evidence into a stronger claim.
+Bash, so its boundary is behavioral rather than equivalent filesystem isolation. The same skill
+then chooses the smallest useful representation; it cannot turn weak evidence into a stronger
+claim.
 
 Knowledge writes follow the same rule. Notes carry real harness, session,
 working-directory, and machine provenance. Missing required provenance blocks the write instead of
@@ -380,10 +382,10 @@ live under `harness/codex/agents/`.
 
 ### Skills
 
-The package contains 29 skills: 27 shared skills and one adapter skill for each harness. The catalog
+The package contains 28 skills: 26 shared skills and one adapter skill for each harness. The catalog
 below is intentionally complete and is checked against both plugin manifests.
 
-**Reasoning and presentation:** `evidence` · `didactic-visual`
+**Reasoning and presentation:** `output-response`
 
 **Software delivery:** `implement` · `design` · `test` · `review` · `research` · `manage` · `environment` · `ci-cd` · `operate`
 
@@ -427,12 +429,13 @@ Two shared policy blocks are embedded into each harness's global guidance:
 
 - `software-evidence-contract.md` defines claim status, uncertainty, provenance, and decision
   discipline.
-- `response-format-contract.md` applies `evidence → didactic-visual → specific output format`
-  and enforces progressive disclosure without decorative formatting.
+- `response-format-contract.md` states the output identity: the core answer first, labels on
+  every assertion, plain-language writing rules, the character budget, and when to ask the user;
+  the `output-response` skill holds the detail.
 
 ### Evals
 
-`core/evals/` contains behavioral corpora for `evidence`, `didactic-visual`, `implement`, and the
+`core/evals/` contains behavioral corpora for `output-response`, `implement`, and the
 `discoverer`, `developer`, and `reviewer` session modes. They
 are manual, fresh-session protocols: repository tests validate corpus structure, while an evaluation
 run must record harness, model, configuration, commit, observation time, evaluator, and

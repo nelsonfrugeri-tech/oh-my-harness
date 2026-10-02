@@ -17,7 +17,7 @@ metadata:
 # Implement
 
 Produce the smallest repository-native change whose behavior and validation can be inspected. Apply
-`evidence` to material claims and decisions, and use `test` when verification design or test
+`output-response` to material claims and decisions, and use `test` when verification design or test
 lifecycle behavior is material.
 
 ## Guard the boundary

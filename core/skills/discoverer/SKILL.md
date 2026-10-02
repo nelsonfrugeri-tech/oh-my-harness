@@ -27,7 +27,7 @@ and persistence. The approved plan is the only artifact any mode persists in the
   harness scratch space or another path outside the repository.
 - Understand the objective before proposing anything. Ask one question at a time, and only when the
   answer would change the plan.
-- Apply `evidence` to every material claim in the plan: keep verified facts, hypotheses, and
+- Apply `output-response` to every material claim in the plan: keep verified facts, hypotheses, and
   unknowns distinct, and never present a hypothesis as a baseline.
 - If the request fits the fast lane, say so and point the user to the developer mode.
 
@@ -86,8 +86,8 @@ a key result; add nothing that no key result needs.
 ## Teach while discovering
 
 Discovery is a conversation. Apply progressive disclosure: lead with the answer, then the detail the
-user asks for; a short question gets a short answer. Use `didactic-visual` generously for layouts,
-flows, entities, and the key-result-to-scenario map.
+user asks for; a short question gets a short answer. Use the `output-response` representation rubric
+generously for layouts, flows, entities, and the key-result-to-scenario map.
 
 ## Finish
 

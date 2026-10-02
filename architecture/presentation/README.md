@@ -58,7 +58,7 @@ Primary source paths for future updates:
 
 - [Product overview](../../README.md)
 - [Canonical roles and routing](../../core/agents/routing.json)
-- [Evidence contract](../../core/skills/evidence/SKILL.md)
+- [Output contract](../../core/skills/output-response/SKILL.md)
 - [Knowledge writing](../../core/skills/kb-write/SKILL.md),
   [retrieval](../../core/skills/kb-retrieval/SKILL.md), and
   [infrastructure](../../core/skills/kb-infra/SKILL.md)

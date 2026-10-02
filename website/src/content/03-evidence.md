@@ -5,15 +5,15 @@ label: Governança
 title: Não confie na fluência. Governe o que é conhecido.
 lead: Evidência, hipótese, inferência e desconhecido ocupam lugares diferentes antes de qualquer decisão.
 diagram: evidence
-note: "Apresente o nome completo: governança epistemológica. Evidence é a skill que operacionaliza essa disciplina. Não prometa eliminar alucinações; mostre como o sistema governa evidência, inferência, hipótese e desconhecido."
-source: core/skills/evidence/SKILL.md
+note: "Apresente o nome completo: governança epistemológica. Output-response é a skill que operacionaliza essa disciplina. Não prometa eliminar alucinações; mostre como o sistema governa evidência, inferência, hipótese e desconhecido."
+source: core/skills/output-response/SKILL.md
 ---
 
 ## Alucinação não se resolve com “não alucine”
 
 Modelos de linguagem geram continuações prováveis; eles não possuem acesso intrínseco à verdade. Em determinadas classes de fatos, existe inclusive um limite estatístico para evitar alucinações — e esse resultado não depende especificamente da arquitetura Transformer. Treinamentos e benchmarks também podem recompensar o modelo por adivinhar em vez de reconhecer incerteza.
 
-O contrato `evidence` operacionaliza uma forma de **governança epistemológica**: antes de agir, o sistema precisa distinguir o que sabe, como sabe, o que está apenas inferindo e o que ainda precisa ser testado.
+O contrato `output-response` operacionaliza uma forma de **governança epistemológica**: antes de agir, o sistema precisa distinguir o que sabe, como sabe, o que está apenas inferindo e o que ainda precisa ser testado.
 
 ### Sete estados para não esconder incerteza
 

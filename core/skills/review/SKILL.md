@@ -15,7 +15,7 @@ metadata:
 # Review
 
 Produce an independent, read-only assessment in which Standards defects and Spec mismatches remain
-visible as separate evidence paths. Apply `evidence` to every material claim and limitation.
+visible as separate evidence paths. Apply `output-response` to every material claim and limitation.
 
 ## Guard the boundary
 

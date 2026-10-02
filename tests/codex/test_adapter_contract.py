@@ -169,14 +169,13 @@ class AdapterContractTest(unittest.TestCase):
             self.assertEqual(len(matches), len(discovered))
             self.assertEqual(expected, discovered)
             self.assertNotIn("claude-code", discovered)
-            self.assertIn("didactic-visual", discovered)
-            self.assertIn("evidence", discovered)
+            self.assertIn("output-response", discovered)
             self.assertTrue(installed.joinpath("harness/codex/skills/codex/SKILL.md").is_file())
-            didactic_visual = installed.joinpath(
-                "core/skills/didactic-visual/SKILL.md"
+            output_response = installed.joinpath(
+                "core/skills/output-response/SKILL.md"
             ).read_text(encoding="utf-8")
-            self.assertIn("absence of", didactic_visual)
-            self.assertIn("not a blocker", didactic_visual)
+            self.assertIn("absence of", output_response)
+            self.assertIn("not a blocker", output_response)
             self.assertTrue(installed.joinpath("harness/codex/hooks/hooks.json").is_file())
 
             hook_listing = self._run_codex_app_server(
@@ -381,7 +380,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertFalse(_ROOT.joinpath("core/skills/feature").exists())
         self.assertFalse(_ROOT.joinpath("harness/claude/workflows").exists())
 
-    def test_engineering_agents_load_the_evidence_skill(self) -> None:
+    def test_engineering_agents_load_the_output_response_skill(self) -> None:
         roles = (
             "ai-engineer", "architect", "software-engineer", "tech-pm",
         )
@@ -394,11 +393,11 @@ class AdapterContractTest(unittest.TestCase):
                 codex = _ROOT.joinpath(f"harness/codex/agents/{role}.toml").read_text(
                     encoding="utf-8"
                 )
-                self.assertIn("  - evidence", shared)
-                self.assertIn("`evidence`", codex)
+                self.assertIn("  - output-response", shared)
+                self.assertIn("`output-response`", codex)
 
 
-    def test_policy_agents_load_the_evidence_skill(self) -> None:
+    def test_policy_agents_load_the_output_response_skill(self) -> None:
         for role in ("evidence-reviewer",):
             with self.subTest(role=role):
                 shared = _ROOT.joinpath(f"agents/{role}.md").read_text(
@@ -407,8 +406,8 @@ class AdapterContractTest(unittest.TestCase):
                 codex = _ROOT.joinpath(f"harness/codex/agents/{role}.toml").read_text(
                     encoding="utf-8"
                 )
-                self.assertIn("  - evidence", shared)
-                self.assertIn("`evidence`", codex)
+                self.assertIn("  - output-response", shared)
+                self.assertIn("`output-response`", codex)
 
     def test_kb_write_requires_machine_and_session_provenance(self) -> None:
         content = _ROOT.joinpath("core/skills/kb-write/SKILL.md").read_text()

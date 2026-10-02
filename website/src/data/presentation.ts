@@ -101,8 +101,8 @@ export const scenes: readonly Scene[] = [
     note: "A apresentação não afirma que paralelismo causa alucinações. O problema mostrado é a quantidade de afirmações, decisões e fontes que precisam ser acompanhadas.",
     references: [],
     files: [
-      "core/skills/didactic-visual/SKILL.md",
-      "core/skills/evidence/SKILL.md",
+      "core/skills/output-response/SKILL.md",
+      "core/skills/output-response/references/representation.md",
     ],
   },
   {
@@ -116,8 +116,8 @@ export const scenes: readonly Scene[] = [
     references: [],
     files: [
       "core/policies/software-evidence-contract.md",
-      "core/skills/evidence/SKILL.md",
-      "core/skills/evidence/references/claim-taxonomy.md",
+      "core/skills/output-response/SKILL.md",
+      "core/skills/output-response/references/claim-taxonomy.md",
       "harness/claude/CLAUDE.md",
       "harness/codex/AGENTS.md",
     ],

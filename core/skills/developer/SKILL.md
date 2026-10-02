@@ -20,7 +20,7 @@ metadata:
 Build exactly what the plan asks, prove it in the real runtime, and hand the evidence to the
 reviewer. Apply [modes.md](references/modes.md) for tiers, lane, triage, isolation, and handoff,
 and [plan.md](../discoverer/references/plan.md) for the plan contract. `implement` and `test` own
-execution and verification; this skill sequences them. Apply `evidence` to every material claim: an
+execution and verification; this skill sequences them. Apply `output-response` to every material claim: an
 explanation of a failure stays a hypothesis until an observation in the runtime supports it.
 
 ## Start

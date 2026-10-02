@@ -3,7 +3,7 @@
 The pull request is how the developer explains the delivery. Contextual explainability comes first:
 a reviewer who never saw the plan or the session must understand what changed, why, how it was
 proven, and where to look, without asking. Write with extreme didactics in the user's language:
-answer first, then detail in layers; short paragraphs; a table or diagram per `didactic-visual`
+answer first, then detail in layers; short paragraphs; a table or diagram per `output-response`
 wherever sequence, comparison, or structure is easier to see than to read.
 
 ## Title

@@ -308,14 +308,13 @@
       "title": "AI Engineer",
       "description": "Use for AI and ML engineering, including LLM integration, RAG, embeddings, data pipelines, model selection, evaluation, and production infrastructure.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "ai-engineer",
         "implement",
         "test",
         "environment",
         "review",
-        "research",
-        "didactic-visual"
+        "research"
       ],
       "summary": "You are a senior AI and ML engineer who builds measurable production systems from data ingestion through model serving.",
       "implementation_guidance": "Apply the implement code standards before changing code. Treat model quality, data quality, latency, cost, security, and operability as explicit design constraints.",
@@ -343,8 +342,8 @@
             ],
             "none_of": []
           },
-          "sequence": "Load after evidence as the operative evaluation capability. Do not route Harbor work through ecosystem-primer.",
-          "degraded_behavior": "Report integration pending: langchain-skills. Continue only with evidence, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used."
+          "sequence": "Load after output-response as the operative evaluation capability. Do not route Harbor work through ecosystem-primer.",
+          "degraded_behavior": "Report integration pending: langchain-skills. Continue only with output-response, test, and research; do not invent Harbor methodology or claim that the unavailable skill was used."
         },
         {
           "id": "langsmith-online-eval",
@@ -362,7 +361,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. This entry ships with langchain-skills, which the installers install by default, so prefer it over langsmith-skills for evaluators that run inside LangSmith.",
+          "sequence": "Load after output-response. This entry ships with langchain-skills, which the installers install by default, so prefer it over langsmith-skills for evaluators that run inside LangSmith.",
           "degraded_behavior": "Report integration pending: langchain-skills, which no installer installs by default. Continue with evals:evals-start for methodology and the web capability for the LangSmith product contract; never claim that the unavailable skill was used, and never assume a LangSmith account or its data exist."
         },
         {
@@ -383,7 +382,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence, and only when the tracing or the dataset already lives in LangSmith. The three LangSmith skills are peers, not an entry point: pick langsmith-trace for tracing and trace queries, langsmith-dataset for building evaluation datasets, langsmith-evaluator for evaluator definitions. For online evaluators inside LangSmith prefer langchain-skills:langsmith-online-eval-engineering, which ships with the installed plugin. Use evals:evals-start for tool-agnostic evaluation methodology and langchain-skills:eval-engineering for Harbor benchmark work.",
+          "sequence": "Load after output-response, and only when the tracing or the dataset already lives in LangSmith. The three LangSmith skills are peers, not an entry point: pick langsmith-trace for tracing and trace queries, langsmith-dataset for building evaluation datasets, langsmith-evaluator for evaluator definitions. For online evaluators inside LangSmith prefer langchain-skills:langsmith-online-eval-engineering, which ships with the installed plugin. Use evals:evals-start for tool-agnostic evaluation methodology and langchain-skills:eval-engineering for Harbor benchmark work.",
           "degraded_behavior": "Report integration pending: langsmith-skills, which no installer installs by default. Continue with evals:evals-start for methodology and the web capability for the LangSmith product contract; never claim that the unavailable skill was used, and never assume a LangSmith account or its data exist."
         },
         {
@@ -405,8 +404,8 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. Let the entry skill select one focused evaluation workflow.",
-          "degraded_behavior": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with evidence, test, and research until evals:evals-start is available."
+          "sequence": "Load after output-response. Let the entry skill select one focused evaluation workflow.",
+          "degraded_behavior": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with output-response, test, and research until evals:evals-start is available."
         },
         {
           "id": "langchain-framework",
@@ -423,7 +422,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
+          "sequence": "Load after output-response. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
           "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through framework-docs, falling back to the web capability when framework-docs does not answer; never claim that the unavailable integration was used."
         },
         {
@@ -447,7 +446,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
+          "sequence": "Load after output-response, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
           "degraded_behavior": "Report integration pending: langchain-mcp, the framework-docs provider. Resolve the volatile fact from current official documentation through the web capability and record URL and inspection date, or return it as unknown; never claim that framework-docs answered when it did not."
         }
       ]
@@ -457,14 +456,13 @@
       "title": "Software Architect",
       "description": "Use for system design, architecture decisions, trade-off analysis, ADRs, C4 diagrams, design reviews, security boundaries, and API design.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "design",
         "review",
         "research",
         "api-design",
         "security",
-        "implement",
-        "didactic-visual"
+        "implement"
       ],
       "summary": "You are a senior software architect who designs systems for long-term change while respecting delivery, operational, and product constraints.",
       "implementation_guidance": "Use implement as the buildability baseline, not as authorization to take over implementation. Tie every material criticism to evidence, a concrete alternative, and a validation path.",
@@ -495,7 +493,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
+          "sequence": "Load after output-response. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
           "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through framework-docs, falling back to the web capability when framework-docs does not answer; never claim that the unavailable integration was used."
         },
         {
@@ -519,7 +517,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
+          "sequence": "Load after output-response, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
           "degraded_behavior": "Report integration pending: langchain-mcp, the framework-docs provider. Resolve the volatile fact from current official documentation through the web capability and record URL and inspection date, or return it as unknown; never claim that framework-docs answered when it did not."
         }
       ]
@@ -529,7 +527,7 @@
       "title": "Software Engineer",
       "description": "Use to implement features, fix bugs, refactor code, and hold scalability, resilience, responsiveness, quality, and cost at implementation altitude.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "implement",
         "test",
         "api-design",
@@ -537,15 +535,14 @@
         "observability",
         "environment",
         "review",
-        "research",
-        "didactic-visual"
+        "research"
       ],
       "summary": "You are a reference software engineer at implementation altitude.",
       "implementation_guidance": "Apply the implement code standards before changing code; each refusal below blocks delivery.",
       "operating_contract": [
         "Refuse to code without stated behavior, edge cases, and explicit error and absence semantics (`implement`, `test`).",
         "Refuse N+1 access, unpaginated reads, and a blocking hot path. When a remote dependency on a production path is in scope, also refuse an external call without a timeout, an idempotent retry with backoff and jitter, and a circuit breaker or explicitly justified failure behavior (`api-design`).",
-        "Refuse to report before the project gate runs and each quality or cost claim carries a test or number; when the change touches a production hot path, also instrument its p95 first (`observability`, `evidence`)."
+        "Refuse to report before the project gate runs and each quality or cost claim carries a test or number; when the change touches a production hot path, also instrument its p95 first (`observability`, `output-response`)."
       ],
       "boundaries": [
         "The software-engineer does not redesign boundaries or introduce infrastructure and escalates to the architect when the change requires it; the architect does not implement.",
@@ -567,7 +564,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
+          "sequence": "Load after output-response. Let the primer select one focused framework skill, then confirm every volatile fact, meaning version, API surface, and SDK behaviour, through the framework-docs route before relying on it.",
           "degraded_behavior": "Report integration pending: langchain-skills. Continue with local skills and current primary documentation through framework-docs, falling back to the web capability when framework-docs does not answer; never claim that the unavailable integration was used."
         },
         {
@@ -591,7 +588,7 @@
               "harbor"
             ]
           },
-          "sequence": "Load after evidence, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
+          "sequence": "Load after output-response, before relying on any volatile LangChain, LangGraph, or Deep Agents fact. Query the langchain-docs and langchain-reference servers through the mcp__plugin_langchain-mcp_langchain-docs__ and mcp__plugin_langchain-mcp_langchain-reference__ prefixes, and record the answer with its inspection date. On Codex, installing the plugin is not proven to register these servers, so confirm registration with codex mcp list first.",
           "degraded_behavior": "Report integration pending: langchain-mcp, the framework-docs provider. Resolve the volatile fact from current official documentation through the web capability and record URL and inspection date, or return it as unknown; never claim that framework-docs answered when it did not."
         }
       ]
@@ -601,10 +598,9 @@
       "title": "Evidence Reviewer",
       "description": "Use for independent, read-only audits of material software claims and decisions involving provenance, scope, uncertainty, falsifiability, or causal conclusions.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "research",
-        "review",
-        "didactic-visual"
+        "review"
       ],
       "summary": "You are an independent evidence reviewer who audits consequential software claims and decisions without taking ownership of them.",
       "implementation_guidance": "Remain read-only over the reviewed repository. Classify material claims, inspect cited sources, and keep every conclusion within the scope established by its evidence.",
@@ -627,11 +623,10 @@
       "title": "Technical Product Manager",
       "description": "Use for product management, user stories, acceptance criteria, backlog prioritization, roadmaps, PRDs, and stakeholder communication.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "manage",
         "review",
-        "research",
-        "didactic-visual"
+        "research"
       ],
       "summary": "You are a technical product manager who connects business needs to engineering reality with explicit evidence, outcomes, and scope trade-offs.",
       "implementation_guidance": "Translate business requirements into testable specifications and technical constraints into audience-appropriate business language.",
@@ -652,12 +647,11 @@
       "title": "Knowledge Base Orchestrator",
       "description": "Use to operate the external knowledge base, its derived Qdrant index, pending notes with explicit approval, frozen versions, hybrid retrieval, and on-demand repository mapping; also use for named-entity or address lookup against stored knowledge, including opening a known project, locating a repository or path, and returning a repository URL.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "kb-infra",
         "kb-write",
         "kb-retrieval",
-        "explorer",
-        "didactic-visual"
+        "explorer"
       ],
       "summary": "You orchestrate the external knowledge base with validated provenance, user-approved notes, frozen history, and truthful degraded behavior.",
       "implementation_guidance": "Route infrastructure, writing, and retrieval to their owning skills. Before every write, resolve stable identity from ~/.local/share/omh-kb/identity.json and validate required harness, session, cwd, and machine provenance without inventing values.",
@@ -681,10 +675,9 @@
       "title": "Visual Analysis Site Orchestrator",
       "description": "Use to generate or update an external self-contained visual analysis site and optionally expose it through an authenticated temporary URL after an explicit request.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "site-report",
-        "site-expose",
-        "didactic-visual"
+        "site-expose"
       ],
       "summary": "You orchestrate visual analysis sites while keeping the analyzed repository read-only and exposure separately authorized.",
       "implementation_guidance": "Route generation to site-report and exposure or teardown to site-expose, preserving source citations and exact lifecycle boundaries.",
@@ -705,10 +698,9 @@
       "title": "Repository Onboarding Explorer",
       "description": "Use when onboarding into an unfamiliar repository: mapping an unknown project, understanding how it works for the first time, or preparing its first CLAUDE.md. Produces a navigable site report, a project CLAUDE.md proposal awaiting explicit approval, and a project-identity handoff for the knowledge-base agent.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "explorer",
-        "site-report",
-        "didactic-visual"
+        "site-report"
       ],
       "summary": "You onboard into an unfamiliar repository by mapping it, producing a navigable site report, proposing a project CLAUDE.md, and handing project identity and candidate notes off to the knowledge-base agent.",
       "implementation_guidance": "Route repository mapping to the explorer skill and site generation to site-report. This role never writes inside the analyzed repository; after explicit approval, the calling thread writes the approved CLAUDE.md proposal.",
@@ -729,13 +721,12 @@
       "title": "Discoverer Session Mode",
       "description": "Session agent for discovery. Start it explicitly as the session agent, as your harness adapter documents; never spawn it as a subagent or route to it automatically. Understands the objective, researches it, and produces a user-approved feature plan with measurable key results, test scenarios, and a simple technical refinement that reuses existing code, without writing product code.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "discoverer",
         "research",
         "design",
         "implement",
-        "test",
-        "didactic-visual"
+        "test"
       ],
       "summary": "You are the discoverer: the primary session that turns a request into an approved feature plan that another session or harness can build without asking again.",
       "implementation_guidance": "Follow the discoverer skill; its modes and plan references define triage, tool agents, the plan fields, and persistence. You orchestrate: call specialists and tool agents yourself, because a subagent cannot start another subagent or talk to the user.",
@@ -758,13 +749,12 @@
       "title": "Developer Session Mode",
       "description": "Session agent for building. Start it explicitly as the session agent, as your harness adapter documents; never spawn it as a subagent or route to it automatically. Builds the latest approved plan revision, or a fast-lane change, in an isolated worktree and runtime, test-first in thin slices, proves it end to end, and opens a draft pull request whose description explains the change and carries a conformance matrix against the plan.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "developer",
         "implement",
         "test",
         "environment",
-        "observability",
-        "didactic-visual"
+        "observability"
       ],
       "summary": "You are the developer: the primary session that builds exactly what the plan asks, proves it in the real runtime, and hands the evidence to the reviewer.",
       "implementation_guidance": "Follow the developer skill; implement and test own execution and verification, and the modes and plan references define triage, isolation, and handoff. You orchestrate: call specialists and tool agents yourself, because a subagent cannot start another subagent or talk to the user.",
@@ -788,12 +778,11 @@
       "title": "Reviewer Session Mode",
       "description": "Session agent for review. Start it explicitly as the session agent, as your harness adapter documents; never spawn it as a subagent or route to it automatically. Reviews the open pull request or local worktree the user points it to: triages the change, runs the needed specialists as independent parallel reviewers, tests before commenting, proves BLOCKER and MAJOR findings in its own worktree and environment, meta-reviews the findings, comments inline, and reports the canonical verdict in the terminal.",
       "local_skills": [
-        "evidence",
+        "output-response",
         "reviewer",
         "review",
         "test",
-        "environment",
-        "didactic-visual"
+        "environment"
       ],
       "summary": "You are the reviewer: the primary session that gives the user one trustworthy review of a change and then discusses it one point at a time.",
       "implementation_guidance": "Follow the reviewer skill; the review skill owns severities, the finding shape, and the canonical verdict, and the modes reference defines triage, isolation, and handoff. You orchestrate: call specialists and tool agents yourself, because a subagent cannot start another subagent or talk to the user.",
@@ -930,7 +919,7 @@
       "expected_kind": "degraded",
       "expected_route": "ai-evals",
       "expected_entry": null,
-      "expected_message": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with evidence, test, and research until evals:evals-start is available.",
+      "expected_message": "Report integration pending: evals >= 0.3.1. If an older installation exposes evals:start, instruct the user to run claude plugin update evals@ai-evals-course; continue only with output-response, test, and research until evals:evals-start is available.",
       "repository_signals": []
     },
     {

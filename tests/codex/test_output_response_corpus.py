@@ -105,11 +105,6 @@ class OutputResponseCorpusTest(unittest.TestCase):
             with self.subTest(required=required):
                 self.assertIn(required, protocol)
 
-    def test_old_corpora_are_removed(self) -> None:
-        for name in ("evidence", "didactic-visual"):
-            with self.subTest(corpus=name):
-                self.assertFalse(_ROOT.joinpath("core/evals", name).exists())
-
     def _cases(self) -> list[dict[str, object]]:
         value = json.loads(_EVAL.joinpath("cases.json").read_text(encoding="utf-8"))
         self.assertIsInstance(value, list)

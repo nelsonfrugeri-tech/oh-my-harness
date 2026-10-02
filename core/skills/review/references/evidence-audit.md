@@ -4,7 +4,7 @@ Use this adapter for claims, reports, research, architecture decisions, benchmar
 non-code artifacts. It is separate from code review: do not invent a merge base, file location,
 Standards/Spec axis, or merge recommendation.
 
-Apply the `evidence` claim taxonomy and independent review rubric. For each material claim, inspect
+Apply the `output-response` claim taxonomy and independent review rubric. For each material claim, inspect
 its source, revision or date, scope, method, uncertainty, and whether it can support the action being
 proposed. Preserve contradictory sources and unavailable evidence instead of averaging or filling
 the gap.

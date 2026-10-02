@@ -25,8 +25,7 @@ class ResponseFormatContractTest(unittest.TestCase):
         self.assertIn("A skill `output-response` traz o detalhe", flat)
         self.assertIn("nunca invente evidência", flat)
         self.assertIn("uma vez por sessão", flat)
-        self.assertNotIn("`evidence`", flat)
-        self.assertNotIn("didactic-visual", flat)
+        self.assertEqual(["output-response"], re.findall(r"skill `([^`]+)`", flat))
 
     def test_essence_states_core_first_labels_and_writing_standards(self) -> None:
         flat = self._flat()

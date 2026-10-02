@@ -19,7 +19,7 @@ source-linked evidence packet to the calling agent.
 
 ## Guard the boundary
 
-Apply `evidence` first so the research question, claim status, risk, freshness need, and missing
+Apply `output-response` first so the research question, claim status, risk, freshness need, and missing
 support are explicit.
 
 - For stable low-risk knowledge, do not browse unless verification could change the answer.
@@ -27,7 +27,7 @@ support are explicit.
 - For curated private knowledge, use the project knowledge base.
 - For prior discussions or episodic facts, use `session-memory` and revalidate mutable claims.
 - For runtime behavior, request or run a bounded probe.
-- Leave decisions and certainty labels to `evidence`; leave representation to `didactic-visual`.
+- Leave decisions, certainty labels, and representation to `output-response`.
 
 ## Acquire evidence
 

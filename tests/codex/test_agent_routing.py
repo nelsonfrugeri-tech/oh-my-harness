@@ -264,11 +264,16 @@ class AgentRoutingContractTest(unittest.TestCase):
                 with self.subTest(surface=path, requirement=requirement):
                     self.assertIn(requirement, adapter)
 
-    def test_local_skill_order_preserves_evidence_and_presentation(self) -> None:
+    def test_every_role_loads_the_output_contract_first(self) -> None:
         for role_id, role in _MANIFEST["roles"].items():
+            if not role["local_skills"]:
+                continue
             with self.subTest(role=role_id):
-                self.assertEqual("evidence", role["local_skills"][0])
-                self.assertEqual("didactic-visual", role["local_skills"][-1])
+                self.assertEqual("output-response", role["local_skills"][0])
+                for skill in role["local_skills"]:
+                    self.assertTrue(
+                        _ROOT.joinpath("core/skills", skill, "SKILL.md").is_file(), skill
+                    )
 
     def test_optional_dependencies_have_safe_routes(self) -> None:
         dependencies = _MANIFEST["catalog_contract"]["dependencies"]
