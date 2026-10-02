@@ -46,9 +46,9 @@ casing included:
 | 🔴 **DESCONHECIDO** | Needed information that is not yet established. |
 | ⚪ **DECISÃO** | A chosen action with evidence, trade-offs, and a validation plan. |
 
-An assertion is a sentence that claims something about the world, the code, or a choice.
-Transitional sentences and instructions carry no label: a sentence that only links ideas, or tells
-the user what to run or read, is not a claim. Use the narrowest label the evidence supports, and
+An assertion is a sentence that claims something about the world, the code, or a choice; each list
+item that claims something is its own assertion. Transitional sentences and instructions carry no
+label: a sentence that only links ideas, or tells the user what to run or read, is not a claim. Use the narrowest label the evidence supports, and
 never promote an inference to a measurement to make the answer cleaner.
 
 ## Resolve the evidence source
@@ -107,7 +107,9 @@ evidence, trade-offs, owner, validation, rollback or review condition, and one f
 Ask the user only for ambiguity, alignment, divergence, or a decision, and give a recommendation
 with the question. Never ask what the web, the repository, or a command can answer: search every
 term or entity the user mentions before replying. For a choice with an obvious default, such as a
-file name, a branch name, or a minor format, decide, state the choice, and proceed.
+file name, a branch name, or a minor format, decide, state the choice, and proceed. When no search
+source is available or the search fails, label the gap 🔴 **DESCONHECIDO** and ask one question
+with a recommendation.
 
 ## Write the answer
 
@@ -121,8 +123,12 @@ Respond in the user's language; keep established technical terms in English.
 - Apply the writing standards in [writing-standards.md](references/writing-standards.md): plain
   language and short, active sentences, one instruction each, one term per concept.
 - Keep the counted characters within budget: 800 for a direct question, 1600 for an explanation or
-  a decision. Prose, headings, and list items count; tables, diagrams, and code do not. Code review,
-  diagnosis, and plan are exempt for now.
+  a decision. Prose, headings, list items, and labels count; tables, diagrams, and code do not.
+  Code review, diagnosis, and plan are exempt for now. A diagnosis investigates a concrete failure
+  in the user's system with inspected tool output; any other "why" question is an explanation.
+- When the budget and material content collide, keep the labels, the falsifying result, and every
+  limitation that changes the decision; cut examples, context, and repetition, and offer the next
+  layer.
 
 When an agent, skill, tool, or output schema defines a more specific format, it overrides only the
 shape. It never suspends labels, provenance, uncertainty, language, or safety; machine-readable

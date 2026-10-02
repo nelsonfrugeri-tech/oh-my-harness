@@ -40,6 +40,7 @@ _NEW = {
     "label-mixed-status": "explanation",
     "label-transition-instruction": "explanation",
     "label-plugin-only": "direct",
+    "label-plugin-only-decision": "decision",
     "budget-direct": "direct",
     "budget-explanation": "explanation",
     "budget-decision": "decision",

@@ -32,8 +32,12 @@ whose `id` starts with `question-`.
    `CLAUDE_CONFIG_DIR` that holds only the worktree `harness/claude/CLAUDE.md` is the intended
    isolation; confirm with `/memory` that no other global file loads before scoring. In Codex, use a
    temporary `CODEX_HOME` populated by `installers/codex/install.py`.
-5. Submit the `prompt` exactly as written. Allow only the tools the scenario naturally needs.
-6. Save the complete response outside the product repository or in the evaluation system of record.
+5. Submit the `prompt` exactly as written. Allow only the tools the scenario naturally needs. Run
+   question cases from an empty temporary directory, with web access and no destructive tool, so no
+   local state resolves the ambiguity the case sets up.
+6. Save the complete response and its tool-call log outside the product repository or in the
+   evaluation system of record. Score search and no-action requirements from the log, not from the
+   response text.
 7. Run `python3 core/evals/output-response/count_budget.py --kind <kind> <saved-response.md>`. It
    prints the counted characters, the budget status, and every sentence over 25 words. A response of
    an exempt kind (`code_review`, `diagnosis`, `plan`) is recorded as `exempt` and its budget is not
@@ -50,6 +54,7 @@ whose `id` starts with `question-`.
   `core/policies/software-evidence-contract.md`, emoji, bold, and casing included.
 - Every assertion needs a label. A transitional sentence or an instruction to the user must carry
   none; a label on either is a failure.
+- Prose moved into table rows to escape the budget fails the case even when the counter passes.
 - The counter lists sentences over 25 words. The evaluator classifies each remaining sentence as
   procedural or descriptive and fails a procedural sentence over 20 words.
 
@@ -72,6 +77,7 @@ reasonable evaluators cannot apply its requirement consistently; never silently 
   "observed_at": "ISO-8601 timestamp",
   "budget": {"status": "within_budget", "chars": 612, "limit": 800},
   "long_sentences": [],
+  "tool_calls": ["search: termo pesquisado"],
   "requirements": [{"text": "required behavior", "verdict": "pass", "evidence": "excerpt"}],
   "contradictory_overclaim": false,
   "verdict": "pass"

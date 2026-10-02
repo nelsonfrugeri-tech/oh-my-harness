@@ -46,11 +46,13 @@ the first time it appears.
 
 Counted text is prose, paragraphs, headings, and list items, labels included. Fenced blocks (code
 and diagrams) and table rows do not count. Whitespace runs count as one space, and each Unicode
-code point counts as one character.
+code point counts as one character. The output-response eval applies the same rule with a counting
+script.
 
-`core/evals/output-response/count_budget.py` applies this rule to a saved response and lists every
-sentence over 25 words. When an answer does not fit, move repeated fields into a table, cut
-redundancy, or offer the next layer on request; never drop a material limitation to fit.
+A diagnosis investigates a concrete failure in the user's system with inspected tool output; any
+other "why" question is an explanation and keeps its budget. When an answer does not fit, move
+repeated fields into a table, cut examples and redundancy, or offer the next layer on request;
+never drop a label, the falsifying result, or a material limitation to fit.
 
 ## Sources
 

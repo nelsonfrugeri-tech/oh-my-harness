@@ -93,7 +93,7 @@ class OutputResponseSkillTest(unittest.TestCase):
             "one term per concept",
             "the english controlled dictionary does not transfer",
             "technical terms, jargon, and proper names stay in english",
-            "count_budget.py",
+            "a diagnosis investigates a concrete failure",
             "fenced blocks", "table rows",
         ):
             with self.subTest(phrase=phrase):

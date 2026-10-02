@@ -311,8 +311,9 @@ invente evidência para preencher a lacuna.
   palavras, descritiva com até 25, uma instrução por frase, voz ativa e um termo por conceito.
   Termos técnicos, jargões e nomes próprios ficam em inglês inline.
 - **Orçamento.** Pergunta direta: até 800 caracteres contados. Explicação ou decisão: até 1600.
-  Contam prosa, parágrafos, headings e listas; tabelas, diagramas e código não contam. Code review,
-  diagnóstico e plano estão isentos por enquanto.
+  Contam prosa, parágrafos, headings, listas e rótulos; tabelas, diagramas e código não contam.
+  Code review, diagnóstico e plano estão isentos por enquanto. Diagnóstico investiga uma falha
+  concreta do sistema do usuário com saída de tool inspecionada; outro "por quê" é explicação.
 - **Visual só quando reduz esforço.** Use table, flow, timeline ou tree quando houver sequência,
   hierarquia, comparação ou dependência entre três ou mais elementos. O tamanho sozinho não
   justifica um visual.
@@ -323,7 +324,8 @@ invente evidência para preencher a lacuna.
 divergência ou decisão — e sempre com uma recomendação. Nunca pergunte o que a web, o repositório
 ou um comando respondem: pesquise, no mínimo, todo termo ou entidade que o usuário mencionar.
 Escolha com default óbvio, como nome de arquivo, nome de branch ou formato menor: decida, declare e
-siga.
+siga. Sem fonte de busca disponível, rotule 🔴 **DESCONHECIDO** e faça uma pergunta com
+recomendação.
 
 Quando o agent ativo, outra skill, uma tool ou um output schema definir um formato mais específico,
 ele prevalece somente sobre a forma. Não suspende rótulos, provenance, incerteza, idioma nem

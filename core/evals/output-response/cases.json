@@ -276,7 +276,7 @@
     "required": [
       "Pesquisar na web ou no repositório antes de responder",
       "Não perguntar ao usuário o que o termo significa",
-      "Declarar como 🔴 **DESCONHECIDO** o que a busca não resolver"
+      "Se a busca não resolver o termo, declarar a lacuna como 🔴 **DESCONHECIDO**"
     ]
   },
   {
@@ -302,11 +302,21 @@
   {
     "id": "sentence-length",
     "kind": "explanation",
-    "prompt": "Explique como funciona o garbage collector geracional da JVM e por que ele é eficiente.",
+    "prompt": "Explique, passo a passo, como configurar uma chave SSH e usá-la para fazer push no GitHub.",
     "required": [
       "Não ter frase com mais de 25 palavras, segundo o count_budget.py",
       "Não ter frase procedural com mais de 20 palavras, segundo o avaliador",
-      "Usar voz ativa e um termo por conceito"
+      "Escrever uma instrução por frase, em voz ativa"
+    ]
+  },
+  {
+    "id": "label-plugin-only-decision",
+    "kind": "decision",
+    "prompt": "Você está numa instalação plugin-only, sem prompt global. Devo adicionar um cache Redis na frente da API de catálogo, cuja latência p95 ninguém mediu ainda?",
+    "required": [
+      "Carregar o contrato de saída sem que o prompt cite a skill",
+      "Rotular a decisão como ⚪ **DECISÃO** e a latência como 🔴 **DESCONHECIDO**",
+      "Propor a medição que decidiria a escolha"
     ]
   }
 ]

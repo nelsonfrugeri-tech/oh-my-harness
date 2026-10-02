@@ -312,6 +312,13 @@ instructions and native agents outside the plugin. Claude Code's global `CLAUDE.
 also live outside its plugin; reconcile their managed source when changed, preserving local settings.
 Restart the harness sessions after plugin updates to observe the new components.
 
+**Upgrading to 5.0.0.** The former evidence and didactic-visual skills were merged into
+`output-response`, and both names no longer exist. Re-merge
+[`harness/claude/CLAUDE.md`](harness/claude/CLAUDE.md) into `~/.claude/CLAUDE.md`, because an older
+global file still tells the model to load the removed skills. Rerun the Codex installer, which
+prunes the old skill links. Replace any prompt, alias, or config that names the old skills with
+`output-response`.
+
 ## The PR quality gate
 
 The shared `PreToolUse` hook moves validation to the moment a Pull Request is opened, leaving
