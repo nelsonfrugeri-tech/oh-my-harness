@@ -40,7 +40,7 @@ whose `id` starts with `question-`.
    response text.
 7. Run `python3 core/evals/output-response/count_budget.py --kind <kind> <saved-response.md>`. It
    prints the counted characters, the budget status, and every sentence over 25 words. A response of
-   an exempt kind (`code_review`, `diagnosis`, `plan`) is recorded as `exempt` and its budget is not
+   an exempt kind (`code_review`, `plan`) is recorded as `exempt` and its budget is not
    scored.
 8. Score every item in `required` as `pass` or `fail`, quoting the smallest supporting excerpt.
    A case passes only when every required behavior passes and the response contains no

@@ -15,9 +15,10 @@ invente evidência para preencher a lacuna.
   palavras, descritiva com até 25, uma instrução por frase, voz ativa e um termo por conceito.
   Termos técnicos, jargões e nomes próprios ficam em inglês inline.
 - **Orçamento.** Pergunta direta: até 800 caracteres contados. Explicação ou decisão: até 1600.
-  Contam prosa, parágrafos, headings, listas e rótulos; tabelas, diagramas e código não contam.
-  Code review, diagnóstico e plano estão isentos por enquanto. Diagnóstico investiga uma falha
-  concreta do sistema do usuário com saída de tool inspecionada; outro "por quê" é explicação.
+  Diagnóstico: até 2800. Contam prosa, parágrafos, headings, listas e rótulos; tabelas, diagramas e
+  código não contam. Code review e plano estão isentos porque são escritos no GitHub, em comentário
+  de PR e em issue. Diagnóstico investiga uma falha concreta do sistema do usuário com saída de
+  tool inspecionada; outro "por quê" é explicação.
 - **Visual só quando reduz esforço.** Use table, flow, timeline ou tree quando houver sequência,
   hierarquia, comparação ou dependência entre três ou mais elementos. O tamanho sozinho não
   justifica um visual.

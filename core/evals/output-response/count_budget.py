@@ -16,7 +16,7 @@ LIMITS: Final = MappingProxyType({
     "explanation": 1600,
     "decision": 1600,
     "code_review": None,
-    "diagnosis": None,
+    "diagnosis": 2800,
     "plan": None,
 })
 SENTENCE_WORD_LIMIT: Final = 25

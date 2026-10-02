@@ -123,9 +123,10 @@ Respond in the user's language; keep established technical terms in English.
 - Apply the writing standards in [writing-standards.md](references/writing-standards.md): plain
   language and short, active sentences, one instruction each, one term per concept.
 - Keep the counted characters within budget: 800 for a direct question, 1600 for an explanation or
-  a decision. Prose, headings, list items, and labels count; tables, diagrams, and code do not.
-  Code review, diagnosis, and plan are exempt for now. A diagnosis investigates a concrete failure
-  in the user's system with inspected tool output; any other "why" question is an explanation.
+  a decision, 2800 for a diagnosis. Prose, headings, list items, and labels count; tables,
+  diagrams, and code do not. Code review and plan are exempt because they are written on GitHub,
+  as pull request comments and as an issue. A diagnosis investigates a concrete failure in the
+  user's system with inspected tool output; any other "why" question is an explanation.
 - When the budget and material content collide, keep the labels, the falsifying result, and every
   limitation that changes the decision; cut examples, context, and repetition, and offer the next
   layer.

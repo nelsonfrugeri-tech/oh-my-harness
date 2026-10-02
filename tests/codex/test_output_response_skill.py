@@ -74,7 +74,8 @@ class OutputResponseSkillTest(unittest.TestCase):
             "decide, state the choice, and proceed",
             "800",
             "1600",
-            "code review, diagnosis, and plan",
+            "2800 for a diagnosis",
+            "code review and plan are exempt because they are written on github",
             "core answer first",
         ):
             with self.subTest(phrase=phrase):

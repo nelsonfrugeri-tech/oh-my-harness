@@ -103,9 +103,15 @@ class BudgetTest(unittest.TestCase):
         self.assertEqual(800, budget.budget_for("direct"))
         self.assertEqual(1600, budget.budget_for("explanation"))
         self.assertEqual(1600, budget.budget_for("decision"))
-        for exempt in ("code_review", "diagnosis", "plan"):
+        self.assertEqual(2800, budget.budget_for("diagnosis"))
+        for exempt in ("code_review", "plan"):
             with self.subTest(kind=exempt):
                 self.assertIsNone(budget.budget_for(exempt))
+
+    def test_diagnosis_over_2800_is_over_budget(self) -> None:
+        self.assertEqual(
+            budget.OverBudget(2801, 2800, 1), budget.check("diagnosis", "a" * 2801).status
+        )
 
     def test_unknown_kind_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
@@ -170,7 +176,7 @@ class CommandLineTest(unittest.TestCase):
         self.assertEqual(100, report["excess"])
 
     def test_exempt_kind_exits_zero_and_still_lists_long_sentences(self) -> None:
-        result = _run("diagnosis", " ".join(["p"] * 30) + ".")
+        result = _run("plan", " ".join(["p"] * 30) + ".")
         report = json.loads(result.stdout)
 
         self.assertEqual(0, result.returncode)

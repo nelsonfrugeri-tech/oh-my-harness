@@ -42,7 +42,8 @@ the first time it appears.
 | --- | --- |
 | Direct question | 800 or fewer |
 | Explanation or decision | 1600 or fewer |
-| Code review, diagnosis, or plan | Exempt for now |
+| Diagnosis | 2800 or fewer |
+| Code review or plan | Exempt: written on GitHub as pull request comments or an issue |
 
 Counted text is prose, paragraphs, headings, and list items, labels included. Fenced blocks (code
 and diagrams) and table rows do not count. Whitespace runs count as one space, and each Unicode

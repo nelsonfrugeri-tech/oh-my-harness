@@ -53,7 +53,8 @@ class ResponseFormatContractTest(unittest.TestCase):
         self.assertIn("Pergunta direta: até 800 caracteres contados", flat)
         self.assertIn("Explicação ou decisão: até 1600", flat)
         self.assertIn("tabelas, diagramas e código não contam", flat)
-        self.assertIn("Code review, diagnóstico e plano estão isentos", flat)
+        self.assertIn("Diagnóstico: até 2800", flat)
+        self.assertIn("Code review e plano estão isentos porque são escritos no GitHub", flat)
 
     def test_question_rule_is_hard_and_bounded(self) -> None:
         flat = self._flat()
