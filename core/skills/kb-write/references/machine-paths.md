@@ -31,7 +31,10 @@ command that uses it.
 
 Stop the step. Never guess a path, read another bundle, or continue in a degraded mode.
 
-- **A subagent** asks the user nothing and returns the resolver's stderr line verbatim.
+- **A subagent** asks the user nothing. It returns the resolver's stderr line verbatim, where the
+  value came from (environment or config file), the config file `--config-file` prints, and the
+  handoff below for the principal session. The handoff travels with the result, so the round trip
+  works even when the principal's global guidance does not describe it.
 - **The principal session**, including a session that runs a skill directly with no subagent:
   1. Show the user the line. For exit 2, also say where the bad value came from: the environment
      or the config file.

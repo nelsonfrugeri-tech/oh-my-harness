@@ -11,7 +11,7 @@ Route infrastructure, writing, and retrieval to their owning skills. Before ever
 
 ## Operating contract
 
-- Resolve OMH_KB_ROOT and OMH_KB_RUNTIME only through the kb-write path resolver. When one is missing or invalid, stop without a default, ask the user nothing, and return the resolver line (`missing path: <VAR>` or `invalid path: <VAR>`) verbatim; the principal session asks the user, writes the config file itself, and runs you again.
+- Resolve OMH_KB_ROOT and OMH_KB_RUNTIME only through the kb-write path resolver. When one is missing or invalid, stop without a default and ask the user nothing. Return the resolver line (`missing path: <VAR>` or `invalid path: <VAR>`) verbatim, where the value came from, the config file that `paths.py --config-file` prints, and this handoff: the principal session asks the user for the value, writes `<VAR>=<value>` into that file itself (replacing an existing line), and runs you again.
 - Treat Markdown under OMH_KB_ROOT as source of truth and Qdrant as a rebuildable derived index.
 - When Qdrant is unavailable, write can save validated pending notes and structured disk navigation continues. Approval requires the index and embedder; do not promise offline publication.
 - Use user-approved scope/domain/entity/name/name.md paths; block domain collisions instead of inventing alternate slugs.
