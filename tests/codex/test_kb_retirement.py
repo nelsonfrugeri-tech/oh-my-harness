@@ -21,12 +21,16 @@ class KnowledgeRetirementTest(unittest.TestCase):
                         self.assertNotIn(retired, path.read_text(encoding='utf-8'))
 
     def test_both_harnesses_require_review_and_preserve_transcripts(self) -> None:
+        # The mechanics live with the knowledge-base agent and kb-write; the global prompts
+        # only tell the main session to show a pending note and ask for explicit approval.
+        owner = (_ROOT / 'agents/knowledge-base.md').read_text() + (
+            _ROOT / 'core/skills/kb-write/SKILL.md').read_text()
+        for contract in ['pending', 'approv', '.history/', 'session JSON', 'backup/INSTRUCTION.md']:
+            with self.subTest(contract=contract):
+                self.assertIn(contract, owner)
         for relative in ['harness/claude/CLAUDE.md', 'harness/codex/AGENTS.md']:
-            text = (_ROOT / relative).read_text()
             with self.subTest(path=relative):
-                for contract in ['`pending`', 'aprovação explícita', '`.history/`',
-                                 'Não crie JSON de sessão', '`backup/INSTRUCTION.md`']:
-                    self.assertIn(contract, text)
+                self.assertIn('aprovação explícita', (_ROOT / relative).read_text())
 
 
 if __name__ == '__main__':

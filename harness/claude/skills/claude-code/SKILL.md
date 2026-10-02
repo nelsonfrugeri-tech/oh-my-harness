@@ -90,7 +90,7 @@ require manual installation, which is what the source's `harness/claude/` still 
 
 | Surface | Why | What to do |
 | --- | --- | --- |
-| `~/.claude/CLAUDE.md` | A plugin cannot provide global instructions—only skills, agents, and hooks | **Merge** `harness/claude/CLAUDE.md`, preserving the machine capability table and any local block |
+| `~/.claude/CLAUDE.md` | Synchronization writes only under `~/.claude/` and preserves skills and hooks other tools installed. A plugin cannot provide global instructions—only skills, agents, and hooks | **Merge** `harness/claude/CLAUDE.md`, preserving the machine capability table and any local block |
 | `~/.claude/settings.json` → `permissions` | A plugin's `settings.json` accepts only `agent` and `subagentStatusLine` | Merge `harness/claude/settings.json`, preserving `model`, `theme`, `autoMode`, and user permissions |
 
 **Hooks no longer go in `settings.json`.** They belong to the plugin. See Step 3.

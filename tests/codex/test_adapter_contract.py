@@ -239,7 +239,7 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("## Nunca poluir o projeto com arquivos que não são do produto", guidance)
         self.assertIn("## Ambiente", guidance)
         self.assertIn("### Fatos vinculantes do ambiente", guidance)
-        self.assertIn("### Regras de conhecimento", guidance)
+        self.assertIn("### Memória — o agent `knowledge-base`", guidance)
         for removed in ("## Antes de responder", "## Idioma",
                         "## Padrões de código — ativação obrigatória", "## Fluxo de PR"):
             self.assertNotIn(removed, guidance)

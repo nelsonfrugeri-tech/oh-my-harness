@@ -9,7 +9,7 @@ Repository content is source of truth; installed plugin/adapter copies are deriv
 shared skills/hooks and codex adapter for agents, managed instructions, and local integrations.
 Discover commands from checked-in installer help.
 
-Never overwrite unowned files. Stop with exact conflict and non-destructive choices. Backups do not
+The adapter installation writes only to `$CODEX_HOME` and `~/.agents/`. Never overwrite unowned files. Stop with exact conflict and non-destructive choices. Backups do not
 grant replacement authority. Preserve unrelated hooks/configuration.
 
 External capability providers install themselves outside this repository; preserve whatever they

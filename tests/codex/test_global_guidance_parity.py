@@ -37,14 +37,11 @@ Regras vinculantes deste ambiente. Aplicam-se a toda sessão do Codex e a todo s
 _CLAUDE_DELTA_HEADINGS = (
     "## Delta do Claude Code",
     "### Bindings e primitivos do Claude Code",
-    "### Destino de sincronização do Claude Code",
 )
 _CODEX_DELTA_HEADINGS = (
     "## Delta do Codex",
     "### Limite de confirmação humana",
     "### Bindings e primitivos do Codex",
-    "### Transcripts do Codex",
-    "### Destinos de instalação do Codex",
 )
 
 _EXPECTED_CLAUDE_DELTA = """
@@ -69,10 +66,6 @@ confirme com `codex mcp list` antes de afirmar que a capability responde.
 `Read`, `Write`, `Edit`, `Bash`, `Grep` e `Glob` são primitivos e não precisam de provider. Se um
 MCP estiver deferido, carregue-o via `ToolSearch` antes de usá-lo.
 
-### Destino de sincronização do Claude Code
-
-A sincronização da biblioteca escreve apenas em `~/.claude/` e preserva skills e hooks instalados
-por outras ferramentas.
 """
 
 _EXPECTED_CODEX_DELTA = """
@@ -114,17 +107,6 @@ confirme com `codex mcp list` antes de afirmar que a capability responde.
 Built-ins do Codex para acesso ao filesystem, busca no repositório, execução de shell e aplicação de
 patch não precisam de entradas no adapter.
 
-### Transcripts do Codex
-
-O Codex armazena transcripts ativos em
-`$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; o `CODEX_HOME` default é
-`~/.codex`. A lógica de session memory deve descobrir o rollout correspondente em vez de assumir um
-diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, informe o modo degradado e exija aprovação explícita antes de escrita sem prova contra o transcript.
-
-### Destinos de instalação do Codex
-
-A instalação do adapter Codex escreve apenas em `$CODEX_HOME` e `~/.agents/`. Ela preserva
-providers, hooks, skills e outros arquivos que não pertencem ao oh-my-harness.
 """
 
 

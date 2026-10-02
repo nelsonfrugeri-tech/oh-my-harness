@@ -75,8 +75,8 @@ formato, segue um contrato só.
 
 - A skill `output-response` traz o detalhe: fontes, decisões, representação, padrões de escrita e
   exemplos. Carregue-a antes de compor a resposta.
-- Se ela estiver indisponível, este bloco e o anterior seguem vinculantes: informe a falta uma vez
-  por sessão e use só evidência que existe para preencher a lacuna.
+- Se ela estiver indisponível, este contrato segue vinculante: informe a falta uma vez por sessão
+  e use só evidência que existe para preencher a lacuna.
 
 ### Estrutura
 

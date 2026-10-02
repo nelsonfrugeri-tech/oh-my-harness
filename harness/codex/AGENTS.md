@@ -87,8 +87,8 @@ formato, segue um contrato só.
 
 - A skill `output-response` traz o detalhe: fontes, decisões, representação, padrões de escrita e
   exemplos. Carregue-a antes de compor a resposta.
-- Se ela estiver indisponível, este bloco e o anterior seguem vinculantes: informe a falta uma vez
-  por sessão e use só evidência que existe para preencher a lacuna.
+- Se ela estiver indisponível, este contrato segue vinculante: informe a falta uma vez por sessão
+  e use só evidência que existe para preencher a lacuna.
 
 ### Estrutura
 
@@ -231,44 +231,17 @@ dos dois aqui.
 
 ### Memória — o agent `knowledge-base`
 
-**O que é.** O dono da memória do usuário: conhecimento durável, a identidade de cada projeto e
-a recuperação dos transcripts dos harnesses. É **um agent desta biblioteca, não uma capability** — logo não é
-substituível, e é isso que sustenta o invariante abaixo.
-
-**Quando.** Quando a resposta depender de algo **privado, episódico ou passado** ("o que decidimos
-sobre X", "por que isto está assim"), e quando algo **passar a valer** e precise sobreviver à
-sessão — uma decisão, um procedimento, um incidente com causa. Na dúvida em registrar, pergunte.
-
-**Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado, e não público**: conhecimento do usuário, da empresa ou do projeto que não está no código nem no git; algo **episódico**, o que já foi feito, tentado ou discutido em sessões anteriores; ou uma **decisão** já tomada e o motivo dela. Faça isso pelo agent `knowledge-base`. Se a consulta não encontrar, diga que não encontrou; nunca preencha com suposição, e nunca responda de memória o que é privado.
-
-**Como.** Descreva o que precisa saber ou registrar e deixe-o rotear. Não chame as skills dele nem
-escreva em `~/knowledge-base/` por conta própria: isso contorna regras que só ele conhece.
-Toda escrita nova leva provenance real de harness, sessão, cwd e identidade estável da máquina;
-campo obrigatório ausente bloqueia a escrita, e metadata realmente indisponível fica `null`.
-
-**O invariante.** É o **único escritor de conhecimento curado** — mecanismos de nota de outras
-ferramentas abririam um repositório concorrente e são proibidos; delas só lemos. Sem infra, degrada
-e declara.
-
-### Regras de conhecimento
-
-1. Tool agents nunca escrevem no repositório do usuário. Escritas de conhecimento vão para
-   `~/knowledge-base/`; destinos de instalação do adapter ficam no delta do runtime.
-2. Sem Qdrant, `write` grava notas pendentes e a navegação em disco continua. `approve` exige
-   índice e embedder disponíveis; a publicação fica pendente. O retrieval usa navegação estruturada
-   em disco como fallback e informa explicitamente o modo degradado.
-3. Toda nota nova ou atualização fica `pending`. A sessão principal mostra o conteúdo integral ou
-   diff e pede aprovação explícita de caminho e conteúdo. Só então `kb approve` publica a nota.
-   Atualizações congelam a versão anterior em `.history/`, com motivo; mantêm `id` e `created_at`.
-4. Toda nota carrega `generated` com harness, sessão, cwd e machine_id reais conforme `kb-write`.
-   A identidade estável vem de `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente
-   bloqueia a escrita. O modelo fica `null` quando não fornecido pelo harness.
-5. Histórico episódico permanece nos transcripts dos harnesses, consultados por `session-memory`.
-   Não crie JSON de sessão na KB. Escritas de notas passam pelo CLI; nunca edite Markdown diretamente.
-6. `backup/` só é lido a pedido explícito; leia `backup/INSTRUCTION.md` antes de qualquer outro
-   arquivo do legado. Busca e navegação atuais excluem pendentes, versões antigas e legado.
-
----
+- O que é: o dono da memória durável do usuário, da identidade de cada projeto e da recuperação
+  dos transcripts dos harnesses. É o único escritor de conhecimento curado; mecanismos de nota de
+  outras ferramentas só são lidos.
+- **Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado, e não público**: conhecimento do usuário, da empresa ou do projeto que não está no código nem no git; algo **episódico**, o que já foi feito, tentado ou discutido em sessões anteriores; ou uma **decisão** já tomada e o motivo dela. Faça isso pelo agent `knowledge-base`. Se a consulta não encontrar, diga que não encontrou; nunca preencha com suposição, e nunca responda de memória o que é privado.
+- Quando algo passar a valer e precisar sobreviver à sessão — uma decisão, um procedimento, um
+  incidente com causa — peça a ele para registrar. Na dúvida em registrar, pergunte.
+- Descreva o que precisa saber ou registrar e deixe-o rotear. Não chame as skills dele nem escreva
+  no bundle por conta própria: a mecânica de escrita, provenance e índice mora no agent.
+- Toda nota nova ou atualização volta pendente: mostre ao usuário o conteúdo integral ou o diff e
+  peça aprovação explícita de caminho e conteúdo antes de o agent publicar.
+- Sem infra, ele degrada e declara o que ficou pendente.
 
 <!-- shared-guidance:end -->
 
@@ -313,15 +286,4 @@ confirme com `codex mcp list` antes de afirmar que a capability responde.
 Built-ins do Codex para acesso ao filesystem, busca no repositório, execução de shell e aplicação de
 patch não precisam de entradas no adapter.
 
-### Transcripts do Codex
-
-O Codex armazena transcripts ativos em
-`$CODEX_HOME/sessions/YYYY/MM/DD/rollout-<timestamp>-<session-id>.jsonl`; o `CODEX_HOME` default é
-`~/.codex`. A lógica de session memory deve descobrir o rollout correspondente em vez de assumir um
-diretório derivado do nome do projeto. Se o transcript não puder ser resolvido, informe o modo degradado e exija aprovação explícita antes de escrita sem prova contra o transcript.
-
-### Destinos de instalação do Codex
-
-A instalação do adapter Codex escreve apenas em `$CODEX_HOME` e `~/.agents/`. Ela preserva
-providers, hooks, skills e outros arquivos que não pertencem ao oh-my-harness.
 <!-- codex-delta:end -->
