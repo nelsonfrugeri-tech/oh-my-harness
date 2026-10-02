@@ -8,7 +8,9 @@
 set -uo pipefail
 [ "${OMH_RUNTIME:-}" = "1" ] && exit 0
 command -v python3 >/dev/null 2>&1 || exit 0
-python3 - "${OMH_KB_ROOT:-$HOME/knowledge-base}" "$PWD" 3<&0 <<'PY'
+# An unconfigured OMH_KB_ROOT is a missing pointer, not a startup failure.
+KB_ROOT="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>/dev/null)" || exit 0
+python3 - "$KB_ROOT" "$PWD" 3<&0 <<'PY'
 import datetime
 import json
 import os

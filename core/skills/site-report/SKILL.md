@@ -5,9 +5,14 @@ description: "Create or update a dark, mobile-friendly, self-contained HTML repo
 
 # Site Report
 
-Create one offline `index.html` below `${OMH_SITES_ROOT:-$HOME/projects/sites}` at
-`<project>/<analysis-name>/index.html`; an adapter may configure another writable root. Use pt-BR
-for report prose unless the user requests another language, while preserving code identifiers.
+Create one offline `index.html` below `$OMH_SITES_ROOT` at `<project>/<analysis-name>/index.html`.
+Resolve the root with the sibling kb-write skill's stdlib resolver:
+`SITES_ROOT="$(python3 "<skill-dir>/../kb-write/scripts/kb/adapters/paths.py" OMH_SITES_ROOT)"`.
+When it exits 3 with `missing path: <VAR>` on stderr, stop and never substitute a default: a
+subagent asks the user nothing and returns that line; the principal session asks the user, writes
+`<VAR>=<value>` into the config file the global guidance names, and runs the step again.
+
+Use pt-BR for report prose unless the user requests another language, while preserving code identifiers.
 Require project/analysis slugs to match `[a-z0-9]+(?:-[a-z0-9]+)*`; reject traversal, absolute inputs, empty segments, and destinations outside root. Keep
 analyzed repository read-only and scratch state private/temporary.
 

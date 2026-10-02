@@ -9,7 +9,9 @@ if ! command -v python3 >/dev/null 2>&1; then
   printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Não foi possível validar o destino da escrita: Python 3 indisponível."}}'
   exit 0
 fi
-python3 - "${OMH_KB_ROOT:-$HOME/knowledge-base}" "$PWD" 3<&0 <<'PY'
+# An unconfigured OMH_KB_ROOT means no bundle to guard: fail open, as the pointer does.
+KB_ROOT="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" OMH_KB_ROOT 2>/dev/null)" || exit 0
+python3 - "$KB_ROOT" "$PWD" 3<&0 <<'PY'
 import json
 import os
 from pathlib import Path

@@ -15,10 +15,15 @@ Changing it requires explicit decision, collection rebuild, and full reindex.
 ## Bootstrap the runtime
 
 Keep the dedicated environment outside projects and the Markdown bundle. Resolve one runtime path
-and reuse it for every command:
+and reuse it for every command. `<kb-write-dir>` is the installed kb-write skill, a sibling of this
+skill; its stdlib resolver reads `OMH_KB_RUNTIME` from the environment, then the config file.
+When it exits 3 with `missing path: <VAR>` on stderr, stop and never substitute a default: a
+subagent asks the user nothing and returns that line; the principal session asks the user, writes
+`<VAR>=<value>` into the config file the global guidance names, and runs the step again.
 
 ```bash
-KB_RUNTIME="${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}"
+KB_RUNTIME="$(python3 "<kb-write-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" || exit 3
+export OMH_KB_RUNTIME="$KB_RUNTIME"  # docker-compose.yml mounts $OMH_KB_RUNTIME/qdrant
 KB_VENV="$KB_RUNTIME/venv"
 mkdir -p "$KB_RUNTIME"
 if command -v uv >/dev/null 2>&1; then

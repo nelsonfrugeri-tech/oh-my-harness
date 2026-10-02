@@ -2,6 +2,7 @@
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -23,6 +24,10 @@ class CliErrorTests(unittest.TestCase):
         self.root = Path(temporary.name)
         self.store = FileNoteStore(self.root)
         self.context = Context(self.store, SystemClock(), 'unused')
+        # Mutations take the bundle lock under OMH_KB_RUNTIME; keep it off the real machine runtime.
+        runtime = patch.dict(os.environ, {'OMH_KB_RUNTIME': str(self.root / 'runtime')})
+        runtime.start()
+        self.addCleanup(runtime.stop)
 
     def run_cli(self, args):
         output = io.StringIO()

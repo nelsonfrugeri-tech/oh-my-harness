@@ -39,18 +39,27 @@ Embed with fixed BAAI/bge-m3, dense/sparse prefetch and RRF. Apply `must_not sta
 pending notes never enter Qdrant. Filter scope, domain, entity_path, type, tags, entities, dates,
 figures, path_prefixes, and url_hosts as appropriate. Unknown metadata is not evidence of absence.
 
-Resolve `<skill-dir>` to the installed kb-write skill. Use the CLI for search so its default
-filters apply to both prefetches and the final query:
+Resolve `<skill-dir>` to the installed kb-write skill and resolve the two roots once with its
+resolver. When it exits 3 with `missing path: <VAR>` on stderr, stop and never substitute a default: a
+subagent asks the user nothing and returns that line; the principal session asks the user, writes
+`<VAR>=<value>` into the config file the global guidance names, and runs the step again.
 
 ```bash
-"${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}/venv/bin/python" "<skill-dir>/scripts/kb.py" search "QUERY" --filters '{}' --json
+KB_RUNTIME="$(python3 "<skill-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" &&
+KB_ROOT="$(python3 "<skill-dir>/scripts/kb/adapters/paths.py" OMH_KB_ROOT)"
+```
+
+Use the CLI for search so its default filters apply to both prefetches and the final query:
+
+```bash
+"$KB_RUNTIME/venv/bin/python" "<skill-dir>/scripts/kb.py" search "QUERY" --filters '{}' --json
 ```
 
 Add `--history` and/or `--legacy` only for the corresponding explicit request; the flags can be
 combined and each relaxes only its own exclusion. Navigate with:
 
 ```bash
-"${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}/venv/bin/python" "<skill-dir>/scripts/kb.py" nav --path REL --json
+"$KB_RUNTIME/venv/bin/python" "<skill-dir>/scripts/kb.py" nav --path REL --json
 ```
 
 Follow parent, children, and related links to answer from the right source. Prefer current active
@@ -61,7 +70,7 @@ Read `backup/INSTRUCTION.md` before any other file in `backup/`. Prefix old path
 offer promotion through kb-write as a new id/version 1; never reactivate an old point implicitly.
 
 For bounded disk inventory excluding historical and pending directories:
-`find ~/knowledge-base/<domain> -type d \( -name .history -o -name .pending -o -name backup \) -prune -o -type f -name '*.md' ! -name index.md ! -name log.md -print`.
+`find "$KB_ROOT/<domain>" -type d \( -name .history -o -name .pending -o -name backup \) -prune -o -type f -name '*.md' ! -name index.md ! -name log.md -print`.
 Parse only the first YAML frontmatter block with `yaml.safe_load`, never grep bodies for metadata.
 Require an opening delimiter and locate its closing delimiter with `lines.index("---", 1)`;
 malformed or non-mapping YAML is reported and skipped. Index pages are navigation, not notes.

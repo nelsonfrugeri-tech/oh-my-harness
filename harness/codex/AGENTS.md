@@ -176,9 +176,9 @@ dos dois aqui.
 
 ### Fatos vinculantes do ambiente
 
-1. A knowledge base é um bundle OKF v0.2 em `~/knowledge-base/`, sempre fora dos repositórios do
-   usuário. Seu runtime fica em `~/.local/share/omh-kb/`; o bundle Markdown é a source of truth e
-   todo índice binário pode ser reconstruído.
+1. A knowledge base é um bundle OKF v0.2 em `$OMH_KB_ROOT`, sempre fora dos repositórios do
+   usuário. Seu runtime fica em `$OMH_KB_RUNTIME`; o bundle Markdown é a source of truth e todo
+   índice binário pode ser reconstruído.
 2. O modelo de embedding é fixo em `BAAI/bge-m3`. Alterá-lo invalida todo o índice e exige uma
    decisão explícita do usuário.
 3. Quando o Deja estiver instalado, `DEJA_INCLUDE_SUBAGENTS=1` é obrigatório para que transcripts de
@@ -191,13 +191,19 @@ dos dois aqui.
    ferramentas e vivem fora deste repositório. A sincronização do harness os preserva.
 6. A biblioteca é agnóstica a contas. Client IDs, secrets, tokens, handles e paths de executáveis
    específicos da máquina nunca entram no repositório.
+7. O repositório não nomeia path da máquina: `OMH_KB_ROOT`, `OMH_KB_RUNTIME` e `OMH_SITES_ROOT`
+   localizam tudo. Os valores ficam em `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, uma linha
+   `CHAVE=valor` cada; vale flag de CLI > variável de ambiente > arquivo, e valor ausente nunca
+   ganha default. Ausência volta como `missing path: <VAR>`: subagent não pergunta e devolve a
+   linha; a sessão principal pergunta ao usuário, podendo sugerir um valor XDG como
+   `$XDG_DATA_HOME/omh/...`, grava a linha no arquivo e roda o passo de novo.
 
 ### Duas camadas de memória, dois responsáveis
 
 | Camada | Armazenamento | Escritor | Leitor |
 | --- | --- | --- | --- |
 | Bruta e episódica: o que foi dito | Transcripts do harness e índice do Deja | Apenas ingestão automática | Capability `session-memory` |
-| Destilada e curada: o que permanece válido | Bundle OKF em `~/knowledge-base/` | Somente `kb-write` | `kb-retrieval` |
+| Destilada e curada: o que permanece válido | Bundle OKF em `$OMH_KB_ROOT` | Somente `kb-write` | `kb-retrieval` |
 
 ### Memória — o agent `knowledge-base`
 
@@ -210,7 +216,7 @@ sobre X", "por que isto está assim"), e quando algo **passar a valer** e precis
 sessão — uma decisão, um procedimento, um incidente com causa. Na dúvida em registrar, pergunte.
 
 **Como.** Descreva o que precisa saber ou registrar e deixe-o rotear. Não chame as skills dele nem
-escreva em `~/knowledge-base/` por conta própria: isso contorna regras que só ele conhece.
+escreva em `$OMH_KB_ROOT` por conta própria: isso contorna regras que só ele conhece.
 Toda escrita nova leva provenance real de harness, sessão, cwd e identidade estável da máquina;
 campo obrigatório ausente bloqueia a escrita, e metadata realmente indisponível fica `null`.
 
@@ -221,7 +227,7 @@ e declara.
 ### Regras de conhecimento
 
 1. Tool agents nunca escrevem no repositório do usuário. Escritas de conhecimento vão para
-   `~/knowledge-base/`; destinos de instalação do adapter ficam no delta do runtime.
+   `$OMH_KB_ROOT`; destinos de instalação do adapter ficam no delta do runtime.
 2. Sem Qdrant, `write` grava notas pendentes e a navegação em disco continua. `approve` exige
    índice e embedder disponíveis; a publicação fica pendente. O retrieval usa navegação estruturada
    em disco como fallback e informa explicitamente o modo degradado.
@@ -229,7 +235,7 @@ e declara.
    diff e pede aprovação explícita de caminho e conteúdo. Só então `kb approve` publica a nota.
    Atualizações congelam a versão anterior em `.history/`, com motivo; mantêm `id` e `created_at`.
 4. Toda nota carrega `generated` com harness, sessão, cwd e machine_id reais conforme `kb-write`.
-   A identidade estável vem de `~/.local/share/omh-kb/identity.json`; campo obrigatório ausente
+   A identidade estável vem de `identity.json` em `$OMH_KB_RUNTIME`; campo obrigatório ausente
    bloqueia a escrita. O modelo fica `null` quando não fornecido pelo harness.
 5. Histórico episódico permanece nos transcripts dos harnesses, consultados por `session-memory`.
    Não crie JSON de sessão na KB. Escritas de notas passam pelo CLI; nunca edite Markdown diretamente.

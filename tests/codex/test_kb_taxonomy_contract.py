@@ -66,7 +66,7 @@ class KnowledgeDiskNavigationTest(unittest.TestCase):
     def test_documented_inventory_prunes_history_pending_and_backup(self) -> None:
         text = read('core/skills/kb-retrieval/SKILL.md')
         command = next(line.strip().strip('`.') for line in text.splitlines()
-                       if line.startswith('`find ~/knowledge-base/<domain>'))
+                       if line.startswith('`find "$KB_ROOT/<domain>"'))
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for relative in ('entity/note/note.md', 'entity/note/.history/old.md',
@@ -74,7 +74,7 @@ class KnowledgeDiskNavigationTest(unittest.TestCase):
                 path = root / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
-            result = subprocess.run(command.replace('~/knowledge-base/<domain>', str(root)),
+            result = subprocess.run(command.replace('"$KB_ROOT/<domain>"', str(root)),
                                     shell=True, capture_output=True, text=True, check=True)
             self.assertEqual([str(root / 'entity/note/note.md')], result.stdout.splitlines())
 

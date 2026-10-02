@@ -8,11 +8,14 @@ from kb.arguments import parser
 from kb.dispatch import dispatch
 from kb.runtime import build_context
 
+# Commands that never open the bundle; resolving its root for them would ask for a path in vain.
+STORELESS = frozenset({'template', 'harvest'})
+
 
 def main(argv=None) -> int:
     args = parser().parse_args(argv)
     try:
-        context = build_context(args)
+        context = None if args.command in STORELESS else build_context(args)
         from kb.adapters.locking import BundleLock
         mutation = args.command in {'write', 'approve', 'move', 'reject', 'repair', 'backup'}
         with BundleLock(context.store.root) if mutation else nullcontext():

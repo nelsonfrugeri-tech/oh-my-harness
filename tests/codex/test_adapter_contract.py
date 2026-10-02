@@ -550,6 +550,7 @@ class AdapterContractTest(unittest.TestCase):
             check=True,
             capture_output=True,
             text=True,
+            env={**os.environ, "OMH_KB_RUNTIME": "/srv/omh-kb"},
         )
         rendered = json.loads(result.stdout)
         ports = rendered["services"]["qdrant"]["ports"]
@@ -565,7 +566,8 @@ class AdapterContractTest(unittest.TestCase):
         session = _ROOT.joinpath("core/skills/kb-retrieval/SKILL.md").read_text(encoding="utf-8")
         infra = _ROOT.joinpath("core/skills/kb-infra/SKILL.md").read_text(encoding="utf-8")
 
-        self.assertIn("`${OMH_SITES_ROOT:-$HOME/projects/sites}`", site)
+        self.assertIn("below `$OMH_SITES_ROOT`", site)
+        self.assertIn('kb-write/scripts/kb/adapters/paths.py" OMH_SITES_ROOT', site)
         self.assertIn("Use pt-BR for report prose", " ".join(site.split()))
         slug_pipeline = (
             "tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\\n' '-' | "
@@ -576,7 +578,8 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("~/.claude/projects/<cwd-munged>/<session-id>.jsonl", session)
 
         bootstrap_contract = (
-            'KB_RUNTIME="${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}"',
+            'KB_RUNTIME="$(python3 "<kb-write-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" || exit 3',
+            'export OMH_KB_RUNTIME="$KB_RUNTIME"',
             'KB_VENV="$KB_RUNTIME/venv"',
             'uv venv "$KB_VENV"',
             'uv pip install --python "$KB_VENV/bin/python" FlagEmbedding qdrant-client PyYAML',

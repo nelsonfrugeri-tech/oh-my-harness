@@ -103,7 +103,7 @@ carry your way of working to the next assistant instead of starting over.
                     +-----------------+-----------------+
                     |                                   |
                     v                                   v
-          provider-owned tools                  ~/knowledge-base/
+          provider-owned tools                  $OMH_KB_ROOT
           and external plugins                  portable OKF bundle
 ```
 
@@ -445,7 +445,7 @@ CLI shipped with kb-write to validate notes, stage review, publish approved vers
 derived links and indexes. Raw transcripts stay in their harness; there is no second session store.
 
 ```text
-~/knowledge-base/
+$OMH_KB_ROOT/
   <scope>/
     index.md
     <domain>/
@@ -460,7 +460,7 @@ derived links and indexes. Raw transcripts stay in their harness; there is no se
     INSTRUCTION.md               # read first, only on explicit legacy request
     ...                          # byte-preserved legacy bundle
 
-~/.local/share/omh-kb/
+$OMH_KB_RUNTIME/
   identity.json
   qdrant/
   venv/
@@ -489,6 +489,25 @@ Key properties:
 Today the agent invokes KB content retrieval explicitly. `SessionStart` automatically emits only a
 content-free pointer; automatic content retrieval and end-of-session distillation are not current
 runtime behavior.
+
+### Machine paths
+
+The repository names no machine path. Three variables locate everything outside it:
+
+| Variable | Locates |
+| --- | --- |
+| `OMH_KB_ROOT` | the Markdown knowledge bundle |
+| `OMH_KB_RUNTIME` | `identity.json`, the Qdrant volume, the KB venv, and locks |
+| `OMH_SITES_ROOT` | generated analysis sites |
+
+Each machine sets them in `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, one `KEY=value` line per
+variable; `#` starts a comment and `~/` expands to the home directory. A value comes from the CLI
+flag (`kb.py --root`), else the process environment, else that file; a missing value is never
+defaulted. `core/skills/kb-write/scripts/kb/adapters/paths.py` is the single resolver; it uses only the
+standard library and exits 3 with `missing path: <VAR>` when no layer defines the variable. A
+subagent returns that line; the main session asks the user, writes the line into the file, and
+runs the step again. Before upgrading a machine that already has a knowledge base, write its current
+values first: without them the write guard has no bundle to protect and fails open.
 
 ## Optional ecosystem integrations
 

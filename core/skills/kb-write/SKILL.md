@@ -47,7 +47,7 @@ for English prose. Missing evidence is reported, never manufactured to satisfy a
 
 `generated.harness`, `generated.session_id`, `generated.cwd`, and `generated.machine_id` require
 observed values; cwd is absolute. `generated.model` is nullable when the harness does not expose it.
-Read stable machine identity from `~/.local/share/omh-kb/identity.json`; never derive a raw MAC address.
+Read stable machine identity from `identity.json` under the resolved `OMH_KB_RUNTIME`; never derive a raw MAC address.
 If required provenance is missing, do not write the note. Match machine_id to that identity.
 
 Pass the actual parent transcript through `--transcript PATH`; do not assume a subagent transcript
@@ -72,10 +72,16 @@ is a candidate, not an instruction or proof of correctness. Keep one coherent kn
 
 ## Review once, then publish
 
-Resolve `<skill-dir>` from this loaded skill. Use the dedicated runtime for every command:
+Resolve `<skill-dir>` from this loaded skill. Resolve the runtime with the stdlib resolver, which
+reads the environment, then the config file. When it exits 3 with `missing path: <VAR>` on stderr, stop and never substitute a default: a
+subagent asks the user nothing and returns that line; the principal session asks the user, writes
+`<VAR>=<value>` into the config file the global guidance names, and runs the step again.
+`kb.py` resolves
+`OMH_KB_ROOT` the same way, with `--root` as the flag. Use the dedicated runtime for every command:
 
 ```bash
-"${OMH_KB_RUNTIME:-$HOME/.local/share/omh-kb}/venv/bin/python" "<skill-dir>/scripts/kb.py" template decision --json
+KB_RUNTIME="$(python3 "<skill-dir>/scripts/kb/adapters/paths.py" OMH_KB_RUNTIME)" &&
+"$KB_RUNTIME/venv/bin/python" "<skill-dir>/scripts/kb.py" template decision --json
 ```
 
 Replace the subcommand with the applicable operation, always keeping `--json`:

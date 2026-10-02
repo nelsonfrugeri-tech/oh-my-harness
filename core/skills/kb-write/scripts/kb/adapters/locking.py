@@ -3,10 +3,12 @@ import hashlib
 import os
 from pathlib import Path
 
+from kb.adapters.paths import resolve
+
 
 class BundleLock:
     def __init__(self, root: Path):
-        runtime = Path(os.environ.get('OMH_KB_RUNTIME', '~/.local/share/omh-kb')).expanduser()
+        runtime = resolve('OMH_KB_RUNTIME')
         self.path = runtime / 'locks' / (hashlib.sha256(str(root).encode()).hexdigest() + '.lock')
         self.stream = None
 

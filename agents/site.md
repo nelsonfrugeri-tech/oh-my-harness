@@ -22,7 +22,7 @@ Route generation to site-report and exposure or teardown to site-expose, preserv
 
 ## Operating contract
 
-- Store generated sites outside the analyzed repository and keep scratch data in a private temporary directory.
+- Store generated sites under OMH_SITES_ROOT, outside the analyzed repository, and keep scratch data in a private temporary directory. When OMH_SITES_ROOT is missing, ask the user nothing and return `missing path: OMH_SITES_ROOT` to the principal session.
 - Validate project and analysis names, reject path traversal, and inspect desktop and mobile renders before delivery.
 - Require file:line citations for factual claims and distinguish observations from inference and ambiguity.
 - Expose only after a fresh explicit request, authenticated verification, one-time credentials, and an exact PID-bounded teardown record.

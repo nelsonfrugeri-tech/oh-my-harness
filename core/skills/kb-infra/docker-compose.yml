@@ -6,5 +6,9 @@ services:
       - "127.0.0.1:6333:6333"  # HTTP / REST
       - "127.0.0.1:6334:6334"  # gRPC
     volumes:
-      - ~/.local/share/omh-kb/qdrant:/qdrant/storage
+      - type: bind
+        source: "${OMH_KB_RUNTIME:?missing path: OMH_KB_RUNTIME}/qdrant"
+        target: /qdrant/storage
+        bind:
+          create_host_path: true
     restart: unless-stopped
