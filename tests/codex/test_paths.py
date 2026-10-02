@@ -145,6 +145,26 @@ class PathResolutionTest(Sandbox):
             self._resolve('OMH_KB_ROOT')
 
 
+    def test_a_line_without_equals_is_invalid_not_missing(self):
+        self._config('OMH_KB_ROOT /private/tmp/kb\n')
+        result = self._cli('OMH_KB_ROOT')
+        self.assertEqual(2, result.returncode)
+        self.assertIn('invalid line 1', result.stderr)
+
+    def test_aliases_of_the_filesystem_root_and_home_are_rejected(self):
+        home_alias = f'{self.home}/../{self.home.name}'
+        self.home.mkdir(parents=True, exist_ok=True)
+        for value in ('//', '/private/tmp/../..', '/a/..', home_alias):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, 'invalid path: OMH_KB_ROOT'):
+                    self._resolve('OMH_KB_ROOT', OMH_KB_ROOT=value)
+
+    def test_config_location_failure_is_its_own_outcome(self):
+        del self.env['XDG_CONFIG_HOME']
+        result = self._cli('--config-file', HOME='')
+        self.assertEqual((2, ''), (result.returncode, result.stdout))
+        self.assertIn('unusable home', result.stderr)
+
 class NoMachinePathTest(unittest.TestCase):
     def test_tracked_files_hold_no_machine_path_literal(self):
         result = subprocess.run(['git', 'grep', '-nE', LITERALS, '--', '.', *EXCLUDED],

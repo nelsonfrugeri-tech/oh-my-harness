@@ -64,6 +64,13 @@ class PathConsumersTest(Sandbox):
         self.assertIsNone(self._guard('/any/x.py'))
         self.assertIsNone(self._guard(self.config / 'omh/config'))
 
+    def test_guard_denies_markdown_when_a_config_line_is_malformed(self):
+        self._config('OMH_KB_ROOT /private/tmp/kb\n')
+        denied = json.loads(self._guard_result('/private/tmp/any.md').stdout)['hookSpecificOutput']
+        self.assertEqual('deny', denied['permissionDecision'])
+        self.assertIn('invalid line 1', denied['permissionDecisionReason'])
+        self.assertIsNone(self._guard(self.config / 'omh/config'))
+
     def test_pointer_warns_once_about_a_broken_config(self):
         self._config('OMH_KB_ROOT=relative\n')
         result = subprocess.run(['bash', str(ROOT / 'core/hooks/kb-pointer.sh')],

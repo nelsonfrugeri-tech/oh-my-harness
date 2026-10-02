@@ -29,19 +29,29 @@ command that uses it.
 
 ## Round trip on exit 2 or 3
 
-Stop the step. Never guess a path, read another bundle, or continue in a degraded mode.
+Stop the step. Never guess a path, read another bundle, or continue in a degraded mode. The
+resolver line tells which of three outcomes happened:
 
-- **A subagent** asks the user nothing. It returns the resolver's stderr line verbatim, where the
-  value came from (environment or config file), the config file `--config-file` prints, and the
-  handoff below for the principal session. The handoff travels with the result, so the round trip
-  works even when the principal's global guidance does not describe it.
+| Outcome | Resolver line | Source to report | What the user fixes |
+| --- | --- | --- | --- |
+| Missing value | `missing path: <VAR>` | none | the value, written into the config file |
+| Invalid value | `invalid path: <VAR>`, `invalid line <n>: <file>`, `unreadable config: <file>` | the environment if `<VAR>` is set there, else the config file | the value or the line, in that source |
+| Config file cannot be located | `unusable home: …` (then `--config-file` fails too) | `HOME` or `XDG_CONFIG_HOME` | the environment variable; nothing is written |
+
+- **A subagent** asks the user nothing. It returns the resolver line verbatim, the outcome and
+  source above, the config file `--config-file` prints when it prints one, and the handoff below
+  for the principal session. The handoff travels with the result, so the round trip works even when
+  the principal's global guidance does not describe it.
 - **The principal session**, including a session that runs a skill directly with no subagent:
-  1. Show the user the line. For exit 2, also say where the bad value came from: the environment
-     or the config file.
-  2. Ask for the value. A suggestion is allowed only inside the question; write nothing until the
+  1. Show the user the line and the source.
+  2. Ask for the fix. A suggestion is allowed only inside the question; change nothing until the
      user answers.
-  3. Write the answer yourself, never through a subagent. In the file `--config-file` prints,
-     create the `omh/` directory if absent, replace the variable's existing line or append
-     `<VAR>=<value>`, keep every other line, and end with a newline. If the bad value comes from
-     the environment, the environment wins over the file: ask the user to fix or unset it instead.
+  3. Apply the answer yourself, never through a subagent:
+     - **Missing or invalid value in the config file:** in the file `--config-file` prints, create
+       the `omh/` directory if absent, replace the variable's existing line or append
+       `<VAR>=<value>`, keep every other line, and end with a newline.
+     - **Invalid value from the environment:** the environment wins over the file, so ask the user
+       to fix or unset it; do not append a line that would be ignored.
+     - **Config file cannot be located:** ask the user to fix `HOME` or `XDG_CONFIG_HOME`, rerun
+       `--config-file`, and only then handle the value. Never invent a destination.
   4. Run the same step again.

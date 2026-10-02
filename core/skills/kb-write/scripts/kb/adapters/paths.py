@@ -53,11 +53,11 @@ def _from_config(name: str) -> str:
     # Not shell syntax: `KEY=value` only. The last non-empty assignment wins, so appending a
     # corrected line takes effect; `export KEY=...` is rejected rather than silently skipped.
     for number, line in enumerate(lines, 1):
+        if not line.strip() or line.lstrip().startswith('#'):
+            continue
         key, separator, value = line.partition('=')
         key = key.strip()
-        if not separator or key.startswith('#'):
-            continue
-        if len(key.split()) > 1:
+        if not separator or len(key.split()) != 1:
             raise InvalidConfig(f'invalid line {number}: {path}')
         if key == name and value.strip():
             found = value.strip()
@@ -71,9 +71,16 @@ def resolve(name: str, flag: str | None = None) -> Path:
     if not value:
         raise MissingPath(name)
     path = Path(value).expanduser() if _literal(value) else None
-    if path is None or not path.is_absolute() or path in (Path('/'), _home()):
+    if path is None or not path.is_absolute() or _too_broad(path):
         raise InvalidConfig(f'invalid path: {name}')
     return path
+
+
+def _too_broad(path: Path) -> bool:
+    # Compare canonical forms so `//`, `..` segments, and symlinks cannot alias `/` or HOME.
+    home = _home()
+    forbidden = {Path('/')} | ({Path(os.path.realpath(home))} if home else set())
+    return Path(os.path.realpath(path)) in forbidden
 
 
 def _home() -> Path | None:
