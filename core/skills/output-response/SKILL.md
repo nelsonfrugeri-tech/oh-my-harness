@@ -105,8 +105,8 @@ evidence, trade-offs, owner, validation, rollback or review condition, and one f
 ## Ask only what no search can answer
 
 Ask the user only for ambiguity, alignment, divergence, or a decision, and give a recommendation
-with the question. Never ask what the web, the repository, or a command can answer: search every
-term or entity the user mentions before replying. For a choice with an obvious default, such as a
+with the question. Never ask what the web, the repository, or a command can answer: when the user
+mentions a term or entity you do not know, search for it before asking. For a choice with an obvious default, such as a
 file name, a branch name, or a minor format, decide, state the choice, and proceed. When no search
 source is available or the search fails, label the gap 🔴 **DESCONHECIDO** and ask one question
 with a recommendation.

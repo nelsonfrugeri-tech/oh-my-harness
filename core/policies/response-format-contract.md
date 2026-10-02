@@ -26,7 +26,8 @@ invente evidência para preencher a lacuna.
 
 **REGRA DURA.** Pergunte somente diante de ambiguidade genuína no que o usuário disse, alinhamento,
 divergência ou decisão — e sempre com uma recomendação. Nunca pergunte o que a web, o repositório
-ou um comando respondem: pesquise, no mínimo, todo termo ou entidade que o usuário mencionar.
+ou um comando respondem: se o usuário mencionar um termo ou entidade que você não conhece,
+pesquise antes de perguntar.
 Escolha com default óbvio, como nome de arquivo, nome de branch ou formato menor: decida, declare e
 siga. Sem fonte de busca disponível, rotule 🔴 **DESCONHECIDO** e faça uma pergunta com
 recomendação.

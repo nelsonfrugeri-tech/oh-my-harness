@@ -62,7 +62,7 @@ class ResponseFormatContractTest(unittest.TestCase):
             "**REGRA DURA.** Pergunte somente diante de ambiguidade genuína",
             "alinhamento, divergência ou decisão — e sempre com uma recomendação",
             "Nunca pergunte o que a web, o repositório ou um comando respondem",
-            "pesquise, no mínimo, todo termo ou entidade que o usuário mencionar",
+            "se o usuário mencionar um termo ou entidade que você não conhece, pesquise antes de perguntar",
             "decida, declare e siga",
         ):
             with self.subTest(phrase=phrase):
