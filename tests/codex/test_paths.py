@@ -159,6 +159,17 @@ class PathResolutionTest(Sandbox):
                 with self.assertRaisesRegex(ValueError, 'invalid path: OMH_KB_ROOT'):
                     self._resolve('OMH_KB_ROOT', OMH_KB_ROOT=value)
 
+    def test_source_reports_the_layer_that_wins(self):
+        self._config('OMH_KB_ROOT=relative\n')
+        for extra, expected in (({'OMH_KB_ROOT': 'x'}, 'environment\n'), ({}, 'config\n')):
+            with self.subTest(expected=expected):
+                result = subprocess.run([sys.executable, str(RESOLVER), '--source', 'OMH_KB_ROOT'],
+                                        capture_output=True, text=True, env={**self.env, **extra}, timeout=5)
+                self.assertEqual((0, expected), (result.returncode, result.stdout))
+        self.assertEqual('none\n', self._cli('--source').stdout or subprocess.run(
+            [sys.executable, str(RESOLVER), '--source', 'OMH_SITES_ROOT'], capture_output=True, text=True,
+            env=self.env, timeout=5).stdout)
+
     def test_config_location_failure_is_its_own_outcome(self):
         del self.env['XDG_CONFIG_HOME']
         result = self._cli('--config-file', HOME='')

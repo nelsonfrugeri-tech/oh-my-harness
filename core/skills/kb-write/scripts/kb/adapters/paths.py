@@ -76,6 +76,15 @@ def resolve(name: str, flag: str | None = None) -> Path:
     return path
 
 
+def source(name: str) -> str:
+    """Which layer would supply the value without a flag: environment, config, or none."""
+    if name not in NAMES:
+        raise InvalidConfig(f'unknown path: {name}')
+    if os.environ.get(name, '').strip():
+        return 'environment'
+    return 'config' if _from_config(name) else 'none'
+
+
 def _too_broad(path: Path) -> bool:
     # Compare canonical forms so `//`, `..` segments, and symlinks cannot alias `/` or HOME.
     home = _home()
@@ -102,14 +111,25 @@ def _literal(value: str) -> bool:
 def main(argv: list[str]) -> int:
     if argv == ['--config-file']:
         return _print_config_file()
+    if len(argv) == 2 and argv[0] == '--source':
+        return _print_source(argv[1])
     if len(argv) != 1:
-        print('usage: paths.py OMH_<NAME> | --config-file', file=sys.stderr)
+        print('usage: paths.py OMH_<NAME> | --source OMH_<NAME> | --config-file', file=sys.stderr)
         return UNKNOWN_EXIT
     try:
         print(resolve(argv[0]))
     except MissingPath as error:
         print(error, file=sys.stderr)
         return MISSING_EXIT
+    except InvalidConfig as error:
+        print(error, file=sys.stderr)
+        return UNKNOWN_EXIT
+    return 0
+
+
+def _print_source(name: str) -> int:
+    try:
+        print(source(name))
     except InvalidConfig as error:
         print(error, file=sys.stderr)
         return UNKNOWN_EXIT

@@ -11,6 +11,8 @@ and never substitute a default.
 A value comes from the CLI flag (`kb.py --root`), else the process environment, else the config
 file. Print the config file this machine uses with `python3 <kb-write-dir>/scripts/kb/adapters/paths.py --config-file`;
 it is `${XDG_CONFIG_HOME:-$HOME/.config}/omh/config`, ignoring a relative `XDG_CONFIG_HOME`.
+`paths.py --source <VAR>` prints which layer supplies the value: `environment`, `config`, or
+`none`; use it to report the source instead of reading the environment yourself.
 
 The file holds `KEY=value` lines and `#` comment lines; it is not shell syntax. The last non-empty
 assignment of a variable wins. A value is literal: an absolute path, or `~/` followed by a path.

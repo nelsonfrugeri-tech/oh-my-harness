@@ -18,7 +18,9 @@ STATUS=$?
 [ "$STATUS" -eq 3 ] && exit 0
 # The config destination comes only from the resolver; empty when HOME/XDG cannot locate it.
 CONFIG="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" --config-file 2>/dev/null)"
-python3 - "$STATUS" "$RESOLVED" "$PWD" "$CONFIG" 3<&0 <<'PY'
+# Which layer supplied the bad value, also from the resolver: environment, config, or none.
+SOURCE="$(python3 "$(dirname "${BASH_SOURCE[0]}")/../skills/kb-write/scripts/kb/adapters/paths.py" --source OMH_KB_ROOT 2>/dev/null)"
+python3 - "$STATUS" "$RESOLVED" "$PWD" "$CONFIG" "$SOURCE" 3<&0 <<'PY'
 import json
 import os
 from pathlib import Path
@@ -34,13 +36,18 @@ def is_markdown(*paths):
     return any(path.suffix.casefold() == '.md' for path in paths)
 
 
-def unresolved(error, config, lexical, canonical):
+def unresolved(error, config, origin, lexical, canonical):
     located = Path(config) if config else None
     if located in (lexical, canonical) or not is_markdown(lexical, canonical):
         return
     reason = (error.strip().splitlines() or ['erro desconhecido'])[-1]
-    fix = (f'corrija o valor de OMH_KB_ROOT na variável de ambiente ou em {located}' if located
-           else 'corrija HOME ou XDG_CONFIG_HOME para que o arquivo de config possa ser localizado')
+    if origin == 'environment':
+        fix = ('corrija ou remova a variável de ambiente OMH_KB_ROOT; ela vence o arquivo de config, '
+               'então editar o arquivo não resolve')
+    elif located:
+        fix = f'corrija a linha de OMH_KB_ROOT em {located}'
+    else:
+        fix = 'corrija HOME ou XDG_CONFIG_HOME para que o arquivo de config possa ser localizado'
     deny(f'Não foi possível resolver OMH_KB_ROOT ({reason}); {fix}. '
          'Escritas de Markdown ficam bloqueadas até lá.')
 
@@ -60,7 +67,7 @@ def main():
     lexical = Path(os.path.abspath(target))
     canonical = target.resolve()
     if sys.argv[1] != '0':
-        unresolved(sys.argv[2], sys.argv[4], lexical, canonical)
+        unresolved(sys.argv[2], sys.argv[4], sys.argv[5], lexical, canonical)
         return
     root = Path(os.path.abspath(Path(sys.argv[2]).expanduser()))
     protected = lexical.is_relative_to(root) or canonical.is_relative_to(root.resolve())

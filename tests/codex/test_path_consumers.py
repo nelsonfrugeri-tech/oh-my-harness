@@ -80,6 +80,22 @@ class PathConsumersTest(Sandbox):
         self.assertIn('HOME', reason)
         self.assertNotIn('/.config/omh/config', reason)
 
+    def test_guard_remediation_names_only_the_source_that_wins(self):
+        payload = {'tool_name': 'Write', 'cwd': '/tmp', 'tool_input': {'file_path': '/private/tmp/x.md'}}
+
+        def reason(**extra):
+            result = subprocess.run(['bash', str(GUARD)], input=json.dumps(payload), capture_output=True,
+                                    text=True, env={**self.env, **extra}, timeout=10)
+            return json.loads(result.stdout)['hookSpecificOutput']['permissionDecisionReason']
+
+        from_env = reason(OMH_KB_ROOT='relative')
+        self.assertIn('variável de ambiente OMH_KB_ROOT', from_env)
+        self.assertNotIn(str(self.config / 'omh/config'), from_env)
+        self._config('OMH_KB_ROOT=relative\n')
+        from_file = reason()
+        self.assertIn(str(self.config / 'omh/config'), from_file)
+        self.assertNotIn('variável de ambiente', from_file)
+
     def test_global_guidance_keeps_the_three_outcomes(self):
         for relative in ('harness/claude/CLAUDE.md', 'harness/codex/AGENTS.md', 'README.md'):
             text = ' '.join((ROOT / relative).read_text().split())
