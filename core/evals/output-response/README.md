@@ -11,12 +11,11 @@ Runs are manual. `tests/codex/test_output_response_corpus.py` validates only the
 
 ## Case fields
 
-| Field | Meaning |
-| --- | --- |
-| `id` | Stable case identifier. |
-| `kind` | One of `direct`, `explanation`, `decision`, `code_review`, `diagnosis`, `plan`; it selects the budget. |
-| `prompt` | The exact user message, in pt-BR. |
-| `required` | Behaviors the evaluator scores, in pt-BR. |
+- `id`: stable case identifier.
+- `kind`: one of `direct`, `explanation`, `decision`, `code_review`, `diagnosis`, `plan`; it
+  selects the budget.
+- `prompt`: the exact user message, in pt-BR.
+- `required`: behaviors the evaluator scores, in pt-BR.
 
 Label cases are the cases whose `kind` is `direct` or `explanation`. Question cases are the cases
 whose `id` starts with `question-`.

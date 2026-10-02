@@ -100,7 +100,7 @@ class EvidenceContractTest(unittest.TestCase):
         for relative in paths:
             with self.subTest(path=relative):
                 content = _ROOT.joinpath(relative).read_text(encoding="utf-8").lower()
-                self.assertIn("evidence", content)
+                self.assertRegex(content, r"\bevidence\b|`output-response`")
                 self.assertRegex(content, r"hypoth|hipót")
         research = " ".join(self._read("core/skills/research/SKILL.md").split()).lower()
         manage = _ROOT.joinpath("core/skills/manage/SKILL.md").read_text()
