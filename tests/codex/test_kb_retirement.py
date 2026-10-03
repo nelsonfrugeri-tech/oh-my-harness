@@ -20,12 +20,12 @@ class KnowledgeRetirementTest(unittest.TestCase):
                     with self.subTest(path=path):
                         self.assertNotIn(retired, path.read_text(encoding='utf-8'))
 
-    def test_both_harnesses_require_review_and_preserve_transcripts(self) -> None:
-        for relative in ['harness/claude/CLAUDE.md', 'harness/codex/AGENTS.md']:
+    def test_kb_owner_requires_review_and_preserves_transcripts(self) -> None:
+        for relative in ['agents/knowledge-base.md', 'harness/codex/agents/knowledge-base.toml']:
             text = (_ROOT / relative).read_text()
             with self.subTest(path=relative):
-                for contract in ['`pending`', 'aprovação explícita', '`.history/`',
-                                 'Não crie JSON de sessão', '`backup/INSTRUCTION.md`']:
+                for contract in ['pending', 'explicit user approval', 'frozen history',
+                                 'Raw session history', 'backup/INSTRUCTION.md']:
                     self.assertIn(contract, text)
 
 

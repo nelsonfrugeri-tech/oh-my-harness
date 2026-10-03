@@ -90,7 +90,7 @@ require manual installation, which is what the source's `harness/claude/` still 
 
 | Surface | Why | What to do |
 | --- | --- | --- |
-| `~/.claude/CLAUDE.md` | A plugin cannot provide global instructions—only skills, agents, and hooks | **Merge** `harness/claude/CLAUDE.md`, preserving the machine capability table and any local block |
+| `~/.claude/CLAUDE.md` | A plugin cannot provide global instructions—only skills, agents, and hooks | **Merge** `harness/claude/CLAUDE.md`, preserving unrelated local instructions but no provider bindings |
 | `~/.claude/settings.json` → `permissions` | A plugin's `settings.json` accepts only `agent` and `subagentStatusLine` | Merge `harness/claude/settings.json`, preserving `model`, `theme`, `autoMode`, and user permissions |
 
 **Hooks no longer go in `settings.json`.** They belong to the plugin. See Step 3.
@@ -119,19 +119,18 @@ find ~/.claude/agents ~/.claude/skills ~/.claude/hooks -maxdepth 2 -type l -exec
 
 ## Step 4 — Capabilities / MCP
 
-The plugin provides behavior; the machine owns the **capability table**, which lives in
-`~/.claude/CLAUDE.md`:
+The plugin provides behavior; `../../capabilities.json` is the Claude adapter contract. Provider
+registration and credentials remain in Claude's machine configuration, never in global guidance:
 
 1. List MCP servers with `claude mcp list` (or by reading `~/.claude.json`).
-2. Propose the mapping: Git hosting → `code-host`; CI → `ci`; graph → `code-graph`;
-   session memory → `session-memory`; no provider → leave it **empty**.
-3. Show the change as a diff and apply it after confirmation.
-4. Use the server prefix (`mcp__github__*`), never an individual tool.
+2. Resolve the requested capability through the matching adapter entry and current machine state.
+3. Report optional providers as unavailable until registration and a real probe succeed.
+4. Keep any machine-specific MCP prefix in Claude's MCP configuration, not in `CLAUDE.md`.
 
 ### Optional — `code-graph` provider
 
-The `code-graph` capability remains in the table, but its provider is **not** vendored here. The
-table row is a claim about an **installed and registered MCP server**, never about the skill:
+The `code-graph` capability remains in the adapter, but its provider is **not** vendored here. An
+active binding is a claim about an **installed and registered MCP server**, never about the skill:
 `graphify install --platform claude` copies the skill and writes instructions to `CLAUDE.md`; it
 does not register an MCP server. These are three distinct steps:
 
@@ -149,10 +148,9 @@ does not exist.
 managed block. After running it, reconcile the file: reread `~/.claude/CLAUDE.md`, confirm that the
 `omh` block remains intact, and reapply Step 2 if it was displaced.
 
-Add the provider row (`mcp__graphify__*`) to the capability table **only** after the server is
-registered and responding: confirm with `claude mcp list` and a real call. A table row without a
-registered server is a phantom provider—the `code-graph` capability fails while the configuration
-claims it exists.
+Treat the provider (`mcp__graphify__*`) as available **only** after the server is registered and
+responding: confirm with `claude mcp list` and a real call. Registration without a working probe is
+a phantom provider—the `code-graph` capability remains degraded.
 
 ## Step 5 — Third-party plugins routed by the agents
 
@@ -182,10 +180,10 @@ agents. Measured with `claude plugin details` in the reference installation:
 
 `langchain-mcp` is the provider of the `framework-docs` capability declared in `catalog_contract`:
 live LangChain, LangGraph, and Deep Agents documentation resolved at runtime, which the routes consult
-for every volatile fact — version, API surface, SDK behaviour. Add the `framework-docs` row to your
-capability table only after `claude mcp list` confirms both servers respond. On Codex, installing the
-plugin is not proof of registration: confirm with `codex mcp list` and register the two HTTP endpoints
-explicitly if they are missing.
+for every volatile fact — version, API surface, SDK behaviour. Treat the adapter binding as available
+only after `claude mcp list` confirms both servers respond. On Codex, installing the plugin is not
+proof of registration: confirm with `codex mcp list` and register the two HTTP endpoints explicitly
+if they are missing.
 
 The ~2.1k is the cost of keeping all 22 descriptions available for routing; each skill body loads
 only when invoked.
@@ -232,14 +230,19 @@ merge from Step 2.
 
 ## Step 7 — Verification
 
+### Package migration: 4.1.0 to 4.2.0
+
+Global guidance now contains only the shared behavior contracts. Remove any provider table from the
+managed `CLAUDE.md` section; preserve actual MCP registrations and credentials in Claude's machine
+configuration. Use `harness/claude/capabilities.json` as the runtime adapter contract.
+
 ### Package migration: 3.1.0 to 4.0.0
 
 The knowledge base moves to validated, approval-gated notes with frozen history. The `kb-session`
 skill and mutable session records are retired. Keep the existing bundle intact until the separate
 post-merge migration and manifest review; installing the plugin does not migrate user notes. After
-updating the plugin, reconcile the changed global `CLAUDE.md` managed section while preserving local
-capability bindings and permissions. Start a new Claude Code session to observe the new skills,
-agents, and hooks.
+updating the plugin, reconcile the changed global `CLAUDE.md` managed section and preserve permissions.
+Start a new Claude Code session to observe the new skills, agents, and hooks.
 
 ### Package migration: 2.0.2 to 3.0.0
 

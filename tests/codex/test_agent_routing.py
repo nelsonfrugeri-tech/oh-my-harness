@@ -12,6 +12,10 @@ _MANIFEST = json.loads(
 )
 _PLUGINS_FILE = _ROOT / "harness/codex/integrations/plugins.json"
 _RUNBOOK_FILE = _ROOT / "harness/claude/skills/claude-code/SKILL.md"
+_CAPABILITY_ADAPTERS = {
+    "claude": _ROOT / "harness/claude/capabilities.json",
+    "codex": _ROOT / "harness/codex/capabilities.json",
+}
 _SELF_DISTRIBUTION = "oh-my-harness@oh-my-harness"
 _MODES = ("discoverer", "developer", "reviewer")
 
@@ -164,20 +168,50 @@ class AgentRoutingContractTest(unittest.TestCase):
                 with self.subTest(dependency=name, entry=entry):
                     self.assertEqual(1, len(owners))
 
-    def test_declared_capabilities_exist_in_both_guidance_tables(self) -> None:
-        # `capability` names an abstract provider that the guidance tables bind to a
-        # concrete tool. Declaring one that no table binds is the same "declared and not
-        # plugged" defect this contract exists to prevent, one level up.
-        claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
-        codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
+    def test_capability_catalog_has_complete_runtime_adapters(self) -> None:
+        capabilities = set(_MANIFEST["capabilities"])
+        self.assertEqual(
+            {
+                "code-host",
+                "ci",
+                "web",
+                "code-graph",
+                "session-memory",
+                "framework-docs",
+                "tunnel",
+            },
+            capabilities,
+        )
 
-        for name, dependency in _MANIFEST["catalog_contract"]["dependencies"].items():
-            capability = dependency.get("capability")
-            if capability is None:
-                continue
-            with self.subTest(dependency=name, capability=capability):
-                self.assertIn(f"`{capability}`", claude)
-                self.assertIn(f"`{capability}`", codex)
+        for harness, path in _CAPABILITY_ADAPTERS.items():
+            adapter = json.loads(path.read_text(encoding="utf-8"))
+            with self.subTest(harness=harness):
+                self.assertEqual(1, adapter["schema_version"])
+                self.assertEqual(
+                    "../../core/agents/routing.json#capabilities",
+                    adapter["contract"],
+                )
+                self.assertEqual(capabilities, set(adapter["bindings"]))
+                for binding in adapter["bindings"].values():
+                    self.assertTrue(binding["provider"].strip())
+                    self.assertIn(binding["availability"], {"built-in", "optional"})
+
+    def test_provider_bindings_stay_out_of_global_guidance(self) -> None:
+        for relative in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
+            guidance = _ROOT.joinpath(relative).read_text(encoding="utf-8")
+            with self.subTest(path=relative):
+                self.assertNotIn("mcp__", guidance)
+                self.assertNotIn("| Capability |", guidance)
+                self.assertNotIn("## Delta do", guidance)
+
+        for relative in (
+            "harness/claude/skills/claude-code/SKILL.md",
+            "harness/codex/skills/codex/SKILL.md",
+        ):
+            runbook = _ROOT.joinpath(relative).read_text(encoding="utf-8")
+            with self.subTest(path=relative):
+                self.assertIn("../../capabilities.json", runbook)
+                self.assertNotIn("capability table", runbook.lower())
 
     def test_every_installed_plugin_is_declared_in_the_contract(self) -> None:
         dependencies = _MANIFEST["catalog_contract"]["dependencies"]

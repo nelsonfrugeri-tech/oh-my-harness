@@ -117,6 +117,15 @@
       }
     }
   },
+  "capabilities": {
+    "code-host": "Pull requests, issues, and remote reviews",
+    "ci": "Continuous-integration and delivery pipelines",
+    "web": "Current public research and page retrieval",
+    "code-graph": "Code graph query, path, and explanation",
+    "session-memory": "Search past raw session transcripts",
+    "framework-docs": "Current framework documentation resolved at runtime",
+    "tunnel": "Temporary authenticated report exposure"
+  },
   "routing_syntax": {
     "start_marker": "<!-- agent-routing:start -->",
     "end_marker": "<!-- agent-routing:end -->",

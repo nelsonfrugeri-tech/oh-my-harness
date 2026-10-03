@@ -53,7 +53,7 @@ carry your way of working to the next assistant instead of starting over.
 | Benefit | Mechanism | Practical effect |
 | --- | --- | --- |
 | Change harnesses without rebuilding your setup | Shared contracts plus native adapters | Roles, standards, and knowledge remain familiar |
-| Change providers without rewriting agents | Abstract capability table | GitHub, GitLab, Graphify, Deja, and other providers stay machine-local |
+| Change providers without rewriting agents | Abstract capability catalog plus runtime adapters | GitHub, GitLab, Graphify, Deja, and other providers stay machine-local |
 | Reduce unsupported model claims | Evidence status, provenance, and independent review | Facts, inference, uncertainty, and decisions remain distinguishable |
 | Keep prompts focused | Progressive disclosure in skills and responses | Deep references load only when the task needs them |
 | Preserve engineering quality | Repository-first implementation and a PR quality gate | Project-native checks run against the revision that will open the PR |
@@ -129,8 +129,8 @@ schema.
 
 ### Capabilities, not hardcoded tools
 
-Agents and skills refer to abstract capabilities. The active harness's global guidance is the only
-place that maps those capabilities to providers on a machine.
+Agents and skills refer to abstract capabilities. Runtime adapters, integration manifests, and
+agent routes map those capabilities to providers; global guidance stays provider-neutral.
 
 | Capability | Purpose | Example provider |
 | --- | --- | --- |
@@ -215,8 +215,8 @@ Language follows the artifact's role:
 | Installer error messages shown to users | pt-BR |
 | Vendored third-party content | Original upstream language |
 
-The response contract is independent of repository prose: respond in the user's language while
-keeping established technical terms in English.
+The response contract is independent of repository prose: respond in Brazilian Portuguese while
+preserving proper names, established technical terms, and jargon in their original language.
 
 ## Supported harnesses
 
@@ -231,7 +231,7 @@ exist.
 | Global policy | Merge the managed `CLAUDE.md` guidance | Installer-managed `AGENTS.md` block |
 | Hooks | Native plugin descriptor | Native plugin descriptor; explicit hook trust required |
 | Session modes | `claude --agent oh-my-harness:<mode>` | Mode instructions injected with `-c developer_instructions`; [documented gaps](harness/codex/README.md#start-a-session-mode) |
-| Tool providers | Machine capability table | Machine capability table |
+| Tool providers | `harness/claude/capabilities.json` adapter | `harness/codex/capabilities.json` adapter |
 | Knowledge base | `knowledge-base` agent | `knowledge-base` agent |
 | Behavioral evals | Fresh-session protocol | Fresh-session protocol |
 
@@ -427,8 +427,8 @@ Two shared policy blocks are embedded into each harness's global guidance:
 
 - `software-evidence-contract.md` defines claim status, uncertainty, provenance, and decision
   discipline.
-- `response-format-contract.md` applies `evidence → didactic-visual → specific output format`
-  and enforces progressive disclosure without decorative formatting.
+- `response-format-contract.md` defines pt-BR language, response depth, progressive disclosure,
+  useful visuals, and source references.
 
 ### Evals
 
@@ -572,8 +572,8 @@ requires it.
   adapter.
 - **Workflow:** define the portable contract first, then implement the strongest native
   representation each harness supports.
-- **Capability:** add abstract intent to global guidance; provider installation and credentials
-  remain machine-local.
+- **Capability:** add abstract intent to the routing contract; keep provider bindings in the runtime
+  adapter and installation details and credentials machine-local.
 - **Eval:** define observable behaviors rather than reference wording, and scope every result to the
   recorded harness, model, configuration, revision, and time.
 
