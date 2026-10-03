@@ -15,14 +15,6 @@ _ROOT = Path(__file__).resolve().parents[2]
 
 
 class AdapterContractTest(unittest.TestCase):
-    def test_codex_global_guidance_limits_human_confirmation(self) -> None:
-        guidance = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
-
-        self.assertIn("Peça confirmação ao usuário somente antes de:", guidance)
-        self.assertIn("excluir, sobrescrever de forma irrecuperável", guidance)
-        self.assertIn("credentials, tokens, senhas, private keys", guidance)
-        self.assertIn("imposto pelo runtime", guidance)
-
     def test_codex_plugin_matches_the_shared_plugin_identity(self) -> None:
         codex = json.loads(
             _ROOT.joinpath(".codex-plugin/plugin.json").read_text(encoding="utf-8")
@@ -237,34 +229,22 @@ class AdapterContractTest(unittest.TestCase):
         guidance = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
 
         self.assertLessEqual(len(guidance.encode("utf-8")), 32 * 1024)
-        self.assertIn("## Idioma", guidance)
-        self.assertIn("## Nunca poluir o projeto com arquivos que não são do produto", guidance)
-        self.assertIn("## Ambiente", guidance)
-        self.assertIn("### Fatos vinculantes do ambiente", guidance)
-        self.assertIn("### Regras de conhecimento", guidance)
-        self.assertIn("## Antes de responder", guidance)
-        self.assertIn("## Padrões de código — ativação obrigatória", guidance)
-        self.assertIn("## Fluxo de PR", guidance)
-        self.assertIn("## Como opero", guidance)
+        self.assertIn("## Como penso, decido e respondo", guidance)
+        self.assertIn("## Como executo, delego e supervisiono", guidance)
+        self.assertIn("## Como respondo, explico e apresento", guidance)
         portuguese_prose = (
-            "Consulte a knowledge base antes de responder sempre que o assunto for interno ou privado",
-            "Antes de escrever, modificar ou revisar qualquer linha de código",
-            "Commit e push são livres",
+            "Raciocine a partir de evidências verificáveis.",
             "Delegue por padrão.",
+            "Responda em português do Brasil.",
         )
         self.assertTrue(all(sentence in guidance for sentence in portuguese_prose))
-        english_headings = (
-            "## Language",
-            "## Never pollute a project with non-product files",
-            "## Environment and capability adapters",
-            "### Binding environment facts",
-            "### Knowledge rules",
-            "## Self-evaluation before answering",
-            "## Mandatory code standards",
-            "## Commit gate",
-            "## Long-running work",
+        removed_operational_sections = (
+            "## Ambiente",
+            "## Fluxo de PR",
+            "## Padrões de código — ativação obrigatória",
+            "## Delta do Codex",
         )
-        self.assertFalse(any(heading in guidance for heading in english_headings))
+        self.assertFalse(any(heading in guidance for heading in removed_operational_sections))
 
     def test_every_portable_agent_has_a_codex_adapter(self) -> None:
         shared = {
@@ -371,10 +351,6 @@ class AdapterContractTest(unittest.TestCase):
         self.assertIn("never as a loose general comment", reviewer)
         self.assertIn("The pull request moves from draft to ready only through the reviewer", modes)
         self.assertIn("no BLOCKER and no pending plan revision", modes)
-        for relative in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
-            with self.subTest(path=relative):
-                self.assertIn("o developer abre o PR como **draft**", read(relative))
-                self.assertIn("sem blocker e sem revisão de plano pendente", read(relative))
 
     def test_session_modes_are_the_only_feature_workflow(self) -> None:
         # The three modes replaced the feature skill; the fast lane is the developer mode.
@@ -489,21 +465,18 @@ class AdapterContractTest(unittest.TestCase):
         self.assertEqual([], list(_ROOT.glob("harness/*/hooks/*.sh")))
 
     def test_code_craft_contract_is_consistently_repository_first(self) -> None:
-        paths = (
-            "README.md",
-            "harness/claude/CLAUDE.md",
-            "harness/codex/AGENTS.md",
-            "core/skills/implement/references/code-craft.md",
-        )
+        paths = ("README.md", "core/skills/implement/references/code-craft.md")
         combined = chr(10).join(
             _ROOT.joinpath(path).read_text(encoding="utf-8")
             for path in paths
         )
 
-        for path in paths[:3]:
-            with self.subTest(path=path):
-                document = _ROOT.joinpath(path).read_text(encoding="utf-8")
-                self.assertIn("repository-first", document)
+        readme = _ROOT.joinpath("README.md").read_text(encoding="utf-8")
+        code_craft = _ROOT.joinpath(
+            "core/skills/implement/references/code-craft.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("repository-first", readme)
+        self.assertIn("after reading the repository's own instructions", code_craft)
         self.assertNotIn("code-craft — inviolable rules", combined)
         self.assertNotIn("design pattern instead of `if/elif` chains", combined)
         self.assertIn("Do not split by a universal line or symbol count", combined)

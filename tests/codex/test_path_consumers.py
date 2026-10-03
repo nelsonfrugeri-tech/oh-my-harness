@@ -96,12 +96,15 @@ class PathConsumersTest(Sandbox):
         self.assertIn(str(self.config / 'omh/config'), from_file)
         self.assertNotIn('variável de ambiente', from_file)
 
-    def test_global_guidance_keeps_the_three_outcomes(self):
-        for relative in ('harness/claude/CLAUDE.md', 'harness/codex/AGENTS.md', 'README.md'):
+    def test_operational_guidance_keeps_the_three_outcomes(self):
+        for relative in ('agents/knowledge-base.md', 'harness/codex/agents/knowledge-base.toml', 'README.md'):
             text = ' '.join((ROOT / relative).read_text().split())
             with self.subTest(file=relative):
                 self.assertIn('machine-paths', text)
-                self.assertRegex(text, r'(corrigir a variável de ambiente|fix or unset the environment variable)')
+                self.assertRegex(
+                    text,
+                    r'(invalid: environment or config file|fix or unset the environment variable)',
+                )
                 self.assertRegex(text, r'`?HOME`? (ou|or) `?XDG_CONFIG_HOME')
 
     def test_pointer_warns_once_about_a_broken_config(self):

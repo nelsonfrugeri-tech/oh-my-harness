@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # PR quality gate — PreToolUse hook for opening a pull request.
 #
-# Makes the CLAUDE.md/AGENTS.md PR rule executable: format -> lint -> typecheck -> test,
-# with the command *discovered*, never hardcoded, run against the exact content HEAD
-# will send to the pull request. Discovery ladder, first hit wins:
+# Makes the repository PR workflow executable: format -> lint -> typecheck -> test, with
+# the command *discovered*, never hardcoded, run against the exact content HEAD will send
+# to the pull request. Discovery ladder, first hit wins:
 #
 #   1. .claude/quality-gate.json in the repo   (explicit, per project)
 #   2. Makefile targets of the same name
@@ -39,8 +39,7 @@
 # tool (`mcp__github__create_pull_request`) — the two ways this harness opens a pull
 # request. Commit and push are free: the gate no longer runs on `git commit`. A PR
 # opened from the GitHub web UI or any other tool never invokes this hook — accepted,
-# not a defect, because the harness only governs the actors it runs (see
-# harness/*/CLAUDE.md and harness/*/AGENTS.md, "Fluxo de PR").
+# not a defect, because the harness only governs the actors it runs.
 #
 # WHAT THE GUARANTEE COVERS: the HEAD at the moment the pull request is opened, and
 # nothing after it. A later `git push` on the branch, `gh pr ready`,

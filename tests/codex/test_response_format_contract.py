@@ -6,8 +6,8 @@ from pathlib import Path
 
 
 _ROOT = Path(__file__).resolve().parents[2]
-_START = "<!-- response-format:start -->"
-_END = "<!-- response-format:end -->"
+_START = "<!-- output-response:start -->"
+_END = "<!-- output-response:end -->"
 
 
 class ResponseFormatContractTest(unittest.TestCase):
@@ -17,34 +17,22 @@ class ResponseFormatContractTest(unittest.TestCase):
         self.assertEqual(canonical, self._embedded_contract("harness/codex/AGENTS.md"))
         self.assertEqual(canonical, self._embedded_contract("harness/claude/CLAUDE.md"))
 
-    def test_specific_output_contract_overrides_only_presentation_shape(self) -> None:
+    def test_contract_defines_language_depth_visuals_and_references(self) -> None:
         contract = self._read("core/policies/response-format-contract.md")
         flat = " ".join(contract.split())
 
-        self.assertIn("`evidence` é o mindset primário", flat)
-        self.assertIn("toda resposta e em qualquer formato", flat)
-        self.assertIn("evidence → didactic-visual → formato específico", flat)
-        self.assertIn("fallback vinculante", flat)
-        self.assertIn("nunca invente evidência", flat)
-        self.assertIn("toda resposta final", flat)
-        self.assertIn("`didactic-visual`", flat)
-        self.assertIn("**REGRA DURA.** É obrigatório", flat)
-        self.assertIn("fallback degradado", flat)
-        self.assertIn("uma vez por sessão", flat)
-        self.assertIn("não obriga a criar um visual", flat)
-        self.assertIn("prevalece somente sobre a forma", flat)
-        self.assertIn("evidence, provenance, incerteza", flat)
-        self.assertIn("conclusão ou resposta direta na primeira frase", flat)
-        self.assertIn("parágrafos curtos e coesos", flat)
-        self.assertIn("Use bullets somente", flat)
+        self.assertIn("consulte o agent `knowledge-base`", flat)
+        self.assertIn("Responda em português do Brasil", flat)
+        self.assertIn("ABNT NBR ISO 24495-1", flat)
+        self.assertIn("ASD-STE100", flat)
         self.assertIn("progressive disclosure", flat)
-        self.assertIn("todas as camadas materialmente necessárias", flat)
-        self.assertIn("não depende de widgets colapsáveis", flat)
-        self.assertIn("nunca removendo conteúdo material", flat)
-        self.assertIn("requisito, mecanismo, evidência decisiva", flat)
-        self.assertIn("três ou mais elementos", flat)
-        self.assertIn("O tamanho sozinho não justifica", flat)
-        self.assertIn("Não repita a conclusão", flat)
+        self.assertIn("até 800 caracteres", flat)
+        self.assertIn("até 1.600 caracteres", flat)
+        self.assertIn("até 4.000 caracteres", flat)
+        self.assertIn("não conte código, tabelas, gráficos", flat)
+        self.assertIn("Use uma visualização quando ela reduzir materialmente", flat)
+        self.assertIn("Quando uma tool ou um output schema exigir formato específico", flat)
+        self.assertIn("encerre com `### Referências`", flat)
 
     def _embedded_contract(self, relative: str) -> str:
         content = self._read(relative)

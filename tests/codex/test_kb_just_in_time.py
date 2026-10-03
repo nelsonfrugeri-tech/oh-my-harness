@@ -18,14 +18,9 @@ from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[2]
 
 _KB_RULE = (
-    "**Consulte a knowledge base antes de responder sempre que o assunto for "
-    "interno ou privado, e não público**: conhecimento do usuário, da empresa "
-    "ou do projeto que não está no código nem no git; algo **episódico**, o "
-    "que já foi feito, tentado ou discutido em sessões anteriores; ou uma "
-    "**decisão** já tomada e o motivo dela. Faça isso pelo agent "
-    "`knowledge-base`. Se a consulta não encontrar, diga que não encontrou; "
-    "nunca preencha com suposição, e nunca responda de memória o que é "
-    "privado."
+    "Para conhecimento interno, privado ou episódico, ou para uma decisão anterior, "
+    "consulte o agent `knowledge-base`. Se nada for encontrado, diga isso; não responda "
+    "de memória nem preencha lacunas."
 )
 
 
@@ -34,29 +29,27 @@ class KbRuleContractTests(unittest.TestCase):
         claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
         codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
 
-        self.assertIn(_KB_RULE, claude)
-        self.assertIn(_KB_RULE, codex)
+        self.assertIn(_KB_RULE, " ".join(claude.split()))
+        self.assertIn(_KB_RULE, " ".join(codex.split()))
 
     def test_rule_lives_under_the_before_answering_heading(self) -> None:
         claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
         codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
 
-        claude_section = claude.split("## Antes de responder", 1)[1].split("\n---", 1)[0]
-        # Group E (#120) unified the heading: both files now use "Antes de responder".
-        codex_section = codex.split("## Antes de responder", 1)[1].split("\n---", 1)[0]
-        self.assertIn(_KB_RULE, claude_section)
-        self.assertIn(_KB_RULE, codex_section)
+        claude_section = claude.split("### Antes de responder", 1)[1]
+        codex_section = codex.split("### Antes de responder", 1)[1]
+        self.assertIn(_KB_RULE, " ".join(claude_section.split()))
+        self.assertIn(_KB_RULE, " ".join(codex_section.split()))
 
     def test_rule_still_routes_public_knowledge_through_web(self) -> None:
         claude = _ROOT.joinpath("harness/claude/CLAUDE.md").read_text(encoding="utf-8")
         codex = _ROOT.joinpath("harness/codex/AGENTS.md").read_text(encoding="utf-8")
 
-        self.assertIn("capability `web`", claude)
-        self.assertIn("capability `web`", codex)
-        # Group E (#120) made the shared sections byte-identical, so the same
-        # sentence must hold in both files.
-        self.assertIn("responda citando a fonte", claude)
-        self.assertIn("responda citando a fonte", codex)
+        for guidance in (claude, codex):
+            with self.subTest():
+                flat = " ".join(guidance.split())
+                self.assertIn("Para conhecimento público que você não conhece ou que pode ter mudado", flat)
+                self.assertIn("pesquise antes de responder e cite a fonte", flat)
 
 
 class KbPointerHookContractTests(unittest.TestCase):
@@ -174,18 +167,16 @@ class ExplorerOnboardingContractTests(unittest.TestCase):
     def _read(self, relative_path: str) -> str:
 
         return _ROOT.joinpath(relative_path).read_text(encoding="utf-8")
-    def test_global_guidance_separates_explorer_from_kb_ownership(self) -> None:
-        explorer_row = (
-            "| `explorer` | Mapear um repositório desconhecido e entregar site, proposta "
-            "de `CLAUDE.md` e handoff de conhecimento | `explorer`, `site-report` |"
-        )
-        for guidance_path in ("harness/claude/CLAUDE.md", "harness/codex/AGENTS.md"):
-            guidance = self._read(guidance_path)
-            kb_row = next(line for line in guidance.splitlines() if line.startswith('| `knowledge-base` |'))
-            for required in ('`kb-infra`', '`kb-write`', '`kb-retrieval`', 'versões'):
-                self.assertIn(required, kb_row)
-            self.assertNotIn('session records', kb_row)
-            self.assertIn(explorer_row, guidance)
+    def test_agent_catalog_separates_explorer_from_kb_ownership(self) -> None:
+        roles = json.loads(self._read("core/agents/routing.json"))["roles"]
+        knowledge_base = roles["knowledge-base"]["description"]
+        explorer = roles["explorer"]["description"]
+
+        self.assertIn("external knowledge base", knowledge_base)
+        self.assertIn("pending notes with explicit approval", knowledge_base)
+        self.assertIn("onboarding into an unfamiliar repository", explorer)
+        self.assertIn("project CLAUDE.md proposal", explorer)
+        self.assertIn("handoff for the knowledge-base agent", explorer)
 
     def test_runbooks_distinguish_the_pointer_from_automatic_retrieval(self) -> None:
         claude_runbook = self._read("harness/claude/skills/claude-code/SKILL.md")

@@ -12,17 +12,19 @@ Discover commands from checked-in installer help.
 Never overwrite unowned files. Stop with exact conflict and non-destructive choices. Backups do not
 grant replacement authority. Preserve unrelated hooks/configuration.
 
-External capability providers install themselves outside this repository; preserve whatever they
-placed under the personal skill and MCP roots. Deja owns transcript index, MCP wiring, and hooks;
-preserve them and use Deja only for session-memory, never a second curated store.
+`../../capabilities.json` is the Codex adapter contract. External capability providers install
+themselves outside this repository; preserve whatever they placed under the personal skill and MCP
+roots. Keep provider registration and credentials in Codex machine configuration, never in global
+guidance. Deja owns transcript index, MCP wiring, and hooks; preserve them and use Deja only for
+session-memory, never a second curated store.
 
 Optional `code-graph` provider: MCP is an optional extra, so install `pipx install 'graphifyy[mcp]'`;
 a bare `graphifyy` install omits the `mcp` dependency. `graphify install --platform codex` then
 copies the skill, writes the AGENTS section, and installs the hook in one command, but registers no
 MCP server. Register it yourself with the published entrypoint `graphify-mcp`:
-`codex mcp add --env GRAPHIFY_PROJECT_DIR=. graphify -- graphify-mcp`. Add the `mcp__graphify__*` row
-to the capability table of the managed global `AGENTS.md` only after that server is registered and a
-real call answers: the row claims an installed server, never an installed skill.
+`codex mcp add --env GRAPHIFY_PROJECT_DIR=. graphify -- graphify-mcp`. Treat the
+`mcp__graphify__*` binding as available only after that server is registered and a real call answers:
+registration claims an installed server, never an installed skill.
 The `claude` platform variant of that installer writes to `CLAUDE.md`, where omh keeps a managed
 block; reconcile that block afterwards and rerun `install.py --check` before trusting the result.
 

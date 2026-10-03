@@ -40,7 +40,8 @@ class EvidenceContractTest(unittest.TestCase):
         flat = " ".join(contract.split())
         self.assertIn("unidade, população, janela temporal, fonte e método", flat)
         self.assertIn("dados de calibração", flat)
-        self.assertIn("engenharia de software", flat)
+        self.assertIn("Fundamente toda decisão em fatos, dados e evidências verificáveis", flat)
+        self.assertIn("não apresente a conclusão como estabelecida", flat)
 
     def test_evidence_skill_contains_only_referenced_resources(self) -> None:
         skill = _ROOT / "core/skills/evidence/SKILL.md"
