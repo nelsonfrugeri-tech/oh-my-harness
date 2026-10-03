@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "contract": "../../core/agents/routing.json#capabilities",
+  "bindings": {
+    "code-host": {
+      "provider": "machine-configured MCP server prefix",
+      "availability": "optional"
+    },
+    "ci": {
+      "provider": "machine-configured MCP server prefix",
+      "availability": "optional"
+    },
+    "web": {
+      "provider": "WebSearch and WebFetch",
+      "availability": "built-in"
+    },
+    "code-graph": {
+      "provider": "mcp__graphify__* when installed and verified",
+      "availability": "optional"
+    },
+    "session-memory": {
+      "provider": "Deja CLI or mcp__deja__* when installed",
+      "availability": "optional"
+    },
+    "framework-docs": {
+      "provider": "mcp__plugin_langchain-mcp_langchain-docs__* and mcp__plugin_langchain-mcp_langchain-reference__*",
+      "availability": "optional"
+    },
+    "tunnel": {
+      "provider": "machine-configured authenticated tunnel",
+      "availability": "optional"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "contract": "../../core/agents/routing.json#capabilities",
+  "bindings": {
+    "code-host": {
+      "provider": "machine-configured app, MCP server, or CLI",
+      "availability": "optional"
+    },
+    "ci": {
+      "provider": "machine-configured app, MCP server, or CLI",
+      "availability": "optional"
+    },
+    "web": {
+      "provider": "Codex web capability",
+      "availability": "built-in"
+    },
+    "code-graph": {
+      "provider": "Graphify MCP with CLI fallback when installed",
+      "availability": "optional"
+    },
+    "session-memory": {
+      "provider": "Deja CLI or MCP when installed",
+      "availability": "optional"
+    },
+    "framework-docs": {
+      "provider": "langchain-docs and langchain-reference MCP servers when registered",
+      "availability": "optional"
+    },
+    "tunnel": {
+      "provider": "machine-configured authenticated tunnel",
+      "availability": "optional"
+    }
+  }
+}
