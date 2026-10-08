@@ -23,6 +23,9 @@ _CREDENTIAL = re.compile(r'''(?ix)\b(?:senha|password|passwd|token|api[_-]?key|s
 _TOKEN = re.compile(r'\b(?:sk-[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16}|eyJ[\w-]+\.[\w-]+\.[\w-]+)\b')
 _SENSITIVE_QUERY = re.compile(r'token|secret|password|passwd|api.?key|credential|signature|auth|sig', re.I)
 
+def is_secret_field(name: str) -> bool:
+    return bool(re.search(r'senha|password|passwd|secret|token|authorization|api.?key|private.?key', name, re.I))
+
 
 def find_secrets(text: str) -> tuple[SecretFinding, ...]:
     """Return secret categories and offsets; never copy secrets into diagnostics."""

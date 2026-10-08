@@ -23,7 +23,8 @@ ask once for the canonical name and slug. A suggested slug may use this pipeline
 basename "$(git rev-parse --show-toplevel)" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-\n' '-' | sed 's/--*/-/g; s/^-//; s/-$//'
 ```
 
-The user decides the path: `<scope>/<domain>/<entities...>/<name>/<name>.md`, with scope `work` or
+Propose a context-supported path when identity is established; save it pending before review.
+The user can correct the path during that review: `<scope>/<domain>/<entities...>/<name>/<name>.md`, with scope `work` or
 `person`, domain entities nested as needed, and names in lowercase kebab-case, at most three words,
 without repeating the parent. `type` does not select the directory. A directory containing its
 same-named Markdown file is a note; otherwise it is an entity. Exclude `.history/`, `.pending/`, and
@@ -53,14 +54,19 @@ If required provenance is missing, do not write the note. Match machine_id to th
 Pass the actual parent transcript through `--transcript PATH`; do not assume a subagent transcript
 covers the conversation. Claude fallback is `~/.claude/projects/<cwd-munged>/<session-id>.jsonl`,
 with verified session identity, never newest-file guessing. Harvest includes subagents and external
-tool results. Codex tool-call evidence remains degraded unless its adapter is verified; a transcript
-path existing does not prove parsing coverage. For unavailable evidence, request explicit degraded
+tool results. The CLI selects Claude or Codex from observed JSONL records. Codex evidence includes
+user/assistant messages, agent messages, function/custom calls, and their matched outputs. Harness
+instructions, reasoning, encrypted content, compaction, and administrative metadata are excluded.
+Unknown record/content shapes and unmatched or ambiguous tool outputs fail with a safe diagnostic.
+Agent messages prove what a subagent reported, not that its claims were independently verified.
+A transcript path existing does not prove parsing coverage. For unavailable evidence, request explicit degraded
 approval before `--approved-degraded` and record the limitation in Sources.
 
 Run `harvest --transcript PATH` and inspect candidates before composing. The closed `entities`
 object always has all thirteen keys: people, companies, products, brands, roles, projects, apps,
 urls, repos, paths, documents, emails, names. Reuse known slugs; present new people/company/product/
-brand/app/role slugs for confirmation. Each declared entity needs an Entities row, prose explaining
+brand/app/role slugs as proposals in the pending review; do not ask before saving when context
+supports a reversible choice. Each declared entity needs an Entities row, prose explaining
 its role and relationship, and transcript evidence. URLs, paths, repos, dates, and numbers with
 units/currencies in prose must be declared. Dates use RFC 3339 with observed timezone; Figures use
 exact decimal values and ISO 4217 for currencies. Never invent midnight, a timezone, or a value.
@@ -96,9 +102,13 @@ Replace the subcommand with the applicable operation, always keeping `--json`:
 
 1. `write` validates and saves pending at the proposed path for a new note, or
    `<name>/.pending/<name>.md` for an update. Include an update reason. Return the Pending result,
-   full note or diff, path, proposed entity descriptions, and candidates to the principal session.
-2. The principal session shows the entire note, or the full diff for an update, and asks for one
-   review of path and content. It asks path for a new note, not for an existing note update.
+   absolute link to the saved pending Markdown (`OMH_KB_ROOT` + returned `pending_path`),
+   proposed canonical `path`, entity descriptions, and candidates
+   to the principal session. A preservation request authorizes this pending write without another
+   permission question; do not leave the review artifact only in a temporary local draft.
+2. The principal session provides the clickable link so the user reads the pending note directly
+   in the KB, with status pending. Review path, content, and proposed slugs together. For an update,
+   link the pending revision rather than the unchanged active file; provide a diff when useful.
    A preservation request alone is not approval of unseen content. A subagent never asks the user.
 3. After explicit user approval of that note and revision, call `approve`. Adjustments rewrite only
    pending; path corrections use `move`; rejection uses `reject`. Changed content needs renewed

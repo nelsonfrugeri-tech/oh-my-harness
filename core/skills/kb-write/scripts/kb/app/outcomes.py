@@ -6,6 +6,7 @@ class Pending:
     path: str
     new_entities: tuple[str, ...]
     candidates: tuple[str, ...] = ()
+    pending_path: str = ''
 
 
 @dataclass(frozen=True)

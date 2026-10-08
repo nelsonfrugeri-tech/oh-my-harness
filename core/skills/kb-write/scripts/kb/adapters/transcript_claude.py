@@ -10,15 +10,18 @@ from kb.entities.extraction import extract
 from kb.entities.kinds import EntityKind
 from kb.entities.model import Candidate
 from kb.entities.normalization import normalize
-from kb.entities.secrets import find_secrets
+from kb.entities.secrets import find_secrets, is_secret_field
 
 
 class ClaudeTranscriptSource(TranscriptSourcePort, HarvestSourcePort):
     def load(self, path: str) -> str:
-        return '\n'.join(text for record in _records(path) for text in _strings(record))
+        return '\n'.join(text for record in self._records(path) for text in _strings(record))
+
+    def _records(self, path: str) -> tuple[object, ...]:
+        return _records(path)
 
     def harvest_candidates(self, path: str) -> tuple[Candidate, ...]:
-        records = _records(path)
+        records = self._records(path)
         candidates: list[Candidate] = []
         blocks = [block for record in records for block in _blocks(record)]
         for record in records:
@@ -54,7 +57,7 @@ def _records(path: str) -> tuple[object, ...]:
             records.append(content)
             continue
         try:
-            parsed = [json.loads(line) for line in content.splitlines() if line.strip()]
+            parsed = [json.loads(line) for line in content.split('\n') if line.strip()]
         except json.JSONDecodeError as error:
             raise TranscriptFailure('Transcript contains invalid JSON') from error
         if not parsed:
@@ -100,7 +103,7 @@ def _harvest_strings(value: object) -> list[str]:
     if isinstance(value, dict):
         return [text for key, item in value.items()
                 if key not in ('file_path', 'path', 'cwd', 'command')
-                and not re.search(r'password|passwd|secret|token|authorization|api.?key|private.?key', key, re.I)
+                and not is_secret_field(key)
                 for text in _harvest_strings(item)]
     if isinstance(value, list):
         return [text for item in value for text in _harvest_strings(item)]
