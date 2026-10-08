@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from kb.adapters.markdown import parse_note
-from kb.adapters.transcript_claude import ClaudeTranscriptSource
+from kb.adapters.transcript import TranscriptSource
 from kb.app.errors import TranscriptFailure
 from kb.app.outcomes import Degraded, Rejected
 from kb.note.model import NotePath
@@ -18,7 +18,7 @@ def dispatch(args, context):
         return check(context)
     if args.command == 'harvest':
         from kb.app.harvest import harvest
-        return harvest(ClaudeTranscriptSource(), args.transcript)
+        return harvest(TranscriptSource(), args.transcript)
     if args.command in {'write', 'validate', 'approve'}:
         return _publication(args, context)
     if args.command == 'backup':
@@ -37,7 +37,7 @@ def _publication(args, context):
     transcript = None
     if args.transcript:
         try:
-            transcript = ClaudeTranscriptSource().load(args.transcript)
+            transcript = TranscriptSource().load(args.transcript)
         except (OSError, ValueError) as error:
             allowed = getattr(args, 'approved_degraded', False)
             if args.command == 'approve':

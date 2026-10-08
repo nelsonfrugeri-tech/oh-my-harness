@@ -22,7 +22,8 @@ class KnowledgeLayoutContractTest(unittest.TestCase):
 
     def test_pending_review_and_frozen_history_are_binding(self) -> None:
         text = read('core/skills/kb-write/SKILL.md')
-        for rule in ('principal session shows the entire note', 'explicit user approval',
+        for rule in ('principal session provides the clickable link', '`pending_path`',
+                     'without another', 'permission question', 'explicit user approval',
                      'Changed content needs renewed', 'Pending is excluded',
                      '.history/<YYYY-MM-DD>--v<N>--<name>.md', 'superseded_reason',
                      'preserving id', 'created_at', 'increments version'):

@@ -41,5 +41,6 @@ def write(note: Note, context: Context, *, transcript: str | None,
                                        previous.frontmatter.version if previous else None,
                                        context.clock.now(), created)
     pending.save(context.store, path, metadata)
-    context.store.write(note, pending.paths(path)[0] if previous else path)
-    return Pending(path, tuple(key for key, _ in descriptions))
+    destination = pending.paths(path)[0] if previous else path
+    context.store.write(note, destination)
+    return Pending(path, tuple(key for key, _ in descriptions), pending_path=destination)

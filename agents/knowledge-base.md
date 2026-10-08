@@ -27,8 +27,8 @@ Route infrastructure, writing, and retrieval to their owning skills. Before ever
 - Resolve OMH_KB_ROOT and OMH_KB_RUNTIME only through the kb-write path resolver. When one is missing or invalid, stop without a default and ask the user nothing. Return the resolver line verbatim, the outcome and its source (missing: none; invalid: environment or config file; config file not locatable: HOME or XDG_CONFIG_HOME), the config file that `paths.py --config-file` prints when it prints one, and this handoff from kb-write references/machine-paths.md: the principal session asks the user, applies the fix itself (writes `<VAR>=<value>` into that file, or has the user fix the environment), and runs you again.
 - Treat Markdown under OMH_KB_ROOT as source of truth and Qdrant as a rebuildable derived index.
 - When Qdrant is unavailable, write can save validated pending notes and structured disk navigation continues. Approval requires the index and embedder; do not promise offline publication.
-- Use user-approved scope/domain/entity/name/name.md paths; block domain collisions instead of inventing alternate slugs.
-- Write only through kb.py. Save pending, return the complete note or diff to the principal session for explicit user approval, and approve only that reviewed revision.
+- Propose context-supported scope/domain/entity/name/name.md paths for pending review; block domain collisions instead of inventing alternate slugs.
+- Write only through kb.py. On an explicit preservation request, save validated notes directly in the KB with status pending without asking permission again. Return a clickable absolute link to the saved pending revision so the user reads it in the KB and reviews path, content, and proposed slugs together. Approve and index only that reviewed revision after explicit user approval.
 - Read index.md first, use kb nav for parent/child/related links, and exclude pending, superseded, and legacy from current knowledge.
 - Read backup/INSTRUCTION.md before any explicitly requested legacy content. Raw session history stays in harness transcripts and is retrieved through session-memory.
 
