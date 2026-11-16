@@ -36,7 +36,7 @@ máquina pode mostrar só a conta administradora.
 Na conta administradora:
 
 ```bash
-sudo usermod -aG sudo <usuario>
+sudo usermod -aG sudo nelson.ferreira
 ```
 
 Saia da sessão do seu usuário e entre de novo. O grupo novo só vale num login novo.
@@ -47,11 +47,11 @@ O `usermod` não funciona para usuários da rede. Crie uma regra no sudoers. Na 
 administradora, rode **um comando por vez**:
 
 ```bash
-printf '%s\n' '<usuario>@<dominio> ALL=(ALL:ALL) ALL' '<usuario> ALL=(ALL:ALL) ALL' | sudo tee /etc/sudoers.d/<usuario-sem-ponto>
+printf '%s\n' 'nelson.ferreira@sp01.local ALL=(ALL:ALL) ALL' 'nelson.ferreira ALL=(ALL:ALL) ALL' | sudo tee /etc/sudoers.d/nelson-ferreira
 ```
 
 ```bash
-sudo chmod 440 /etc/sudoers.d/<usuario-sem-ponto>
+sudo chmod 440 /etc/sudoers.d/nelson-ferreira
 ```
 
 ```bash
@@ -59,18 +59,18 @@ sudo visudo -c
 ```
 
 - O `sudo` pede a senha da **conta administradora**, porque é ela que está rodando os comandos.
-- As duas linhas da regra cobrem o nome com e sem `@<dominio>`, porque o Ubuntu pode mostrar o
+- As duas linhas da regra cobrem o nome com e sem `@sp01.local`, porque o Ubuntu pode mostrar o
   nome nos dois formatos.
 - O nome do arquivo **não pode ter ponto**. O sudo ignora arquivos com `.` em `/etc/sudoers.d`.
   Exemplo: para o usuário `joao.silva`, use `/etc/sudoers.d/joao-silva`.
 - O `visudo -c` precisa mostrar `parsed OK`. Se mostrar erro, **não saia da conta
-  administradora**. Apague o arquivo com `sudo rm /etc/sudoers.d/<usuario-sem-ponto>` e corrija
+  administradora**. Apague o arquivo com `sudo rm /etc/sudoers.d/nelson-ferreira` e corrija
   a regra.
 
 Se a pasta pessoal do usuário da rede não existir, crie-a na conta administradora:
 
 ```bash
-sudo mkhomedir_helper <usuario>@<dominio> 0077
+sudo mkhomedir_helper nelson.ferreira@sp01.local 0077
 ```
 
 Por fim, na **sua** conta, confirme com `sudo -v`. Agora o comando pede a **sua** senha.
