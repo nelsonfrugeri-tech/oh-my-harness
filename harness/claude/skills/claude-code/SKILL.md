@@ -91,9 +91,49 @@ require manual installation, which is what the source's `harness/claude/` still 
 | Surface | Why | What to do |
 | --- | --- | --- |
 | `~/.claude/CLAUDE.md` | A plugin cannot provide global instructions—only skills, agents, and hooks | **Merge** `harness/claude/CLAUDE.md`, preserving unrelated local instructions but no provider bindings |
-| `~/.claude/settings.json` → `permissions` | A plugin's `settings.json` accepts only `agent` and `subagentStatusLine` | Merge `harness/claude/settings.json`, preserving `model`, `theme`, `autoMode`, and user permissions |
+| `~/.claude/settings.json` → `permissions` | A plugin's `settings.json` accepts only `agent` and `subagentStatusLine` | Merge `harness/claude/settings.json` as described below, preserving `model`, `theme`, `autoMode`, and user permissions |
 
 **Hooks no longer go in `settings.json`.** They belong to the plugin. See Step 3.
+
+### Merge the permission policy
+
+`harness/claude/settings.json` is generated from the canonical policy in
+`core/policies/permissions.json`: allow everything, ask before deleting files or artifacts or
+reading secrets, and deny a short list of irreversible actions. Never edit it by hand; change the
+policy and run `python3 -m installers.policy.render --write` from the repository root.
+
+Merge it into `~/.claude/settings.json` key by key:
+
+1. Back up the file first: `cp ~/.claude/settings.json ~/.claude/settings.json.omh.bak`.
+2. Set `permissions.defaultMode` to `"bypassPermissions"`. In this mode allow rules have no
+   effect, while ask rules still prompt and deny rules still block.
+3. **Add** every entry of the source `permissions.ask` and `permissions.deny` to the user lists.
+   Keep every entry the user already has, above all existing `deny` entries; never remove one.
+4. Drop a legacy oh-my-harness `allow` block only when the user confirms it; in bypass mode it is
+   inert.
+
+Then verify that nothing is missing:
+
+```bash
+python3 -m installers.policy.render --check-claude ~/.claude/settings.json
+```
+
+The command exits `0` only when `defaultMode` is `bypassPermissions` and every rendered ask and
+deny entry is present. Start a new session and run the six-case checklist:
+
+| # | Action | Expected |
+| --- | --- | --- |
+| 1 | Edit a normal file | No prompt |
+| 2 | `ls`, `git status`, `npm test` | No prompt |
+| 3 | `rm` a test file | Prompt |
+| 4 | Read a `.env` file | Prompt |
+| 5 | `cat ~/.aws/credentials` | Prompt (best effort) |
+| 6 | Delete a file without naming `rm` (`unlink`, `find -delete`) | Prompt |
+
+If a case misbehaves, stop and report it; do not loosen the policy to make it pass. Known gaps:
+Bash rules match command text, so `/bin/rm`, `bash -c`, and `python -c` slip past them, and it is
+unverified whether ask `Read()` rules also gate a Bash `cat`. Run
+`python3 -m installers.policy.render --gaps claude` for the full list.
 
 ## Step 3 — Migrate from the old layout
 
@@ -229,6 +269,13 @@ accepts `ref` (branch/tag) and `sha` (commit); when both are present, `sha` take
 merge from Step 2.
 
 ## Step 7 — Verification
+
+### Package migration: 4.2.x to 4.3.0
+
+`harness/claude/settings.json` no longer carries an `allow` block. It now sets
+`permissions.defaultMode` to `bypassPermissions` plus generated `ask` and `deny` lists. Redo the
+permission merge from Step 2, keep the user's existing deny entries, and confirm with
+`python3 -m installers.policy.render --check-claude ~/.claude/settings.json`.
 
 ### Package migration: 4.1.0 to 4.2.0
 
