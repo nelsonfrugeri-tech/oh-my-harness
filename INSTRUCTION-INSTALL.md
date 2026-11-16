@@ -7,31 +7,6 @@ Este guia tem duas fases. Execute na ordem.
 | 1 | Permissões do Kiro | O agente trabalha sem pedir permissão e só pergunta antes de excluir algo ou de ler dados sensíveis. |
 | 2 | Terminal zsh no Ubuntu | Prompt Starship, plugins do zsh e ferramentas de linha de comando. |
 
-
-## Pré-requisito: dar `sudo` ao usuário `<usuario>`
-
-Troque `<usuario>`, `<dominio>` e `<usuario-sem-ponto>` (o usuário com `-` no lugar de `.`). Depois, na conta **administrador**, cole o bloco. Quando o terminal pedir, digite a
-senha do **administrador**.
-
-```bash
-printf '%s\n' '<usuario>@<dominio> ALL=(ALL:ALL) ALL' '<usuario> ALL=(ALL:ALL) ALL' | sudo tee /etc/sudoers.d/<usuario-sem-ponto> >/dev/null && sudo chmod 440 /etc/sudoers.d/<usuario-sem-ponto> && sudo visudo -c && echo "SUDO OK"
-```
-
-O resultado precisa terminar com `SUDO OK`. Se aparecer erro, apague o arquivo e cole o bloco
-de novo:
-
-```bash
-sudo rm -f /etc/sudoers.d/<usuario-sem-ponto>
-```
-
-Depois, saia da conta administrador, entre na conta `<usuario>` e copie e cole:
-
-```bash
-sudo -v && echo "SUDO OK"
-```
-
-Digite a senha do `<usuario>`. O resultado precisa ser `SUDO OK`.
-
 ---
 
 ## Fase 1: permissões do Kiro
