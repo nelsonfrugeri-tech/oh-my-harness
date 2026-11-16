@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "default_effect": "allow",
+  "rules": [
+    {
+      "id": "secret-files",
+      "capability": "fs_read",
+      "effect": "ask",
+      "reason": "Credential and key files leak access to accounts and infrastructure once read into a session.",
+      "paths": [
+        {"scope": "any", "glob": ".env"},
+        {"scope": "any", "glob": ".env.*"},
+        {"scope": "any", "glob": "*.pem"},
+        {"scope": "any", "glob": "*.key"},
+        {"scope": "any", "glob": "*.p12"},
+        {"scope": "any", "glob": "*.pfx"},
+        {"scope": "any", "glob": "id_rsa"},
+        {"scope": "any", "glob": "id_ecdsa"},
+        {"scope": "any", "glob": "id_ed25519"},
+        {"scope": "any", "glob": "*.tfvars"},
+        {"scope": "any", "glob": "credentials.json"},
+        {"scope": "any", "glob": "service-account*.json"},
+        {"scope": "any", "glob": ".netrc"},
+        {"scope": "any", "glob": ".npmrc"},
+        {"scope": "any", "glob": ".pypirc"},
+        {"scope": "home", "path": ".ssh", "kind": "dir"},
+        {"scope": "home", "path": ".aws/credentials", "kind": "file"},
+        {"scope": "home", "path": ".aws/sso/cache", "kind": "dir"},
+        {"scope": "home", "path": ".config/gcloud", "kind": "dir"},
+        {"scope": "home", "path": ".azure", "kind": "dir"},
+        {"scope": "home", "path": ".kube/config", "kind": "file"},
+        {"scope": "home", "path": ".docker/config.json", "kind": "file"},
+        {"scope": "home", "path": ".gnupg", "kind": "dir"},
+        {"scope": "home", "path": ".git-credentials", "kind": "file"},
+        {"scope": "home", "path": ".config/gh/hosts.yml", "kind": "file"},
+        {"scope": "home", "path": ".codex/auth.json", "kind": "file"},
+        {"scope": "home", "path": ".claude/.credentials.json", "kind": "file"}
+      ]
+    },
+    {
+      "id": "secret-commands",
+      "capability": "shell",
+      "effect": "ask",
+      "reason": "These commands print stored passwords, tokens, or the whole environment.",
+      "example": "gh auth token",
+      "prefixes": [
+        ["security", ["find-generic-password", "find-internet-password"]],
+        ["gh", "auth", "token"],
+        ["printenv"]
+      ]
+    },
+    {
+      "id": "delete-files",
+      "capability": "shell",
+      "effect": "ask",
+      "reason": "Deleting files is hard to undo outside version control.",
+      "example": "rm tests/tmp_fixture.txt",
+      "prefixes": [
+        ["rm"],
+        ["rmdir"],
+        ["unlink"],
+        ["shred"],
+        ["trash"]
+      ],
+      "globs": [
+        "find * -delete",
+        "find * -delete *",
+        "find * -exec rm *",
+        "xargs rm *"
+      ]
+    },
+    {
+      "id": "delete-git-artifacts",
+      "capability": "shell",
+      "effect": "ask",
+      "reason": "These commands discard uncommitted work or remove branches, tags, stashes, and remote refs.",
+      "example": "git clean -fd",
+      "prefixes": [
+        ["git", "rm"],
+        ["git", "clean"],
+        ["git", "reset", "--hard"],
+        ["git", "restore"],
+        ["git", "checkout", "--"],
+        ["git", "branch", ["-d", "-D", "--delete"]],
+        ["git", "tag", ["-d", "--delete"]],
+        ["git", "stash", ["drop", "clear"]],
+        ["git", "worktree", "remove"],
+        ["git", "push", ["--delete", "-d"]],
+        ["git", "push", "--force-with-lease"]
+      ],
+      "globs": [
+        "git push * --delete *",
+        "git push * :*",
+        "git push * --force-with-lease*"
+      ]
+    },
+    {
+      "id": "delete-infra-artifacts",
+      "capability": "shell",
+      "effect": "ask",
+      "reason": "These commands remove containers, images, cluster objects, buckets, infrastructure, or GitHub records.",
+      "example": "docker rm my-container",
+      "prefixes": [
+        ["docker", ["rm", "rmi"]],
+        ["docker", ["container", "image", "volume", "network", "system", "builder"], ["rm", "prune"]],
+        ["kubectl", "delete"],
+        ["aws", "s3", ["rm", "rb"]],
+        ["terraform", "destroy"],
+        ["gh", ["release", "issue", "gist", "secret", "variable", "cache", "run", "label"], "delete"]
+      ]
+    },
+    {
+      "id": "ask-push-default-branch",
+      "capability": "shell",
+      "effect": "ask",
+      "reason": "Pushing straight to the default branch skips review; it stays possible because docs are pushed there on purpose.",
+      "example": "git push origin main",
+      "prefixes": [
+        ["git", "push", ["origin", "upstream"], ["main", "master", "HEAD:main", "HEAD:master"]]
+      ],
+      "globs": [
+        "git push * main",
+        "git push * master",
+        "git push *:main",
+        "git push *:master"
+      ]
+    },
+    {
+      "id": "deny-force-push",
+      "capability": "shell",
+      "effect": "deny",
+      "reason": "A force push rewrites shared history and can destroy other people's commits.",
+      "example": "git push --force origin feature",
+      "prefixes": [
+        ["git", "push", ["--force", "-f"]]
+      ],
+      "globs": [
+        "git push * --force",
+        "git push * --force *",
+        "git push * -f",
+        "git push * -f *",
+        "git push * +*"
+      ]
+    },
+    {
+      "id": "deny-wipe-root-home",
+      "capability": "shell",
+      "effect": "deny",
+      "reason": "Recursively deleting the root or home directory is unrecoverable.",
+      "example": "rm -rf /",
+      "prefixes": [
+        ["rm", ["-rf", "-fr", "-Rf", "-rF"], ["/", "/*", "~", "~/", "$HOME"]]
+      ]
+    },
+    {
+      "id": "deny-sudo",
+      "capability": "shell",
+      "effect": "deny",
+      "reason": "Agents must not escalate to root; run privileged steps yourself.",
+      "example": "sudo ls",
+      "prefixes": [
+        ["sudo"]
+      ]
+    },
+    {
+      "id": "deny-disk-wipe",
+      "capability": "shell",
+      "effect": "deny",
+      "reason": "Formatting, partitioning, or raw-writing a disk destroys every file on it.",
+      "example": "diskutil eraseDisk APFS Blank disk9",
+      "prefixes": [
+        ["mkfs"],
+        ["diskutil", ["eraseDisk", "eraseVolume", "partitionDisk"]]
+      ],
+      "globs": [
+        "mkfs.*",
+        "dd * of=/dev/*"
+      ]
+    },
+    {
+      "id": "deny-repo-delete",
+      "capability": "shell",
+      "effect": "deny",
+      "reason": "Deleting a GitHub repository removes its code, issues, and pull requests.",
+      "example": "gh repo delete owner/repo",
+      "prefixes": [
+        ["gh", "repo", "delete"]
+      ]
+    }
+  ]
+}
