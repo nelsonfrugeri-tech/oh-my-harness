@@ -1,0 +1,272 @@
+# Generated from core/policies/permissions.json by `python3 -m installers.policy.render --write`.
+# Do not edit by hand. Copy to ~/.kiro/settings/permissions.yaml; see harness/kiro/README.md.
+rules:
+  # default_effect: allow everything not matched below.
+  - capability: all
+    effect: allow
+
+  # secret-files: Credential and key files leak access to accounts and infrastructure once read into a session.
+  - capability: fs_read
+    match:
+      - "**/.env"
+      - "**/.env.*"
+      - "**/*.pem"
+      - "**/*.key"
+      - "**/*.p12"
+      - "**/*.pfx"
+      - "**/id_rsa"
+      - "**/id_ecdsa"
+      - "**/id_ed25519"
+      - "**/*.tfvars"
+      - "**/credentials.json"
+      - "**/service-account*.json"
+      - "**/.netrc"
+      - "**/.npmrc"
+      - "**/.pypirc"
+      - "~/.ssh/**"
+      - "~/.aws/credentials"
+      - "~/.aws/sso/cache/**"
+      - "~/.config/gcloud/**"
+      - "~/.azure/**"
+      - "~/.kube/config"
+      - "~/.docker/config.json"
+      - "~/.gnupg/**"
+      - "~/.git-credentials"
+      - "~/.config/gh/hosts.yml"
+      - "~/.codex/auth.json"
+      - "~/.claude/.credentials.json"
+    effect: ask
+
+  # secret-commands: These commands print stored passwords, tokens, or the whole environment.
+  - capability: shell
+    match:
+      - "security find-generic-password"
+      - "security find-generic-password *"
+      - "security find-internet-password"
+      - "security find-internet-password *"
+      - "gh auth token"
+      - "gh auth token *"
+      - "printenv"
+      - "printenv *"
+    effect: ask
+
+  # delete-files: Deleting files is hard to undo outside version control.
+  - capability: shell
+    match:
+      - "rm"
+      - "rm *"
+      - "rmdir"
+      - "rmdir *"
+      - "unlink"
+      - "unlink *"
+      - "shred"
+      - "shred *"
+      - "trash"
+      - "trash *"
+      - "find * -delete"
+      - "find * -delete *"
+      - "find * -exec rm *"
+      - "xargs rm *"
+    effect: ask
+
+  # delete-git-artifacts: These commands discard uncommitted work or remove branches, tags, stashes, and remote refs.
+  - capability: shell
+    match:
+      - "git rm"
+      - "git rm *"
+      - "git clean"
+      - "git clean *"
+      - "git reset --hard"
+      - "git reset --hard *"
+      - "git restore"
+      - "git restore *"
+      - "git checkout --"
+      - "git checkout -- *"
+      - "git branch -d"
+      - "git branch -d *"
+      - "git branch -D"
+      - "git branch -D *"
+      - "git branch --delete"
+      - "git branch --delete *"
+      - "git tag -d"
+      - "git tag -d *"
+      - "git tag --delete"
+      - "git tag --delete *"
+      - "git stash drop"
+      - "git stash drop *"
+      - "git stash clear"
+      - "git stash clear *"
+      - "git worktree remove"
+      - "git worktree remove *"
+      - "git push --delete"
+      - "git push --delete *"
+      - "git push -d"
+      - "git push -d *"
+      - "git push --force-with-lease"
+      - "git push --force-with-lease *"
+      - "git push * --delete *"
+      - "git push * :*"
+      - "git push * --force-with-lease*"
+    effect: ask
+
+  # delete-infra-artifacts: These commands remove containers, images, cluster objects, buckets, infrastructure, or GitHub records.
+  - capability: shell
+    match:
+      - "docker rm"
+      - "docker rm *"
+      - "docker rmi"
+      - "docker rmi *"
+      - "docker container rm"
+      - "docker container rm *"
+      - "docker container prune"
+      - "docker container prune *"
+      - "docker image rm"
+      - "docker image rm *"
+      - "docker image prune"
+      - "docker image prune *"
+      - "docker volume rm"
+      - "docker volume rm *"
+      - "docker volume prune"
+      - "docker volume prune *"
+      - "docker network rm"
+      - "docker network rm *"
+      - "docker network prune"
+      - "docker network prune *"
+      - "docker system rm"
+      - "docker system rm *"
+      - "docker system prune"
+      - "docker system prune *"
+      - "docker builder rm"
+      - "docker builder rm *"
+      - "docker builder prune"
+      - "docker builder prune *"
+      - "kubectl delete"
+      - "kubectl delete *"
+      - "aws s3 rm"
+      - "aws s3 rm *"
+      - "aws s3 rb"
+      - "aws s3 rb *"
+      - "terraform destroy"
+      - "terraform destroy *"
+      - "gh release delete"
+      - "gh release delete *"
+      - "gh issue delete"
+      - "gh issue delete *"
+      - "gh gist delete"
+      - "gh gist delete *"
+      - "gh secret delete"
+      - "gh secret delete *"
+      - "gh variable delete"
+      - "gh variable delete *"
+      - "gh cache delete"
+      - "gh cache delete *"
+      - "gh run delete"
+      - "gh run delete *"
+      - "gh label delete"
+      - "gh label delete *"
+    effect: ask
+
+  # ask-push-default-branch: Pushing straight to the default branch skips review; it stays possible because docs are pushed there on purpose.
+  - capability: shell
+    match:
+      - "git push origin main"
+      - "git push origin main *"
+      - "git push origin master"
+      - "git push origin master *"
+      - "git push origin HEAD:main"
+      - "git push origin HEAD:main *"
+      - "git push origin HEAD:master"
+      - "git push origin HEAD:master *"
+      - "git push upstream main"
+      - "git push upstream main *"
+      - "git push upstream master"
+      - "git push upstream master *"
+      - "git push upstream HEAD:main"
+      - "git push upstream HEAD:main *"
+      - "git push upstream HEAD:master"
+      - "git push upstream HEAD:master *"
+      - "git push * main"
+      - "git push * master"
+      - "git push *:main"
+      - "git push *:master"
+    effect: ask
+
+  # deny-force-push: A force push rewrites shared history and can destroy other people's commits.
+  - capability: shell
+    match:
+      - "git push --force"
+      - "git push --force *"
+      - "git push -f"
+      - "git push -f *"
+      - "git push * --force"
+      - "git push * --force *"
+      - "git push * -f"
+      - "git push * -f *"
+      - "git push * +*"
+    effect: deny
+
+  # deny-wipe-root-home: Recursively deleting the root or home directory is unrecoverable.
+  - capability: shell
+    match:
+      - "rm -rf /"
+      - "rm -rf / *"
+      - "rm -rf ~"
+      - "rm -rf ~ *"
+      - "rm -rf ~/"
+      - "rm -rf ~/ *"
+      - "rm -rf $HOME"
+      - "rm -rf $HOME *"
+      - "rm -fr /"
+      - "rm -fr / *"
+      - "rm -fr ~"
+      - "rm -fr ~ *"
+      - "rm -fr ~/"
+      - "rm -fr ~/ *"
+      - "rm -fr $HOME"
+      - "rm -fr $HOME *"
+      - "rm -Rf /"
+      - "rm -Rf / *"
+      - "rm -Rf ~"
+      - "rm -Rf ~ *"
+      - "rm -Rf ~/"
+      - "rm -Rf ~/ *"
+      - "rm -Rf $HOME"
+      - "rm -Rf $HOME *"
+      - "rm -rF /"
+      - "rm -rF / *"
+      - "rm -rF ~"
+      - "rm -rF ~ *"
+      - "rm -rF ~/"
+      - "rm -rF ~/ *"
+      - "rm -rF $HOME"
+      - "rm -rF $HOME *"
+    effect: deny
+
+  # deny-sudo: Agents must not escalate to root; run privileged steps yourself.
+  - capability: shell
+    match:
+      - "sudo"
+      - "sudo *"
+    effect: deny
+
+  # deny-disk-wipe: Formatting, partitioning, or raw-writing a disk destroys every file on it.
+  - capability: shell
+    match:
+      - "mkfs"
+      - "mkfs *"
+      - "diskutil eraseDisk"
+      - "diskutil eraseDisk *"
+      - "diskutil eraseVolume"
+      - "diskutil eraseVolume *"
+      - "diskutil partitionDisk"
+      - "diskutil partitionDisk *"
+      - "mkfs.*"
+      - "dd * of=/dev/*"
+    effect: deny
+
+  # deny-repo-delete: Deleting a GitHub repository removes its code, issues, and pull requests.
+  - capability: shell
+    match:
+      - "gh repo delete"
+      - "gh repo delete *"
+    effect: deny
