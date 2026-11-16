@@ -3,10 +3,11 @@ from __future__ import annotations
 import re
 import shutil
 from pathlib import Path
-from typing import Final, Type
+from typing import Final, Optional, Type
 
 from lib.atomic_file import atomic_write
 from lib.layout import InstallLayout
+from lib.shared_policy import load_policy, render_codex_filesystem
 from lib.toml_sections import split_root, top_level_lines
 
 
@@ -40,9 +41,16 @@ _CONFLICTING_LEGACY: Final = re.compile(
 
 
 class ManagedPermissions:
-    def __init__(self, layout: InstallLayout, conflict: Type[RuntimeError]) -> None:
+    def __init__(
+        self,
+        layout: InstallLayout,
+        conflict: Type[RuntimeError],
+        home: Optional[Path] = None,
+    ) -> None:
         self._target = layout.config_file
+        self._policy = layout.policy_file
         self._conflict = conflict
+        self._home = home
 
     def preflight(self) -> None:
         self._render(self._current())
@@ -110,8 +118,9 @@ class ManagedPermissions:
             (
                 _SELECTION_START,
                 'default_permissions = "oh-my-harness"',
-                'approval_policy = "on-request"',
-                'approvals_reviewer = "auto_review"',
+                "approval_policy = { granular = { sandbox_approval = true, rules = true, "
+                "mcp_elicitations = true, request_permissions = true, skill_approval = true } }",
+                'approvals_reviewer = "user"',
                 _SELECTION_END,
             )
         )
@@ -127,6 +136,8 @@ class ManagedPermissions:
                 "[permissions.oh-my-harness.workspace_roots]",
                 '"~/knowledge-base" = true',
                 '"~/.local/share/omh-kb" = true',
+                "",
+                *render_codex_filesystem(load_policy(self._policy), self._home or Path.home()),
                 _PROFILE_END,
             )
         )

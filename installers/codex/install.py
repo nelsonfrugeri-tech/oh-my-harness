@@ -12,7 +12,7 @@ from lib.layout import InstallLayout
 from lib.sync import CodexInstaller, InstallConflict
 
 
-_MINIMUM_CODEX_VERSION = (0, 138, 0)
+_MINIMUM_CODEX_VERSION = (0, 167, 0)
 
 
 def _arguments() -> argparse.Namespace:

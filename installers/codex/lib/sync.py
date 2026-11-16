@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from lib.agent_copies import ManagedAgentCopies
+from lib.exec_rules import ManagedExecRules
 from lib.layout import InstallLayout
 from lib.links import ManagedLinks
 from lib.managed_config import ManagedConfig
@@ -17,17 +18,20 @@ class CodexInstaller:
         self._agents = ManagedAgentCopies(layout, InstallConflict)
         self._config = ManagedConfig(layout, InstallConflict, replace_global_agents)
         self._permissions = ManagedPermissions(layout, InstallConflict)
+        self._exec_rules = ManagedExecRules(layout, InstallConflict)
 
     def install(self) -> tuple[str, ...]:
         self._links.preflight()
         self._agents.preflight()
         self._config.preflight()
         self._permissions.preflight()
+        self._exec_rules.preflight()
         return (
             *self._agents.install(),
             *self._links.install(),
             *self._config.install(),
             self._permissions.install(),
+            self._exec_rules.install(),
         )
 
     def validate(self) -> tuple[str, ...]:
@@ -36,4 +40,5 @@ class CodexInstaller:
             *self._agents.validate(),
             *self._config.validate(),
             self._permissions.validate(),
+            self._exec_rules.validate(),
         )

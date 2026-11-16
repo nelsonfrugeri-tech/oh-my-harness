@@ -61,8 +61,9 @@ python3 installers/codex/install.py
 python3 installers/codex/install.py --check
 ```
 
-The global adapter requires Codex `0.138.0` or later because its managed permission profiles are not
-available in older clients. The installer checks this before writing any global state.
+The global adapter requires Codex `0.167.0` or later. Managed permission profiles need `0.138.0`,
+and the granular approval policy plus the filesystem read denies were verified only on `0.167.0`,
+so that is the minimum. The installer checks this before writing any global state.
 
 The operation is idempotent. Repository-backed artifacts are symlinked so a later `git pull`
 updates them immediately. Editable global files use managed sections so personal configuration is
@@ -82,6 +83,7 @@ run the first installation with `--replace-global-agents`. The original file is 
 | `harness/codex/AGENTS.md` | managed block in `~/.codex/AGENTS.md` | Merge |
 | `harness/codex/adapter-hooks-removal.json` | removes obsolete adapter-owned context hook | Merge |
 | generated permissions profile | `~/.codex/config.toml` | Managed sections |
+| generated from `core/policies/permissions.json` | `~/.codex/rules/oh-my-harness.rules` | Managed file |
 | `harness/codex/` | `~/.codex/oh-my-harness` | Directory symlink |
 | generated ownership manifest | `~/.codex/oh-my-harness-links.json` | Atomic rewrite |
 
@@ -94,10 +96,40 @@ ownership manifest proves they were created by a previous run, and stops instead
 unmanaged path.
 
 The managed `oh-my-harness` permissions profile extends Codex's `:workspace` profile and adds
-`~/knowledge-base/` and `~/.local/share/omh-kb/` as reusable workspace roots. Technical approval
-requests are routed through Codex auto-review; the global `AGENTS.md` remains responsible for asking
-the user before destructive operations or access to credential-bearing files. The installer stops
+`~/knowledge-base/` and `~/.local/share/omh-kb/` as reusable workspace roots. The installer stops
 instead of replacing an existing user-owned sandbox or permissions selection.
+
+### Permission policy
+
+Both Codex surfaces below are rendered at install time from the canonical policy in
+`core/policies/permissions.json`. Nothing with an absolute path is checked in.
+
+- **Command rules.** `~/.codex/rules/oh-my-harness.rules` holds one `prefix_rule` per policy prefix:
+  `decision = "prompt"` for ask rules and `"forbidden"` for deny rules. The file starts with an
+  `omh-managed` header; the installer refuses to overwrite a rules file without it and backs up a
+  managed file once as `oh-my-harness.rules.omh.bak`. Shell globs, such as `find * -delete`, have no
+  execpolicy equivalent and are skipped.
+- **Secret reads.** The profile adds `[permissions.oh-my-harness.filesystem]`, which denies sandboxed
+  reads of the home secret paths with `HOME` expanded at install time, and a `:workspace_roots`
+  table that keeps `"." = "write"` and denies `**/<glob>` for each secret file name. Codex has no
+  "ask" for reads: a denied read fails inside the sandbox, and the model must request escalation.
+- **Approvals.** `approval_policy` is the granular form with every category enabled, so prompts from
+  `prompt` rules, sandbox escalations, MCP elicitations, `request_permissions`, and skill scripts
+  all reach a reviewer. `approvals_reviewer = "user"` replaces the earlier `auto_review`, which let a
+  reviewer model approve deletions. Expect more prompts, including network escalations.
+
+The global `AGENTS.md` contains no rule about destructive operations or credentials; enforcement
+comes only from these managed surfaces. Inspect the remaining gaps with
+`python3 -m installers.policy.render --gaps codex`, and check one command against the installed
+rules with:
+
+```bash
+codex execpolicy check --rules ~/.codex/rules/oh-my-harness.rules -- rm tests/tmp_fixture.txt
+```
+
+Known issue, independent of this policy: `codex-cli 0.167.0` rejects symlinked writable roots. When
+`~/knowledge-base` is a symlink, every sandboxed command fails with `symlinked writable roots are not
+supported`.
 
 The global adapter removes the legacy adapter-owned `SessionStart` registration of earlier versions.
 The native plugin now supplies the content-free KB pointer, so retaining the old registration would

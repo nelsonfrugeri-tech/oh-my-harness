@@ -92,8 +92,13 @@ class CodexInstallerTest(unittest.TestCase):
         content = target.read_text(encoding="utf-8")
         self.assertIn('model = "gpt-test"', content)
         self.assertIn('default_permissions = "oh-my-harness"', content)
-        self.assertIn('approval_policy = "on-request"', content)
-        self.assertIn('approvals_reviewer = "auto_review"', content)
+        self.assertIn(
+            "approval_policy = { granular = { sandbox_approval = true, rules = true, "
+            "mcp_elicitations = true, request_permissions = true, skill_approval = true } }",
+            content,
+        )
+        self.assertIn('approvals_reviewer = "user"', content)
+        self.assertNotIn("auto_review", content)
         self.assertIn('[permissions.oh-my-harness]', content)
         self.assertIn('"~/knowledge-base" = true', content)
         self.assertIn('"~/.local/share/omh-kb" = true', content)
@@ -102,6 +107,29 @@ class CodexInstallerTest(unittest.TestCase):
             'model = "gpt-test"\n\n[features]\nexample = true\n',
             backup.read_text(encoding="utf-8"),
         )
+
+    def test_profile_denies_secret_reads_with_expanded_home(self) -> None:
+        home = Path(self._temporary.name) / "home"
+        with mock.patch.dict(os.environ, {"HOME": str(home)}):
+            self._installer.install()
+            self._installer.validate()
+
+        content = (self._codex_home / "config.toml").read_text(encoding="utf-8")
+        profile = content.split("[permissions.oh-my-harness.filesystem]", 1)[1]
+        self.assertIn(f'"{home}/.aws/credentials" = "deny"', profile)
+        self.assertIn(f'"{home}/.ssh" = "deny"', profile)
+        self.assertNotIn('"~/.ssh"', profile)
+        self.assertIn('"**/.env" = "deny"', profile)
+        self.assertTrue(self._layout.rules_file.exists())
+
+    def test_profile_keeps_workspace_write(self) -> None:
+        self._installer.install()
+
+        content = (self._codex_home / "config.toml").read_text(encoding="utf-8")
+        self.assertIn('extends = ":workspace"', content)
+        roots = content.split('[permissions.oh-my-harness.filesystem.":workspace_roots"]', 1)[1]
+        self.assertEqual('"." = "write"', roots.strip().splitlines()[0])
+        self.assertIn('"~/knowledge-base" = true', content)
 
     def test_install_refuses_conflicting_user_permission_selection(self) -> None:
         self._codex_home.mkdir(parents=True)
@@ -658,6 +686,9 @@ class CodexInstallerTest(unittest.TestCase):
         self._source.joinpath("harness/codex/AGENTS.md").write_text(agents_content, encoding="utf-8")
         hooks = {"hooks": {}}
         self._source.joinpath("harness/codex/adapter-hooks-removal.json").write_text(json.dumps(hooks), encoding="utf-8")
+        policy = self._source / "core/policies/permissions.json"
+        policy.parent.mkdir(parents=True)
+        shutil.copyfile(Path(__file__).resolve().parents[2] / "core/policies/permissions.json", policy)
 
 
 if __name__ == "__main__":

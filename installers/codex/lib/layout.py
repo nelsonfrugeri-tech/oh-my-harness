@@ -27,6 +27,14 @@ class InstallLayout:
         return self.codex_home / "config.toml"
 
     @property
+    def rules_file(self) -> Path:
+        return self.codex_home / "rules/oh-my-harness.rules"
+
+    @property
+    def policy_file(self) -> Path:
+        return self.source_root / "core/policies/permissions.json"
+
+    @property
     def installed_adapter(self) -> Path:
         return self.codex_home / "oh-my-harness"
 
