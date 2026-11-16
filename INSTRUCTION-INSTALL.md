@@ -8,75 +8,29 @@ Este guia tem duas fases. Execute na ordem.
 | 2 | Terminal zsh no Ubuntu | Prompt Starship, plugins do zsh e ferramentas de linha de comando. |
 
 
-## Pré-requisito: ter `sudo`
+## Pré-requisito: dar `sudo` ao usuário `nelson.ferreira`
 
-A Fase 2 precisa de `sudo`. Confira na sua conta:
-
-```bash
-sudo -v
-```
-
-Se o comando pedir a sua senha e não der erro, siga para a Fase 1. Se o seu usuário não tiver
-`sudo`, uma conta administradora da máquina precisa dar a permissão.
-
-### Descobrir o tipo de usuário
-
-Na **sua** conta, rode `whoami` e `id`:
-
-| Resultado | Tipo de usuário |
-| --- | --- |
-| UID de quatro dígitos (por exemplo, `1001`) | Local |
-| UID muito grande ou nome com domínio (`usuario@dominio`) | Da rede (AD/LDAP via SSSD) |
-
-Usuários da rede não aparecem em `getent passwd` sem filtro. Por isso, a lista de usuários da
-máquina pode mostrar só a conta administradora.
-
-### Usuário local
-
-Na conta administradora:
+Na conta **administrador**, copie e cole este bloco inteiro. Quando o terminal pedir, digite a
+senha do **administrador**.
 
 ```bash
-sudo usermod -aG sudo nelson.ferreira
+printf '%s\n' 'nelson.ferreira@sp01.local ALL=(ALL:ALL) ALL' 'nelson.ferreira ALL=(ALL:ALL) ALL' | sudo tee /etc/sudoers.d/nelson-ferreira >/dev/null && sudo chmod 440 /etc/sudoers.d/nelson-ferreira && sudo visudo -c && echo "SUDO OK"
 ```
 
-Saia da sessão do seu usuário e entre de novo. O grupo novo só vale num login novo.
-
-### Usuário da rede
-
-O `usermod` não funciona para usuários da rede. Crie uma regra no sudoers. Na conta
-administradora, rode **um comando por vez**:
+O resultado precisa terminar com `SUDO OK`. Se aparecer erro, apague o arquivo e cole o bloco
+de novo:
 
 ```bash
-printf '%s\n' 'nelson.ferreira@sp01.local ALL=(ALL:ALL) ALL' 'nelson.ferreira ALL=(ALL:ALL) ALL' | sudo tee /etc/sudoers.d/nelson-ferreira
+sudo rm -f /etc/sudoers.d/nelson-ferreira
 ```
+
+Depois, saia da conta administrador, entre na conta `nelson.ferreira` e copie e cole:
 
 ```bash
-sudo chmod 440 /etc/sudoers.d/nelson-ferreira
+sudo -v && echo "SUDO OK"
 ```
 
-```bash
-sudo visudo -c
-```
-
-- O `sudo` pede a senha da **conta administradora**, porque é ela que está rodando os comandos.
-- As duas linhas da regra cobrem o nome com e sem `@sp01.local`, porque o Ubuntu pode mostrar o
-  nome nos dois formatos.
-- O nome do arquivo **não pode ter ponto**. O sudo ignora arquivos com `.` em `/etc/sudoers.d`.
-  Exemplo: para o usuário `joao.silva`, use `/etc/sudoers.d/joao-silva`.
-- O `visudo -c` precisa mostrar `parsed OK`. Se mostrar erro, **não saia da conta
-  administradora**. Apague o arquivo com `sudo rm /etc/sudoers.d/nelson-ferreira` e corrija
-  a regra.
-
-Se a pasta pessoal do usuário da rede não existir, crie-a na conta administradora:
-
-```bash
-sudo mkhomedir_helper nelson.ferreira@sp01.local 0077
-```
-
-Por fim, na **sua** conta, confirme com `sudo -v`. Agora o comando pede a **sua** senha.
-
-Se a máquina for da empresa, confirme antes que a política de TI permite dar `sudo` ao seu
-usuário.
+Digite a senha do `nelson.ferreira`. O resultado precisa ser `SUDO OK`.
 
 ---
 
