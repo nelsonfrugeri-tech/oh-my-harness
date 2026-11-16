@@ -186,6 +186,76 @@ resultado vem de zsh + Starship + plugins e ferramentas de linha de comando.
 | `bat` | `cat` com cores (o binário se chama `batcat`) | `apt` |
 | `fnm` | Gerenciador de versões do Node | Script oficial |
 
+### 0. Pré-requisito: ter `sudo`
+
+Os passos 1 e 3 precisam de `sudo`. Confira na sua conta:
+
+```bash
+sudo -v
+```
+
+Se o comando pedir a sua senha e não der erro, pule para o passo 1. Se o seu usuário não tiver
+`sudo`, uma conta administradora da máquina precisa dar a permissão.
+
+#### Descobrir o tipo de usuário
+
+Na **sua** conta, rode `whoami` e `id`:
+
+| Resultado | Tipo de usuário |
+| --- | --- |
+| UID de quatro dígitos (por exemplo, `1001`) | Local |
+| UID muito grande ou nome com domínio (`usuario@dominio`) | Da rede (AD/LDAP via SSSD) |
+
+Usuários da rede não aparecem em `getent passwd` sem filtro. Por isso, a lista de usuários da
+máquina pode mostrar só a conta administradora.
+
+#### Usuário local
+
+Na conta administradora:
+
+```bash
+sudo usermod -aG sudo <usuario>
+```
+
+Saia da sessão do seu usuário e entre de novo. O grupo novo só vale num login novo.
+
+#### Usuário da rede
+
+O `usermod` não funciona para usuários da rede. Crie uma regra no sudoers. Na conta
+administradora, rode **um comando por vez**:
+
+```bash
+printf '%s\n' '<usuario>@<dominio> ALL=(ALL:ALL) ALL' '<usuario> ALL=(ALL:ALL) ALL' | sudo tee /etc/sudoers.d/<usuario-sem-ponto>
+```
+
+```bash
+sudo chmod 440 /etc/sudoers.d/<usuario-sem-ponto>
+```
+
+```bash
+sudo visudo -c
+```
+
+- O `sudo` pede a senha da **conta administradora**, porque é ela que está rodando os comandos.
+- As duas linhas da regra cobrem o nome com e sem `@<dominio>`, porque o Ubuntu pode mostrar o
+  nome nos dois formatos.
+- O nome do arquivo **não pode ter ponto**. O sudo ignora arquivos com `.` em `/etc/sudoers.d`.
+  Exemplo: para o usuário `joao.silva`, use `/etc/sudoers.d/joao-silva`.
+- O `visudo -c` precisa mostrar `parsed OK`. Se mostrar erro, **não saia da conta
+  administradora**. Apague o arquivo com `sudo rm /etc/sudoers.d/<usuario-sem-ponto>` e corrija
+  a regra.
+
+Se a pasta pessoal do usuário da rede não existir, crie-a na conta administradora:
+
+```bash
+sudo mkhomedir_helper <usuario>@<dominio> 0077
+```
+
+Por fim, na **sua** conta, confirme com `sudo -v`. Agora o comando pede a **sua** senha.
+
+Se a máquina for da empresa, confirme antes que a política de TI permite dar `sudo` ao seu
+usuário.
+
 ### 1. Instalar os pacotes
 
 ```bash
